@@ -19,7 +19,13 @@
 
   (setup [_]
     (let [{:keys [x y h w]} state
-          frame (->frame {:x x :y y :h h :w w})
+          left-panel 200
+          right-panel 200
+          bottom-panel 140
+          frame (->frame {:x (+ x left-panel)
+                          :y y
+                          :h (- h bottom-panel)
+                          :w (- w left-panel right-panel)})
           new-state (assoc state :frame frame)]
       (complex. new-state)))
 
