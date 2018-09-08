@@ -35,9 +35,9 @@
 
 (defn update-light-panel [state]
   (let [{:keys [indicators on-func?]} state
-            indicator-states (map p/get-state indicators)
-            new-indicators (map-indexed #(->indicator-light (assoc %2 :on? (on-func? %1))) indicator-states)
-            new-state (assoc state :indicators new-indicators)]
+        indicator-states (map p/get-state indicators)
+        new-indicators (map-indexed #(->indicator-light (assoc %2 :on? (on-func? %1))) indicator-states)
+        new-state (assoc state :indicators new-indicators)]
     new-state))
 
 (defn shift-pattern [n i]
@@ -74,7 +74,30 @@
   p/Drawable
   (draw [_] (draw-light-panel state))
 
-  (setup [_] (side-lights. state))
+  (setup [_]
+    (let [{:keys [x y w h]} state
+          rows 10
+          columns 2
+          gap 20
+          indicator-height 15
+          indicator-width 15
+          cell-width (/ (- w gap gap) columns)
+          cell-height (/ (- h gap gap) rows)
+          cell-x-offset (/ cell-width 2)
+          cell-y-offset (/ cell-height 2)
+          indicators (for [row (range rows) column (range columns)]
+                       (p/setup
+                          (->indicator-light
+                            {:x (+ x gap cell-x-offset (* cell-width column))
+                             :y (+ y gap cell-y-offset (* cell-height row))
+                             :w indicator-width
+                             :h indicator-height
+                             :on? false?
+                             :draw-func q/ellipse})))
+          new-state (assoc state :indicators indicators
+                                 :on-func? (partial shift-pattern (* rows columns)))]
+      (println cell-x-offset)
+      (side-lights. new-state)))
 
   (update-state [_] (bottom-lights. (update-light-panel state))))
 
