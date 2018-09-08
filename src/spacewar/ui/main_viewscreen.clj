@@ -46,6 +46,22 @@
 (defn random-pattern [_ _]
   (zero? (rand-int 2)))
 
+(defn build-indicators [state]
+  (let [{:keys [x y w h rows columns gap indicator-height indicator-width]} state
+            cell-width (/ (- w gap gap) columns)
+            cell-height (/ (- h gap gap) rows)
+            cell-x-offset (/ cell-width 2)
+            cell-y-offset (/ cell-height 2)
+            indicators (for [row (range rows) column (range columns)]
+                         (p/setup
+                            (->indicator-light
+                              {:x (+ x gap cell-x-offset (* cell-width column))
+                               :y (+ y gap cell-y-offset (* cell-height row))
+                               :w indicator-width
+                               :h indicator-height
+                               :on? false?
+                               :draw-func q/ellipse})))]
+    indicators))
 
 (deftype bottom-lights [state]
   p/Drawable
@@ -80,29 +96,16 @@
   (draw [_] (draw-light-panel state))
 
   (setup [_]
-    (let [{:keys [x y w h]} state
-          rows 10
+    (let [rows 10
           columns 2
-          gap 20
-          indicator-height 15
-          indicator-width 15
-          cell-width (/ (- w gap gap) columns)
-          cell-height (/ (- h gap gap) rows)
-          cell-x-offset (/ cell-width 2)
-          cell-y-offset (/ cell-height 2)
-          indicators (for [row (range rows) column (range columns)]
-                       (p/setup
-                          (->indicator-light
-                            {:x (+ x gap cell-x-offset (* cell-width column))
-                             :y (+ y gap cell-y-offset (* cell-height row))
-                             :w indicator-width
-                             :h indicator-height
-                             :on? false?
-                             :draw-func q/ellipse})))
+          indicators (build-indicators (assoc state :rows rows
+                                                    :columns columns
+                                                    :gap 20
+                                                    :indicator-height 15
+                                                    :indicator-width 15))
           new-state (assoc state :indicators indicators
                                  :on-func? (partial random-pattern (* rows columns))
                                  :background [150 50 50])]
-      (println cell-x-offset)
       (side-lights. new-state)))
 
   (update-state [this]
