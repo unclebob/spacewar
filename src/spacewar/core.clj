@@ -9,6 +9,8 @@
     (q/frame-rate 30)
     (q/color-mode :rgb)
     (q/background 200 200 200)
+    (q/ellipse-mode :corner)
+    (q/rect-mode :corner)
     {:state (p/setup
               (main-viewer/->complex
                 {:x hmargin :y vmargin
