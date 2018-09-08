@@ -27,8 +27,8 @@
   (get-state [_] state))
 
 (defn draw-light-panel [state]
-  (let [{:keys [x y w h indicators]} state]
-    (q/fill 150 150 150)
+  (let [{:keys [x y w h indicators background]} state]
+    (apply q/fill background)
     (q/no-stroke)
     (q/rect x y w h)
     (doseq [indicator indicators] (p/draw indicator))))
@@ -42,6 +42,10 @@
 
 (defn shift-pattern [n i]
   (= i (rem (quot (q/frame-count) 3) n)))
+
+(defn random-pattern [_ _]
+  (zero? (rand-int 2)))
+
 
 (deftype bottom-lights [state]
   p/Drawable
@@ -65,7 +69,8 @@
                                 :draw-func q/rect}))
                           (range 0 number))
           new-state (assoc state :indicators indicators
-                                 :on-func? (partial shift-pattern number))]
+                                 :on-func? (partial shift-pattern number)
+                                 :background [150 150 150])]
       (bottom-lights. new-state)))
 
   (update-state [_] (bottom-lights. (update-light-panel state))))
@@ -95,11 +100,15 @@
                              :on? false?
                              :draw-func q/ellipse})))
           new-state (assoc state :indicators indicators
-                                 :on-func? (partial shift-pattern (* rows columns)))]
+                                 :on-func? (partial random-pattern (* rows columns))
+                                 :background [150 50 50])]
       (println cell-x-offset)
       (side-lights. new-state)))
 
-  (update-state [_] (bottom-lights. (update-light-panel state))))
+  (update-state [this]
+    (if (zero? (rand-int 15))
+      (side-lights.(update-light-panel state))
+      this)))
 
 (deftype complex [state]
   p/Drawable
