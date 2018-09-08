@@ -13,16 +13,16 @@
   (setup [_] (frame. state))
   (update-state [_] (frame. state)))
 
-(deftype rectangular-light [state]
+(deftype indicator-light [state]
   p/Drawable
   (draw [_]
-    (let [{:keys [x y w h on?]} state]
+    (let [{:keys [x y w h on? draw-func]} state]
       (q/stroke 0 0 0)
       (q/stroke-weight 1)
       (apply q/fill (if on? [255 255 0] [50 50 50]))
-      (q/rect x y w h)))
+      (draw-func x y w h)))
 
-  (setup [_] (rectangular-light. (assoc state :on? false)))
+  (setup [_] (indicator-light. (assoc state :on? false)))
   (update-state [this] this)
   (get-state [_] state))
 
@@ -44,11 +44,13 @@
           spacing (/ (- w gap gap indicator-width) (dec number))
           indicator-y (+ y (/ (- h indicator-height) 2))
           indicators (map #(p/setup
-                             (->rectangular-light
+                             (->indicator-light
                                {:x (+ x gap (* spacing %))
                                 :y indicator-y
                                 :w indicator-width
-                                :h indicator-height}))
+                                :h indicator-height
+                                :on? false?
+                                :draw-func q/rect}))
                           (range 0 number))
           new-state (assoc state :indicators indicators)]
       (bottom-lights. new-state)))
@@ -58,7 +60,7 @@
           n (count old-indicators)
           on-index (rem (quot (q/frame-count) 3) n)
           indicator-states (map p/get-state old-indicators)
-          indicators (map-indexed #(->rectangular-light (assoc %2 :on? (= on-index %1))) indicator-states)
+          indicators (map-indexed #(->indicator-light (assoc %2 :on? (= on-index %1))) indicator-states)
           new-state (assoc state :indicators indicators)]
       (bottom-lights. new-state))))
 
