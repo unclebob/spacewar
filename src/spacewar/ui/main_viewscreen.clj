@@ -1,17 +1,8 @@
 (ns spacewar.ui.main-viewscreen
   (:require [quil.core :as q]
-            [spacewar.ui.protocols :as p]))
+            [spacewar.ui.protocols :as p]
+            [spacewar.ui.view-frame :as f]))
 
-(deftype frame [state]
-  p/Drawable
-  (draw [_]
-    (let [{:keys [x y w h]} state]
-      (q/stroke 0 0 255)
-      (q/stroke-weight 5)
-      (q/fill 0 0 0)
-      (q/rect x y w h 5)))
-  (setup [_] (frame. state))
-  (update-state [_] (frame. state)))
 
 (deftype indicator-light [state]
   p/Drawable
@@ -123,7 +114,7 @@
           frame-width (- w left-margin right-margin)
           frame-height (- h bottom-margin)
           frame (p/setup
-                  (->frame {:x (+ x left-margin)
+                  (f/->frame {:x (+ x left-margin)
                             :y y
                             :h frame-height
                             :w frame-width}))
