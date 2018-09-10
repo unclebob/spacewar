@@ -61,9 +61,7 @@
                                            :w (- w stringer-width 10)
                                            :h 40
                                            :name "TACT"
-                                           :color [200 100 255]}))))))
-  (update-state [_]
-    (let [elements [:strategic :tactical]
-          pairs (for [e elements] [e (p/update-state (e state))])
-          flat-pairs (flatten pairs)]
-      (button-panel. (->> flat-pairs (apply assoc state))))))
+                                           :color [200 100 255]}))
+                     :elements [:strategic :tactical]))))
+
+  (update-state [_] (button-panel. (p/update-elements state))))

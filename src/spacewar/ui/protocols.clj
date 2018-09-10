@@ -5,3 +5,9 @@
   (setup [this])
   (update-state [this])
   (get-state [this]))
+
+(defn update-elements [state]
+  (apply assoc state
+         (flatten
+           (for [e (:elements state)]
+             [e (update-state (e state))]))))

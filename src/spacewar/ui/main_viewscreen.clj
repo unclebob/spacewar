@@ -153,14 +153,12 @@
                                  :bottom-row bottom-row
                                  :left-lights left-lights
                                  :right-lights right-lights
-                                 :scan-panel scan-panel)]
+                                 :scan-panel scan-panel
+                                 :elements [:frame :bottom-row :left-lights
+                                            :right-lights :scan-panel])]
       (complex. new-state)))
 
-  (update-state [_]
-    (let [elements [:frame :bottom-row :left-lights :right-lights :scan-panel]
-          pairs (for [e elements] [e (p/update-state (e state))])
-          flat-pairs (flatten pairs)]
-      (complex. (->> flat-pairs (apply assoc state)))))
+  (update-state [_] (complex. (p/update-elements state)))
   )
 
 
