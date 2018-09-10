@@ -6,7 +6,7 @@
 ;                                 |
 ;                                 | v-distance
 ;                                 |
-; ---> Direction of ship          |
+;       ---> Direction of ship    |
 ;----------------------------------
 ;        h-distance
 ;
@@ -20,6 +20,7 @@
 
 
 (def star-count 200)
+(def f-lum 200) ; luminosity factor
 
 (defn move-star [star]
   (let [h-distance (dec (:h-distance star))]
@@ -43,7 +44,7 @@
          (> sy ymin))))
 
 (defn star-size [m]
-  (let [mm (* 200 m)]
+  (let [mm (* f-lum m)]
     (cond
       (< mm 1) 1
       (< mm 3) 2
@@ -53,26 +54,27 @@
       :else 6)))
 
 (defn star-color [m]
-  (let [mm (* 200 m)]
+  (let [mm (* f-lum m)]
     (if (>= mm 0.5)
       [255 255 255]
       (repeat 3 (* 2 mm 256)))))
 
-(defn make-random-star [dist]
+; magic numbers are tweaks that affect the star pattern.
+(defn make-random-star []
   (let [luminosity (+ 1 (rand 5))
-        h-distance (+ dist (rand (* luminosity 200)))]
+        h-distance (rand (* luminosity 200))]
     {:h-distance h-distance
      :v-distance (+ -20 (rand 200) (/ h-distance 20))
      :angle (* 2 Math/PI (/ (rand 360) 360.0))
      :luminosity luminosity}))
 
 (defn make-stars [n]
-  (repeatedly n (partial make-random-star 20)))
+  (repeatedly n make-random-star))
 
 (defn add-stars [state]
   (let [stars (:stars state)]
     (if (< (count stars) star-count)
-      (assoc state :stars (conj stars (make-random-star 500)))
+      (assoc state :stars (conj stars (make-random-star)))
       state)))
 
 (deftype star-field [state]
@@ -82,11 +84,13 @@
       (q/no-stroke)
       (doseq [star stars]
         (let [{:keys [h-distance v-distance luminosity angle]} star
-              v (* h (/ v-distance h-distance))
-              vx (* v (Math/cos angle))
-              vy (* v (Math/sin angle))
-              sx (+ vx x (/ w 2))
-              sy (+ vy y (/ h 2))
+              ; rd is radial distance of star from center of screen
+              rd (* h (/ v-distance h-distance))
+              rx (* rd (Math/cos angle))
+              ry (* rd (Math/sin angle))
+              sx (+ rx x (/ w 2))
+              sy (+ ry y (/ h 2))
+              ; m is relative brightness, inversely proportional to distance.
               m (/ luminosity
                    (Math/sqrt (+ (* h-distance h-distance) (* v-distance v-distance))))
               sz (star-size m)]
