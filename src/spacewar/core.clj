@@ -5,7 +5,7 @@
             [spacewar.ui.protocols :as p]))
 
 (defn setup []
-  (let [vmargin 50 hmargin 20]
+  (let [vmargin 50 hmargin 5]
     (q/frame-rate 30)
     (q/color-mode :rgb)
     (q/background 200 200 200)

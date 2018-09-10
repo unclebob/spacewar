@@ -1,7 +1,8 @@
 (ns spacewar.ui.main-viewscreen
   (:require [quil.core :as q]
             [spacewar.ui.protocols :as p]
-            [spacewar.ui.view-frame :as f]))
+            [spacewar.ui.view-frame :as f]
+            [spacewar.ui.control-panels :as cp]))
 
 
 (deftype indicator-light [state]
@@ -102,8 +103,8 @@
 (deftype complex [state]
   p/Drawable
   (draw [_]
-    (let [{:keys [frame bottom-row left-lights right-lights]} state]
-      (doseq [d [frame bottom-row left-lights right-lights]] (p/draw d))))
+    (let [{:keys [frame bottom-row left-lights right-lights scan-panel]} state]
+      (doseq [d [frame bottom-row left-lights right-lights scan-panel]] (p/draw d))))
 
   (setup [_]
     (let [{:keys [x y h w]} state
@@ -141,14 +142,22 @@
                                          :y side-panel-y
                                          :w side-panel-width
                                          :h side-panel-height}))
+          control-panel-x-gap 10
+          scan-panel (p/setup
+                       (cp/->button-panel {:x (+ control-panel-x-gap x)
+                                           :y (+ side-panel-y side-panel-height panel-gap)
+                                           :w (- left-margin (* 2 control-panel-x-gap))
+                                           :h (- h side-panel-height side-panel-y panel-gap panel-gap)}))
+
           new-state (assoc state :frame frame
                                  :bottom-row bottom-row
                                  :left-lights left-lights
-                                 :right-lights right-lights)]
+                                 :right-lights right-lights
+                                 :scan-panel scan-panel)]
       (complex. new-state)))
 
   (update-state [_]
-    (let [elements [:frame :bottom-row :left-lights :right-lights]
+    (let [elements [:frame :bottom-row :left-lights :right-lights :scan-panel]
           pairs (for [e elements] [e (p/update-state (e state))])
           flat-pairs (flatten pairs)]
       (complex. (->> flat-pairs (apply assoc state)))))
