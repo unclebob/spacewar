@@ -6,17 +6,18 @@
   p/Drawable
   (draw [_]
     (let [{:keys [x y w h]} state
-          label-width 50
+          banner-width 50
+          stringer-width 15
           a [x y]
-          b [(+ x w (- 50)) y]
-          c [(+ x w) (+ y 50)]
+          b [(+ x w (- banner-width)) y]
+          c [(+ x w) (+ y banner-width)]
           d [(+ x w) (+ y h)]
-          e [(+ x w (- 20)) (+ y h)]
-          f [(+ x w (- 20)) (+ y 50 20)]
-          g [(+ x w (- 20) (- 20)) (+ y 50)]
-          h [x (+ y 50)]
+          e [(+ x w (- stringer-width)) (+ y h)]
+          f [(+ x w (- stringer-width)) (+ y banner-width stringer-width)]
+          g [(+ x w (- stringer-width) (- stringer-width)) (+ y banner-width)]
+          h [x (+ y banner-width)]
           c1 [(+ x w) y]
-          c2 [(+ x w (- 20)) (+ y 50)]]
+          c2 [(+ x w (- stringer-width)) (+ y banner-width)]]
       (q/no-stroke)
       (q/fill 150 150 255)
       (q/begin-shape)
@@ -30,6 +31,11 @@
       (apply q/vertex h)
       (apply q/vertex a)
       (q/end-shape)
+      (q/fill 0 0 0)
+      (q/text-size 24)
+      (q/text-font (:lcars (q/state :fonts)))
+      (q/text-align :left :top)
+      (q/text "SCAN" (+ x 10) (+ y 10))
       ))
   (setup [this] this)
   (update-state [this] this))
