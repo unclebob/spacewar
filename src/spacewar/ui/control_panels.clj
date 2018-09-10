@@ -40,10 +40,8 @@
 (deftype button-panel [state]
   p/Drawable
   (draw [_]
-    (let [{:keys [strategic tactical]} state]
       (draw-lcars state)
-      (p/draw strategic)
-      (p/draw tactical)))
+      (p/draw-elements state))
 
   (setup [_]
     (let [{:keys [x y w]} state]

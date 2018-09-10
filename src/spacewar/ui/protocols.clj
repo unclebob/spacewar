@@ -11,3 +11,7 @@
          (flatten
            (for [e (:elements state)]
              [e (update-state (e state))]))))
+
+(defn draw-elements [state]
+  (doseq [e (:elements state)]
+    (draw (e state))))

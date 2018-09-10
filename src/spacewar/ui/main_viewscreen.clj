@@ -102,9 +102,7 @@
 
 (deftype complex [state]
   p/Drawable
-  (draw [_]
-    (let [{:keys [frame bottom-row left-lights right-lights scan-panel]} state]
-      (doseq [d [frame bottom-row left-lights right-lights scan-panel]] (p/draw d))))
+  (draw [_] (p/draw-elements state))
 
   (setup [_]
     (let [{:keys [x y h w]} state
