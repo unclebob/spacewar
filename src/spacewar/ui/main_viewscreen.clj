@@ -15,7 +15,7 @@
       (draw-func x y w h)))
 
   (setup [_] (indicator-light. (assoc state :on? false)))
-  (update-state [this] this)
+  (update-state [this] (p/update-drawable this))
   (get-state [_] state))
 
 (defn draw-light-panel [state]
@@ -74,7 +74,7 @@
                                  :background [150 150 150])]
       (bottom-lights. new-state)))
 
-  (update-state [_] (bottom-lights. (update-light-panel state))))
+  (update-state [_] (p/update-drawable (bottom-lights. (update-light-panel state)))))
 
 (deftype side-lights [state]
   p/Drawable
@@ -96,68 +96,71 @@
       (side-lights. new-state)))
 
   (update-state [this]
-    (if (zero? (rand-int 15))
-      (side-lights. (update-light-panel state))
-      this)))
+    (p/update-drawable
+      (if (zero? (rand-int 15))
+        (side-lights. (update-light-panel state))
+        this))))
 
-(deftype complex [state]
-  p/Drawable
-  (draw [_] (p/draw-elements state))
+  (deftype complex [state]
+    p/Drawable
+    (draw [_] (p/draw-elements state))
 
-  (setup [_]
-    (let [{:keys [x y h w]} state
-          left-margin 200
-          right-margin 200
-          bottom-margin 100
-          panel-gap 50
-          frame-width (- w left-margin right-margin)
-          frame-height (- h bottom-margin)
-          frame (p/setup
-                  (f/->frame {:x (+ x left-margin)
-                            :y y
-                            :h frame-height
-                            :w frame-width}))
+    (setup [_]
+      (let [{:keys [x y h w]} state
+            left-margin 200
+            right-margin 200
+            bottom-margin 100
+            panel-gap 50
+            frame-width (- w left-margin right-margin)
+            frame-height (- h bottom-margin)
+            frame (p/setup
+                    (f/->frame {:x (+ x left-margin)
+                                :y y
+                                :h frame-height
+                                :w frame-width}))
 
-          bottom-row-width (/ frame-width 2)
-          bottom-row-left-offset (/ (- frame-width bottom-row-width) 2)
-          bottom-row (p/setup
-                       (->bottom-lights {:x (+ x left-margin bottom-row-left-offset)
-                                         :y (+ y (- h bottom-margin) panel-gap)
-                                         :h 40
-                                         :w bottom-row-width}))
+            bottom-row-width (/ frame-width 2)
+            bottom-row-left-offset (/ (- frame-width bottom-row-width) 2)
+            bottom-row (p/setup
+                         (->bottom-lights {:x (+ x left-margin bottom-row-left-offset)
+                                           :y (+ y (- h bottom-margin) panel-gap)
+                                           :h 40
+                                           :w bottom-row-width}))
 
-          side-panel-height (/ frame-height 2.5)
-          side-panel-width 120
-          side-panel-y (+ y (/ frame-height 5))
-          left-lights (p/setup
-                        (->side-lights {:x (- (+ x left-margin) panel-gap side-panel-width)
-                                        :y side-panel-y
-                                        :h side-panel-height
-                                        :w side-panel-width}))
+            side-panel-height (/ frame-height 2.5)
+            side-panel-width 120
+            side-panel-y (+ y (/ frame-height 5))
+            left-lights (p/setup
+                          (->side-lights {:x (- (+ x left-margin) panel-gap side-panel-width)
+                                          :y side-panel-y
+                                          :h side-panel-height
+                                          :w side-panel-width}))
 
-          right-lights (p/setup
-                         (->side-lights {:x (+ x left-margin frame-width panel-gap)
-                                         :y side-panel-y
-                                         :w side-panel-width
-                                         :h side-panel-height}))
-          control-panel-x-gap 10
-          scan-panel (p/setup
-                       (cp/->button-panel {:x (+ control-panel-x-gap x)
-                                           :y (+ side-panel-y side-panel-height panel-gap)
-                                           :w (- left-margin (* 2 control-panel-x-gap))
-                                           :h (- h side-panel-height side-panel-y panel-gap panel-gap)}))
+            right-lights (p/setup
+                           (->side-lights {:x (+ x left-margin frame-width panel-gap)
+                                           :y side-panel-y
+                                           :w side-panel-width
+                                           :h side-panel-height}))
+            control-panel-x-gap 10
+            scan-panel (p/setup
+                         (cp/->button-panel {:x (+ control-panel-x-gap x)
+                                             :y (+ side-panel-y side-panel-height panel-gap)
+                                             :w (- left-margin (* 2 control-panel-x-gap))
+                                             :h (- h side-panel-height side-panel-y panel-gap panel-gap)}))
 
-          new-state (assoc state :frame frame
-                                 :bottom-row bottom-row
-                                 :left-lights left-lights
-                                 :right-lights right-lights
-                                 :scan-panel scan-panel
-                                 :elements [:frame :bottom-row :left-lights
-                                            :right-lights :scan-panel])]
-      (complex. new-state)))
+            new-state (assoc state :frame frame
+                                   :bottom-row bottom-row
+                                   :left-lights left-lights
+                                   :right-lights right-lights
+                                   :scan-panel scan-panel
+                                   :elements [:frame :bottom-row :left-lights
+                                              :right-lights :scan-panel])]
+        (complex. new-state)))
 
-  (update-state [_] (complex. (p/update-elements state)))
-  )
+    (update-state [_]
+      (let [[new-state _] (p/update-elements state)]
+        (p/update-drawable
+          (complex. new-state)))))
 
 
 

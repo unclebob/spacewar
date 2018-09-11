@@ -62,4 +62,7 @@
                                            :color [200 100 255]}))
                      :elements [:strategic :tactical]))))
 
-  (update-state [_] (button-panel. (p/update-elements state))))
+  (update-state [_]
+    (let [[new-state _] (p/update-elements state)]
+      (p/update-drawable
+        (button-panel. new-state)))))

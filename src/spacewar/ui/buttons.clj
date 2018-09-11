@@ -26,6 +26,6 @@
           my (q/mouse-y)
           mouse-in (and (>= mx x) (< mx (+ x w)) (>= my y) (< my (+ y h)))
           left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))]
-      (button.
+      (p/update-drawable (button.
         (assoc state :mouse-in mouse-in
-                     :left-down left-down)))))
+                     :left-down left-down))))))

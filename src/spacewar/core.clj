@@ -19,7 +19,7 @@
      :fonts {:lcars (q/create-font "Helvetica-Bold" 24)}}))
 
 (defn update-state [{:keys [state] :as context}]
-  (assoc context :state (p/update-state state)))
+  (assoc context :state (first (p/update-state state))))
 
 (defn draw-state [{:keys [state]}]
   (p/draw state))

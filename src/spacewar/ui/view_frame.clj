@@ -100,7 +100,10 @@
               (q/ellipse sx sy sz sz)))))))
 
   (setup [_] (star-field. (assoc state :stars (make-stars star-count))))
-  (update-state [_] (star-field. (add-stars (update state :stars move-stars)))))
+
+  (update-state [_]
+    (p/update-drawable
+      (star-field. (add-stars (update state :stars move-stars))))))
 
 (deftype frame [state]
   p/Drawable
@@ -113,6 +116,10 @@
       (p/draw contents)))
 
   (setup [_] (let [{:keys [x y w h]} state]
-               (frame. (assoc state :contents (p/setup (->star-field {:x x :y y :h h :w w}))))))
+               (frame. (assoc state :contents (p/setup (->star-field {:x x :y y :h h :w w}))
+                                    :elements [:contents]))))
 
-  (update-state [_] (frame. (assoc state :contents (p/update-state (:contents state))))))
+  (update-state [_]
+    (let [[new-state _] (p/update-elements state)]
+      (p/update-drawable
+        (frame. new-state)))))
