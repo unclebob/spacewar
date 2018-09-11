@@ -21,9 +21,10 @@
 
 (defn make-commands [events]
   (filter some? (for [e events]
-    (if (= (:event e) :strategic-scan)
-      :strategic-scan
-      nil))))
+    (condp = (:event e)
+              :strategic-scan :strategic-scan
+              :tactical-scan :tactical-scan
+           nil))))
 
 (defn update-state [{:keys [state] :as context}]
   (let [commands (:commands context)

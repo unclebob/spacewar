@@ -28,7 +28,7 @@
           mouse-in (and (>= mx x) (< mx (+ x w)) (>= my y) (< my (+ y h)))
           left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
           new-state (assoc state :mouse-in mouse-in :left-down left-down)
-          event (if (and (not left-down) last-left-down)
+          event (if (and (not left-down) last-left-down mouse-in)
                   (:left-up-event state)
                   nil)]
       (p/pack-update (button. new-state) event))))

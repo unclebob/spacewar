@@ -20,7 +20,7 @@
 
 
 (def star-count 200)
-(def f-lum 200) ; luminosity factor
+(def f-lum 200)                                             ; luminosity factor
 
 (defn move-star [star]
   (let [h-distance (dec (:h-distance star))]
@@ -108,9 +108,23 @@
 (deftype strategic-scan [state]
   p/Drawable
   (draw [_]
-    (let [{:keys [x y w h]} state]
+    (let [{:keys [x y w h]} state
+          rows 10
+          columns 15]
       (q/fill 0 0 0)
-      (q/rect x y w h)))
+      (q/rect x y w h)
+      (q/stroke-weight 1)
+      (q/stroke 255 255 255)
+      (q/with-translation [x y]
+                          (let [column-width (/ w columns)
+                                row-height (/ h rows)]
+                            (doseq [col (range 1 columns)]
+                              (let [cx (* col column-width)]
+                                (q/line cx 0 cx h)))
+                            (doseq [row (range 1 rows)]
+                              (let [ry (* row row-height)]
+                                (q/line 0 ry w ry)))))))
+
   (setup [this] this)
   (update-state [this _] (p/pack-update this)))
 
@@ -118,8 +132,9 @@
   p/Drawable
   (draw [_]
     (let [{:keys [x y w h contents]} state]
-      (q/stroke 0 0 255)
-      (q/stroke-weight 5)
+      (q/no-stroke)
+      (q/fill 0 0 255)
+      (q/rect (- x 5) (- y 5) (+ w 10) (+ h 10))
       (q/fill 0 0 0)
       (q/rect x y w h 5)
       (p/draw contents)))
@@ -130,9 +145,14 @@
 
   (update-state [_ commands]
     (let [{:keys [x y w h]} state
-          commanded-state (if (some #(= :strategic-scan %) commands)
+          commanded-state (cond
+                            (some #(= :strategic-scan %) commands)
                             (assoc state :contents (p/setup (->strategic-scan {:x x :y y :h h :w w})))
-                            state)
+
+                            (some #(= :tactical-scan %) commands)
+                            (assoc state :contents (p/setup (->star-field {:x x :y y :h h :w w})))
+
+                            :else state)
           [new-state _] (p/update-elements commanded-state commands)]
       (p/pack-update
         (frame. new-state)))))

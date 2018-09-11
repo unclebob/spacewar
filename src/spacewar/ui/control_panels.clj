@@ -60,7 +60,8 @@
                                            :w (- w stringer-width 10)
                                            :h 40
                                            :name "TACT"
-                                           :color [200 100 255]}))
+                                           :color [200 100 255]
+                                           :left-up-event {:event :tactical-scan}}))
                      :elements [:strategic :tactical]))))
 
   (update-state [_ commands]
