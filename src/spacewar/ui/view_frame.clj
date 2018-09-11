@@ -101,7 +101,7 @@
 
   (setup [_] (star-field. (assoc state :stars (make-stars star-count))))
 
-  (update-state [_]
+  (update-state [_ _]
     (p/update-drawable
       (star-field. (add-stars (update state :stars move-stars))))))
 
@@ -119,7 +119,7 @@
                (frame. (assoc state :contents (p/setup (->star-field {:x x :y y :h h :w w}))
                                     :elements [:contents]))))
 
-  (update-state [_]
-    (let [[new-state _] (p/update-elements state)]
+  (update-state [_ commands]
+    (let [[new-state _] (p/update-elements state commands)]
       (p/update-drawable
         (frame. new-state)))))

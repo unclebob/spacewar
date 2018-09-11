@@ -5,7 +5,7 @@
   Drawable
   (draw [_])
   (setup [this] this)
-  (update-state [_] [(assoc state :updated true)
+  (update-state [_ _] [(assoc state :updated true)
                      [{:event state}]])
   (get-state [_] state))
 
@@ -13,22 +13,22 @@
   Drawable
   (draw [_])
   (setup [this] this)
-  (update-state [_] [(assoc state :updated true) []])
+  (update-state [_ _] [(assoc state :updated true) []])
   (get-state [_] state))
 
 (facts
   "update-elements"
   (fact
     "degenerate"
-    (update-elements {}) => [{} []])
+    (update-elements {} _) => [{} []])
   (fact
     "no elements"
-    (update-elements {:x 1}) => [{:x 1} []])
+    (update-elements {:x 1} _) => [{:x 1} []])
   (fact
     "one element"
     (let [mock (->mock-drawable {:y 1})
           state {:x 1 :element mock :elements [:element]}
-          [new-state events] (update-elements state)]
+          [new-state events] (update-elements state _)]
       new-state => {
                     :x 1
                     :element {:y 1 :updated true}
@@ -42,7 +42,7 @@
                  :element1 mock1
                  :element2 mock2
                  :elements [:element1 :element2]}
-          [new-state events] (update-elements state)]
+          [new-state events] (update-elements state _)]
       new-state => {
                     :x 1
                     :element1 {:y 1 :updated true}
@@ -59,7 +59,7 @@
                    :element1 mock1
                    :element2 mock2
                    :elements [:element1 :element2]}
-            [new-state events] (update-elements state)]
+            [new-state events] (update-elements state _)]
         new-state => {
                       :x 1
                       :element1 {:y 1 :updated true}

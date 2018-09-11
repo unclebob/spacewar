@@ -18,8 +18,12 @@
                  :h (- (q/height) (* 2 vmargin))}))
      :fonts {:lcars (q/create-font "Helvetica-Bold" 24)}}))
 
+(defn make-commands [events]
+  [])
+
 (defn update-state [{:keys [state] :as context}]
-  (assoc context :state (first (p/update-state state))))
+  (let [[new-drawable events] (p/update-state state (:commands context))]
+    (assoc context :state new-drawable :commands (make-commands events))))
 
 (defn draw-state [{:keys [state]}]
   (p/draw state))

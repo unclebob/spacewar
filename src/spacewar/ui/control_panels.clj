@@ -52,7 +52,8 @@
                                             :w (- w stringer-width 10)
                                             :h 40
                                             :name "STRAT"
-                                            :color [200 100 255]}))
+                                            :color [200 100 255]
+                                            :left-up-event {:event :strategic-scan}}))
                      :tactical (p/setup (b/->button
                                           {:x x
                                            :y (+ y banner-width 10 40 10)
@@ -62,7 +63,7 @@
                                            :color [200 100 255]}))
                      :elements [:strategic :tactical]))))
 
-  (update-state [_]
-    (let [[new-state _] (p/update-elements state)]
+  (update-state [_ commands]
+    (let [[new-state _] (p/update-elements state commands)]
       (p/update-drawable
         (button-panel. new-state)))))

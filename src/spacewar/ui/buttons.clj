@@ -20,12 +20,15 @@
       (q/text name (+ x w -10) (+ y h))))
 
   (setup [this] this)
-  (update-state [_]
+  (update-state [_ _]
     (let [{:keys [x y w h]} state
+          last-left-down (:left-down state)
           mx (q/mouse-x)
           my (q/mouse-y)
           mouse-in (and (>= mx x) (< mx (+ x w)) (>= my y) (< my (+ y h)))
-          left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))]
-      (p/update-drawable (button.
-        (assoc state :mouse-in mouse-in
-                     :left-down left-down))))))
+          left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
+          new-state (assoc state :mouse-in mouse-in :left-down left-down)
+          event (if (and (not left-down) last-left-down)
+                  (:left-up-event state)
+                  nil)]
+      (p/update-drawable (button. new-state) event))))
