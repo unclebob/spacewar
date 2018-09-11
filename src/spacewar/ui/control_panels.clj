@@ -64,6 +64,7 @@
                      :elements [:strategic :tactical]))))
 
   (update-state [_ commands]
-    (let [[new-state _] (p/update-elements state commands)]
-      (p/update-drawable
-        (button-panel. new-state)))))
+    (let [[new-state events] (p/update-elements state commands)]
+      (p/pack-update
+        (button-panel. new-state)
+        events))))

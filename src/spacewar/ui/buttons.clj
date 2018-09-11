@@ -31,4 +31,4 @@
           event (if (and (not left-down) last-left-down)
                   (:left-up-event state)
                   nil)]
-      (p/update-drawable (button. new-state) event))))
+      (p/pack-update (button. new-state) event))))

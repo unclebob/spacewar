@@ -15,7 +15,7 @@
       (draw-func x y w h)))
 
   (setup [_] (indicator-light. (assoc state :on? false)))
-  (update-state [this _] (p/update-drawable this))
+  (update-state [this _] (p/pack-update this))
   (get-state [_] state))
 
 (defn draw-light-panel [state]
@@ -74,7 +74,7 @@
                                  :background [150 150 150])]
       (bottom-lights. new-state)))
 
-  (update-state [_ _] (p/update-drawable (bottom-lights. (update-light-panel state)))))
+  (update-state [_ _] (p/pack-update (bottom-lights. (update-light-panel state)))))
 
 (deftype side-lights [state]
   p/Drawable
@@ -96,7 +96,7 @@
       (side-lights. new-state)))
 
   (update-state [this _]
-    (p/update-drawable
+    (p/pack-update
       (if (zero? (rand-int 15))
         (side-lights. (update-light-panel state))
         this))))
@@ -158,9 +158,10 @@
         (complex. new-state)))
 
     (update-state [_ commands]
-      (let [[new-state _] (p/update-elements state commands)]
-        (p/update-drawable
-          (complex. new-state)))))
+      (let [[new-state events] (p/update-elements state commands)]
+        (p/pack-update
+          (complex. new-state)
+          events))))
 
 
 

@@ -16,14 +16,19 @@
                 {:x hmargin :y vmargin
                  :w (- (q/width) (* 2 hmargin))
                  :h (- (q/height) (* 2 vmargin))}))
+     :commands []
      :fonts {:lcars (q/create-font "Helvetica-Bold" 24)}}))
 
 (defn make-commands [events]
-  [])
+  (filter some? (for [e events]
+    (if (= (:event e) :strategic-scan)
+      :strategic-scan
+      nil))))
 
 (defn update-state [{:keys [state] :as context}]
-  (let [[new-drawable events] (p/update-state state (:commands context))]
-    (assoc context :state new-drawable :commands (make-commands events))))
+  (let [commands (:commands context)
+        [new-drawable events] (p/update-state state commands)]
+    (assoc context :state new-drawable :commands (make-commands (flatten events)))))
 
 (defn draw-state [{:keys [state]}]
   (p/draw state))

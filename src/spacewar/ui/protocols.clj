@@ -28,7 +28,7 @@
   (doseq [e (:elements state)]
     (draw (e state))))
 
-(defn update-drawable
+(defn pack-update
   ([new-drawable]
    [new-drawable []])
   ([new-drawable event]

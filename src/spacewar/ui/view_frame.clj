@@ -102,8 +102,17 @@
   (setup [_] (star-field. (assoc state :stars (make-stars star-count))))
 
   (update-state [_ _]
-    (p/update-drawable
+    (p/pack-update
       (star-field. (add-stars (update state :stars move-stars))))))
+
+(deftype strategic-scan [state]
+  p/Drawable
+  (draw [_]
+    (let [{:keys [x y w h]} state]
+      (q/fill 0 0 0)
+      (q/rect x y w h)))
+  (setup [this] this)
+  (update-state [this _] (p/pack-update this)))
 
 (deftype frame [state]
   p/Drawable
@@ -120,6 +129,10 @@
                                     :elements [:contents]))))
 
   (update-state [_ commands]
-    (let [[new-state _] (p/update-elements state commands)]
-      (p/update-drawable
+    (let [{:keys [x y w h]} state
+          commanded-state (if (some #(= :strategic-scan %) commands)
+                            (assoc state :contents (p/setup (->strategic-scan {:x x :y y :h h :w w})))
+                            state)
+          [new-state _] (p/update-elements commanded-state commands)]
+      (p/pack-update
         (frame. new-state)))))
