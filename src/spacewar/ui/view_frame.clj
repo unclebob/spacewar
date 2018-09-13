@@ -143,16 +143,16 @@
                (frame. (assoc state :contents (p/setup (->star-field {:x x :y y :h h :w w}))
                                     :elements [:contents]))))
 
-  (update-state [_ commands]
+  (update-state [_ commands-and-state]
     (let [{:keys [x y w h]} state
           commanded-state (cond
-                            (some? (p/get-command :strategic-scan commands))
+                            (some? (p/get-command :strategic-scan (:commands commands-and-state)))
                             (assoc state :contents (p/setup (->strategic-scan {:x x :y y :h h :w w})))
 
-                            (some? (p/get-command :tactical-scan commands))
+                            (some? (p/get-command :tactical-scan (:commands commands-and-state)))
                             (assoc state :contents (p/setup (->star-field {:x x :y y :h h :w w})))
 
                             :else state)
-          [new-state _] (p/update-elements commanded-state commands)]
+          [new-state _] (p/update-elements commanded-state commands-and-state)]
       (p/pack-update
         (frame. new-state)))))

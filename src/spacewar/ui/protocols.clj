@@ -17,11 +17,12 @@
 (s/def ::global-state map?)
 (s/def ::command-map (s/keys :req-un [::command]))
 (s/def ::commands (s/coll-of ::command-map))
+(s/def ::commands-and-state (s/keys :req-un [::commands ::global-state]))
 
 (defn update-elements [container-state commands]
   {:pre [
          (s/valid? ::drawable-state container-state)
-         (s/valid? ::commands commands)
+         (s/valid? ::commands-and-state commands)
          ]
    :post [
           (s/valid? ::updated-elements-and-events %)

@@ -16,7 +16,7 @@
                 {:x hmargin :y vmargin
                  :w (- (q/width) (* 2 hmargin))
                  :h (- (q/height) (* 2 vmargin))}))
-     :commands []
+     :commands-and-state {:commands [] :global-state {}}
      :fonts {:lcars (q/create-font "Helvetica-Bold" 24)}}))
 
 (defn make-commands [events]
@@ -26,11 +26,19 @@
               :tactical-scan {:command :tactical-scan}
            nil))))
 
+(defn make-global-state [events]
+  {})
+
+(defn make-commands-and-state [events]
+  {:commands (make-commands events)
+   :global-state (make-global-state events)})
+
 (defn update-state [context]
   (let [state (:state context)
-        commands (:commands context)
+        commands (:commands-and-state context)
         [new-drawable events] (p/update-state state commands)]
-    (assoc context :state new-drawable :commands (make-commands (flatten events)))))
+    (assoc context :state new-drawable
+                   :commands-and-state (make-commands-and-state (flatten events)))))
 
 (defn draw-state [{:keys [state]}]
   (p/draw state))
