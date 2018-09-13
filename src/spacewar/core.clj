@@ -26,8 +26,9 @@
               :tactical-scan :tactical-scan
            nil))))
 
-(defn update-state [{:keys [state] :as context}]
-  (let [commands (:commands context)
+(defn update-state [context]
+  (let [state (:state context)
+        commands (:commands context)
         [new-drawable events] (p/update-state state commands)]
     (assoc context :state new-drawable :commands (make-commands (flatten events)))))
 

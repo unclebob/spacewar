@@ -1,4 +1,5 @@
-(ns spacewar.ui.protocols)
+(ns spacewar.ui.protocols
+  (:require [clojure.spec.alpha :as s]))
 
 ;update-state returns [new-drawable [events]]
 (defprotocol Drawable
@@ -7,7 +8,18 @@
   (update-state [this commands])
   (get-state [this]))
 
+(s/def ::elements (s/coll-of keyword?))
+(s/def ::drawable-state (s/keys :opt-un [::elements]))
+(s/def ::event keyword?)
+(s/def ::event-map (s/keys :req-un [::event]))
+(s/def ::updated-elements-and-events (s/tuple ::drawable-state (s/coll-of ::event-map)))
+(s/def ::command keyword?)
+(s/def ::commands (s/coll-of ::command))
+
 (defn update-elements [container-state commands]
+  {:pre [(s/valid? ::drawable-state container-state)
+         (s/valid? ::commands commands)]
+   :post [(s/valid? ::updated-elements-and-events %)]}
   (let [elements (:elements container-state)]
     (if (nil? elements)
       [container-state []]
