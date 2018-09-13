@@ -146,10 +146,10 @@
   (update-state [_ commands]
     (let [{:keys [x y w h]} state
           commanded-state (cond
-                            (some #(= :strategic-scan %) commands)
+                            (some? (p/get-command :strategic-scan commands))
                             (assoc state :contents (p/setup (->strategic-scan {:x x :y y :h h :w w})))
 
-                            (some #(= :tactical-scan %) commands)
+                            (some? (p/get-command :tactical-scan commands))
                             (assoc state :contents (p/setup (->star-field {:x x :y y :h h :w w})))
 
                             :else state)

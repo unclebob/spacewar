@@ -71,4 +71,24 @@
   (fact
     "degenerate command list has no commands"
     (get-command :my-command []) => nil?)
+
+  (fact
+    "command not found"
+    (get-command
+      :my-command
+      [{:command :x} {:command :y}]) => nil?)
+
+  (fact
+    "can find command in list of one command"
+    (get-command
+      :my-command
+      [{:command :my-command}]) => {:command :my-command})
+
+  (fact
+    "can find command in list of many commands"
+    (get-command
+      :my-command
+      [{:command :x}
+       {:command :y}
+       {:command :my-command}]) => {:command :my-command})
   )

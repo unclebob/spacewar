@@ -54,4 +54,10 @@
      [new-drawable []])))
 
 (defn get-command [command-id commands]
-  nil)
+  (loop [commands commands]
+    (if (empty? commands)
+      nil
+      (let [command (first commands)]
+        (if (= command-id (:command command))
+          command
+          (recur (rest commands)))))))
