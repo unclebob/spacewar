@@ -14,12 +14,17 @@
 (s/def ::event-map (s/keys :req-un [::event]))
 (s/def ::updated-elements-and-events (s/tuple ::drawable-state (s/coll-of ::event-map)))
 (s/def ::command keyword?)
-(s/def ::commands (s/coll-of ::command))
+(s/def ::command-map (s/keys :req-un [::command]))
+(s/def ::commands (s/coll-of ::command-map))
 
 (defn update-elements [container-state commands]
-  {:pre [(s/valid? ::drawable-state container-state)
-         (s/valid? ::commands commands)]
-   :post [(s/valid? ::updated-elements-and-events %)]}
+  {:pre [
+         (s/valid? ::drawable-state container-state)
+         (s/valid? ::commands commands)
+         ]
+   :post [
+          (s/valid? ::updated-elements-and-events %)
+          ]}
   (let [elements (:elements container-state)]
     (if (nil? elements)
       [container-state []]
@@ -47,3 +52,6 @@
    (if (some? event)
      [new-drawable [event]]
      [new-drawable []])))
+
+(defn get-command [command-id commands]
+  nil)
