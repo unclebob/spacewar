@@ -1,6 +1,7 @@
 (ns spacewar.ui.protocol-test
   (:require [midje.sweet :refer :all]
-            [spacewar.ui.protocols :refer :all]))
+            [spacewar.ui.protocols :refer :all]
+            [spacewar.ui.protocols :as p]))
 
 (deftype mock-drawable [state]
   Drawable
@@ -15,6 +16,16 @@
   (draw [_])
   (setup [this] this)
   (update-state [_ _] [(assoc state :updated true) []])
+  (get-state [_] state))
+
+(deftype mock-command-handler [state]
+  Drawable
+  (draw [_])
+  (setup [this] this)
+  (update-state [_ commands]
+    (if (some? (p/get-command :c commands))
+      [(assoc state :commanded true) []]
+      [state []]))
   (get-state [_] state))
 
 (facts
@@ -64,7 +75,31 @@
                     :element2 {:y 2 :updated true}
                     :elements [:element1 :element2]}
       events => []))
+  (fact
+    "one element with a command"
+    (let [mock (->mock-command-handler {:y 1})
+          state {:x 1 :element mock :elements [:element]}
+          [new-state events] (update-elements
+                               state
+                               [{:command :c}])]
+      new-state => {:x 1
+                    :element {:y 1 :commanded true}
+                    :elements [:element]}
+      events => []))
+
+  (fact
+    "one element with wrong command"
+    (let [mock (->mock-command-handler {:y 1})
+          state {:x 1 :element mock :elements [:element]}
+          [new-state events] (update-elements
+                               state
+                               [{:command :wrong}])]
+      new-state => {:x 1
+                    :element {:y 1}
+                    :elements [:element]}
+      events => []))
   )
+
 
 (facts
   "about commands"

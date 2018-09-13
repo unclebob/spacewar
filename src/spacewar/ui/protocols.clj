@@ -14,6 +14,7 @@
 (s/def ::event-map (s/keys :req-un [::event]))
 (s/def ::updated-elements-and-events (s/tuple ::drawable-state (s/coll-of ::event-map)))
 (s/def ::command keyword?)
+(s/def ::global-state map?)
 (s/def ::command-map (s/keys :req-un [::command]))
 (s/def ::commands (s/coll-of ::command-map))
 
