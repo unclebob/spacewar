@@ -1,4 +1,4 @@
-(ns spacewar.ui.main-viewscreen
+(ns spacewar.ui.complex
   (:require [quil.core :as q]
             [spacewar.ui.protocols :as p]
             [spacewar.ui.view-frame :as f]
@@ -118,16 +118,16 @@
                   (f/->frame {:x (+ x left-margin)
                               :y y
                               :h frame-height
-                                :w frame-width}))
+                              :w frame-width}))
 
           bottom-lights-width (/ frame-width 2)
           bottom-lights-left-offset (/ (- frame-width bottom-lights-width) 2)
           bottom-lights-x (+ x left-margin bottom-lights-left-offset)
           bottom-lights (p/setup
-                       (->bottom-lights {:x bottom-lights-x
-                                         :y (+ y (- h bottom-margin) panel-gap)
-                                         :h 40
-                                         :w bottom-lights-width}))
+                          (->bottom-lights {:x bottom-lights-x
+                                            :y (+ y (- h bottom-margin) panel-gap)
+                                            :h 40
+                                            :w bottom-lights-width}))
 
           side-panel-height (/ frame-height 2.5)
           side-panel-width 120
@@ -165,17 +165,28 @@
                                              :w engine-panel-w
                                              :h engine-panel-h
                                              :name "ENGINES"}))
-          weapons-panel-x (+ bottom-lights-x bottom-lights-width panel-gap)
+          weapons-panel-x (+ bottom-lights-x bottom-lights-width small-panel-gap)
           weapons-panel-y (+ y frame-height small-panel-gap)
           weapons-panel-w (- w left-margin bottom-lights-left-offset bottom-lights-width panel-gap)
           weapons-panel-h (- bottom-margin small-panel-gap)
           weapons-panel (p/setup
-                          (cp/->engine-panel {:x weapons-panel-x
+                          (cp/->weapons-panel {:x weapons-panel-x
                                               :y weapons-panel-y
                                               :w weapons-panel-w
                                               :h weapons-panel-h
                                               :name "WEAPONS"
                                               :inverted true}))
+          damage-panel-x (+ x left-margin frame-width small-panel-gap)
+          damage-panel-y scan-panel-y
+          damage-panel-w (- right-margin (* 2 small-panel-gap))
+          damage-panel-h scan-panel-h
+          damage-panel (p/setup
+                         (cp/->damage-panel {:x damage-panel-x
+                                             :y damage-panel-y
+                                             :w damage-panel-w
+                                             :h damage-panel-h
+                                             :name "DAMAGE"
+                                             :inverted true}))
 
           new-state (assoc state :frame frame
                                  :bottom-lights bottom-lights
@@ -184,9 +195,10 @@
                                  :scan-panel scan-panel
                                  :engine-panel engine-panel
                                  :weapons-panel weapons-panel
+                                 :damage-panel damage-panel
                                  :elements [:frame :bottom-lights :left-lights
                                             :right-lights :scan-panel
-                                            :engine-panel :weapons-panel])]
+                                            :engine-panel :weapons-panel :damage-panel])]
       (complex. new-state)))
 
   (update-state [_ commands]

@@ -99,31 +99,43 @@
 
   (setup [_]
     (let [{:keys [x y w]} state]
-      (engine-panel. state)
-      ;  (assoc state
-      ;    :strategic (p/setup
-      ;                 (b/->button
-      ;                   {:x x
-      ;                    :y (+ y banner-width 10)
-      ;                    :w (- w stringer-width 10)
-      ;                    :h 40
-      ;                    :name "STRAT"
-      ;                    :color [200 100 255]
-      ;                    :left-up-event {:event :strategic-scan}}))
-      ;    :tactical (p/setup
-      ;                (b/->button
-      ;                  {:x x
-      ;                   :y (+ y banner-width 10 40 10)
-      ;                   :w (- w stringer-width 10)
-      ;                   :h 40
-      ;                   :name "TACT"
-      ;                   :color [200 100 255]
-      ;                   :left-up-event {:event :tactical-scan}}))
-      ;    :elements [:strategic :tactical]))
-      ))
+      (engine-panel. state)))
 
   (update-state [_ commands]
     (let [[new-state events] (p/update-elements state commands)]
       (p/pack-update
         (engine-panel. new-state)
         events))))
+
+(deftype weapons-panel [state]
+  p/Drawable
+  (draw [_]
+    (draw-lcars state)
+    (p/draw-elements state))
+
+  (setup [_]
+    (let [{:keys [x y w]} state]
+      (weapons-panel. state)))
+
+  (update-state [_ commands]
+    (let [[new-state events] (p/update-elements state commands)]
+      (p/pack-update
+        (weapons-panel. new-state)
+        events))))
+
+(deftype damage-panel [state]
+  p/Drawable
+  (draw [_]
+    (draw-lcars state)
+    (p/draw-elements state))
+
+  (setup [_]
+    (let [{:keys [x y w]} state]
+      (damage-panel. state)))
+
+  (update-state [_ commands]
+    (let [[new-state events] (p/update-elements state commands)]
+      (p/pack-update
+        (damage-panel. new-state)
+        events))))
+

@@ -1,7 +1,7 @@
 (ns spacewar.core
   (:require [quil.core :as q]
             [quil.middleware :as m]
-            [spacewar.ui.main-viewscreen :as main-viewer]
+            [spacewar.ui.complex :as main-viewer]
             [spacewar.ui.protocols :as p]
             [spacewar.game-logic.ship :as ship]))
 
