@@ -1,10 +1,12 @@
 (ns spacewar.ui.control-panels
   (:require [quil.core :as q]
             [spacewar.ui.protocols :as p]
-            [spacewar.ui.buttons :as b]))
+            [spacewar.ui.widgets :as w]))
 
 (def banner-width 40)
 (def stringer-width 15)
+(def button-gap 10)
+(def button-h 40)
 
 (defn lcars-points [state]
   (let [{:keys [x y w h]} state
@@ -35,9 +37,10 @@
 
 (defn draw-lcars [state]
   (let [inverted (:inverted state false)
+        color (:color state)
         {:keys [a b c d e f g h c1 c2 label-position]} (lcars-points state)]
     (q/no-stroke)
-    (q/fill 150 150 255)
+    (apply q/fill color)
     (q/begin-shape)
     (apply q/vertex a)
     (apply q/vertex b)
@@ -55,6 +58,19 @@
     (q/text-align (if inverted :right :left) :top)
     (apply q/text (:name state) label-position)))
 
+(defn draw-bottom-lcars [state]
+  (let [{:keys [x y w h name color]} state]
+    (q/no-stroke)
+    (apply q/fill color)
+    (q/rect x (+ y h (- banner-width)) w banner-width)
+    (q/fill 0 0 0)
+    (q/text-size 24)
+    (q/text-font (:lcars (q/state :fonts)))
+    (q/text-align :center :center)
+    (q/text name (+ x (/ w 2)) (+ y h (/ banner-width -2)))
+    )
+  )
+
 (deftype scan-panel [state]
   p/Drawable
   (draw [_]
@@ -62,28 +78,43 @@
     (p/draw-elements state))
 
   (setup [_]
-    (let [{:keys [x y w]} state]
+    (let [{:keys [x y w button-color]} state
+          button-w (- w stringer-width 10)
+          strategic-y (+ y banner-width button-gap)
+          tactical-y (+ strategic-y button-h button-gap)
+          front-view-y (+ tactical-y button-h button-gap)]
       (scan-panel.
         (assoc state
           :strategic (p/setup
-                       (b/->button
+                       (w/->button
                          {:x x
-                          :y (+ y banner-width 10)
-                          :w (- w stringer-width 10)
-                          :h 40
+                          :y strategic-y
+                          :w button-w
+                          :h button-h
                           :name "STRAT"
-                          :color [200 100 255]
+                          :color button-color
                           :left-up-event {:event :strategic-scan}}))
           :tactical (p/setup
-                      (b/->button
+                      (w/->button
                         {:x x
-                         :y (+ y banner-width 10 40 10)
-                         :w (- w stringer-width 10)
-                         :h 40
+                         :y tactical-y
+                         :w button-w
+                         :h button-h
                          :name "TACT"
-                         :color [200 100 255]
+                         :color button-color
                          :left-up-event {:event :tactical-scan}}))
-          :elements [:strategic :tactical]))))
+
+          :front-view (p/setup
+                        (w/->button
+                          {:x x
+                           :y front-view-y
+                           :w button-w
+                           :h button-h
+                           :name "FRONT"
+                           :color button-color
+                           :left-up-event {:event :front-view}}))
+
+          :elements [:strategic :tactical :front-view]))))
 
   (update-state [_ commands]
     (let [[new-state events] (p/update-elements state commands)]
@@ -98,8 +129,41 @@
     (p/draw-elements state))
 
   (setup [_]
-    (let [{:keys [x y w]} state]
-      (engine-panel. state)))
+    (let [{:keys [x y button-color]} state
+          button-w 150
+          warp-y (+ y banner-width button-gap)
+          impulse-y (+ warp-y button-h button-gap)
+          dock-y (+ impulse-y button-h button-gap)]
+      (engine-panel.
+        (assoc state
+          :warp (p/setup
+                  (w/->button
+                    {:x x
+                     :y warp-y
+                     :w button-w
+                     :h button-h
+                     :name "WARP"
+                     :color button-color
+                     :left-up-event {:event :select-warp}}))
+          :impulse (p/setup
+                     (w/->button
+                       {:x x
+                        :y impulse-y
+                        :w button-w
+                        :h button-h
+                        :name "IMPULSE"
+                        :color button-color
+                        :left-up-event {:event :select-impulse}}))
+          :dock (p/setup
+                  (w/->button
+                    {:x x
+                     :y dock-y
+                     :w button-w
+                     :h button-h
+                     :name "DOCK"
+                     :color button-color
+                     :left-up-event {:event :select-dock}}))
+          :elements [:warp :impulse :dock]))))
 
   (update-state [_ commands]
     (let [[new-state events] (p/update-elements state commands)]
@@ -114,8 +178,42 @@
     (p/draw-elements state))
 
   (setup [_]
-    (let [{:keys [x y w]} state]
-      (weapons-panel. state)))
+    (let [{:keys [x y button-color]} state
+          button-w 150
+          button-x (+ x stringer-width button-gap)
+          torpedo-y (+ y banner-width button-gap)
+          kinetic-y (+ torpedo-y button-h button-gap)
+          phaser-y (+ kinetic-y button-h button-gap)]
+      (weapons-panel.
+        (assoc state
+          :torpedo (p/setup
+                     (w/->button
+                       {:x button-x
+                        :y torpedo-y
+                        :w button-w
+                        :h button-h
+                        :name "TORPEDO"
+                        :color button-color
+                        :left-up-event {:event :select-torpedo}}))
+          :kinetic (p/setup
+                     (w/->button
+                       {:x button-x
+                        :y kinetic-y
+                        :w button-w
+                        :h button-h
+                        :name "KINETIC"
+                        :color button-color
+                        :left-up-event {:event :select-kinetic}}))
+          :phaser (p/setup
+                  (w/->button
+                    {:x button-x
+                     :y phaser-y
+                     :w button-w
+                     :h button-h
+                     :name "PHASER"
+                     :color button-color
+                     :left-up-event {:event :select-phaser}}))
+          :elements [:torpedo :kinetic :phaser]))))
 
   (update-state [_ commands]
     (let [[new-state events] (p/update-elements state commands)]
@@ -137,5 +235,21 @@
     (let [[new-state events] (p/update-elements state commands)]
       (p/pack-update
         (damage-panel. new-state)
+        events))))
+
+(deftype status-panel [state]
+  p/Drawable
+  (draw [_]
+    (draw-bottom-lcars state)
+    (p/draw-elements state))
+
+  (setup [_]
+    (let [{:keys [x y w]} state]
+      (status-panel. state)))
+
+  (update-state [_ commands]
+    (let [[new-state events] (p/update-elements state commands)]
+      (p/pack-update
+        (status-panel. new-state)
         events))))
 

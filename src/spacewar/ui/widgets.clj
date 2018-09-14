@@ -1,4 +1,4 @@
-(ns spacewar.ui.buttons
+(ns spacewar.ui.widgets
   (:require [quil.core :as q]
             [spacewar.ui.protocols :as p]))
 
