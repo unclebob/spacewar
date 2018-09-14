@@ -101,67 +101,99 @@
         (side-lights. (update-light-panel state))
         this))))
 
-  (deftype complex [state]
-    p/Drawable
-    (draw [_] (p/draw-elements state))
+(deftype complex [state]
+  p/Drawable
+  (draw [_] (p/draw-elements state))
 
-    (setup [_]
-      (let [{:keys [x y h w]} state
-            left-margin 200
-            right-margin 200
-            bottom-margin 100
-            panel-gap 50
-            frame-width (- w left-margin right-margin)
-            frame-height (- h bottom-margin)
-            frame (p/setup
-                    (f/->frame {:x (+ x left-margin)
-                                :y y
-                                :h frame-height
+  (setup [_]
+    (let [{:keys [x y h w]} state
+          left-margin 200
+          right-margin 200
+          bottom-margin 200
+          panel-gap 20
+          frame-width (- w left-margin right-margin)
+          frame-height (- h bottom-margin)
+          frame-bottom (+ y frame-height)
+          frame (p/setup
+                  (f/->frame {:x (+ x left-margin)
+                              :y y
+                              :h frame-height
                                 :w frame-width}))
 
-            bottom-row-width (/ frame-width 2)
-            bottom-row-left-offset (/ (- frame-width bottom-row-width) 2)
-            bottom-row (p/setup
-                         (->bottom-lights {:x (+ x left-margin bottom-row-left-offset)
-                                           :y (+ y (- h bottom-margin) panel-gap)
-                                           :h 40
-                                           :w bottom-row-width}))
+          bottom-lights-width (/ frame-width 2)
+          bottom-lights-left-offset (/ (- frame-width bottom-lights-width) 2)
+          bottom-lights-x (+ x left-margin bottom-lights-left-offset)
+          bottom-lights (p/setup
+                       (->bottom-lights {:x bottom-lights-x
+                                         :y (+ y (- h bottom-margin) panel-gap)
+                                         :h 40
+                                         :w bottom-lights-width}))
 
-            side-panel-height (/ frame-height 2.5)
-            side-panel-width 120
-            side-panel-y (+ y (/ frame-height 5))
-            left-lights (p/setup
-                          (->side-lights {:x (- (+ x left-margin) panel-gap side-panel-width)
-                                          :y side-panel-y
-                                          :h side-panel-height
-                                          :w side-panel-width}))
+          side-panel-height (/ frame-height 2.5)
+          side-panel-width 120
+          side-panel-y (+ y (/ frame-height 5))
+          left-lights (p/setup
+                        (->side-lights {:x (- (+ x left-margin) panel-gap side-panel-width)
+                                        :y side-panel-y
+                                        :h side-panel-height
+                                        :w side-panel-width}))
 
-            right-lights (p/setup
-                           (->side-lights {:x (+ x left-margin frame-width panel-gap)
-                                           :y side-panel-y
-                                           :w side-panel-width
-                                           :h side-panel-height}))
-            control-panel-x-gap 10
-            scan-panel (p/setup
-                         (cp/->button-panel {:x (+ control-panel-x-gap x)
-                                             :y (+ side-panel-y side-panel-height panel-gap)
-                                             :w (- left-margin (* 2 control-panel-x-gap))
-                                             :h (- h side-panel-height side-panel-y panel-gap panel-gap)}))
+          right-lights (p/setup
+                         (->side-lights {:x (+ x left-margin frame-width panel-gap)
+                                         :y side-panel-y
+                                         :w side-panel-width
+                                         :h side-panel-height}))
+          small-panel-gap 10
 
-            new-state (assoc state :frame frame
-                                   :bottom-row bottom-row
-                                   :left-lights left-lights
-                                   :right-lights right-lights
-                                   :scan-panel scan-panel
-                                   :elements [:frame :bottom-row :left-lights
-                                              :right-lights :scan-panel])]
-        (complex. new-state)))
+          left-panel-x (+ small-panel-gap x)
+          scan-panel-y (+ side-panel-y side-panel-height panel-gap)
+          scan-panel-w (- left-margin (* 2 small-panel-gap))
+          scan-panel-h (- frame-bottom side-panel-height side-panel-y panel-gap)
+          scan-panel (p/setup
+                       (cp/->scan-panel {:x left-panel-x
+                                         :y scan-panel-y
+                                         :w scan-panel-w
+                                         :h scan-panel-h
+                                         :name "SCAN"}))
 
-    (update-state [_ commands]
-      (let [[new-state events] (p/update-elements state commands)]
-        (p/pack-update
-          (complex. new-state)
-          events))))
+          engine-panel-y (+ y frame-height small-panel-gap)
+          engine-panel-w (+ left-margin bottom-lights-left-offset (- (* 2 small-panel-gap)))
+          engine-panel-h (- bottom-margin small-panel-gap)
+          engine-panel (p/setup
+                         (cp/->engine-panel {:x left-panel-x
+                                             :y engine-panel-y
+                                             :w engine-panel-w
+                                             :h engine-panel-h
+                                             :name "ENGINES"}))
+          weapons-panel-x (+ bottom-lights-x bottom-lights-width panel-gap)
+          weapons-panel-y (+ y frame-height small-panel-gap)
+          weapons-panel-w (- w left-margin bottom-lights-left-offset bottom-lights-width panel-gap)
+          weapons-panel-h (- bottom-margin small-panel-gap)
+          weapons-panel (p/setup
+                          (cp/->engine-panel {:x weapons-panel-x
+                                              :y weapons-panel-y
+                                              :w weapons-panel-w
+                                              :h weapons-panel-h
+                                              :name "WEAPONS"
+                                              :inverted true}))
+
+          new-state (assoc state :frame frame
+                                 :bottom-lights bottom-lights
+                                 :left-lights left-lights
+                                 :right-lights right-lights
+                                 :scan-panel scan-panel
+                                 :engine-panel engine-panel
+                                 :weapons-panel weapons-panel
+                                 :elements [:frame :bottom-lights :left-lights
+                                            :right-lights :scan-panel
+                                            :engine-panel :weapons-panel])]
+      (complex. new-state)))
+
+  (update-state [_ commands]
+    (let [[new-state events] (p/update-elements state commands)]
+      (p/pack-update
+        (complex. new-state)
+        events))))
 
 
 
