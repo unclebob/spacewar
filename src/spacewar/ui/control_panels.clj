@@ -205,14 +205,14 @@
                         :color button-color
                         :left-up-event {:event :select-kinetic}}))
           :phaser (p/setup
-                  (w/->button
-                    {:x button-x
-                     :y phaser-y
-                     :w button-w
-                     :h button-h
-                     :name "PHASER"
-                     :color button-color
-                     :left-up-event {:event :select-phaser}}))
+                    (w/->button
+                      {:x button-x
+                       :y phaser-y
+                       :w button-w
+                       :h button-h
+                       :name "PHASER"
+                       :color button-color
+                       :left-up-event {:event :select-phaser}}))
           :elements [:torpedo :kinetic :phaser]))))
 
   (update-state [_ commands]
@@ -228,8 +228,83 @@
     (p/draw-elements state))
 
   (setup [_]
-    (let [{:keys [x y w]} state]
-      (damage-panel. state)))
+    (let [{:keys [x y w h]} state
+          indicator-w 20
+          indicator-h 15
+          indicator-gap 50
+          col1 (+ x stringer-width button-gap)
+          col2 (+ x (/ w 2) button-gap (/ stringer-width 2))
+          warp-y (+ y banner-width button-gap)
+          impulse-y (+ warp-y indicator-h indicator-gap)
+          life-support-y (+ impulse-y indicator-h indicator-gap)
+          hull-y warp-y
+          sensor-y impulse-y
+          weapons-y life-support-y
+          colors [[0 255 0] [255 255 0] [255 255 100] [255 0 0]]
+          ]
+      (damage-panel.
+        (assoc state
+          :warp (p/setup
+                  (w/->named-indicator
+                    {:x col1
+                     :y warp-y
+                     :w indicator-w
+                     :h indicator-h
+                     :name "WRP"
+                     :colors colors
+                     :level 0
+                     :draw-func q/rect}))
+          :impulse (p/setup
+                     (w/->named-indicator
+                       {:x col1
+                        :y impulse-y
+                        :w indicator-w
+                        :h indicator-h
+                        :name "IMP"
+                        :colors colors
+                        :level 0
+                        :draw-func q/rect}))
+          :life-support (p/setup
+                          (w/->named-indicator
+                            {:x col1
+                             :y life-support-y
+                             :w indicator-w
+                             :h indicator-h
+                             :name "LIF"
+                             :colors colors
+                             :level 0
+                             :draw-func q/rect}))
+          :hull (p/setup
+                  (w/->named-indicator
+                    {:x col2
+                     :y hull-y
+                     :w indicator-w
+                     :h indicator-h
+                     :name "HUL"
+                     :colors colors
+                     :level 0
+                     :draw-func q/rect}))
+          :sensors (p/setup
+                     (w/->named-indicator
+                       {:x col2
+                        :y sensor-y
+                        :w indicator-w
+                        :h indicator-h
+                        :name "SEN"
+                        :colors colors
+                        :level 0
+                        :draw-func q/rect}))
+          :weapons (p/setup
+                     (w/->named-indicator
+                       {:x col2
+                        :y weapons-y
+                        :w indicator-w
+                        :h indicator-h
+                        :name "WPN"
+                        :colors colors
+                        :level 0
+                        :draw-func q/rect}))
+          :elements [:warp :impulse :life-support :hull :sensors :weapons]))))
 
   (update-state [_ commands]
     (let [[new-state events] (p/update-elements state commands)]

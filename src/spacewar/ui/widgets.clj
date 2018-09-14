@@ -42,6 +42,29 @@
       (apply q/fill (nth colors level))
       (draw-func x y w h)))
 
-  (setup [_] (indicator-light. (assoc state :on? false)))
+  (setup [_] (indicator-light. (assoc state :level 0)))
   (update-state [this _] (p/pack-update this))
   (get-state [_] state))
+
+(deftype named-indicator [state]
+  p/Drawable
+  (draw [_]
+    (let [{:keys [x y name]} state]
+      (p/draw-elements state)
+      (q/fill 0 0 0)
+      (q/text-align :left :top)
+      (q/text-font (:lcars (q/state :fonts)) 18)
+      (q/text name (+ x 25) y)))
+
+  (setup [_] (named-indicator.
+               (assoc state :indicator (p/setup
+                                         (->indicator-light state))
+                            :elements [:indicator])))
+
+  (update-state [_ commands]
+    (let [[new-state events] (p/update-elements state commands)]
+      (p/pack-update
+        (named-indicator. new-state)
+        events))))
+
+

@@ -20,7 +20,8 @@
      :commands-and-state
      {:commands []
       :global-state {:ship (ship/initialize)}}
-     :fonts {:lcars (q/create-font "Helvetica-Bold" 24)}}))
+     :fonts {:lcars (q/create-font "Helvetica-Bold" 24)
+             :lcars-small (q/create-font "Arial" 18)}}))
 
 (defn make-commands [events]
   (filter some? (for [e events]
