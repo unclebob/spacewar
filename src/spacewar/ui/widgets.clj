@@ -36,10 +36,10 @@
 (deftype indicator-light [state]
   p/Drawable
   (draw [_]
-    (let [{:keys [x y w h on? draw-func]} state]
+    (let [{:keys [x y w h level draw-func colors]} state]
       (q/stroke 0 0 0)
       (q/stroke-weight 1)
-      (apply q/fill (if on? [255 255 0] [50 50 50]))
+      (apply q/fill (nth colors level))
       (draw-func x y w h)))
 
   (setup [_] (indicator-light. (assoc state :on? false)))
