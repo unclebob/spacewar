@@ -2,21 +2,8 @@
   (:require [quil.core :as q]
             [spacewar.ui.protocols :as p]
             [spacewar.ui.view-frame :as f]
-            [spacewar.ui.control-panels :as cp]))
-
-
-(deftype indicator-light [state]
-  p/Drawable
-  (draw [_]
-    (let [{:keys [x y w h on? draw-func]} state]
-      (q/stroke 0 0 0)
-      (q/stroke-weight 1)
-      (apply q/fill (if on? [255 255 0] [50 50 50]))
-      (draw-func x y w h)))
-
-  (setup [_] (indicator-light. (assoc state :on? false)))
-  (update-state [this _] (p/pack-update this))
-  (get-state [_] state))
+            [spacewar.ui.control-panels :as cp]
+            [spacewar.ui.widgets :as w]))
 
 (defn draw-light-panel [state]
   (let [{:keys [x y w h indicators background]} state]
@@ -28,7 +15,7 @@
 (defn update-light-panel [state]
   (let [{:keys [indicators on-func?]} state
         indicator-states (map p/get-state indicators)
-        new-indicators (map-indexed #(->indicator-light (assoc %2 :on? (on-func? %1))) indicator-states)
+        new-indicators (map-indexed #(w/->indicator-light (assoc %2 :on? (on-func? %1))) indicator-states)
         new-state (assoc state :indicators new-indicators)]
     new-state))
 
@@ -46,7 +33,7 @@
         cell-y-offset (- (/ cell-height 2) (/ indicator-height 2))
         indicators (for [row (range rows) column (range columns)]
                      (p/setup
-                       (->indicator-light
+                       (w/->indicator-light
                          {:x (+ x gap cell-x-offset (* cell-width column))
                           :y (+ y gap cell-y-offset (* cell-height row))
                           :w indicator-width

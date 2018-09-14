@@ -32,3 +32,16 @@
                   (:left-up-event state)
                   nil)]
       (p/pack-update (button. new-state) event))))
+
+(deftype indicator-light [state]
+  p/Drawable
+  (draw [_]
+    (let [{:keys [x y w h on? draw-func]} state]
+      (q/stroke 0 0 0)
+      (q/stroke-weight 1)
+      (apply q/fill (if on? [255 255 0] [50 50 50]))
+      (draw-func x y w h)))
+
+  (setup [_] (indicator-light. (assoc state :on? false)))
+  (update-state [this _] (p/pack-update this))
+  (get-state [_] state))
