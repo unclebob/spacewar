@@ -115,10 +115,12 @@
           bottom-lights-width (/ frame-width 2)
           bottom-lights-left-offset (/ (- frame-width bottom-lights-width) 2)
           bottom-lights-x (+ x left-margin bottom-lights-left-offset)
+          bottom-lights-y (+ y (- h bottom-margin) panel-gap)
+          bottom-lights-h 40
           bottom-lights (p/setup
                           (->bottom-lights {:x bottom-lights-x
-                                            :y (+ y (- h bottom-margin) panel-gap)
-                                            :h 40
+                                            :y bottom-lights-y
+                                            :h bottom-lights-h
                                             :w bottom-lights-width}))
 
           side-panel-height (/ frame-height 2.5)
@@ -190,9 +192,9 @@
                                              :inverted true}))
 
           status-panel-x (+ engine-panel-x engine-panel-w small-panel-gap )
-          status-panel-y engine-panel-y
+          status-panel-y (+ bottom-lights-y bottom-lights-h panel-gap)
           status-panel-w bottom-lights-width
-          status-panel-h engine-panel-h
+          status-panel-h (- h frame-height panel-gap bottom-lights-h)
           status-panel (p/setup
                          (cp/->status-panel {:x status-panel-x
                                              :y status-panel-y
