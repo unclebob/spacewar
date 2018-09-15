@@ -62,6 +62,7 @@
   (let [{:keys [x y w h name color]} state]
     (q/no-stroke)
     (apply q/fill color)
+    (q/rect-mode :corner)
     (q/rect x (+ y h (- banner-width)) w banner-width)
     (q/fill 0 0 0)
     (q/text-size 24)
@@ -129,11 +130,14 @@
     (p/draw-elements state))
 
   (setup [_]
-    (let [{:keys [x y button-color]} state
+    (let [{:keys [x y h color button-color]} state
           button-w 150
           warp-y (+ y banner-width button-gap)
           impulse-y (+ warp-y button-h button-gap)
-          dock-y (+ impulse-y button-h button-gap)]
+          dock-y (+ impulse-y button-h button-gap)
+          direction-x (+ x button-w button-gap)
+          direction-y (+ y banner-width button-gap)
+          direction-diameter (- h banner-width)]
       (engine-panel.
         (assoc state
           :warp (p/setup
@@ -163,7 +167,15 @@
                      :name "DOCK"
                      :color button-color
                      :left-up-event {:event :select-dock}}))
-          :elements [:warp :impulse :dock]))))
+
+          :direction (p/setup
+                       (w/->direction-selector
+                         {:x direction-x
+                          :y direction-y
+                          :diameter direction-diameter
+                          :direction 180
+                          :color color}))
+          :elements [:warp :impulse :dock :direction]))))
 
   (update-state [_ commands]
     (let [[new-state events] (p/update-elements state commands)]
@@ -178,12 +190,15 @@
     (p/draw-elements state))
 
   (setup [_]
-    (let [{:keys [x y button-color]} state
+    (let [{:keys [x y h color button-color]} state
           button-w 150
           button-x (+ x stringer-width button-gap)
           torpedo-y (+ y banner-width button-gap)
           kinetic-y (+ torpedo-y button-h button-gap)
-          phaser-y (+ kinetic-y button-h button-gap)]
+          phaser-y (+ kinetic-y button-h button-gap)
+          direction-x (+ button-x button-w button-gap)
+          direction-y (+ y banner-width button-gap)
+          direction-diameter (- h banner-width)]
       (weapons-panel.
         (assoc state
           :torpedo (p/setup
@@ -213,7 +228,15 @@
                        :name "PHASER"
                        :color button-color
                        :left-up-event {:event :select-phaser}}))
-          :elements [:torpedo :kinetic :phaser]))))
+
+          :direction (p/setup
+                       (w/->direction-selector
+                         {:x direction-x
+                          :y direction-y
+                          :diameter direction-diameter
+                          :direction 180
+                          :color color}))
+          :elements [:torpedo :kinetic :phaser :direction]))))
 
   (update-state [_ commands]
     (let [[new-state events] (p/update-elements state commands)]
@@ -228,7 +251,7 @@
     (p/draw-elements state))
 
   (setup [_]
-    (let [{:keys [x y w h]} state
+    (let [{:keys [x y w]} state
           indicator-w 20
           indicator-h 15
           indicator-gap 50
@@ -253,7 +276,7 @@
                      :name "WRP"
                      :colors colors
                      :level 0
-                     :draw-func q/rect}))
+                     :draw-func w/rectangle-light}))
           :impulse (p/setup
                      (w/->named-indicator
                        {:x col1
@@ -263,7 +286,7 @@
                         :name "IMP"
                         :colors colors
                         :level 0
-                        :draw-func q/rect}))
+                        :draw-func w/rectangle-light}))
           :life-support (p/setup
                           (w/->named-indicator
                             {:x col1
@@ -273,7 +296,7 @@
                              :name "LIF"
                              :colors colors
                              :level 0
-                             :draw-func q/rect}))
+                             :draw-func w/rectangle-light}))
           :hull (p/setup
                   (w/->named-indicator
                     {:x col2
@@ -283,7 +306,7 @@
                      :name "HUL"
                      :colors colors
                      :level 0
-                     :draw-func q/rect}))
+                     :draw-func w/rectangle-light}))
           :sensors (p/setup
                      (w/->named-indicator
                        {:x col2
@@ -293,7 +316,7 @@
                         :name "SEN"
                         :colors colors
                         :level 0
-                        :draw-func q/rect}))
+                        :draw-func w/rectangle-light}))
           :weapons (p/setup
                      (w/->named-indicator
                        {:x col2
@@ -303,7 +326,7 @@
                         :name "WPN"
                         :colors colors
                         :level 0
-                        :draw-func q/rect}))
+                        :draw-func w/rectangle-light}))
           :elements [:warp :impulse :life-support :hull :sensors :weapons]))))
 
   (update-state [_ commands]
@@ -315,9 +338,8 @@
 (deftype status-panel [state]
   p/Drawable
   (draw [_]
-    (let [{:keys [x y w h]} state]
-      (draw-bottom-lcars state)
-      (p/draw-elements state)))
+    (draw-bottom-lcars state)
+    (p/draw-elements state))
 
   (setup [_]
     (let [{:keys [x y w]} state

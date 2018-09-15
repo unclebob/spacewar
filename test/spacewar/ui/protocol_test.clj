@@ -1,7 +1,6 @@
 (ns spacewar.ui.protocol-test
   (:require [midje.sweet :refer :all]
-            [spacewar.ui.protocols :refer :all]
-            [spacewar.ui.protocols :as p]))
+            [spacewar.ui.protocols :refer :all]))
 
 (deftype mock-drawable [state]
   Drawable
@@ -23,7 +22,7 @@
   (draw [_])
   (setup [this] this)
   (update-state [_ commands]
-    (if (some? (p/get-command :c (:commands commands)))
+    (if (some? (get-command :c (:commands commands)))
       [(assoc state :commanded true) []]
       [state []]))
   (get-state [_] state))

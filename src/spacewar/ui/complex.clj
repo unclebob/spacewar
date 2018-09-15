@@ -9,6 +9,7 @@
   (let [{:keys [x y w h indicators background]} state]
     (apply q/fill background)
     (q/no-stroke)
+    (q/rect-mode :corner)
     (q/rect x y w h)
     (doseq [indicator indicators] (p/draw indicator))))
 
@@ -56,7 +57,7 @@
                                     :gap 20
                                     :indicator-height 10
                                     :indicator-width 20
-                                    :draw-func q/rect
+                                    :draw-func w/rectangle-light
                                     :colors [[50 50 50] [255 255 255]]))
           new-state (assoc state :indicators indicators
                                  :level-func (partial shift-pattern (* rows columns))

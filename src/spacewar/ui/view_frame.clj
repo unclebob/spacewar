@@ -112,6 +112,7 @@
           rows 10
           columns 15]
       (q/fill 0 0 0)
+      (q/rect-mode :corner)
       (q/rect x y w h)
       (q/stroke-weight 1)
       (q/stroke 255 255 255)
@@ -134,6 +135,7 @@
     (let [{:keys [x y w h contents]} state]
       (q/no-stroke)
       (q/fill 0 0 255)
+      (q/rect-mode :corner)
       (q/rect (- x 5) (- y 5) (+ w 10) (+ h 10))
       (q/fill 0 0 0)
       (q/rect x y w h 5)
