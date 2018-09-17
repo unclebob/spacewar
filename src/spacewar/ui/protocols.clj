@@ -6,7 +6,9 @@
   (draw [this])
   (setup [this])
   (update-state [this commands])
-  (get-state [this]))
+  (get-state [this])
+  (clone [this state]))
+
 
 (s/def ::elements (s/coll-of keyword?))
 (s/def ::drawable-state (s/keys :opt-un [::elements]))
@@ -63,3 +65,10 @@
         (if (= command-id (:command command))
           command
           (recur (rest commands)))))))
+
+(defn assoc-element [drawable-state element key value]
+  (let [drawable-element (element drawable-state)
+        element-state (get-state drawable-element)]
+    (assoc drawable-state
+      element
+      (clone drawable-element (assoc element-state key value)))))

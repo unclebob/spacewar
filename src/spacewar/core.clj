@@ -24,11 +24,15 @@
              :lcars-small (q/create-font "Arial" 18)}}))
 
 (defn make-commands [events]
-  (filter some? (for [e events]
+  (let [commands
+        (filter some?
+                (for [e events]
                   (condp = (:event e)
                     :strategic-scan {:command :strategic-scan}
                     :tactical-scan {:command :tactical-scan}
-                    nil))))
+                    :engine-direction {:command :set-engine-direction :angle (:angle e)}
+                    nil)))]
+    commands))
 
 (defn make-global-state [events global-state]
   {})

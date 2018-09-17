@@ -125,6 +125,8 @@
 
 (deftype engine-panel [state]
   p/Drawable
+  (clone [_ clone-state]
+    (engine-panel. clone-state))
   (draw [_]
     (draw-lcars state)
     (p/draw-elements state))
@@ -168,17 +170,23 @@
                      :color button-color
                      :left-up-event {:event :select-dock}}))
 
-          :direction (p/setup
-                       (w/->direction-selector
-                         {:x direction-x
-                          :y direction-y
-                          :diameter direction-diameter
-                          :direction 180
-                          :color color}))
-          :elements [:warp :impulse :dock :direction]))))
+          :direction-selector (p/setup
+                                (w/->direction-selector
+                                  {:x direction-x
+                                   :y direction-y
+                                   :diameter direction-diameter
+                                   :direction 180
+                                   :color color
+                                   :left-up-event {:event :engine-direction}}))
+          :elements [:warp :impulse :dock :direction-selector]))))
 
-  (update-state [_ commands]
-    (let [[new-state events] (p/update-elements state commands)]
+  (update-state [_ commands-and-state]
+    (let [direction-command (p/get-command :set-engine-direction (:commands commands-and-state))
+          commanded-state (cond
+                            (some? direction-command)
+                            (p/assoc-element state :direction-selector :direction (:angle direction-command))
+                            :else state)
+          [new-state events] (p/update-elements commanded-state commands-and-state)]
       (p/pack-update
         (engine-panel. new-state)
         events))))
@@ -235,7 +243,8 @@
                           :y direction-y
                           :diameter direction-diameter
                           :direction 180
-                          :color color}))
+                          :color color
+                          :left-up-event {:event :weapon-direction}}))
           :elements [:torpedo :kinetic :phaser :direction]))))
 
   (update-state [_ commands]

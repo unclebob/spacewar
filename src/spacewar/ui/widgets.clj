@@ -5,14 +5,16 @@
 
 (def white [255 255 255])
 (def black [0 0 0])
+(def dark-grey [50 50 50])
+(def grey [128 128 128])
 
 (deftype button [state]
   p/Drawable
   (draw [_]
     (let [{:keys [x y w h name color mouse-in left-down]} state]
       (q/stroke-weight 2)
-        (apply q/stroke (if mouse-in white color))
-        (apply q/fill (if left-down white color))
+      (apply q/stroke (if mouse-in white color))
+      (apply q/fill (if left-down white color))
       (q/rect-mode :corner)
       (q/rect x y w h h)
       (q/text-align :right :bottom)
@@ -157,6 +159,16 @@
       (apply q/stroke color)
       (q/line 0 0 indicator-x indicator-y))))
 
+(defn draw-direction-text [text cx cy dial-color text-color]
+  (q/rect-mode :center)
+  (q/no-stroke)
+  (apply q/fill dial-color)
+  (q/rect cx cy 20 20)
+  (apply q/fill text-color)
+  (q/text-align :center :center)
+  (q/text-font (:lcars-small (q/state :fonts)) 12)
+  (q/text text cx cy))
+
 (defn- ->circle [x y diameter]
   (let [radius (/ diameter 2)
         center-x (+ x radius)
@@ -165,39 +177,46 @@
 
 (deftype direction-selector [state]
   p/Drawable
+  (get-state [_] state)
+  (clone [_ clone-state]
+    (direction-selector. clone-state))
+
   (draw [_]
-    (let [{:keys [x y diameter direction color mouse-in]} state
+    (let [{:keys [x y diameter direction color mouse-in left-down mouse-pos]} state
           circle (->circle x y diameter)
-          [center-x center-y radius] circle
+          [cx cy radius] circle
           label-radius (- radius 20)
           pointer-length (- radius 35)
-          ring-color (if mouse-in white black)]
+          ring-color (if mouse-in white black)
+          mouse-angle (if left-down (angle [cx cy] mouse-pos) 0)
+          direction-text (str (q/round (if left-down mouse-angle direction)))
+          text-color (if left-down grey black)]
       (draw-bezel-ring circle ring-color color)
       (draw-ticks circle)
       (draw-labels circle label-radius)
-      (draw-pointer center-x center-y pointer-length direction black)
-      (q/rect-mode :center)
-      (q/no-stroke)
-      (apply q/fill color)
-      (q/rect center-x center-y 20 20)
-      (apply q/fill black)
-      (q/text-align :center :center)
-      (q/text-font (:lcars-small (q/state :fonts)) 12)
-      (q/text (str direction) center-x center-y)))
+      (draw-pointer cx cy pointer-length direction black)
+      (when left-down
+        (draw-pointer cx cy pointer-length mouse-angle grey))
+      (draw-direction-text direction-text cx cy color text-color)))
 
-  (setup [this] this)
+  (setup [_] (direction-selector. (assoc state :mouse-pos [0 0])))
 
-  (update-state [_ commands]
+  (update-state [_ _]
     (let [{:keys [x y diameter]} state
-          [updated-state events] (p/update-elements state commands)
-          circle (->circle x y diameter)
+          last-left-down (:left-down state)
+          [cx cy _ :as circle] (->circle x y diameter)
           mouse-pos [(q/mouse-x) (q/mouse-y)]
           mouse-in (inside-circle circle mouse-pos)
           left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
-          new-state (assoc updated-state
+          left-up (and (not left-down) last-left-down mouse-in)
+          event (if left-up
+                  (assoc (:left-up-event state) :angle (q/round (angle [cx cy] mouse-pos)))
+                  nil)
+          new-state (assoc state
+                      :mouse-pos mouse-pos
                       :mouse-in mouse-in
                       :left-down left-down)]
       (p/pack-update
-        (direction-selector. new-state) events))))
+        (direction-selector. new-state) event))))
 
 
