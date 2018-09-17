@@ -120,12 +120,13 @@
 
 (defn draw-bezel-ring [[cx cy radius] ring-color fill-color]
   (apply q/fill fill-color)
-  (q/stroke-weight 1)
+  (q/stroke-weight 2)
   (apply q/stroke ring-color)
   (q/ellipse-mode :radius)
   (q/ellipse cx cy radius radius))
 
 (defn draw-ticks [[x y radius]]
+  (apply q/stroke black)
   (doseq [angle-tenth (range 36)]
     (q/with-translation
       [x y]
@@ -146,18 +147,17 @@
         (q/text (str angle-tenth) label-x label-y)))))
 
 (defn draw-pointer [x y length direction color]
-  (let [radians (* 2 Math/PI (/ direction 360))
-        indicator-x (* length (Math/cos radians))
-        indicator-y (* length (Math/sin radians))]
+  (let [[tip-x tip-y] (rotate-vector length direction)
+        base-width 10
+        base-offset 15
+        [xb1 yb1] (rotate-vector base-offset (- direction base-width))
+        [xb2 yb2] (rotate-vector base-offset (+ direction base-width))]
     (q/no-stroke)
     (apply q/fill color)
-    (q/ellipse-mode :center)
     (q/with-translation
       [x y]
-      (q/ellipse indicator-x indicator-y 5 5)
-      (q/stroke-weight 1)
-      (apply q/stroke color)
-      (q/line 0 0 indicator-x indicator-y))))
+      (q/triangle tip-x tip-y xb1 yb1 xb2 yb2)
+      )))
 
 (defn draw-direction-text [text cx cy dial-color text-color]
   (q/rect-mode :center)
@@ -185,15 +185,16 @@
     (let [{:keys [x y diameter direction color mouse-in left-down mouse-pos]} state
           circle (->circle x y diameter)
           [cx cy radius] circle
-          label-radius (- radius 20)
-          pointer-length (- radius 35)
-          ring-color (if mouse-in white black)
+          label-radius (- radius 18)
+          pointer-length (- radius 25)
+          ring-color (if mouse-in white color)
           mouse-angle (if left-down (angle [cx cy] mouse-pos) 0)
           direction-text (str (q/round (if left-down mouse-angle direction)))
           text-color (if left-down grey black)]
       (draw-bezel-ring circle ring-color color)
-      (draw-ticks circle)
-      (draw-labels circle label-radius)
+      (when mouse-in
+        (draw-ticks circle)
+        (draw-labels circle label-radius))
       (draw-pointer cx cy pointer-length direction black)
       (when left-down
         (draw-pointer cx cy pointer-length mouse-angle grey))
