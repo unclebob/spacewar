@@ -237,7 +237,7 @@
                        :color button-color
                        :left-up-event {:event :select-phaser}}))
 
-          :direction (p/setup
+          :direction-selector (p/setup
                        (w/->direction-selector
                          {:x direction-x
                           :y direction-y
@@ -245,10 +245,15 @@
                           :direction 180
                           :color color
                           :left-up-event {:event :weapon-direction}}))
-          :elements [:torpedo :kinetic :phaser :direction]))))
+          :elements [:torpedo :kinetic :phaser :direction-selector]))))
 
-  (update-state [_ commands]
-    (let [[new-state events] (p/update-elements state commands)]
+  (update-state [_ commands-and-state]
+    (let [direction-command (p/get-command :set-weapon-direction (:commands commands-and-state))
+          commanded-state (cond
+                            (some? direction-command)
+                            (p/assoc-element state :direction-selector :direction (:angle direction-command))
+                            :else state)
+          [new-state events] (p/update-elements commanded-state commands-and-state)]
       (p/pack-update
         (weapons-panel. new-state)
         events))))

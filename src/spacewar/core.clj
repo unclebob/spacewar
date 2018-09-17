@@ -31,6 +31,7 @@
                     :strategic-scan {:command :strategic-scan}
                     :tactical-scan {:command :tactical-scan}
                     :engine-direction {:command :set-engine-direction :angle (:angle e)}
+                    :weapon-direction {:command :set-weapon-direction :angle (:angle e)}
                     nil)))]
     commands))
 
