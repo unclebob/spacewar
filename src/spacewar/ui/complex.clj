@@ -79,7 +79,7 @@
                                     :gap 20
                                     :indicator-height 15
                                     :indicator-width 15
-                                    :draw-func q/ellipse
+                                    :draw-func w/round-light
                                     :colors [[50 50 50] [255 255 0]]))
           new-state (assoc state :indicators indicators
                                  :level-func (partial random-pattern (* rows columns))

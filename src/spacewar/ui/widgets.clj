@@ -1,6 +1,7 @@
 (ns spacewar.ui.widgets
   (:require [quil.core :as q]
-            [spacewar.ui.protocols :as p]))
+            [spacewar.ui.protocols :as p]
+            [spacewar.geometry :refer :all]))
 
 (deftype button [state]
   p/Drawable
@@ -26,7 +27,7 @@
           last-left-down (:left-down state)
           mx (q/mouse-x)
           my (q/mouse-y)
-          mouse-in (and (>= mx x) (< mx (+ x w)) (>= my y) (< my (+ y h)))
+          mouse-in (inside-rect [x y w h] [mx my])
           left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
           new-state (assoc state :mouse-in mouse-in :left-down left-down)
           event (if (and (not left-down) last-left-down mouse-in)
@@ -37,6 +38,10 @@
 (defn rectangle-light [x y w h]
   (q/rect-mode :corner)
   (q/rect x y w h))
+
+(defn round-light [x y w h]
+  (q/ellipse-mode :corner)
+  (q/ellipse x y w h))
 
 (deftype indicator-light [state]
   p/Drawable
@@ -112,12 +117,12 @@
          [(* sin-r radius) (* cos-r radius)
           (* sin-r tick-radius) (* cos-r tick-radius)])))
 
-(defn draw-bezel-ring [x y diameter color]
-  (apply q/fill color)
+(defn draw-bezel-ring [[cx cy radius] ring-color fill-color]
+  (apply q/fill fill-color)
   (q/stroke-weight 1)
-  (q/stroke 0 0 0)
-  (q/ellipse-mode :corner)
-  (q/ellipse x y diameter diameter))
+  (apply q/stroke ring-color)
+  (q/ellipse-mode :radius)
+  (q/ellipse cx cy radius radius))
 
 (defn draw-ticks [x y radius]
   (doseq [angle-tenth (range 36)]
@@ -153,16 +158,22 @@
       (q/stroke 0 0 0)
       (q/line 0 0 indicator-x indicator-y))))
 
+(defn- ->circle [x y diameter]
+  (let [radius (/ diameter 2)
+        center-x (+ x radius)
+        center-y (+ y radius)]
+    [center-x center-y radius]))
+
 (deftype direction-selector [state]
   p/Drawable
   (draw [_]
-    (let [{:keys [x y diameter direction color]} state
-          radius (/ diameter 2)
-          center-x (+ x radius)
-          center-y (+ y radius)
+    (let [{:keys [x y diameter direction color mouse-in]} state
+          circle (->circle x y diameter)
+          [center-x center-y radius] circle
           label-radius (- radius 20)
-          pointer-length (- radius 35)]
-      (draw-bezel-ring x y diameter color)
+          pointer-length (- radius 35)
+          ring-color (if mouse-in [255 255 255] [0 0 0])]
+      (draw-bezel-ring circle ring-color color)
       (draw-ticks center-x center-y radius)
       (draw-labels center-x center-y label-radius)
       (draw-pointer center-x center-y pointer-length direction)
@@ -178,7 +189,12 @@
   (setup [this] this)
 
   (update-state [_ commands]
-    (let [[new-state events] (p/update-elements state commands)]
+    (let [{:keys [x y diameter]} state
+          [updated-state events] (p/update-elements state commands)
+          circle (->circle x y diameter)
+          mouse-pos [(q/mouse-x) (q/mouse-y)]
+          new-state (assoc updated-state
+                      :mouse-in (inside-circle circle mouse-pos))]
       (p/pack-update
         (direction-selector. new-state) events))))
 

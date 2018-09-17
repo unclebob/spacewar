@@ -97,6 +97,7 @@
           (when (star-in-frame state sx sy)
             (do
               (apply q/fill (star-color m))
+              (q/ellipse-mode :corner)
               (q/ellipse sx sy sz sz)))))))
 
   (setup [_] (star-field. (assoc state :stars (make-stars star-count))))
