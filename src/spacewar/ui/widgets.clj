@@ -3,22 +3,21 @@
             [spacewar.ui.protocols :as p]
             [spacewar.geometry :refer :all]))
 
+(def white [255 255 255])
+(def black [0 0 0])
+
 (deftype button [state]
   p/Drawable
   (draw [_]
     (let [{:keys [x y w h name color mouse-in left-down]} state]
       (q/stroke-weight 2)
-      (if mouse-in
-        (q/stroke 255 255 255)
-        (apply q/stroke color))
-      (if left-down
-        (q/fill 255 255 255)
-        (apply q/fill color))
+        (apply q/stroke (if mouse-in white color))
+        (apply q/fill (if left-down white color))
       (q/rect-mode :corner)
       (q/rect x y w h h)
       (q/text-align :right :bottom)
       (q/text-font (:lcars (q/state :fonts)) 18)
-      (q/fill 0 0 0)
+      (apply q/fill black)
       (q/text name (+ x w -10) (+ y h))))
 
   (setup [this] this)
@@ -47,7 +46,7 @@
   p/Drawable
   (draw [_]
     (let [{:keys [x y w h level draw-func colors]} state]
-      (q/stroke 0 0 0)
+      (apply q/stroke black)
       (q/stroke-weight 1)
       (apply q/fill (nth colors level))
       (draw-func x y w h)))
@@ -61,7 +60,7 @@
   (draw [_]
     (let [{:keys [x y name]} state]
       (p/draw-elements state)
-      (q/fill 0 0 0)
+      (apply q/fill black)
       (q/text-align :left :top)
       (q/text-font (:lcars (q/state :fonts)) 18)
       (q/text name (+ x 25) y)))
@@ -86,12 +85,12 @@
           scale-x (+ x name-gap)
           range (- max min)
           mercury (* scale-w (/ (- value min) range))]
-      (q/fill 0 0 0)
+      (apply q/fill black)
       (q/text-align :left :top)
       (q/text-font (:lcars (q/state :fonts)) 18)
       (q/text name x y)
       (q/no-stroke)
-      (q/fill 0 0 0)
+      (apply q/fill black)
       (q/rect-mode :corner)
       (q/rect scale-x y scale-w h)
       (q/fill 255 255 0)
@@ -124,13 +123,13 @@
   (q/ellipse-mode :radius)
   (q/ellipse cx cy radius radius))
 
-(defn draw-ticks [x y radius]
+(defn draw-ticks [[x y radius]]
   (doseq [angle-tenth (range 36)]
     (q/with-translation
       [x y]
       (apply q/line (degree-tick radius (* 10 angle-tenth))))))
 
-(defn draw-labels [x y radius]
+(defn draw-labels [[x y _] radius]
   (doseq [angle-thirtieth (range 12)]
     (let [angle-tenth (* 3 angle-thirtieth)
           angle (* 10 angle-tenth)
@@ -139,23 +138,23 @@
           label-y (* radius (Math/sin radians))]
       (q/with-translation
         [x y]
-        (q/fill 0 0 0)
+        (apply q/fill black)
         (q/text-align :center :center)
         (q/text-font (:lcars-small (q/state :fonts)) 12)
         (q/text (str angle-tenth) label-x label-y)))))
 
-(defn draw-pointer [x y length direction]
+(defn draw-pointer [x y length direction color]
   (let [radians (* 2 Math/PI (/ direction 360))
         indicator-x (* length (Math/cos radians))
         indicator-y (* length (Math/sin radians))]
     (q/no-stroke)
-    (q/fill 0 0 0)
+    (apply q/fill color)
     (q/ellipse-mode :center)
     (q/with-translation
       [x y]
       (q/ellipse indicator-x indicator-y 5 5)
       (q/stroke-weight 1)
-      (q/stroke 0 0 0)
+      (apply q/stroke color)
       (q/line 0 0 indicator-x indicator-y))))
 
 (defn- ->circle [x y diameter]
@@ -172,16 +171,16 @@
           [center-x center-y radius] circle
           label-radius (- radius 20)
           pointer-length (- radius 35)
-          ring-color (if mouse-in [255 255 255] [0 0 0])]
+          ring-color (if mouse-in white black)]
       (draw-bezel-ring circle ring-color color)
-      (draw-ticks center-x center-y radius)
-      (draw-labels center-x center-y label-radius)
-      (draw-pointer center-x center-y pointer-length direction)
+      (draw-ticks circle)
+      (draw-labels circle label-radius)
+      (draw-pointer center-x center-y pointer-length direction black)
       (q/rect-mode :center)
       (q/no-stroke)
       (apply q/fill color)
       (q/rect center-x center-y 20 20)
-      (q/fill 0 0 0)
+      (apply q/fill black)
       (q/text-align :center :center)
       (q/text-font (:lcars-small (q/state :fonts)) 12)
       (q/text (str direction) center-x center-y)))
@@ -193,8 +192,11 @@
           [updated-state events] (p/update-elements state commands)
           circle (->circle x y diameter)
           mouse-pos [(q/mouse-x) (q/mouse-y)]
+          mouse-in (inside-circle circle mouse-pos)
+          left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
           new-state (assoc updated-state
-                      :mouse-in (inside-circle circle mouse-pos))]
+                      :mouse-in mouse-in
+                      :left-down left-down)]
       (p/pack-update
         (direction-selector. new-state) events))))
 
