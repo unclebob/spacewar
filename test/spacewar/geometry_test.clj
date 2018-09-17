@@ -49,3 +49,25 @@
     (inside-circle [0 0 1] [0.5 0.5]) => true
     )
   )
+
+(facts
+  "angle"
+  (fact
+    "z: coincident points"
+    (angle [0 0] [0 0]) => :bad-angle)
+  (fact
+    "o: unit circle"
+    (angle [0 0] [1 0]) => (roughly 0 1e-5)
+    (angle [0 0] [0 1]) => (roughly 90 1e-5)
+    (angle [0 0] [-1 0]) => (roughly 180 1e-5)
+    (angle [0 0] [0 -1]) => (roughly 270 1e-5)
+    (angle [0 0] [1 1]) => (roughly 45 1e-5)
+    (angle [0 0] [-1 1]) => (roughly 135 1e-5)
+    (angle [0 0] [-1 -1]) => (roughly 225 1e-5))
+  (fact
+    "m: 30 degrees"
+    (angle [0 0] [(Math/sqrt 3) 1]) => (roughly 30 1e-5)
+    (angle [0 0] [1 (Math/sqrt 3)]) => (roughly 60 1e-5)
+    (angle [0 0] [(-(Math/sqrt 3)) 1]) => (roughly 150 1e-5)
+    (angle [0 0] [-1 (-(Math/sqrt 3))]) => (roughly 240 1e-5)
+    (angle [0 0] [(Math/sqrt 3) -1]) => (roughly 330 1e-5)))
