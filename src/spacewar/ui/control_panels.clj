@@ -139,7 +139,11 @@
           dock-y (+ impulse-y button-h button-gap)
           direction-x (+ x button-w button-gap)
           direction-y (+ y banner-width button-gap)
-          direction-diameter (- h banner-width)]
+          direction-diameter (- h banner-width)
+          power-x (+ direction-x direction-diameter button-gap)
+          power-y direction-y
+          power-w 50
+          power-h (- h banner-width)]
       (engine-panel.
         (assoc state
           :warp (p/setup
@@ -178,7 +182,20 @@
                                    :direction 180
                                    :color color
                                    :left-up-event {:event :engine-direction}}))
-          :elements [:warp :impulse :dock :direction-selector]))))
+          :power-slider (p/setup
+                          (w/->slider
+                            {:x power-x
+                             :y power-y
+                             :w power-w
+                             :h power-h
+                             :color color
+                             :thumb-color button-color
+                             :min-val 0
+                             :max-val 100
+                             :value 50
+                             :left-up-event {:event :engine-power}}))
+
+          :elements [:warp :impulse :dock :direction-selector :power-slider]))))
 
   (update-state [_ commands-and-state]
     (let [direction-command (p/get-command :set-engine-direction (:commands commands-and-state))
