@@ -33,6 +33,8 @@
                     :engine-direction {:command :set-engine-direction :angle (:angle e)}
                     :weapon-direction {:command :set-weapon-direction :angle (:angle e)}
                     :engine-power {:command :set-engine-power :power (:value e)}
+                    :weapon-number {:command :set-weapon-number :number (:value e)}
+                    :weapon-spread {:command :set-weapon-spread :spread (:value e)}
                     nil)))]
     commands))
 

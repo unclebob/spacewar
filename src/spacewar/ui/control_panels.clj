@@ -289,7 +289,7 @@
                                        :min-val 1
                                        :max-val 5
                                        :value 1
-                                       :left-up-event {:event :weapons-number}}))
+                                       :left-up-event {:event :weapon-number}}))
 
           :spread-slider (p/setup
                                     (w/->slider
@@ -307,10 +307,20 @@
           :elements [:torpedo :kinetic :phaser :direction-selector :number-slider :spread-slider]))))
 
   (update-state [_ commands-and-state]
-    (let [direction-command (p/get-command :set-weapon-direction (:commands commands-and-state))
+    (let [commands (:commands commands-and-state)
+          direction-command (p/get-command :set-weapon-direction commands)
+          number-command (p/get-command :set-weapon-number commands)
+          spread-command (p/get-command :set-weapon-spread commands)
           commanded-state (cond
                             (some? direction-command)
                             (p/assoc-element state :direction-selector :direction (:angle direction-command))
+
+                            (some? number-command)
+                            (p/assoc-element state :number-slider :value (:number number-command))
+
+                            (some? spread-command)
+                            (p/assoc-element state :spread-slider :value (:spread spread-command))
+
                             :else state)
           [new-state events] (p/update-elements commanded-state commands-and-state)]
       (p/pack-update
