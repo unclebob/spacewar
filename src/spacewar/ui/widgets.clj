@@ -224,9 +224,12 @@
 (defn draw-slider-bezel [state]
   (let [{:keys [w h color mouse-in]} state]
     (q/stroke-weight 2)
+    (apply q/stroke light-grey)
+    (apply q/fill light-grey)
+    (q/rect-mode :corner)
+    (q/rect 0 0 w h)
     (apply q/stroke (if mouse-in white color))
     (apply q/fill color)
-    (q/rect-mode :corner)
     (q/rect 0 0 w h w)))
 
 (defn draw-slider-thumb [{:keys [stroke thumb-color thumb-x thumb-y w thumb-h value]}]
@@ -241,11 +244,11 @@
   (q/text (str value) thumb-x thumb-y))
 
 (defn slider-thumb-val [state]
-  (let [{:keys [y min-val max-val mouse-pos margin increment]} state
+  (let [{:keys [y min-val range max-val mouse-pos margin increment]} state
         [_ my] mouse-pos
         rel-my (- my margin y)
-        m-pos (max min-val (min max-val (q/round (/ rel-my increment))))
-        m-val (- max-val m-pos)]
+        m-pos  (/ rel-my increment)
+        m-val (max min-val (min max-val (+ min-val (q/floor (- range m-pos)))))]
     m-val))
 
 (defn draw-slider-labels [state]
@@ -258,6 +261,8 @@
 
 (deftype slider [state]
   p/Drawable
+  (get-state [_] state)
+  (clone [_ clone-state] (slider. clone-state))
   (draw [_]
     (let [{:keys [x y w max-val value thumb-color mouse-in left-down
                   margin increment thumb-x thumb-h]} state
@@ -291,7 +296,7 @@
   (setup [_]
     (let [{:keys [w h min-val max-val]} state
           range (- max-val min-val)
-          margin 10
+          margin 20
           increment (/ (- h margin margin) range)
           thumb-x (/ w 2)
           max-y margin
@@ -306,7 +311,8 @@
                             :thumb-h thumb-h))))
 
   (update-state [_ _]
-    (let [{:keys [x y w h last-left-down]} state
+    (let [{:keys [x y w h]} state
+          last-left-down (:left-down state)
           mouse-pos [(q/mouse-x) (q/mouse-y)]
           mouse-in (inside-rect [x y w h] mouse-pos)
           left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))

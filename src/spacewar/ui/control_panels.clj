@@ -7,6 +7,7 @@
 (def stringer-width 15)
 (def button-gap 10)
 (def button-h 40)
+(def slider-width 50)
 
 (defn lcars-points [state]
   (let [{:keys [x y w h]} state
@@ -142,7 +143,7 @@
           direction-diameter (- h banner-width)
           power-x (+ direction-x direction-diameter button-gap)
           power-y direction-y
-          power-w 50
+          power-w slider-width
           power-h (- h banner-width)]
       (engine-panel.
         (assoc state
@@ -198,10 +199,16 @@
           :elements [:warp :impulse :dock :direction-selector :power-slider]))))
 
   (update-state [_ commands-and-state]
-    (let [direction-command (p/get-command :set-engine-direction (:commands commands-and-state))
+    (let [commands (:commands commands-and-state)
+          direction-command (p/get-command :set-engine-direction commands)
+          power-command (p/get-command :set-engine-power commands)
           commanded-state (cond
                             (some? direction-command)
                             (p/assoc-element state :direction-selector :direction (:angle direction-command))
+
+                            (some? power-command)
+                            (p/assoc-element state :power-slider :value (:power power-command))
+
                             :else state)
           [new-state events] (p/update-elements commanded-state commands-and-state)]
       (p/pack-update
@@ -223,7 +230,15 @@
           phaser-y (+ kinetic-y button-h button-gap)
           direction-x (+ button-x button-w button-gap)
           direction-y (+ y banner-width button-gap)
-          direction-diameter (- h banner-width)]
+          direction-diameter (- h banner-width)
+          number-x (+ direction-x direction-diameter button-gap)
+          number-y direction-y
+          number-w slider-width
+          number-h (- h banner-width)
+          spread-x (+ number-x number-w button-gap)
+          spread-y number-y
+          spread-w slider-width
+          spread-h number-h]
       (weapons-panel.
         (assoc state
           :torpedo (p/setup
@@ -255,14 +270,41 @@
                        :left-up-event {:event :select-phaser}}))
 
           :direction-selector (p/setup
-                       (w/->direction-selector
-                         {:x direction-x
-                          :y direction-y
-                          :diameter direction-diameter
-                          :direction 180
-                          :color color
-                          :left-up-event {:event :weapon-direction}}))
-          :elements [:torpedo :kinetic :phaser :direction-selector]))))
+                                (w/->direction-selector
+                                  {:x direction-x
+                                   :y direction-y
+                                   :diameter direction-diameter
+                                   :direction 180
+                                   :color color
+                                   :left-up-event {:event :weapon-direction}}))
+
+          :number-slider (p/setup
+                                    (w/->slider
+                                      {:x number-x
+                                       :y number-y
+                                       :w number-w
+                                       :h number-h
+                                       :color color
+                                       :thumb-color button-color
+                                       :min-val 1
+                                       :max-val 5
+                                       :value 1
+                                       :left-up-event {:event :weapons-number}}))
+
+          :spread-slider (p/setup
+                                    (w/->slider
+                                      {:x spread-x
+                                       :y spread-y
+                                       :w spread-w
+                                       :h spread-h
+                                       :color color
+                                       :thumb-color button-color
+                                       :min-val 0
+                                       :max-val 20
+                                       :value 0
+                                       :left-up-event {:event :weapon-spread}}))
+
+          :elements [:torpedo :kinetic :phaser :direction-selector :number-slider :spread-slider]))))
 
   (update-state [_ commands-and-state]
     (let [direction-command (p/get-command :set-weapon-direction (:commands commands-and-state))
