@@ -18,7 +18,7 @@
        :h [(+ x w) (+ y banner-width)]
        :c1 [x y]
        :c2 [(+ x stringer-width) (+ y banner-width)]
-       :label-position [(+ x w -10) (+ y 10)]}
+       :label-position [(+ x 10 stringer-width) (+ y 10)]}
       {:a [x y]
        :b [(+ x w (- banner-width)) y]
        :c [(+ x w) (+ y banner-width)]
@@ -32,8 +32,7 @@
        :label-position [(+ x 10) (+ y 10)]})))
 
 (defn draw-lcars [state]
-  (let [inverted (:inverted state false)
-        color (:color state)
+  (let [color (:color state)
         {:keys [a b c d e f g h c1 c2 label-position]} (lcars-points state)]
     (q/no-stroke)
     (apply q/fill color)
@@ -51,7 +50,7 @@
     (q/fill 0 0 0)
     (q/text-size 24)
     (q/text-font (:lcars (q/state :fonts)))
-    (q/text-align (if inverted :right :left) :top)
+    (q/text-align :left :top)
     (apply q/text (:name state) label-position)))
 
 (defn draw-bottom-lcars [state]

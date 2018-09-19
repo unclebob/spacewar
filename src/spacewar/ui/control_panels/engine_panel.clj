@@ -1,7 +1,8 @@
 (ns spacewar.ui.control-panels.engine-panel
   (:require [spacewar.ui.protocols :as p]
             [spacewar.ui.widgets :as w]
-            [spacewar.ui.config :refer :all]))
+            [spacewar.ui.config :refer :all]
+            [quil.core :as q]))
 
 (deftype engine-panel [state]
   p/Drawable
@@ -9,8 +10,14 @@
     (engine-panel. clone-state))
 
   (draw [_]
-    (w/draw-lcars state)
-    (p/draw-elements state))
+    (let [{:keys [heading-label-x power-label-x label-y]} state]
+      (w/draw-lcars state)
+      (p/draw-elements state)
+      (apply q/fill black)
+      (q/text-align :center :bottom)
+      (q/text-font (:lcars (q/state :fonts)) 14)
+      (q/text "HEADING" heading-label-x label-y)
+      (q/text "POWER" power-label-x label-y)))
 
   (setup [_]
     (let [{:keys [x y w h color button-color]} state
@@ -28,10 +35,17 @@
           engage-x (- (+ x w) stringer-width button-gap engage-width)
           engage-y direction-y
           engage-w engage-width
-          engage-h (- h banner-width)]
+          engage-h (- h banner-width)
+
+          heading-label-x (+ direction-x (/ direction-diameter 2))
+          power-label-x (+ power-x (/ power-w 2))
+          label-y (+ y banner-width)]
 
       (engine-panel.
         (assoc state
+          :heading-label-x heading-label-x
+          :power-label-x power-label-x
+          :label-y label-y
           :warp (p/setup
                   (w/->button
                     {:x x
