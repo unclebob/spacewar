@@ -13,7 +13,7 @@
     (p/draw-elements state))
 
   (setup [_]
-    (let [{:keys [x y h color button-color]} state
+    (let [{:keys [x y w h color button-color]} state
           button-w 150
           warp-y (+ y banner-width button-gap)
           impulse-y (+ warp-y button-h button-gap)
@@ -24,7 +24,12 @@
           power-x (+ direction-x direction-diameter button-gap)
           power-y direction-y
           power-w slider-width
-          power-h (- h banner-width)]
+          power-h (- h banner-width)
+          engage-x (- (+ x w) stringer-width button-gap engage-width)
+          engage-y direction-y
+          engage-w engage-width
+          engage-h (- h banner-width)]
+
       (engine-panel.
         (assoc state
           :warp (p/setup
@@ -76,7 +81,18 @@
                              :value 50
                              :left-up-event {:event :engine-power}}))
 
-          :elements [:warp :impulse :dock :direction-selector :power-slider]))))
+          :engage (p/setup
+                    (w/->engage
+                      {:x engage-x
+                       :y engage-y
+                       :w engage-w
+                       :h engage-h
+                       :name "ENGAGE"
+                       :color color
+                       :activation-color button-color
+                       :left-up-event {:event :engine-engage}}))
+
+          :elements [:warp :impulse :dock :direction-selector :power-slider :engage]))))
 
   (update-state [_ commands-and-state]
     (let [commands (:commands commands-and-state)

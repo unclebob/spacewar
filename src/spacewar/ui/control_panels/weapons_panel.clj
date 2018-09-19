@@ -26,7 +26,11 @@
           spread-x (+ number-x number-w button-gap)
           spread-y number-y
           spread-w slider-width
-          spread-h number-h]
+          spread-h number-h
+          fire-x (+ spread-x spread-w button-gap)
+          fire-y number-y
+          fire-w engage-width
+          fire-h number-h]
       (weapons-panel.
         (assoc state
           :torpedo (p/setup
@@ -91,8 +95,18 @@
                               :max-val 20
                               :value 0
                               :left-up-event {:event :weapon-spread}}))
+          :fire (p/setup
+                  (w/->engage
+                    {:x fire-x
+                     :y fire-y
+                     :w fire-w
+                     :h fire-h
+                     :color color
+                     :activation-color button-color
+                     :name "FIRE"
+                     :left-up-event {:event :weapon-fire}}))
 
-          :elements [:torpedo :kinetic :phaser :direction-selector :number-slider :spread-slider]))))
+          :elements [:torpedo :kinetic :phaser :direction-selector :number-slider :spread-slider :fire]))))
 
   (update-state [_ commands-and-state]
     (let [commands (:commands commands-and-state)

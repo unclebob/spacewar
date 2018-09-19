@@ -24,6 +24,7 @@
              :lcars-small (q/create-font "Arial" 18)}}))
 
 (defn make-commands [events]
+  (println events)
   (let [commands
         (filter some?
                 (for [e events]
