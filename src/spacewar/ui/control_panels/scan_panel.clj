@@ -1,12 +1,13 @@
 (ns spacewar.ui.control-panels.scan-panel
   (:require [spacewar.ui.protocols :as p]
-            [spacewar.ui.widgets :as w]
-            [spacewar.ui.config :refer :all]))
+            [spacewar.ui.config :refer :all]
+            [spacewar.ui.widgets.button :refer :all]
+            [spacewar.ui.widgets.lcars :refer :all]))
 
 (deftype scan-panel [state]
   p/Drawable
   (draw [_]
-    (w/draw-lcars state)
+    (draw-lcars state)
     (p/draw-elements state))
 
   (setup [_]
@@ -18,7 +19,7 @@
       (scan-panel.
         (assoc state
           :strategic (p/setup
-                       (w/->button
+                       (->button
                          {:x x
                           :y strategic-y
                           :w button-w
@@ -27,7 +28,7 @@
                           :color button-color
                           :left-up-event {:event :strategic-scan}}))
           :tactical (p/setup
-                      (w/->button
+                      (->button
                         {:x x
                          :y tactical-y
                          :w button-w
@@ -37,7 +38,7 @@
                          :left-up-event {:event :tactical-scan}}))
 
           :front-view (p/setup
-                        (w/->button
+                        (->button
                           {:x x
                            :y front-view-y
                            :w button-w

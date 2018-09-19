@@ -1,12 +1,13 @@
 (ns spacewar.ui.control-panels.status-panel
   (:require [spacewar.ui.protocols :as p]
-            [spacewar.ui.widgets :as w]
-            [spacewar.ui.config :refer :all]))
+            [spacewar.ui.config :refer :all]
+            (spacewar.ui.widgets[lcars :refer :all]
+                                [horizontal-scale :refer :all])))
 
 (deftype status-panel [state]
   p/Drawable
   (draw [_]
-    (w/draw-bottom-lcars state)
+    (draw-bottom-lcars state)
     (p/draw-elements state))
 
   (setup [_]
@@ -21,7 +22,7 @@
       (status-panel.
         (assoc state
           :anti-matter (p/setup
-                         (w/->h-scale
+                         (->h-scale
                            {:x scale-x
                             :y antimatter-y
                             :w scale-w
@@ -33,7 +34,7 @@
                             :color color
                             :mercury-color mercury-color}))
           :dilithium (p/setup
-                       (w/->h-scale
+                       (->h-scale
                          {:x scale-x
                           :y dilithium-y
                           :w scale-w
@@ -45,7 +46,7 @@
                           :color color
                           :mercury-color mercury-color}))
           :core-temp (p/setup
-                       (w/->h-scale
+                       (->h-scale
                          {:x scale-x
                           :y core-temp-y
                           :w scale-w

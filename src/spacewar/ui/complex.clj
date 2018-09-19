@@ -1,13 +1,13 @@
 (ns spacewar.ui.complex
   (:require [quil.core :as q]
             (spacewar.ui [protocols :as p]
-                         [view-frame :as f]
-                         [widgets :as w])
+                         [view-frame :as f])
             (spacewar.ui.control-panels [scan-panel :refer :all]
                                         [engine-panel :refer :all]
                                         [weapons-panel :refer :all]
                                         [damage-panel :refer :all]
-                                        [status-panel :refer :all])))
+                                        [status-panel :refer :all])
+            (spacewar.ui.widgets [lights :refer :all])))
 
 (defn draw-light-panel [state]
   (let [{:keys [x y w h indicators background]} state]
@@ -20,7 +20,7 @@
 (defn update-light-panel [state]
   (let [{:keys [indicators level-func]} state
         indicator-states (map p/get-state indicators)
-        new-indicators (map-indexed #(w/->indicator-light (assoc %2 :level (level-func %1))) indicator-states)
+        new-indicators (map-indexed #(->indicator-light (assoc %2 :level (level-func %1))) indicator-states)
         new-state (assoc state :indicators new-indicators)]
     new-state))
 
@@ -38,7 +38,7 @@
         cell-y-offset (- (/ cell-height 2) (/ indicator-height 2))
         indicators (for [row (range rows) column (range columns)]
                      (p/setup
-                       (w/->indicator-light
+                       (->indicator-light
                          {:x (+ x gap cell-x-offset (* cell-width column))
                           :y (+ y gap cell-y-offset (* cell-height row))
                           :w indicator-width
@@ -61,7 +61,7 @@
                                     :gap 20
                                     :indicator-height 10
                                     :indicator-width 20
-                                    :draw-func w/rectangle-light
+                                    :draw-func rectangle-light
                                     :colors [[50 50 50] [255 255 255]]))
           new-state (assoc state :indicators indicators
                                  :level-func (partial shift-pattern (* rows columns))
@@ -83,7 +83,7 @@
                                     :gap 20
                                     :indicator-height 15
                                     :indicator-width 15
-                                    :draw-func w/round-light
+                                    :draw-func round-light
                                     :colors [[50 50 50] [255 255 0]]))
           new-state (assoc state :indicators indicators
                                  :level-func (partial random-pattern (* rows columns))

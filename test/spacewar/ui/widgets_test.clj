@@ -1,6 +1,6 @@
 (ns spacewar.ui.widgets-test
     (:require [midje.sweet :refer :all]
-              [spacewar.ui.widgets :refer :all]))
+              [spacewar.ui.widgets.direction-selector :refer :all]))
 
 (facts
   "direction-selector"

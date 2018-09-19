@@ -1,14 +1,18 @@
 (ns spacewar.ui.control-panels.weapons-panel
   (:require [spacewar.ui.protocols :as p]
-            [spacewar.ui.widgets :as w]
             [spacewar.ui.config :refer :all]
+            [spacewar.ui.widgets.lcars :refer :all]
+            [spacewar.ui.widgets.button :refer :all]
+            [spacewar.ui.widgets.direction-selector :refer :all]
+            [spacewar.ui.widgets.slider :refer :all]
+            [spacewar.ui.widgets.engage :refer :all]
             [quil.core :as q]))
 
 (deftype weapons-panel [state]
   p/Drawable
   (draw [_]
     (let [{:keys [bearing-label-x number-label-x spread-label-x label-y]} state]
-      (w/draw-lcars state)
+      (draw-lcars state)
       (p/draw-elements state)
       (apply q/fill black)
       (q/text-align :center :bottom)
@@ -50,7 +54,7 @@
              :spread-label-x spread-label-x
              :label-y label-y
              :torpedo (p/setup
-                        (w/->button
+                        (->button
                           {:x button-x
                            :y torpedo-y
                            :w button-w
@@ -60,7 +64,7 @@
                            :status "20"
                            :left-up-event {:event :select-torpedo}}))
              :kinetic (p/setup
-                        (w/->button
+                        (->button
                           {:x button-x
                            :y kinetic-y
                            :w button-w
@@ -70,7 +74,7 @@
                            :status "100"
                            :left-up-event {:event :select-kinetic}}))
              :phaser (p/setup
-                       (w/->button
+                       (->button
                          {:x button-x
                           :y phaser-y
                           :w button-w
@@ -81,7 +85,7 @@
                           :left-up-event {:event :select-phaser}}))
 
              :direction-selector (p/setup
-                                   (w/->direction-selector
+                                   (->direction-selector
                                      {:x direction-x
                                       :y direction-y
                                       :diameter direction-diameter
@@ -90,7 +94,7 @@
                                       :left-up-event {:event :weapon-direction}}))
 
              :number-slider (p/setup
-                              (w/->slider
+                              (->slider
                                 {:x number-x
                                  :y number-y
                                  :w number-w
@@ -103,7 +107,7 @@
                                  :left-up-event {:event :weapon-number}}))
 
              :spread-slider (p/setup
-                              (w/->slider
+                              (->slider
                                 {:x spread-x
                                  :y spread-y
                                  :w spread-w
@@ -115,7 +119,7 @@
                                  :value 0
                                  :left-up-event {:event :weapon-spread}}))
              :fire (p/setup
-                     (w/->engage
+                     (->engage
                        {:x fire-x
                         :y fire-y
                         :w fire-w

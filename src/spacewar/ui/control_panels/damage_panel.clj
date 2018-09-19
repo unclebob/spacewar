@@ -1,13 +1,14 @@
 (ns spacewar.ui.control-panels.damage-panel
-  (:require [spacewar.ui.protocols :as p]
-            [spacewar.ui.widgets :as w]
-            [spacewar.ui.config :refer :all]))
+  (:require (spacewar.ui [protocols :as p]
+                         [config :refer :all])
+            [spacewar.ui.widgets.lcars :refer :all]
+            [spacewar.ui.widgets.lights :refer :all]))
 
 
 (deftype damage-panel [state]
   p/Drawable
   (draw [_]
-    (w/draw-lcars state)
+    (draw-lcars state)
     (p/draw-elements state))
 
   (setup [_]
@@ -28,7 +29,7 @@
       (damage-panel.
         (assoc state
           :warp (p/setup
-                  (w/->named-indicator
+                  (->named-indicator
                     {:x col1
                      :y warp-y
                      :w indicator-w
@@ -36,9 +37,9 @@
                      :name "WRP"
                      :colors colors
                      :level 0
-                     :draw-func w/round-rectangle-light}))
+                     :draw-func round-rectangle-light}))
           :impulse (p/setup
-                     (w/->named-indicator
+                     (->named-indicator
                        {:x col1
                         :y impulse-y
                         :w indicator-w
@@ -46,9 +47,9 @@
                         :name "IMP"
                         :colors colors
                         :level 0
-                        :draw-func w/round-rectangle-light}))
+                        :draw-func round-rectangle-light}))
           :life-support (p/setup
-                          (w/->named-indicator
+                          (->named-indicator
                             {:x col1
                              :y life-support-y
                              :w indicator-w
@@ -56,9 +57,9 @@
                              :name "LIF"
                              :colors colors
                              :level 0
-                             :draw-func w/round-rectangle-light}))
+                             :draw-func round-rectangle-light}))
           :hull (p/setup
-                  (w/->named-indicator
+                  (->named-indicator
                     {:x col2
                      :y hull-y
                      :w indicator-w
@@ -66,9 +67,9 @@
                      :name "HUL"
                      :colors colors
                      :level 0
-                     :draw-func w/round-rectangle-light}))
+                     :draw-func round-rectangle-light}))
           :sensors (p/setup
-                     (w/->named-indicator
+                     (->named-indicator
                        {:x col2
                         :y sensor-y
                         :w indicator-w
@@ -76,9 +77,9 @@
                         :name "SEN"
                         :colors colors
                         :level 0
-                        :draw-func w/round-rectangle-light}))
+                        :draw-func round-rectangle-light}))
           :weapons (p/setup
-                     (w/->named-indicator
+                     (->named-indicator
                        {:x col2
                         :y weapons-y
                         :w indicator-w
@@ -86,7 +87,7 @@
                         :name "WPN"
                         :colors colors
                         :level 0
-                        :draw-func w/round-rectangle-light}))
+                        :draw-func round-rectangle-light}))
           :elements [:warp :impulse :life-support :hull :sensors :weapons]))))
 
   (update-state [_ commands]

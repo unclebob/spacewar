@@ -1,7 +1,11 @@
 (ns spacewar.ui.control-panels.engine-panel
   (:require [spacewar.ui.protocols :as p]
-            [spacewar.ui.widgets :as w]
             [spacewar.ui.config :refer :all]
+            [spacewar.ui.widgets.lcars :refer :all]
+            [spacewar.ui.widgets.button :refer :all]
+            [spacewar.ui.widgets.direction-selector :refer :all]
+            [spacewar.ui.widgets.slider :refer :all]
+            [spacewar.ui.widgets.engage :refer :all]
             [quil.core :as q]))
 
 (deftype engine-panel [state]
@@ -11,7 +15,7 @@
 
   (draw [_]
     (let [{:keys [heading-label-x power-label-x label-y]} state]
-      (w/draw-lcars state)
+      (draw-lcars state)
       (p/draw-elements state)
       (apply q/fill black)
       (q/text-align :center :bottom)
@@ -47,7 +51,7 @@
           :power-label-x power-label-x
           :label-y label-y
           :warp (p/setup
-                  (w/->button
+                  (->button
                     {:x x
                      :y warp-y
                      :w button-w
@@ -56,7 +60,7 @@
                      :color button-color
                      :left-up-event {:event :select-warp}}))
           :impulse (p/setup
-                     (w/->button
+                     (->button
                        {:x x
                         :y impulse-y
                         :w button-w
@@ -65,7 +69,7 @@
                         :color button-color
                         :left-up-event {:event :select-impulse}}))
           :dock (p/setup
-                  (w/->button
+                  (->button
                     {:x x
                      :y dock-y
                      :w button-w
@@ -75,7 +79,7 @@
                      :left-up-event {:event :select-dock}}))
 
           :direction-selector (p/setup
-                                (w/->direction-selector
+                                (->direction-selector
                                   {:x direction-x
                                    :y direction-y
                                    :diameter direction-diameter
@@ -83,7 +87,7 @@
                                    :color color
                                    :left-up-event {:event :engine-direction}}))
           :power-slider (p/setup
-                          (w/->slider
+                          (->slider
                             {:x power-x
                              :y power-y
                              :w power-w
@@ -96,7 +100,7 @@
                              :left-up-event {:event :engine-power}}))
 
           :engage (p/setup
-                    (w/->engage
+                    (->engage
                       {:x engage-x
                        :y engage-y
                        :w engage-w
