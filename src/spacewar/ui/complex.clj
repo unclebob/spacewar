@@ -1,9 +1,13 @@
 (ns spacewar.ui.complex
   (:require [quil.core :as q]
-            [spacewar.ui.protocols :as p]
-            [spacewar.ui.view-frame :as f]
-            [spacewar.ui.control-panels :as cp]
-            [spacewar.ui.widgets :as w]))
+            (spacewar.ui [protocols :as p]
+                         [view-frame :as f]
+                         [widgets :as w])
+            (spacewar.ui.control-panels [scan-panel :refer :all]
+                                        [engine-panel :refer :all]
+                                        [weapons-panel :refer :all]
+                                        [damage-panel :refer :all]
+                                        [status-panel :refer :all])))
 
 (defn draw-light-panel [state]
   (let [{:keys [x y w h indicators background]} state]
@@ -144,65 +148,65 @@
           scan-panel-w (- left-margin (* 2 small-panel-gap))
           scan-panel-h (- frame-bottom side-panel-height side-panel-y panel-gap)
           scan-panel (p/setup
-                       (cp/->scan-panel {:x scan-panel-x
-                                         :y scan-panel-y
-                                         :w scan-panel-w
-                                         :h scan-panel-h
-                                         :name "SCAN"
-                                         :color [150 150 255]
-                                         :button-color [100 100 255]}))
+                       (->scan-panel {:x scan-panel-x
+                                      :y scan-panel-y
+                                      :w scan-panel-w
+                                      :h scan-panel-h
+                                      :name "SCAN"
+                                      :color [150 150 255]
+                                      :button-color [100 100 255]}))
 
           engine-panel-x scan-panel-x
           engine-panel-y (+ y frame-height small-panel-gap)
           engine-panel-w (+ left-margin bottom-lights-left-offset (- (* 2 small-panel-gap)))
           engine-panel-h (- bottom-margin small-panel-gap)
           engine-panel (p/setup
-                         (cp/->engine-panel {:x engine-panel-x
-                                             :y engine-panel-y
-                                             :w engine-panel-w
-                                             :h engine-panel-h
-                                             :name "ENGINES"
-                                             :color [150 255 150]
-                                             :button-color [80 255 80]}))
+                         (->engine-panel {:x engine-panel-x
+                                          :y engine-panel-y
+                                          :w engine-panel-w
+                                          :h engine-panel-h
+                                          :name "ENGINES"
+                                          :color [150 255 150]
+                                          :button-color [80 255 80]}))
 
           weapons-panel-x (+ bottom-lights-x bottom-lights-width small-panel-gap)
           weapons-panel-y (+ y frame-height small-panel-gap)
           weapons-panel-w (- w left-margin bottom-lights-left-offset bottom-lights-width panel-gap)
           weapons-panel-h (- bottom-margin small-panel-gap)
           weapons-panel (p/setup
-                          (cp/->weapons-panel {:x weapons-panel-x
-                                               :y weapons-panel-y
-                                               :w weapons-panel-w
-                                               :h weapons-panel-h
-                                               :name "WEAPONS"
-                                               :color [255 200 50]
-                                               :button-color [255 150 50]
-                                               :inverted true}))
+                          (->weapons-panel {:x weapons-panel-x
+                                            :y weapons-panel-y
+                                            :w weapons-panel-w
+                                            :h weapons-panel-h
+                                            :name "WEAPONS"
+                                            :color [255 200 50]
+                                            :button-color [255 150 50]
+                                            :inverted true}))
 
           damage-panel-x (+ x left-margin frame-width small-panel-gap)
           damage-panel-y scan-panel-y
           damage-panel-w (- right-margin (* 2 small-panel-gap))
           damage-panel-h scan-panel-h
           damage-panel (p/setup
-                         (cp/->damage-panel {:x damage-panel-x
-                                             :y damage-panel-y
-                                             :w damage-panel-w
-                                             :h damage-panel-h
-                                             :name "DAMAGE"
-                                             :color [255 100 100]
-                                             :inverted true}))
+                         (->damage-panel {:x damage-panel-x
+                                          :y damage-panel-y
+                                          :w damage-panel-w
+                                          :h damage-panel-h
+                                          :name "DAMAGE"
+                                          :color [255 100 100]
+                                          :inverted true}))
 
-          status-panel-x (+ engine-panel-x engine-panel-w small-panel-gap )
+          status-panel-x (+ engine-panel-x engine-panel-w small-panel-gap)
           status-panel-y (+ bottom-lights-y bottom-lights-h panel-gap)
           status-panel-w bottom-lights-width
           status-panel-h (- h frame-height panel-gap bottom-lights-h)
           status-panel (p/setup
-                         (cp/->status-panel {:x status-panel-x
-                                             :y status-panel-y
-                                             :w status-panel-w
-                                             :h status-panel-h
-                                             :name "STATUS"
-                                             :color [255 255 150]}))
+                         (->status-panel {:x status-panel-x
+                                          :y status-panel-y
+                                          :w status-panel-w
+                                          :h status-panel-h
+                                          :name "STATUS"
+                                          :color [255 255 150]}))
 
           new-state (assoc state :frame frame
                                  :bottom-lights bottom-lights
