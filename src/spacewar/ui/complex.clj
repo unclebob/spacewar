@@ -206,7 +206,8 @@
                                           :w status-panel-w
                                           :h status-panel-h
                                           :name "STATUS"
-                                          :color [255 255 150]}))
+                                          :color [255 255 200]
+                                          :mercury-color [240 240 0]}))
 
           new-state (assoc state :frame frame
                                  :bottom-lights bottom-lights

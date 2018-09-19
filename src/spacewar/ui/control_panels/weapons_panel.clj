@@ -41,6 +41,7 @@
                         :h button-h
                         :name "TORPEDO"
                         :color button-color
+                        :status "20"
                         :left-up-event {:event :select-torpedo}}))
           :kinetic (p/setup
                      (w/->button
@@ -50,6 +51,7 @@
                         :h button-h
                         :name "KINETIC"
                         :color button-color
+                        :status "100"
                         :left-up-event {:event :select-kinetic}}))
           :phaser (p/setup
                     (w/->button
@@ -59,6 +61,7 @@
                        :h button-h
                        :name "PHASER"
                        :color button-color
+                       :status "78%"
                        :left-up-event {:event :select-phaser}}))
 
           :direction-selector (p/setup

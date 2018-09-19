@@ -10,7 +10,7 @@
     (p/draw-elements state))
 
   (setup [_]
-    (let [{:keys [x y w]} state
+    (let [{:keys [x y w color mercury-color]} state
           scale-x x
           scale-h 20
           scale-w w
@@ -29,7 +29,9 @@
                             :min 0
                             :max 100
                             :value 50
-                            :name "ANTIMATTER"}))
+                            :name "ANTIMATTER"
+                            :color color
+                            :mercury-color mercury-color}))
           :dilithium (p/setup
                        (w/->h-scale
                          {:x scale-x
@@ -39,7 +41,9 @@
                           :min 0
                           :max 100
                           :value 50
-                          :name "DILITHIUM"}))
+                          :name "DILITHIUM"
+                          :color color
+                          :mercury-color mercury-color}))
           :core-temp (p/setup
                        (w/->h-scale
                          {:x scale-x
@@ -49,7 +53,9 @@
                           :min 0
                           :max 100
                           :value 50
-                          :name "CORE TEMP"}))
+                          :name "CORE TEMP"
+                          :color color
+                          :mercury-color mercury-color}))
           :elements [:anti-matter :dilithium :core-temp]))))
 
   (update-state [_ commands]

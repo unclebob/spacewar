@@ -71,16 +71,22 @@
 (deftype button [state]
   p/Drawable
   (draw [_]
-    (let [{:keys [x y w h name color mouse-in left-down]} state]
-      (q/stroke-weight 2)
-      (apply q/stroke (if mouse-in white color))
-      (apply q/fill (if left-down white color))
-      (q/rect-mode :corner)
-      (q/rect x y w h h)
-      (q/text-align :right :bottom)
-      (q/text-font (:lcars (q/state :fonts)) 18)
-      (apply q/fill black)
-      (q/text name (+ x w -10) (+ y h))))
+    (let [{:keys [x y w h name color mouse-in left-down status]} state]
+      (q/with-translation
+        [x y]
+        (q/stroke-weight 2)
+        (apply q/stroke (if mouse-in white color))
+        (apply q/fill (if left-down white color))
+        (q/rect-mode :corner)
+        (q/rect 0 0 w h h)
+        (q/text-align :right :bottom)
+        (q/text-font (:lcars (q/state :fonts)) 18)
+        (apply q/fill black)
+        (q/text name (+ w -10) (+ h))
+        (when status
+          (do (q/text-size 14)
+              (q/text-align :left :top)
+              (q/text status 10 10))))))
 
   (setup [this] this)
   (update-state [_ _]
@@ -146,7 +152,7 @@
 (deftype h-scale [state]
   p/Drawable
   (draw [_]
-    (let [{:keys [x y w h name min max value]} state
+    (let [{:keys [x y w h name min max value color mercury-color]} state
           name-gap 150
           scale-w (- w name-gap)
           scale-x (+ x name-gap)
@@ -157,11 +163,11 @@
       (q/text-font (:lcars (q/state :fonts)) 18)
       (q/text name x y)
       (q/no-stroke)
-      (apply q/fill black)
+      (apply q/fill color)
       (q/rect-mode :corner)
-      (q/rect scale-x y scale-w h)
-      (q/fill 255 255 0)
-      (q/rect (+ scale-x (- scale-w mercury)) (+ 2 y) mercury (- h 4))
+      (q/rect scale-x y scale-w h h)
+      (apply q/fill mercury-color)
+      (q/rect (+ scale-x (- scale-w mercury)) (+ 2 y) mercury (- h 4) h)
       ))
 
 
