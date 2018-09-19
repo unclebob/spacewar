@@ -36,7 +36,7 @@
                      :name "WRP"
                      :colors colors
                      :level 0
-                     :draw-func w/rectangle-light}))
+                     :draw-func w/round-rectangle-light}))
           :impulse (p/setup
                      (w/->named-indicator
                        {:x col1
@@ -46,7 +46,7 @@
                         :name "IMP"
                         :colors colors
                         :level 0
-                        :draw-func w/rectangle-light}))
+                        :draw-func w/round-rectangle-light}))
           :life-support (p/setup
                           (w/->named-indicator
                             {:x col1
@@ -56,7 +56,7 @@
                              :name "LIF"
                              :colors colors
                              :level 0
-                             :draw-func w/rectangle-light}))
+                             :draw-func w/round-rectangle-light}))
           :hull (p/setup
                   (w/->named-indicator
                     {:x col2
@@ -66,7 +66,7 @@
                      :name "HUL"
                      :colors colors
                      :level 0
-                     :draw-func w/rectangle-light}))
+                     :draw-func w/round-rectangle-light}))
           :sensors (p/setup
                      (w/->named-indicator
                        {:x col2
@@ -76,7 +76,7 @@
                         :name "SEN"
                         :colors colors
                         :level 0
-                        :draw-func w/rectangle-light}))
+                        :draw-func w/round-rectangle-light}))
           :weapons (p/setup
                      (w/->named-indicator
                        {:x col2
@@ -86,7 +86,7 @@
                         :name "WPN"
                         :colors colors
                         :level 0
-                        :draw-func w/rectangle-light}))
+                        :draw-func w/round-rectangle-light}))
           :elements [:warp :impulse :life-support :hull :sensors :weapons]))))
 
   (update-state [_ commands]

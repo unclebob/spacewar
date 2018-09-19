@@ -68,9 +68,6 @@
     )
   )
 
-
-
-
 (deftype button [state]
   p/Drawable
   (draw [_]
@@ -102,6 +99,11 @@
 (defn rectangle-light [x y w h]
   (q/rect-mode :corner)
   (q/rect x y w h))
+
+(defn round-rectangle-light [x y w h]
+  (q/rect-mode :corner)
+  (q/no-stroke)
+  (q/rect x y w h h))
 
 (defn round-light [x y w h]
   (q/ellipse-mode :corner)
