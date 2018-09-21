@@ -28,7 +28,6 @@
 (defn- draw-stars [state]
   (let [{:keys [w h stars]} state
         presentable-stars (present-objects state stars)]
-    (println (count presentable-stars))
     (apply q/fill grey)
     (q/no-stroke)
     (q/ellipse-mode :center)
@@ -55,18 +54,22 @@
           (q/line -10 -6 -14 -3))))))
 
 (defn- draw-ship [state]
-  (let [{:keys [w h]} state]
+  (let [{:keys [w h]} state
+        heading (or (->> state :ship :heading) 0)
+        radians (* Math/PI 2 (/ heading 360))]
     (q/with-translation
       [(/ w 2) (/ h 2)]
-      (apply q/stroke enterprise-color)
-      (q/stroke-weight 2)
-      (q/ellipse-mode :center)
-      (apply q/fill black)
-      (q/line 0 0 9 9)
-      (q/line 0 0 -9 9)
-      (q/ellipse 0 0 9 9)
-      (q/line 9 5 9 15)
-      (q/line -9 5 -9 15))))
+      (q/with-rotation
+        [radians]
+        (apply q/stroke enterprise-color)
+        (q/stroke-weight 2)
+        (q/ellipse-mode :center)
+        (apply q/fill black)
+        (q/line -9 -9 0 0)
+        (q/line -9 9 0 0)
+        (q/ellipse 0 0 9 9)
+        (q/line -5 9 -15 9)
+        (q/line -5 -9 -15 -9)))))
 
 (defn- draw-bases [state]
   (let [{:keys [w h bases]} state

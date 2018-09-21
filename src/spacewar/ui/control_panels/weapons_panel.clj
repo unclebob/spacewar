@@ -89,7 +89,7 @@
                                      {:x direction-x
                                       :y direction-y
                                       :diameter direction-diameter
-                                      :direction 180
+                                      :direction 0
                                       :color color
                                       :left-up-event {:event :weapon-direction}}))
 

@@ -25,12 +25,16 @@
 
   (update-state [_ commands-and-state]
     (let [{:keys [x y w h]} state
+          commands (:commands commands-and-state)
           commanded-state (cond
-                            (some? (p/get-command :strategic-scan (:commands commands-and-state)))
+                            (some? (p/get-command :strategic-scan commands))
                             (assoc state :contents (p/setup (->strategic-scan {:x x :y y :h h :w w})))
 
-                            (some? (p/get-command :tactical-scan (:commands commands-and-state)))
+                            (some? (p/get-command :tactical-scan commands))
                             (assoc state :contents (p/setup (->tactical-scan {:x x :y y :h h :w w})))
+
+                            (some? (p/get-command :front-view commands))
+                            (assoc state :contents (p/setup (->front-view {:x x :y y :h h :w w})))
 
                             :else state)
           [new-state _] (p/update-elements commanded-state commands-and-state)]

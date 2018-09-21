@@ -1,5 +1,6 @@
 (ns spacewar.ui.protocols
-  (:require [clojure.spec.alpha :as s]))
+  (:require [clojure.spec.alpha :as s]
+            [spacewar.util :refer :all]))
 
 ;update-state returns [new-drawable [events]]
 (defprotocol Drawable
@@ -58,13 +59,7 @@
      [new-drawable []])))
 
 (defn get-command [command-id commands]
-  (loop [commands commands]
-    (if (empty? commands)
-      nil
-      (let [command (first commands)]
-        (if (= command-id (:command command))
-          command
-          (recur (rest commands)))))))
+  (get-named-map :command command-id commands))
 
 (defn assoc-element [drawable-state element key value]
   (let [drawable-element (element drawable-state)

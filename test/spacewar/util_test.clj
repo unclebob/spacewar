@@ -1,0 +1,31 @@
+(ns spacewar.util-test
+  (:require [midje.sweet :refer :all]
+            [spacewar.util :refer :all]))
+
+(facts
+  "about events"
+  (fact
+    "degenerate event list has no commands"
+    (get-event :my-event []) => nil?)
+
+  (fact
+    "event not found"
+    (get-event
+      :my-event
+      [{:event :x} {:event :y}]) => nil?)
+
+  (fact
+    "can find event in list of one event"
+    (get-event
+      :my-event
+      [{:event :my-event}]) => {:event :my-event})
+
+  (fact
+    "can find event in list of many events"
+    (get-event
+      :my-event
+      [{:event :x}
+       {:event :y}
+       {:event :my-event}]) => {:event :my-event})
+  )
+

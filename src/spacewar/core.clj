@@ -30,39 +30,21 @@
      :fonts {:lcars (q/create-font "Helvetica-Bold" 24)
              :lcars-small (q/create-font "Arial" 18)}}))
 
-(defn make-commands [events]
-  (let [commands
-        (filter some?
-                (for [e events]
-                  (condp = (:event e)
-                    :strategic-scan {:command :strategic-scan}
-                    :tactical-scan {:command :tactical-scan}
-                    :engine-direction {:command :set-engine-direction :angle (:angle e)}
-                    :weapon-direction {:command :set-weapon-direction :angle (:angle e)}
-                    :engine-power {:command :set-engine-power :power (:value e)}
-                    :weapon-number {:command :set-weapon-number :number (:value e)}
-                    :weapon-spread {:command :set-weapon-spread :spread (:value e)}
-                    nil)))]
-    commands))
-
-(defn make-global-state [_ global-state]
-  (let [{:keys [ship]} global-state
-        x (rem (+ 5 (:x ship)) known-space-x)
-        y (rem (+ 7 (:y ship)) known-space-y)]
-    (assoc global-state :ship (assoc ship :x x :y y))))
+(defn process-events [events global-state]
+  (let [[ship-commands ship-state] (ship/process-events events (:ship global-state))]
+    [(concat ship-commands) (assoc global-state :ship ship-state)]))
 
 (defn update-state [context]
-  (let [state (:state context)
+  (let [complex (:state context)
         commands-and-state (:commands-and-state context)
         global-state (:global-state commands-and-state)
-        [new-drawable events] (p/update-state state commands-and-state)
-        flat-events (flatten events)]
+        [new-complex events] (p/update-state complex commands-and-state)
+        flat-events (flatten events)
+        [commands new-global-state] (process-events flat-events global-state)]
     (assoc context
-      :state new-drawable
-      :commands-and-state {:commands (make-commands flat-events)
-                           :global-state (make-global-state
-                                           flat-events
-                                           global-state)})))
+      :state new-complex
+      :commands-and-state {:commands commands
+                           :global-state new-global-state})))
 
 (defn draw-state [{:keys [state]}]
   (p/draw state))

@@ -54,19 +54,23 @@
           (q/line -10 -6 -14 -3))))))
 
 (defn- draw-ship [state]
-  (let [{:keys [ship x-pixel-width y-pixel-width]} state]
+  (let [{:keys [ship x-pixel-width y-pixel-width]} state
+        heading (or (->> state :ship :heading) 0)
+        radians (* Math/PI 2 (/ heading 360))]
     (q/with-translation
       [(* (:x ship) x-pixel-width)
        (* (:y ship) y-pixel-width)]
-      (apply q/stroke enterprise-color)
-      (q/stroke-weight 2)
-      (q/ellipse-mode :center)
-      (apply q/fill black)
-      (q/line 0 0 9 9)
-      (q/line 0 0 -9 9)
-      (q/ellipse 0 0 9 9)
-      (q/line 9 5 9 15)
-      (q/line -9 5 -9 15))))
+      (q/with-rotation
+        [radians]
+        (apply q/stroke enterprise-color)
+        (q/stroke-weight 2)
+        (q/ellipse-mode :center)
+        (apply q/fill black)
+        (q/line -9 -9 0 0)
+        (q/line -9 9 0 0)
+        (q/ellipse 0 0 9 9)
+        (q/line -5 9 -15 9)
+        (q/line -5 -9 -15 -9)))))
 
 (defn- draw-bases [state]
   (let [{:keys [bases x-pixel-width y-pixel-width]} state]
