@@ -5,7 +5,9 @@
 (def dark-grey [50 50 50])
 (def grey [128 128 128])
 (def light-grey [200 200 200])
-(def klingon-red [200 0 50])
+(def klingon-color [200 0 50])
+(def enterprise-color [0 255 50])
+(def base-color [0 50 255])
 
 (def banner-width 40)
 (def stringer-width 15)

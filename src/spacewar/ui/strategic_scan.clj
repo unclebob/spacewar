@@ -44,7 +44,7 @@
         y-pixel-width (/ h known-space-y)]
     (when klingons
       (q/no-fill)
-      (apply q/stroke klingon-red)
+      (apply q/stroke klingon-color)
       (q/stroke-weight 2)
       (q/ellipse-mode :center)
       (doseq [{:keys [x y]} klingons]
@@ -55,9 +55,42 @@
           (q/line 0 0 10 -6)
           (q/line 10 -6 14 -3)
           (q/line 0 0 -10 -6)
-          (q/line -10 -6 -14 -3))))
-    )
-  )
+          (q/line -10 -6 -14 -3))))))
+
+(defn- draw-ship [state]
+  (let [{:keys [w h ship]} state
+        x-pixel-width (/ w known-space-x)
+        y-pixel-width (/ h known-space-y)]
+    (q/with-translation
+      [(* (:x ship) x-pixel-width)
+       (* (:y ship) y-pixel-width)]
+      (apply q/stroke enterprise-color)
+      (q/stroke-weight 2)
+      (q/ellipse-mode :center)
+      (apply q/fill black)
+      (q/line 0 0 9 9)
+      (q/line 0 0 -9 9)
+      (q/ellipse 0 0 9 9)
+      (q/line 9 5 9 15)
+      (q/line -9 5 -9 15))))
+
+(defn- draw-bases [state]
+  (let [{:keys [w h bases]} state
+        x-pixel-width (/ w known-space-x)
+        y-pixel-width (/ h known-space-y)]
+    (when bases
+      (q/no-fill)
+      (apply q/stroke base-color)
+      (q/stroke-weight 2)
+      (q/ellipse-mode :center)
+      (doseq [{:keys [x y]} bases]
+        (q/with-translation
+          [(* x x-pixel-width)
+           (* y y-pixel-width)]
+          (q/ellipse 0 0 12 12)
+          (q/ellipse 0 0 20 20)
+          (q/line 0 -6 0 6)
+          (q/line -6 0 6 0))))))
 
 (deftype strategic-scan [state]
   p/Drawable
@@ -68,7 +101,9 @@
         (draw-background state)
         (draw-grid state)
         (draw-stars state)
-        (draw-klingons state))))
+        (draw-klingons state)
+        (draw-ship state)
+        (draw-bases state))))
 
   (setup [this] this)
 
@@ -76,4 +111,6 @@
     (p/pack-update
       (strategic-scan.
         (assoc state :stars (:stars global-state)
-                     :klingons (:klingons global-state))))))
+                     :klingons (:klingons global-state)
+                     :ship (:ship global-state)
+                     :bases (:bases global-state))))))

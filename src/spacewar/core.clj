@@ -5,7 +5,8 @@
             [spacewar.ui.protocols :as p]
             [spacewar.game-logic.ship :as ship]
             [spacewar.game-logic.stars :as stars]
-            [spacewar.game-logic.klingons :as klingons]))
+            [spacewar.game-logic.klingons :as klingons]
+            [spacewar.game-logic.bases :as bases]))
 
 (defn setup []
   (let [vmargin 30 hmargin 5]
@@ -23,7 +24,8 @@
      {:commands []
       :global-state {:stars (stars/initialize)
                      :klingons (klingons/initialize)
-                     :ship (ship/initialize)}}
+                     :ship (ship/initialize)
+                     :bases (bases/initialize)}}
      :fonts {:lcars (q/create-font "Helvetica-Bold" 24)
              :lcars-small (q/create-font "Arial" 18)}}))
 
