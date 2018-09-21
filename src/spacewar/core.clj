@@ -1,6 +1,7 @@
 (ns spacewar.core
   (:require [quil.core :as q]
             [quil.middleware :as m]
+            [spacewar.game-logic.config :refer :all]
             [spacewar.ui.complex :as main-viewer]
             [spacewar.ui.protocols :as p]
             [spacewar.game-logic.ship :as ship]
@@ -45,7 +46,10 @@
     commands))
 
 (defn make-global-state [_ global-state]
-  global-state)
+  (let [{:keys [ship]} global-state
+        x (rem (+ 5 (:x ship)) known-space-x)
+        y (rem (+ 7 (:y ship)) known-space-y)]
+    (assoc global-state :ship (assoc ship :x x :y y))))
 
 (defn update-state [context]
   (let [state (:state context)

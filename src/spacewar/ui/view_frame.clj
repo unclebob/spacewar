@@ -3,6 +3,7 @@
             [spacewar.ui.config :refer :all]
             [spacewar.game-logic.config :refer :all]
             [spacewar.ui.strategic-scan :refer :all]
+            [spacewar.ui.tactical-scan :refer :all]
             [spacewar.ui.front-view :refer :all]
             [spacewar.ui.protocols :as p]))
 
@@ -29,7 +30,7 @@
                             (assoc state :contents (p/setup (->strategic-scan {:x x :y y :h h :w w})))
 
                             (some? (p/get-command :tactical-scan (:commands commands-and-state)))
-                            (assoc state :contents (p/setup (->front-view {:x x :y y :h h :w w})))
+                            (assoc state :contents (p/setup (->tactical-scan {:x x :y y :h h :w w})))
 
                             :else state)
           [new-state _] (p/update-elements commanded-state commands-and-state)]

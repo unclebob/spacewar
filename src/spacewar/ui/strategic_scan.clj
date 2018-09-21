@@ -26,9 +26,7 @@
         (q/line 0 ry w ry)))))
 
 (defn- draw-stars [state]
-  (let [{:keys [w h stars]} state
-        x-pixel-width (/ w known-space-x)
-        y-pixel-width (/ h known-space-y)]
+  (let [{:keys [stars x-pixel-width y-pixel-width]} state]
     (when stars
       (apply q/fill grey)
       (q/no-stroke)
@@ -39,9 +37,7 @@
   )
 
 (defn- draw-klingons [state]
-  (let [{:keys [w h klingons]} state
-        x-pixel-width (/ w known-space-x)
-        y-pixel-width (/ h known-space-y)]
+  (let [{:keys [klingons x-pixel-width y-pixel-width]} state]
     (when klingons
       (q/no-fill)
       (apply q/stroke klingon-color)
@@ -58,9 +54,7 @@
           (q/line -10 -6 -14 -3))))))
 
 (defn- draw-ship [state]
-  (let [{:keys [w h ship]} state
-        x-pixel-width (/ w known-space-x)
-        y-pixel-width (/ h known-space-y)]
+  (let [{:keys [ship x-pixel-width y-pixel-width]} state]
     (q/with-translation
       [(* (:x ship) x-pixel-width)
        (* (:y ship) y-pixel-width)]
@@ -75,9 +69,7 @@
       (q/line -9 5 -9 15))))
 
 (defn- draw-bases [state]
-  (let [{:keys [w h bases]} state
-        x-pixel-width (/ w known-space-x)
-        y-pixel-width (/ h known-space-y)]
+  (let [{:keys [bases x-pixel-width y-pixel-width]} state]
     (when bases
       (q/no-fill)
       (apply q/stroke base-color)
@@ -105,7 +97,10 @@
         (draw-ship state)
         (draw-bases state))))
 
-  (setup [this] this)
+  (setup [_]
+    (strategic-scan.
+      (assoc state :x-pixel-width (/ (:w state) known-space-x)
+                   :y-pixel-width (/ (:h state) known-space-y))))
 
   (update-state [_ {:keys [global-state]}]
     (p/pack-update
