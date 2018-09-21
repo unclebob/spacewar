@@ -30,11 +30,32 @@
         x-pixel-width (/ w known-space-x)
         y-pixel-width (/ h known-space-y)]
     (when stars
-      (apply q/fill white)
+      (apply q/fill grey)
       (q/no-stroke)
       (q/ellipse-mode :center)
       (doseq [{:keys [x y]} stars]
         (q/ellipse (* x x-pixel-width) (* y y-pixel-width) 4 4)))
+    )
+  )
+
+(defn- draw-klingons [state]
+  (let [{:keys [w h klingons]} state
+        x-pixel-width (/ w known-space-x)
+        y-pixel-width (/ h known-space-y)]
+    (when klingons
+      (q/no-fill)
+      (apply q/stroke klingon-red)
+      (q/stroke-weight 2)
+      (q/ellipse-mode :center)
+      (doseq [{:keys [x y]} klingons]
+        (q/with-translation
+          [(* x x-pixel-width)
+           (* y y-pixel-width)]
+          (q/ellipse 0 0 6 6)
+          (q/line 0 0 10 -6)
+          (q/line 10 -6 14 -3)
+          (q/line 0 0 -10 -6)
+          (q/line -10 -6 -14 -3))))
     )
   )
 
@@ -46,11 +67,13 @@
         [x y]
         (draw-background state)
         (draw-grid state)
-        (draw-stars state))))
+        (draw-stars state)
+        (draw-klingons state))))
 
   (setup [this] this)
 
   (update-state [_ {:keys [global-state]}]
     (p/pack-update
       (strategic-scan.
-        (assoc state :stars (:stars global-state))))))
+        (assoc state :stars (:stars global-state)
+                     :klingons (:klingons global-state))))))

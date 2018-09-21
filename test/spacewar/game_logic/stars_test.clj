@@ -11,7 +11,7 @@
     (spec/explain-data ::s/star (s/make-random-star)) => nil)
   (fact
     "initialize"
-    (let [stars (initialize)]
+    (let [stars (s/initialize)]
       (spec/explain-data ::s/stars stars) => nil
       (count stars) => number-of-stars)))
 
