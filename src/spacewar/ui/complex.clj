@@ -112,7 +112,7 @@
           frame-height (- h bottom-margin)
           frame-bottom (+ y frame-height)
           frame (p/setup
-                  (f/->frame {:x (+ x left-margin)
+                  (f/->view-frame {:x (+ x left-margin)
                               :y y
                               :h frame-height
                               :w frame-width}))
