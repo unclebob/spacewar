@@ -3,7 +3,8 @@
             [quil.middleware :as m]
             [spacewar.ui.complex :as main-viewer]
             [spacewar.ui.protocols :as p]
-            [spacewar.game-logic.ship :as ship]))
+            [spacewar.game-logic.ship :as ship]
+            [spacewar.game-logic.stars :as stars]))
 
 (defn setup []
   (let [vmargin 30 hmargin 5]
@@ -19,7 +20,8 @@
                  :h (- (q/height) (* 2 vmargin))}))
      :commands-and-state
      {:commands []
-      :global-state {:ship (ship/initialize)}}
+      :global-state {:stars (stars/initialize)
+                     :ship (ship/initialize)}}
      :fonts {:lcars (q/create-font "Helvetica-Bold" 24)
              :lcars-small (q/create-font "Arial" 18)}}))
 
@@ -38,8 +40,8 @@
                     nil)))]
     commands))
 
-(defn make-global-state [events global-state]
-  {})
+(defn make-global-state [_ global-state]
+  global-state)
 
 (defn update-state [context]
   (let [state (:state context)
