@@ -1,5 +1,6 @@
 (ns spacewar.ui.front-view
   (:require [quil.core :as q]
+            [spacewar.geometry :refer :all]
             [spacewar.ui.config :refer :all]
             [spacewar.game-logic.config :refer :all]
             [spacewar.ui.strategic-scan :refer :all]
@@ -70,7 +71,7 @@
         h-distance (rand (* luminosity 200))]
     {:h-distance h-distance
      :v-distance (+ -20 (rand 200) (/ h-distance 20))
-     :angle (* 2 Math/PI (/ (rand 360) 360.0))
+     :angle (->radians (rand 360))
      :luminosity luminosity}))
 
 (defn- make-stars [n]
@@ -91,8 +92,7 @@
         (let [{:keys [h-distance v-distance luminosity angle]} star
               ; rd is radial distance of star from center of screen
               rd (* h (/ v-distance h-distance))
-              rx (* rd (Math/cos angle))
-              ry (* rd (Math/sin angle))
+              [rx ry] (rotate-vector rd angle)
               sx (+ rx x (/ w 2))
               sy (+ ry y (/ h 2))
               ; m is relative brightness, inversely proportional to distance.

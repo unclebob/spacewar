@@ -1,5 +1,6 @@
 (ns spacewar.ui.strategic-scan
   (:require [quil.core :as q]
+            [spacewar.geometry :refer :all]
             [spacewar.ui.config :refer :all]
             [spacewar.game-logic.config :refer :all]
             [spacewar.ui.protocols :as p]))
@@ -56,7 +57,7 @@
 (defn- draw-ship [state]
   (let [{:keys [ship x-pixel-width y-pixel-width]} state
         heading (or (->> state :ship :heading) 0)
-        radians (* Math/PI 2 (/ heading 360))]
+        radians (->radians heading)]
     (q/with-translation
       [(* (:x ship) x-pixel-width)
        (* (:y ship) y-pixel-width)]

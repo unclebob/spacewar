@@ -56,7 +56,7 @@
 (defn- draw-ship [state]
   (let [{:keys [w h]} state
         heading (or (->> state :ship :heading) 0)
-        radians (* Math/PI 2 (/ heading 360))]
+        radians (->radians heading)]
     (q/with-translation
       [(/ w 2) (/ h 2)]
       (q/with-rotation

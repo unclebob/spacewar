@@ -1,5 +1,6 @@
 (ns spacewar.game-logic.ship
   (:require
+    [spacewar.geometry :refer :all]
     [spacewar.util :refer :all]
     [spacewar.game-logic.config :refer :all]))
 
@@ -58,10 +59,9 @@
 
 (defn- engage-engine-handler [_ ship]
   (let [[vx vy] (:velocity ship)
-        radians (* Math/PI 2 (/ (:heading ship) 360))
+        radians (->radians (:heading ship))
         power (:engine-power-setting ship)
-        dx (* power (Math/cos radians))
-        dy (* power (Math/sin radians))]
+        [dx dy] (rotate-vector power radians)]
     [[] (assoc ship :velocity [(+ dx vx) (+ dy vy)])]))
 
 (defn process-events [events ship]

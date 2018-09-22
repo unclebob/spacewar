@@ -7,7 +7,7 @@
 (defn degree-tick [radius angle]
   (let [tick-length (if (zero? (rem angle 30)) 10 5)
         tick-radius (- radius tick-length)
-        radians (* 2 Math/PI (/ angle 360))
+        radians (->radians angle)
         sin-r (Math/sin radians)
         cos-r (Math/cos radians)]
     (map #(Math/round %)
@@ -32,9 +32,8 @@
   (doseq [angle-thirtieth (range 12)]
     (let [angle-tenth (* 3 angle-thirtieth)
           angle (* 10 angle-tenth)
-          radians (* Math/PI 2 (/ angle 360))
-          label-x (* radius (Math/cos radians))
-          label-y (* radius (Math/sin radians))]
+          radians (->radians angle)
+          [label-x label-y] (rotate-vector radius radians)]
       (q/with-translation
         [x y]
         (apply q/fill black)
@@ -43,11 +42,12 @@
         (q/text (str angle-tenth) label-x label-y)))))
 
 (defn draw-pointer [x y length direction color]
-  (let [[tip-x tip-y] (rotate-vector length direction)
-        base-width 10
+  (let [radians (->radians direction)
+        [tip-x tip-y] (rotate-vector length radians)
+        base-width (->radians 10)
         base-offset 15
-        [xb1 yb1] (rotate-vector base-offset (- direction base-width))
-        [xb2 yb2] (rotate-vector base-offset (+ direction base-width))]
+        [xb1 yb1] (rotate-vector base-offset (- radians base-width))
+        [xb2 yb2] (rotate-vector base-offset (+ radians base-width))]
     (q/no-stroke)
     (apply q/fill color)
     (q/with-translation
@@ -84,7 +84,7 @@
           label-radius (- radius 18)
           pointer-length (- radius 25)
           ring-color (if mouse-in white color)
-          mouse-angle (if left-down (angle [cx cy] mouse-pos) 0)
+          mouse-angle (if left-down (angle-degrees [cx cy] mouse-pos) 0)
           direction-text (str (q/round (if left-down mouse-angle direction)))
           text-color (if left-down grey black)]
       (draw-bezel-ring circle ring-color color)
@@ -107,7 +107,7 @@
           left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
           left-up (and (not left-down) last-left-down mouse-in)
           event (if left-up
-                  (assoc (:left-up-event state) :angle (q/round (angle [cx cy] mouse-pos)))
+                  (assoc (:left-up-event state) :angle (q/round (angle-degrees [cx cy] mouse-pos)))
                   nil)
           new-state (assoc state
                       :mouse-pos mouse-pos

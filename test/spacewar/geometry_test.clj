@@ -54,20 +54,46 @@
   "angle"
   (fact
     "z: coincident points"
-    (angle [0 0] [0 0]) => :bad-angle)
+    (angle-degrees [0 0] [0 0]) => :bad-angle)
   (fact
     "o: unit circle"
-    (angle [0 0] [1 0]) => (roughly 0 1e-5)
-    (angle [0 0] [0 1]) => (roughly 90 1e-5)
-    (angle [0 0] [-1 0]) => (roughly 180 1e-5)
-    (angle [0 0] [0 -1]) => (roughly 270 1e-5)
-    (angle [0 0] [1 1]) => (roughly 45 1e-5)
-    (angle [0 0] [-1 1]) => (roughly 135 1e-5)
-    (angle [0 0] [-1 -1]) => (roughly 225 1e-5))
+    (angle-degrees [0 0] [1 0]) => (roughly 0 1e-5)
+    (angle-degrees [0 0] [0 1]) => (roughly 90 1e-5)
+    (angle-degrees [0 0] [-1 0]) => (roughly 180 1e-5)
+    (angle-degrees [0 0] [0 -1]) => (roughly 270 1e-5)
+    (angle-degrees [0 0] [1 1]) => (roughly 45 1e-5)
+    (angle-degrees [0 0] [-1 1]) => (roughly 135 1e-5)
+    (angle-degrees [0 0] [-1 -1]) => (roughly 225 1e-5))
   (fact
     "m: 30 degrees"
-    (angle [0 0] [(Math/sqrt 3) 1]) => (roughly 30 1e-5)
-    (angle [0 0] [1 (Math/sqrt 3)]) => (roughly 60 1e-5)
-    (angle [0 0] [(-(Math/sqrt 3)) 1]) => (roughly 150 1e-5)
-    (angle [0 0] [-1 (-(Math/sqrt 3))]) => (roughly 240 1e-5)
-    (angle [0 0] [(Math/sqrt 3) -1]) => (roughly 330 1e-5)))
+    (angle-degrees [0 0] [(Math/sqrt 3) 1]) => (roughly 30 1e-5)
+    (angle-degrees [0 0] [1 (Math/sqrt 3)]) => (roughly 60 1e-5)
+    (angle-degrees [0 0] [(- (Math/sqrt 3)) 1]) => (roughly 150 1e-5)
+    (angle-degrees [0 0] [-1 (- (Math/sqrt 3))]) => (roughly 240 1e-5)
+    (angle-degrees [0 0] [(Math/sqrt 3) -1]) => (roughly 330 1e-5)))
+
+(facts
+  "about radians and degrees"
+  (let [pi Math/PI
+        tpi (* 2 pi)
+        hpi (/ pi 2)]
+    (fact
+      "->degrees"
+      (->degrees 0) => (roughly 0)
+      (->degrees pi) => (roughly 180)
+      (->degrees tpi) => (roughly 0)
+      (->degrees (- pi)) => (roughly 180)
+      (->degrees hpi) => (roughly 90)
+      (->degrees (- hpi)) => (roughly 270)
+      (->degrees (* 5 pi)) => (roughly 180))
+
+    (fact
+      "->radians"
+      (->radians 0) => (roughly 0)
+      (->radians 45) => (roughly (/ pi 4))
+      (->radians 90) => (roughly hpi)
+      (->radians 180) => (roughly pi)
+      (->radians 270) => (roughly (+ pi hpi))
+      (->radians 360) => (roughly 0)
+      (->radians 450) => (roughly hpi)
+      (->radians -90) => (roughly (+ pi hpi)))))
