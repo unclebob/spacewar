@@ -47,6 +47,10 @@
                            :global-state new-global-state})))
 
 (defn draw-state [{:keys [state]}]
+  (q/fill 200 200 200)
+  (q/rect-mode :corner)
+  (q/no-stroke)
+  (q/rect 0 0 (q/width) (q/height))
   (p/draw state))
 
 (declare space-war)

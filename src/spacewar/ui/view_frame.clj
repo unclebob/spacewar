@@ -15,9 +15,11 @@
       (q/fill 0 0 255)
       (q/rect-mode :corner)
       (q/rect (- x 5) (- y 5) (+ w 10) (+ h 10))
-      (q/fill 0 0 0)
+      (apply q/fill black)
       (q/rect x y w h 5)
-      (p/draw contents)))
+      (q/clip x y w h)
+      (p/draw contents)
+      (q/no-clip)))
 
   (setup [_] (let [{:keys [x y w h]} state]
                (view-frame. (assoc state :contents (p/setup (->front-view {:x x :y y :h h :w w}))

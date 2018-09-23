@@ -98,7 +98,8 @@
 
 (deftype complex [state]
   p/Drawable
-  (draw [_] (p/draw-elements state))
+  (draw [_]
+    (p/draw-elements state))
 
   (setup [_]
     (let [{:keys [x y h w]} state
@@ -113,9 +114,9 @@
           frame-bottom (+ y frame-height)
           frame (p/setup
                   (f/->view-frame {:x (+ x left-margin)
-                              :y y
-                              :h frame-height
-                              :w frame-width}))
+                                   :y y
+                                   :h frame-height
+                                   :w frame-width}))
 
           bottom-lights-width (/ frame-width 2)
           bottom-lights-left-offset (/ (- frame-width bottom-lights-width) 2)
