@@ -4,7 +4,8 @@
             [spacewar.ui.config :refer :all]
             [spacewar.game-logic.config :refer :all]
             [spacewar.ui.strategic-scan :refer :all]
-            [spacewar.ui.protocols :as p]))
+            [spacewar.ui.protocols :as p]
+            [spacewar.vector :as vector]))
 
 
 ; Stars
@@ -92,7 +93,7 @@
         (let [{:keys [h-distance v-distance luminosity angle]} star
               ; rd is radial distance of star from center of screen
               rd (* h (/ v-distance h-distance))
-              [rx ry] (rotate-vector rd angle)
+              [rx ry] (vector/from-angular rd angle)
               sx (+ rx x (/ w 2))
               sy (+ ry y (/ h 2))
               ; m is relative brightness, inversely proportional to distance.

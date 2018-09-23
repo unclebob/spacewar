@@ -2,7 +2,8 @@
   (:require [quil.core :as q]
             [spacewar.ui.protocols :as p]
             [spacewar.geometry :refer :all]
-            [spacewar.ui.config :refer :all]))
+            [spacewar.ui.config :refer :all]
+            [spacewar.vector :as vector]))
 
 (defn degree-tick [radius angle]
   (let [tick-length (if (zero? (rem angle 30)) 10 5)
@@ -33,7 +34,7 @@
     (let [angle-tenth (* 3 angle-thirtieth)
           angle (* 10 angle-tenth)
           radians (->radians angle)
-          [label-x label-y] (rotate-vector radius radians)]
+          [label-x label-y] (vector/from-angular radius radians)]
       (q/with-translation
         [x y]
         (apply q/fill black)
@@ -43,11 +44,11 @@
 
 (defn draw-pointer [x y length direction color]
   (let [radians (->radians direction)
-        [tip-x tip-y] (rotate-vector length radians)
+        [tip-x tip-y] (vector/from-angular length radians)
         base-width (->radians 10)
         base-offset 15
-        [xb1 yb1] (rotate-vector base-offset (- radians base-width))
-        [xb2 yb2] (rotate-vector base-offset (+ radians base-width))]
+        [xb1 yb1] (vector/from-angular base-offset (- radians base-width))
+        [xb2 yb2] (vector/from-angular base-offset (+ radians base-width))]
     (q/no-stroke)
     (apply q/fill color)
     (q/with-translation

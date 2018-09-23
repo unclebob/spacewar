@@ -1,6 +1,7 @@
 (ns spacewar.game-logic.ship
   (:require
     [spacewar.geometry :refer :all]
+    [spacewar.vector :as vector]
     [spacewar.util :refer :all]
     [spacewar.game-logic.config :refer :all]))
 
@@ -61,7 +62,7 @@
   (let [[vx vy] (:velocity ship)
         radians (->radians (:heading ship))
         power (:engine-power-setting ship)
-        [dx dy] (rotate-vector power radians)]
+        [dx dy] (vector/from-angular power radians)]
     [[] (assoc ship :velocity [(+ dx vx) (+ dy vy)])]))
 
 (defn process-events [events ship]

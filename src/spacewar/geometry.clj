@@ -45,6 +45,4 @@
           (and (neg? a) (neg? b)) (+ 180 degrees)
           (and (neg? a) (>= b 0)) (- 360 degrees))))))
 
-(defn rotate-vector [length radians]
-  [(* length (Math/cos radians))
-   (* length (Math/sin radians))])
+
