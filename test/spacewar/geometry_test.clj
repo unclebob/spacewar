@@ -1,6 +1,8 @@
 (ns spacewar.geometry-test
-    (:require [midje.sweet :refer :all]
-              [spacewar.geometry :refer :all]))
+  (:require [midje.sweet :refer :all]
+            [spacewar.geometry :refer :all]
+            [clojure.spec.alpha :as s]
+            [midje.experimental :refer [for-all]]))
 
 (facts
   "inside-rect"
@@ -97,3 +99,29 @@
       (->radians 360) => (roughly 0)
       (->radians 450) => (roughly hpi)
       (->radians -90) => (roughly (+ pi hpi)))))
+
+(s/def ::number (s/or :number number? :rational rational?))
+
+(facts
+  "numerical functions"
+  (fact
+    "abs properties"
+    (for-all [x (s/gen ::number)]
+             (abs x) =not=> neg?
+             (abs x) => #(or (= x %) (= (- x) %)))
+    )
+
+  (fact
+    "round properties"
+    (for-all [x (s/gen ::number)]
+             (round x) => int?))
+  (fact
+    "round rounds properly"
+    (round 0) => 0
+    (round 1.5) => 2
+    (round -1.5) => -1
+    (round -1.51) => -2
+    (round 1.49) => 1
+    (round -1.49) => -1
+    )
+  )

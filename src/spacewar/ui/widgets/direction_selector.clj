@@ -10,7 +10,7 @@
         radians (->radians angle)
         sin-r (Math/sin radians)
         cos-r (Math/cos radians)]
-    (map #(Math/round %)
+    (map #(round %)
          [(* sin-r radius) (* cos-r radius)
           (* sin-r tick-radius) (* cos-r tick-radius)])))
 
@@ -85,7 +85,7 @@
           pointer-length (- radius 25)
           ring-color (if mouse-in white color)
           mouse-angle (if left-down (angle-degrees [cx cy] mouse-pos) 0)
-          direction-text (str (q/round (if left-down mouse-angle direction)))
+          direction-text (str (round (if left-down mouse-angle direction)))
           text-color (if left-down grey black)]
       (draw-bezel-ring circle ring-color color)
       (when mouse-in
@@ -107,7 +107,7 @@
           left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
           left-up (and (not left-down) last-left-down mouse-in)
           event (if left-up
-                  (assoc (:left-up-event state) :angle (q/round (angle-degrees [cx cy] mouse-pos)))
+                  (assoc (:left-up-event state) :angle (round (angle-degrees [cx cy] mouse-pos)))
                   nil)
           new-state (assoc state
                       :mouse-pos mouse-pos

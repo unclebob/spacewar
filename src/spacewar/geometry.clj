@@ -1,5 +1,13 @@
 (ns spacewar.geometry)
 
+(defn abs [x]
+  (if (neg? x)
+    (- x)
+    x))
+
+(defn round [x]
+  (int (Math/round (double x))))
+
 (defn ->degrees [radians]
   (mod (* 360 (/ radians (* 2 Math/PI))) 360))
 
@@ -29,7 +37,7 @@
     (if (and (zero? a) (zero? b))
       :bad-angle
       (let [c (Math/sqrt (+ (square a) (square b)))
-            radians (Math/asin (/ (Math/abs a) c))
+            radians (Math/asin (/ (abs a) c))
             degrees (->degrees radians)]
         (cond
           (and (>= a 0) (>= b 0)) degrees
@@ -40,5 +48,3 @@
 (defn rotate-vector [length radians]
   [(* length (Math/cos radians))
    (* length (Math/sin radians))])
-
-
