@@ -107,7 +107,7 @@
    (assoc ship :weapon-spread-setting value)])
 
 (defn- engage-engine-handler [_ ship]
-  [[{:command :set-engine-power :power 0}]
+  [[]
    (assoc ship :thrust (:engine-power-setting ship)
                :engine-power-setting 0)])
 

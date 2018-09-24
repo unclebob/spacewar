@@ -138,13 +138,13 @@
                     spread-command (p/get-command :set-weapon-spread commands)
                     commanded-state (cond
                                       (some? direction-command)
-                                      (p/assoc-element state :direction-selector :direction (:angle direction-command))
+                                      (p/change-element state :direction-selector :direction (:angle direction-command))
 
                                       (some? number-command)
-                                      (p/assoc-element state :number-slider :value (:number number-command))
+                                      (p/change-element state :number-slider :value (:number number-command))
 
                                       (some? spread-command)
-                                      (p/assoc-element state :spread-slider :value (:spread spread-command))
+                                      (p/change-element state :spread-slider :value (:spread spread-command))
 
                                       :else state)
                     [new-state events] (p/update-elements commanded-state commands-and-state)]

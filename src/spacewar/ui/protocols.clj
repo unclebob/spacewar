@@ -61,9 +61,17 @@
 (defn get-command [command-id commands]
   (get-named-map :command command-id commands))
 
-(defn assoc-element [drawable-state element key value]
-  (let [drawable-element (element drawable-state)
+(defn change-element [container element key value]
+  (let [drawable-element (element container)
         element-state (get-state drawable-element)]
-    (assoc drawable-state
+    (assoc container
       element
       (clone drawable-element (assoc element-state key value)))))
+
+(defn change-elements [container changes]
+  (loop [container container changes changes]
+    (if (empty? changes)
+      container
+      (let [[element key value] (first changes)]
+        (recur (change-element container element key value)
+               (rest changes))))))
