@@ -7,6 +7,7 @@
 (def light-grey [200 200 200])
 (def klingon-color [200 0 50])
 (def enterprise-color [0 255 50])
+(def enterprise-vector-color [0 100 20])
 (def base-color [0 50 255])
 
 (def banner-width 40)

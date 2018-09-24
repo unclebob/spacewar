@@ -3,7 +3,8 @@
             [spacewar.geometry :refer :all]
             [spacewar.ui.config :refer :all]
             [spacewar.game-logic.config :refer :all]
-            [spacewar.ui.protocols :as p]))
+            [spacewar.ui.protocols :as p]
+            [spacewar.vector :as v]))
 
 (defn- draw-background [state]
   (let [{:keys [w h]} state]
@@ -40,7 +41,7 @@
 (defn- draw-klingons [state]
   (let [{:keys [klingons x-pixel-width y-pixel-width]} state]
     (when klingons
-      (q/no-fill)
+      (apply q/fill black)
       (apply q/stroke klingon-color)
       (q/stroke-weight 2)
       (q/ellipse-mode :center)
@@ -48,19 +49,25 @@
         (q/with-translation
           [(* x x-pixel-width)
            (* y y-pixel-width)]
-          (q/ellipse 0 0 6 6)
           (q/line 0 0 10 -6)
           (q/line 10 -6 14 -3)
           (q/line 0 0 -10 -6)
-          (q/line -10 -6 -14 -3))))))
+          (q/line -10 -6 -14 -3)
+          (q/ellipse 0 0 6 6)
+          )))))
 
 (defn- draw-ship [state]
   (let [{:keys [ship x-pixel-width y-pixel-width]} state
         heading (or (->> state :ship :heading) 0)
+        velocity (or (->> state :ship :velocity) [0 0])
+        [vx vy] (v/scale 5 velocity)
         radians (->radians heading)]
     (q/with-translation
       [(* (:x ship) x-pixel-width)
        (* (:y ship) y-pixel-width)]
+      (apply q/stroke enterprise-vector-color)
+      (q/stroke-weight 2)
+      (q/line 0 0 vx vy)
       (q/with-rotation
         [radians]
         (apply q/stroke enterprise-color)

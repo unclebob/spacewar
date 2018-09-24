@@ -17,6 +17,18 @@
         )))
 
   (fact
+    "vector scale properties"
+    (for-all
+      [v (s/gen ::v/vector)
+       n (s/gen ::v/number)]
+      (let [scaled (n v/scale v)]
+        scaled => #(s/valid? ::v/vector %))))
+
+  (fact
+    "vector scale values"
+    (v/scale 10 [1 1]) => [10 10])
+
+  (fact
     "from-angular properties"
     (for-all
       [angle (s/gen ::v/number)

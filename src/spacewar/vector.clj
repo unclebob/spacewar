@@ -7,6 +7,9 @@
 (defn add [[x1 y1] [x2 y2]]
   [(+ x1 x2) (+ y1 y2)])
 
+(defn scale [n [x y]]
+  [(* n x) (* n y)])
+
 (defn from-angular [length radians]
   [(* length (Math/cos radians))
    (* length (Math/sin radians))])
