@@ -14,9 +14,19 @@
    :engine-power-setting 0
    :weapon-number-setting 0
    :weapon-spread-setting 0
+   :heading-setting 0
    :antimatter 100
    :core-temp 0
    :dilithium 100}
+  )
+
+(def rotation-rate 0.01) ; degrees per millisecond.
+
+(defn rotate-heading-direction [current-heading desired-heading]
+  (let [diff (mod (- desired-heading current-heading) 360)]
+    (cond (> diff 180) -1
+          (zero? diff) 0
+          :else 1))
   )
 
 (defn- echo-event [event [events state commands :as input]]
@@ -30,17 +40,23 @@
       [events new-state (concat commands new-commands)])
     input))
 
-(defn- update-ship [[events ship commands]]
-  (let [{:keys [velocity x y]} ship
+(defn- update-ship [since-last-update [events ship commands]]
+  (let [{:keys [velocity x y heading heading-setting]} ship
         [vx vy] velocity
-        new-ship (assoc ship :x (+ x vx) :y (+ y vy))]
+        rotation (* rotation-rate since-last-update (rotate-heading-direction heading heading-setting))
+        rotated-heading (+ heading rotation)
+        new-heading (if (= (round rotated-heading) heading-setting)
+                      heading-setting
+                      rotated-heading)
+        new-ship (assoc ship :x (+ x vx) :y (+ y vy)
+                             :heading new-heading)]
     [events new-ship commands]
     )
   )
 
 (defn- set-heading-handler [{:keys [angle]} ship]
   [[{:command :set-engine-direction :angle angle}]
-   (assoc ship :heading angle)])
+   (assoc ship :heading-setting angle)])
 
 (defn- set-target-bearing-handler [{:keys [angle]} ship]
   [[{:command :set-weapon-direction :angle angle}]
@@ -65,8 +81,9 @@
         [dx dy] (vector/from-angular power radians)]
     [[] (assoc ship :velocity [(+ dx vx) (+ dy vy)])]))
 
-(defn process-events [events ship]
-  (let [[_ state commands] (->> [events ship []]
+(defn process-events [events global-state]
+  (let [{:keys [ship since-last-update]} global-state
+        [_ state commands] (->> [events ship []]
                                 (echo-event :front-view)
                                 (echo-event :strategic-scan)
                                 (echo-event :tactical-scan)
@@ -76,23 +93,5 @@
                                 (handle-event :weapon-number set-weapon-number-handler)
                                 (handle-event :weapon-spread set-weapon-spread-handler)
                                 (handle-event :engine-engage engage-engine-handler)
-                                (update-ship)
-                                )]
-    [commands state]
-    ))
-
-;(defn process-events [events ship]
-;  (let [commands
-;        (filter some?
-;                (for [e events]
-;                  (condp = (:event e)
-;                    :front-view {:command :front-view}
-;                    :strategic-scan {:command :strategic-scan}
-;                    :tactical-scan {:command :tactical-scan}
-;                    :engine-direction {:command :set-engine-direction :angle (:angle e)}
-;                    :weapon-direction {:command :set-weapon-direction :angle (:angle e)}
-;                    :engine-power {:command :set-engine-power :power (:value e)}
-;                    :weapon-number {:command :set-weapon-number :number (:value e)}
-;                    :weapon-spread {:command :set-weapon-spread :spread (:value e)}
-;                    nil)))]
-;    [commands ship]))
+                                (update-ship since-last-update))]
+    [commands state]))

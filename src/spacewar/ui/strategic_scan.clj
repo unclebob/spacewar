@@ -96,7 +96,6 @@
       (q/with-translation
         [x y]
         (draw-background state)
-        (draw-grid state)
         (draw-stars state)
         (draw-klingons state)
         (draw-ship state)

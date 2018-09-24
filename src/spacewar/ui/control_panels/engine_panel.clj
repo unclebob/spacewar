@@ -114,6 +114,8 @@
 
   (update-state [_ commands-and-state]
     (let [commands (:commands commands-and-state)
+          global-state (:global-state commands-and-state)
+          heading (->> global-state :ship :heading)
           direction-command (p/get-command :set-engine-direction commands)
           power-command (p/get-command :set-engine-power commands)
           commanded-state (cond
@@ -124,6 +126,7 @@
                             (p/assoc-element state :power-slider :value (:power power-command))
 
                             :else state)
+          commanded-state (p/assoc-element commanded-state :direction-selector :pointer2 heading)
           [new-state events] (p/update-elements commanded-state commands-and-state)]
       (p/pack-update
         (engine-panel. new-state)

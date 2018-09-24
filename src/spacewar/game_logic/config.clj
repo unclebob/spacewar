@@ -1,5 +1,7 @@
 (ns spacewar.game-logic.config)
 
+(def frame-rate 30)
+
 (def number-of-stars 1000)
 (def number-of-klingons 100)
 (def number-of-bases 15)

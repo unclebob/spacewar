@@ -79,7 +79,7 @@
     (direction-selector. clone-state))
 
   (draw [_]
-    (let [{:keys [x y diameter direction color mouse-in left-down mouse-pos]} state
+    (let [{:keys [x y diameter direction color mouse-in left-down mouse-pos pointer2]} state
           circle (->circle x y diameter)
           [cx cy radius] circle
           label-radius (- radius 18)
@@ -92,6 +92,8 @@
       (when mouse-in
         (draw-ticks circle)
         (draw-labels circle label-radius))
+      (when pointer2
+        (draw-pointer cx cy pointer-length pointer2 light-grey))
       (draw-pointer cx cy pointer-length direction black)
       (when left-down
         (draw-pointer cx cy pointer-length mouse-angle grey))

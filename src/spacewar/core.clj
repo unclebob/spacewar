@@ -11,7 +11,7 @@
 
 (defn setup []
   (let [vmargin 30 hmargin 5]
-    (q/frame-rate 30)
+    (q/frame-rate frame-rate)
     (q/color-mode :rgb)
     (q/background 200 200 200)
     (q/ellipse-mode :corner)
@@ -26,21 +26,28 @@
       :global-state {:stars (stars/initialize)
                      :klingons (klingons/initialize)
                      :ship (ship/initialize)
-                     :bases (bases/initialize)}}
+                     :bases (bases/initialize)
+                     :update-time (q/millis)
+                     :since-last-update 0}}
      :fonts {:lcars (q/create-font "Helvetica-Bold" 24)
              :lcars-small (q/create-font "Arial" 18)}}))
 
 (defn process-events [events global-state]
-  (let [[ship-commands ship-state] (ship/process-events events (:ship global-state))]
-    [(concat ship-commands) (assoc global-state :ship ship-state)]))
+  (let [[ship-commands ship-state] (ship/process-events events global-state)]
+    [(concat ship-commands)
+     (assoc global-state :ship ship-state)]))
 
 (defn update-state [context]
-  (let [complex (:state context)
+  (let [time (q/millis)
+        complex (:state context)
         commands-and-state (:commands-and-state context)
-        global-state (:global-state commands-and-state)
+        old-global-state (:global-state commands-and-state)
+        stamped-global-state (assoc old-global-state
+                       :update-time time
+                       :since-last-update (- time (:update-time old-global-state)))
         [new-complex events] (p/update-state complex commands-and-state)
         flat-events (flatten events)
-        [commands new-global-state] (process-events flat-events global-state)]
+        [commands new-global-state] (process-events flat-events stamped-global-state)]
     (assoc context
       :state new-complex
       :commands-and-state {:commands commands
