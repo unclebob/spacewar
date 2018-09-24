@@ -98,7 +98,7 @@
                              :thumb-color button-color
                              :min-val 0
                              :max-val 100
-                             :value 50
+                             :value 0
                              :left-up-event {:event :engine-power}}))
 
           :engage (p/setup

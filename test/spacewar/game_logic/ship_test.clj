@@ -1,7 +1,11 @@
 (ns spacewar.game-logic.ship-test
   (:require [midje.sweet :refer :all]
             [spacewar.game-logic.config :refer :all]
-            [spacewar.game-logic.ship :refer :all]))
+            [spacewar.game-logic.ship :refer :all]
+            [spacewar.vector-test :as vt]
+            [spacewar.vector :as vector]
+            [midje.experimental :refer [for-all]]
+            [clojure.spec.alpha :as s]))
 
 (facts
   "ship"
@@ -26,4 +30,38 @@
     "rotation will not pass desired heading"
     (rotate-ship 1000 89 90) => 90
     (rotate-ship 1000 90 89) => 89)
-  )
+
+  (fact
+    "drag"
+    (drag [0 0]) => (vt/roughly-v [0 0])
+    (drag [0 1]) => (vt/roughly-v [0 (- drag-factor)])
+    (drag [1 0]) => (vt/roughly-v [(- drag-factor) 0])
+    (drag [2 0]) => (vt/roughly-v [(* -4 drag-factor) 0])
+    (drag [1 1]) => (vt/roughly-v
+                      [(* -1 drag-factor (Math/sqrt 2))
+                       (* -1 drag-factor (Math/sqrt 2))])
+    )
+
+  (fact
+    "Apply drag properties"
+    (for-all
+      [velocity (s/gen ::vector/vector)
+       drag (s/gen ::vector/vector)]
+      (apply-drag drag velocity) => #(s/valid? ::vector/vector %)))
+
+  (fact
+    "Apply drag values"
+    (apply-drag [-1 -1] [2 2]) => (vt/roughly-v [1 1])
+    (apply-drag [-2 -2] [1 1]) => (vt/roughly-v [0 0])
+    )
+
+  (tabular
+    (fact
+      "apply thrust"
+      (apply-thrust ?ms ?velocity ?heading ?thrust) => ?new-velocity)
+    ?ms   ?velocity ?heading  ?thrust ?new-velocity
+    1000  [0 0]     0         0       (vt/roughly-v [0 0])
+    1000  [0 0]     0         1       (vt/roughly-v [1 0])
+    1000  [0 0]     90        1       (vt/roughly-v [0 1])
+    500   [0 0]     90        2       (vt/roughly-v [0 1])
+    1000  [1 1]     180       3       (vt/roughly-v [-2 1])))

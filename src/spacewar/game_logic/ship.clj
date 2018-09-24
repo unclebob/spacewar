@@ -20,13 +20,32 @@
    :dilithium 100}
   )
 
-(def rotation-rate 0.01)                                    ; degrees per millisecond.
+(defn drag [[x y :as v]]
+  (if (and (zero? x) (zero? y))
+    [0 0]
+    (let [mag (vector/magnitude v)
+          mag-sqr (* mag mag)
+          uv (vector/unit v)]
+      (vector/scale (* -1 mag-sqr drag-factor) uv))))
+
+(defn apply-drag [drag velocity]
+  (let [new-velocity (vector/add velocity drag)]
+    (if (= (sign (first new-velocity))
+           (sign (first velocity)))
+      new-velocity
+      [0 0])))
+
+(defn apply-thrust [ms velocity heading thrust]
+  (let [acceleration (* ms thrust impulse)
+        radians (->radians heading)
+        av (vector/from-angular acceleration radians)
+        new-velocity (vector/add velocity av)]
+    new-velocity))
 
 (defn rotation-direction [current-heading desired-heading]
   (let [diff (mod (- desired-heading current-heading) 360)]
     (cond (> diff 180) (- diff 360)
-          :else diff))
-  )
+          :else diff)))
 
 (defn rotate-ship [milliseconds heading desired-heading]
   (let [total-rotation (rotation-direction heading desired-heading)
@@ -51,10 +70,17 @@
     input))
 
 (defn- update-ship [since-last-update [events ship commands]]
-  (let [{:keys [velocity x y heading heading-setting]} ship
-        [vx vy] velocity
+  (let [{:keys [velocity x y heading heading-setting thrust]} ship
+        thrust (or thrust 0)
+        drag (drag velocity)
+        accelerated-v (apply-thrust since-last-update
+                                    velocity
+                                    heading
+                                    thrust)
+        [vx vy :as new-velocity] (apply-drag drag accelerated-v)
         new-heading (rotate-ship since-last-update heading heading-setting)
         new-ship (assoc ship :x (+ x vx) :y (+ y vy)
+                             :velocity new-velocity
                              :heading new-heading)]
     [events new-ship commands]
     )
@@ -81,11 +107,7 @@
    (assoc ship :weapon-spread-setting value)])
 
 (defn- engage-engine-handler [_ ship]
-  (let [[vx vy] (:velocity ship)
-        radians (->radians (:heading ship))
-        power (:engine-power-setting ship)
-        [dx dy] (vector/from-angular power radians)]
-    [[] (assoc ship :velocity [(+ dx vx) (+ dy vy)])]))
+  [[] (assoc ship :thrust (:engine-power-setting ship))])
 
 (defn process-events [events global-state]
   (let [{:keys [ship since-last-update]} global-state

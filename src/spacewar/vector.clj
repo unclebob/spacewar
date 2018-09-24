@@ -17,3 +17,9 @@
 (defn from-angular [length radians]
   [(* length (Math/cos radians))
    (* length (Math/sin radians))])
+
+(defn unit [[x y :as v]]
+  (if (and (zero? x) (zero? y))
+    :no-unit-vector
+    (scale (/ 1 (magnitude v)) v)
+    ))

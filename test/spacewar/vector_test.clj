@@ -1,8 +1,12 @@
-(ns vector-test
+(ns spacewar.vector-test
   (:require [midje.sweet :refer :all]
             [spacewar.vector :as v]
             [midje.experimental :refer [for-all]]
             [clojure.spec.alpha :as s]))
+
+(defn roughly-v [[x y]]
+  #(and ((roughly x 1e-10) (first %))
+        ((roughly y 1e-10) (second %))))
 
 (facts
   "about vectors"
@@ -52,4 +56,11 @@
        length (s/gen ::v/number)]
       (v/from-angular length angle) => #(s/valid? ::v/vector %)))
 
+  (fact
+    "unit vectors"
+    (v/unit [0 0]) => :no-unit-vector
+    (v/unit [0 1]) => (roughly-v [0 1])
+    (v/unit [1 0]) => (roughly-v [1 0])
+    (v/unit [1 1]) => (roughly-v [(/ (Math/sqrt 2) 2)
+                                  (/ (Math/sqrt 2) 2)]))
   )
