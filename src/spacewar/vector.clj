@@ -1,5 +1,6 @@
 (ns spacewar.vector
-  (:require [clojure.spec.alpha :as s]))
+  (:require [clojure.spec.alpha :as s]
+            [spacewar.geometry :refer :all]))
 
 (s/def ::number (s/or :number number? :rational rational?))
 (s/def ::vector (s/coll-of ::number :count 2))
@@ -9,6 +10,9 @@
 
 (defn scale [n [x y]]
   [(* n x) (* n y)])
+
+(defn magnitude [v]
+  (distance [0 0] v))
 
 (defn from-angular [length radians]
   [(* length (Math/cos radians))

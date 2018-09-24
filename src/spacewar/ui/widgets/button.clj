@@ -6,6 +6,11 @@
 
 (deftype button [state]
   p/Drawable
+  (get-state [_] state)
+
+  (clone [_ clone-state]
+    (button. clone-state))
+
   (draw [_]
     (let [{:keys [x y w h name color mouse-in left-down status]} state]
       (q/with-translation

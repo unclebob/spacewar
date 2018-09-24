@@ -6,6 +6,8 @@
             [spacewar.ui.widgets.direction-selector :refer :all]
             [spacewar.ui.widgets.slider :refer :all]
             [spacewar.ui.widgets.engage :refer :all]
+            [spacewar.geometry :refer :all]
+            [spacewar.vector :as vector]
             [quil.core :as q]))
 
 (deftype engine-panel [state]
@@ -115,7 +117,8 @@
   (update-state [_ commands-and-state]
     (let [commands (:commands commands-and-state)
           global-state (:global-state commands-and-state)
-          heading (->> global-state :ship :heading)
+          ship (:ship global-state)
+          {:keys [heading velocity]} ship
           direction-command (p/get-command :set-engine-direction commands)
           power-command (p/get-command :set-engine-power commands)
           commanded-state (cond
@@ -127,6 +130,7 @@
 
                             :else state)
           commanded-state (p/assoc-element commanded-state :direction-selector :pointer2 heading)
+          commanded-state (p/assoc-element commanded-state :impulse :status (str (round (vector/magnitude velocity))))
           [new-state events] (p/update-elements commanded-state commands-and-state)]
       (p/pack-update
         (engine-panel. new-state)
