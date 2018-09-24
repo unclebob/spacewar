@@ -20,14 +20,24 @@
    :dilithium 100}
   )
 
-(def rotation-rate 0.01) ; degrees per millisecond.
+(def rotation-rate 0.01)                                    ; degrees per millisecond.
 
-(defn rotate-heading-direction [current-heading desired-heading]
+(defn rotation-direction [current-heading desired-heading]
   (let [diff (mod (- desired-heading current-heading) 360)]
-    (cond (> diff 180) -1
-          (zero? diff) 0
-          :else 1))
+    (cond (> diff 180) (- diff 360)
+          :else diff))
   )
+
+(defn rotate-ship [milliseconds heading desired-heading]
+  (let [total-rotation (rotation-direction heading desired-heading)
+        rotation-step (* rotation-rate
+                         milliseconds
+                         (sign total-rotation))
+        rotation-step (if (< (abs total-rotation) (abs rotation-step))
+                        total-rotation
+                        rotation-step)
+        new-heading (+ heading rotation-step)]
+    new-heading))
 
 (defn- echo-event [event [events state commands :as input]]
   (if (get-event event events)
@@ -43,11 +53,7 @@
 (defn- update-ship [since-last-update [events ship commands]]
   (let [{:keys [velocity x y heading heading-setting]} ship
         [vx vy] velocity
-        rotation (* rotation-rate since-last-update (rotate-heading-direction heading heading-setting))
-        rotated-heading (+ heading rotation)
-        new-heading (if (= (round rotated-heading) heading-setting)
-                      heading-setting
-                      rotated-heading)
+        new-heading (rotate-ship since-last-update heading heading-setting)
         new-ship (assoc ship :x (+ x vx) :y (+ y vy)
                              :heading new-heading)]
     [events new-ship commands]

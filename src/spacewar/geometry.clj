@@ -1,5 +1,10 @@
 (ns spacewar.geometry)
 
+(defn sign [x]
+  (cond (zero? x) 0
+        (pos? x) 1
+        :else -1))
+
 (defn abs [x]
   (if (neg? x)
     (- x)
