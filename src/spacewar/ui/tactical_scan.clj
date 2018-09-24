@@ -59,7 +59,7 @@
   (let [{:keys [w h]} state
         heading (or (->> state :ship :heading) 0)
         velocity (or (->> state :ship :velocity) [0 0])
-        [vx vy] (v/scale 5 velocity)
+        [vx vy] (v/scale velocity-vector-scale velocity)
         radians (->radians heading)]
     (q/with-translation
       [(/ w 2) (/ h 2)]

@@ -107,7 +107,25 @@
    (assoc ship :weapon-spread-setting value)])
 
 (defn- engage-engine-handler [_ ship]
-  [[] (assoc ship :thrust (:engine-power-setting ship))])
+  [[{:command :set-engine-power :power 0}]
+   (assoc ship :thrust (:engine-power-setting ship)
+               :engine-power-setting 0)])
+
+(defn- select-impulse [_ ship]
+  (let [selected-engine (:selected-engine ship)]
+    [[]
+     (assoc ship :selected-engine
+                 (if (= selected-engine :impulse)
+                   :none
+                   :impulse))]))
+
+(defn- select-warp [_ ship]
+  (let [selected-engine (:selected-engine ship)]
+    [[]
+     (assoc ship :selected-engine
+                 (if (= selected-engine :warp)
+                   :none
+                   :warp))]))
 
 (defn process-events [events global-state]
   (let [{:keys [ship since-last-update]} global-state
@@ -121,5 +139,7 @@
                                 (handle-event :weapon-number set-weapon-number-handler)
                                 (handle-event :weapon-spread set-weapon-spread-handler)
                                 (handle-event :engine-engage engage-engine-handler)
+                                (handle-event :select-impulse select-impulse)
+                                (handle-event :select-warp select-warp)
                                 (update-ship since-last-update))]
     [commands state]))

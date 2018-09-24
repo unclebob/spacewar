@@ -118,20 +118,28 @@
     (let [commands (:commands commands-and-state)
           global-state (:global-state commands-and-state)
           ship (:ship global-state)
-          {:keys [heading velocity]} ship
+          {:keys [heading velocity selected-engine]} ship
+          warp-color (if (= selected-engine :warp)
+                       engine-panel-selection-color
+                       engine-panel-button-color)
+          impulse-color (if (= selected-engine :impulse)
+                          engine-panel-selection-color
+                          engine-panel-button-color)
           direction-command (p/get-command :set-engine-direction commands)
           power-command (p/get-command :set-engine-power commands)
-          commanded-state (cond
-                            (some? direction-command)
-                            (p/assoc-element state :direction-selector :direction (:angle direction-command))
+          new-state (cond
+                      (some? direction-command)
+                      (p/assoc-element state :direction-selector :direction (:angle direction-command))
 
-                            (some? power-command)
-                            (p/assoc-element state :power-slider :value (:power power-command))
+                      (some? power-command)
+                      (p/assoc-element state :power-slider :value (:power power-command))
 
-                            :else state)
-          commanded-state (p/assoc-element commanded-state :direction-selector :pointer2 heading)
-          commanded-state (p/assoc-element commanded-state :impulse :status (str (round (vector/magnitude velocity))))
-          [new-state events] (p/update-elements commanded-state commands-and-state)]
+                      :else state)
+          new-state (p/assoc-element new-state :direction-selector :pointer2 heading)
+          new-state (p/assoc-element new-state :impulse :status (str (round (vector/magnitude velocity))))
+          new-state (p/assoc-element new-state :impulse :color impulse-color)
+          new-state (p/assoc-element new-state :warp :color warp-color)
+          [new-state events] (p/update-elements new-state commands-and-state)]
       (p/pack-update
         (engine-panel. new-state)
         events))))

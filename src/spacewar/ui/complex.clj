@@ -1,7 +1,8 @@
 (ns spacewar.ui.complex
   (:require [quil.core :as q]
             (spacewar.ui [protocols :as p]
-                         [view-frame :as f])
+                         [view-frame :as f]
+                         [config :refer :all])
             (spacewar.ui.control-panels [scan-panel :refer :all]
                                         [engine-panel :refer :all]
                                         [weapons-panel :refer :all]
@@ -154,8 +155,8 @@
                                       :w scan-panel-w
                                       :h scan-panel-h
                                       :name "SCAN"
-                                      :color [150 150 255]
-                                      :button-color [100 100 255]}))
+                                      :color scan-panel-color
+                                      :button-color scan-panel-button-color}))
 
           engine-panel-x scan-panel-x
           engine-panel-y (+ y frame-height small-panel-gap)
@@ -167,8 +168,8 @@
                                           :w engine-panel-w
                                           :h engine-panel-h
                                           :name "ENGINES"
-                                          :color [150 255 150]
-                                          :button-color [80 255 80]}))
+                                          :color engine-panel-color
+                                          :button-color engine-panel-button-color}))
 
           weapons-panel-x (+ bottom-lights-x bottom-lights-width small-panel-gap)
           weapons-panel-y (+ y frame-height small-panel-gap)
@@ -180,8 +181,8 @@
                                             :w weapons-panel-w
                                             :h weapons-panel-h
                                             :name "WEAPONS"
-                                            :color [255 200 50]
-                                            :button-color [255 150 50]
+                                            :color weapons-panel-color
+                                            :button-color weapons-panel-button-color
                                             :inverted true}))
 
           damage-panel-x (+ x left-margin frame-width small-panel-gap)
@@ -194,7 +195,7 @@
                                           :w damage-panel-w
                                           :h damage-panel-h
                                           :name "DAMAGE"
-                                          :color [255 100 100]
+                                          :color damage-panel-color
                                           :inverted true}))
 
           status-panel-x (+ engine-panel-x engine-panel-w small-panel-gap)
@@ -207,8 +208,8 @@
                                           :w status-panel-w
                                           :h status-panel-h
                                           :name "STATUS"
-                                          :color [255 255 200]
-                                          :mercury-color [240 240 0]}))
+                                          :color status-panel-color
+                                          :mercury-color status-panel-mercury-color}))
 
           new-state (assoc state :frame frame
                                  :bottom-lights bottom-lights

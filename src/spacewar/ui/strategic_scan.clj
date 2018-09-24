@@ -12,21 +12,6 @@
     (q/rect-mode :corner)
     (q/rect 0 0 w h)))
 
-(defn- draw-grid [state]
-  (let [{:keys [w h]} state
-        rows (second known-space-sectors)
-        columns (first known-space-sectors)
-        column-width (/ w columns)
-        row-height (/ h rows)]
-    (q/stroke-weight 1)
-    (q/stroke 255 255 255)
-    (doseq [col (range 1 columns)]
-      (let [cx (* col column-width)]
-        (q/line cx 0 cx h)))
-    (doseq [row (range 1 rows)]
-      (let [ry (* row row-height)]
-        (q/line 0 ry w ry)))))
-
 (defn- draw-stars [state]
   (let [{:keys [stars x-pixel-width y-pixel-width]} state]
     (when stars
@@ -60,7 +45,7 @@
   (let [{:keys [ship x-pixel-width y-pixel-width]} state
         heading (or (->> state :ship :heading) 0)
         velocity (or (->> state :ship :velocity) [0 0])
-        [vx vy] (v/scale 5 velocity)
+        [vx vy] (v/scale velocity-vector-scale velocity)
         radians (->radians heading)]
     (q/with-translation
       [(* (:x ship) x-pixel-width)
