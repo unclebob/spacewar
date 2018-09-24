@@ -10,34 +10,34 @@
   (clone [_ clone-state] (engage. clone-state))
 
   (draw [_]
-    (let [{:keys [x y w h color activation-color name button-time]} state
+    (let [{:keys [x y w h color activation-color name button-time disabled]} state
           cx (/ w 2)
           cy (/ h 2)]
-      (q/with-translation
-        [x y]
-        (q/no-stroke)
-        (q/rect-mode :center)
-        (apply q/fill (if (= button-time h) white activation-color))
-        (q/rect cx cy w h w)
-        (apply q/fill color)
-        (q/rect cx cy w (- h button-time) w)
-        (apply q/fill black)
-        (q/text-align :center :center)
-        (q/text-font (:lcars (q/state :fonts)) 18)
-        (q/text name cx cy))
-      ))
+      (when (not disabled)
+        (q/with-translation
+          [x y]
+          (q/no-stroke)
+          (q/rect-mode :center)
+          (apply q/fill (if (= button-time h) white activation-color))
+          (q/rect cx cy w h w)
+          (apply q/fill color)
+          (q/rect cx cy w (- h button-time) w)
+          (apply q/fill black)
+          (q/text-align :center :center)
+          (q/text-font (:lcars (q/state :fonts)) 18)
+          (q/text name cx cy)))))
 
 
   (setup [_]
     (engage. (assoc state :button-time 0)))
 
   (update-state [_ _]
-    (let [{:keys [x y w h]} state
+    (let [{:keys [x y w h disabled]} state
           last-button-time (:button-time state)
           last-left-down (:left-down state)
           mouse-pos [(q/mouse-x) (q/mouse-y)]
           mouse-in (inside-rect [x y w h] mouse-pos)
-          left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
+          left-down (and (not disabled) mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
           button-time (if left-down (min h (+ 10 last-button-time)) 0)
           new-state (assoc state
                       :mouse-in mouse-in

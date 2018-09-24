@@ -57,11 +57,12 @@
 
   (tabular
     (fact
-      "apply thrust"
-      (apply-thrust ?ms ?velocity ?heading ?thrust) => ?new-velocity)
-    ?ms   ?velocity ?heading  ?thrust ?new-velocity
+      "apply impulse"
+      (apply-impulse ?ms ?velocity ?heading ?impulse) => ?new-velocity)
+    ?ms   ?velocity ?heading  ?impulse ?new-velocity
     1000  [0 0]     0         0       (vt/roughly-v [0 0])
     1000  [0 0]     0         1       (vt/roughly-v [1 0])
     1000  [0 0]     90        1       (vt/roughly-v [0 1])
     500   [0 0]     90        2       (vt/roughly-v [0 1])
     1000  [1 1]     180       3       (vt/roughly-v [-2 1])))
+

@@ -4,7 +4,10 @@
 
 (def drag-factor 0.001)
 (def rotation-rate 0.01) ; degrees per millisecond.
-(def impulse 0.001) ; per millisecond per power.
+(def impulse-thrust 0.01) ; per millisecond per power.
+(def warp-leap 10000) ;spacial coordinates.
+(def warp-charge-rate 1)
+(def warp-threshold 2000)
 
 
 (def number-of-stars 1000)

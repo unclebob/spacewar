@@ -97,7 +97,7 @@
                              :color color
                              :thumb-color button-color
                              :min-val 0
-                             :max-val 100
+                             :max-val 10
                              :value 0
                              :left-up-event {:event :engine-power}}))
 
@@ -110,7 +110,8 @@
                        :name "ENGAGE"
                        :color color
                        :activation-color button-color
-                       :left-up-event {:event :engine-engage}}))
+                       :left-up-event {:event :engine-engage}
+                       :disabled true}))
 
           :elements [:warp :impulse :dock :direction-selector :power-slider :engage]))))
 
@@ -118,13 +119,16 @@
     (let [_ (:commands commands-and-state)
           global-state (:global-state commands-and-state)
           ship (:ship global-state)
-          {:keys [heading heading-setting velocity selected-engine engine-power-setting]} ship
+          {:keys [heading heading-setting velocity selected-engine engine-power-setting warp]} ship
+          warp (or warp 0)
+          selected-engine (or selected-engine :none)
           warp-color (if (= selected-engine :warp)
                        engine-panel-selection-color
                        engine-panel-button-color)
           impulse-color (if (= selected-engine :impulse)
                           engine-panel-selection-color
                           engine-panel-button-color)
+          engage-disabled (= selected-engine :none)
 
           state (p/change-elements
                   state
@@ -133,7 +137,9 @@
                    [:impulse :color impulse-color]
                    [:warp :color warp-color]
                    [:power-slider :value engine-power-setting]
-                   [:direction-selector :direction heading-setting]])
+                   [:direction-selector :direction heading-setting]
+                   [:engage :disabled engage-disabled]
+                   [:warp :status (str warp)]])
 
           [state events] (p/update-elements state commands-and-state)]
       (p/pack-update

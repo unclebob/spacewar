@@ -35,12 +35,13 @@
       new-velocity
       [0 0])))
 
-(defn apply-thrust [ms velocity heading thrust]
-  (let [acceleration (* ms thrust impulse)
+(defn apply-impulse [ms velocity heading impulse]
+  (let [acceleration (* ms impulse-thrust impulse)
         radians (->radians heading)
         av (vector/from-angular acceleration radians)
         new-velocity (vector/add velocity av)]
     new-velocity))
+
 
 (defn rotation-direction [current-heading desired-heading]
   (let [diff (mod (- desired-heading current-heading) 360)]
@@ -69,19 +70,33 @@
       [events new-state (concat commands new-commands)])
     input))
 
-(defn- update-ship [since-last-update [events ship commands]]
-  (let [{:keys [velocity x y heading heading-setting thrust]} ship
-        thrust (or thrust 0)
+(defn- update-ship [ms [events ship commands]]
+  (let [{:keys [velocity x y heading heading-setting impulse warp warp-charge]} ship
+        warp (or warp 0)
+        impulse (or impulse 0)
+        warp-charge (or warp-charge 0)
+        warp-charge-increment (* ms warp warp-charge-rate)
+        warp-charge (+ warp-charge-increment warp-charge)
+        warp-trigger (> warp-charge warp-threshold)
+        warp-charge (if warp-trigger 0 warp-charge)
+        radians (->radians heading)
+        warp-vector (vector/from-angular warp-leap radians)
+        position (if warp-trigger
+                   (vector/add [x y] warp-vector)
+                   [x y])
+
         drag (drag velocity)
-        accelerated-v (apply-thrust since-last-update
-                                    velocity
-                                    heading
-                                    thrust)
-        [vx vy :as new-velocity] (apply-drag drag accelerated-v)
-        new-heading (rotate-ship since-last-update heading heading-setting)
-        new-ship (assoc ship :x (+ x vx) :y (+ y vy)
+        accelerated-v (apply-impulse ms
+                                     velocity
+                                     heading
+                                     impulse)
+        new-velocity (apply-drag drag accelerated-v)
+        [px py] (vector/add position new-velocity)
+        new-heading (rotate-ship ms heading heading-setting)
+        new-ship (assoc ship :x px :y py
                              :velocity new-velocity
-                             :heading new-heading)]
+                             :heading new-heading
+                             :warp-charge warp-charge)]
     [events new-ship commands]
     )
   )
@@ -107,9 +122,12 @@
    (assoc ship :weapon-spread-setting value)])
 
 (defn- engage-engine-handler [_ ship]
-  [[]
-   (assoc ship :thrust (:engine-power-setting ship)
-               :engine-power-setting 0)])
+  (let [{:keys [selected-engine engine-power-setting]} ship]
+    [[]
+     (if (= selected-engine :none)
+       ship
+       (assoc ship selected-engine engine-power-setting
+                   :engine-power-setting 0))]))
 
 (defn- select-impulse [_ ship]
   (let [selected-engine (:selected-engine ship)]
