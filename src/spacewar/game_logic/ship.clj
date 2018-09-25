@@ -10,6 +10,7 @@
    :y (int (rand known-space-y))
    :heading 0
    :velocity [0 0]
+   :selected-view :front-view
    :target-bearing 0
    :engine-power-setting 0
    :weapon-number-setting 1
@@ -58,11 +59,6 @@
                         rotation-step)
         new-heading (+ heading rotation-step)]
     new-heading))
-
-(defn- echo-event [event [events state commands :as input]]
-  (if (get-event event events)
-    [events state (conj commands {:command event})]
-    input))
 
 (defn- handle-event [event handler [events state commands :as input]]
   (if-let [e (get-event event events)]
@@ -140,12 +136,21 @@
                    :none
                    :warp))]))
 
+(defn- select-front-view [_ ship]
+  [[] (assoc ship :selected-view :front-view)])
+
+(defn- select-strat-view [_ ship]
+  [[] (assoc ship :selected-view :strat-view)])
+
+(defn- select-tact-view [_ ship]
+  [[] (assoc ship :selected-view :tact-view)])
+
 (defn process-events [events global-state]
   (let [{:keys [ship since-last-update]} global-state
         [_ state commands] (->> [events ship []]
-                                (echo-event :front-view)
-                                (echo-event :strategic-scan)
-                                (echo-event :tactical-scan)
+                                (handle-event :front-view select-front-view)
+                                (handle-event :strategic-scan select-strat-view)
+                                (handle-event :tactical-scan select-tact-view)
                                 (handle-event :engine-direction set-heading-handler)
                                 (handle-event :engine-power set-engine-power-handler)
                                 (handle-event :weapon-direction set-target-bearing-handler)

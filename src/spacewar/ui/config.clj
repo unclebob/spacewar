@@ -13,6 +13,7 @@
 
 (def scan-panel-color [150 150 255])
 (def scan-panel-button-color [100 100 255])
+(def scan-panel-selection-color [70 70 200])
 (def engine-panel-color [150 255 150])
 (def engine-panel-button-color [80 255 80])
 (def engine-panel-selection-color [30 200 30])
