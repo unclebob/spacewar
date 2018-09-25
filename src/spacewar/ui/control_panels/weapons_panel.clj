@@ -128,15 +128,14 @@
 
              :elements [:torpedo :kinetic :phaser :direction-selector :number-slider :spread-slider :fire]))))
 
-(update-state [_ commands-and-state]
-              (let [global-state (:global-state commands-and-state)
-                    ship (:ship global-state)
+(update-state [_ global-state]
+              (let [ship (:ship global-state)
                     {:keys [target-bearing weapon-number-setting weapon-spread-setting]} ship
 
                     state (p/change-elements state [[:direction-selector :direction target-bearing]
                                                     [:number-slider :value weapon-number-setting]
                                                     [:spread-slider :value weapon-spread-setting]])
-                    [state events] (p/update-elements state commands-and-state)]
+                    [state events] (p/update-elements state global-state)]
                 (p/pack-update
                   (weapons-panel. state)
                   events))) )

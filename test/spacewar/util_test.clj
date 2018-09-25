@@ -5,7 +5,7 @@
 (facts
   "about events"
   (fact
-    "degenerate event list has no commands"
+    "degenerate event list has no events"
     (get-event :my-event []) => nil?)
 
   (fact

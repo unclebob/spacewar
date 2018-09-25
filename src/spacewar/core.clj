@@ -21,14 +21,12 @@
                 {:x hmargin :y vmargin
                  :w (- (q/width) (* 2 hmargin))
                  :h (- (q/height) (* 2 vmargin))}))
-     :commands-and-state
-     {:commands []
-      :global-state {:stars (stars/initialize)
-                     :klingons (klingons/initialize)
-                     :ship (ship/initialize)
-                     :bases (bases/initialize)
-                     :update-time (q/millis)
-                     :since-last-update 0}}
+     :global-state {:stars (stars/initialize)
+                    :klingons (klingons/initialize)
+                    :ship (ship/initialize)
+                    :bases (bases/initialize)
+                    :update-time (q/millis)
+                    :since-last-update 0}
      :fonts {:lcars (q/create-font "Helvetica-Bold" 24)
              :lcars-small (q/create-font "Arial" 18)}}))
 
@@ -39,17 +37,16 @@
 (defn update-state [context]
   (let [time (q/millis)
         complex (:state context)
-        commands-and-state (:commands-and-state context)
-        global-state (:global-state commands-and-state)
+        global-state (:global-state context)
         global-state (assoc global-state
                        :update-time time
                        :since-last-update (- time (:update-time global-state)))
-        [complex events] (p/update-state complex commands-and-state)
-        flat-events (flatten events)
-        global-state (process-events flat-events global-state)]
+        [complex events] (p/update-state complex global-state)
+        events (flatten events)
+        global-state (process-events events global-state)]
     (assoc context
       :state complex
-      :commands-and-state {:global-state global-state})))
+      :global-state global-state)))
 
 (defn draw-state [{:keys [state]}]
   (q/fill 200 200 200)

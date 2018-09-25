@@ -35,9 +35,8 @@
                    :contents front-view
                    :elements [:contents]))))
 
-  (update-state [_ commands-and-state]
+  (update-state [_ global-state]
     (let [{:keys [last-view]} state
-          global-state (:global-state commands-and-state)
           ship (:ship global-state)
           selected-view (:selected-view ship)
 
@@ -45,6 +44,6 @@
                   (assoc state :contents (selected-view state)
                                :last-view selected-view)
                   state)
-          [state _] (p/update-elements state commands-and-state)]
+          [state _] (p/update-elements state global-state)]
       (p/pack-update
         (view-frame. state)))))

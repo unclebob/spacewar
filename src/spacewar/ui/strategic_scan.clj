@@ -98,7 +98,7 @@
       (assoc state :x-pixel-width (/ (:w state) known-space-x)
                    :y-pixel-width (/ (:h state) known-space-y))))
 
-  (update-state [_ {:keys [global-state]}]
+  (update-state [_ global-state]
     (p/pack-update
       (strategic-scan.
         (assoc state :stars (:stars global-state)

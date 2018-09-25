@@ -21,20 +21,15 @@
   "update-elements"
   (fact
     "degenerate"
-    (update-elements {} {:commands []
-                         :global-state {}}) => [{} []])
+    (update-elements {} {}) => [{} []])
   (fact
     "no elements"
-    (update-elements {:x 1} {:commands []
-                             :global-state {}}) => [{:x 1} []])
+    (update-elements {:x 1} {}) => [{:x 1} []])
   (fact
     "one element"
     (let [mock (->mock-drawable {:y 1})
           state {:x 1 :element mock :elements [:element]}
-          [new-state events] (update-elements
-                               state
-                               {:commands []
-                                :global-state {}})]
+          [new-state events] (update-elements state {})]
       new-state => {:x 1
                     :element {:y 1 :updated true}
                     :elements [:element]}
@@ -47,10 +42,7 @@
                  :element1 mock1
                  :element2 mock2
                  :elements [:element1 :element2]}
-          [new-state events] (update-elements
-                               state
-                               {:commands []
-                                :global-state {}})]
+          [new-state events] (update-elements state {})]
       new-state => {:x 1
                     :element1 {:y 1 :updated true}
                     :element2 {:y 2 :updated true}
@@ -66,10 +58,7 @@
                  :element1 mock1
                  :element2 mock2
                  :elements [:element1 :element2]}
-          [new-state events] (update-elements
-                               state
-                               {:commands []
-                                :global-state {}})]
+          [new-state events] (update-elements state {})]
       new-state => {:x 1
                     :element1 {:y 1 :updated true}
                     :element2 {:y 2 :updated true}

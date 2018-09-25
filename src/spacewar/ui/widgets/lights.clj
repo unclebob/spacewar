@@ -45,8 +45,8 @@
                                          (->indicator-light state))
                             :elements [:indicator])))
 
-  (update-state [_ commands]
-    (let [[new-state events] (p/update-elements state commands)]
+  (update-state [_ global-state]
+    (let [[new-state events] (p/update-elements state global-state)]
       (p/pack-update
         (named-indicator. new-state)
         events))))

@@ -6,7 +6,7 @@
 (defprotocol Drawable
   (draw [this])
   (setup [this])
-  (update-state [this commands])
+  (update-state [this global-state])
   (get-state [this])
   (clone [this state]))
 
@@ -19,10 +19,10 @@
 (s/def ::global-state map?)
 (s/def ::game-state (s/keys :req-un [::global-state]))
 
-(defn update-elements [container-state game-state]
+(defn update-elements [container-state global-state]
   {:pre [
          (s/valid? ::drawable-state container-state)
-         (s/valid? ::game-state game-state)
+         (s/valid? ::global-state global-state)
          ]
    :post [
           (s/valid? ::updated-elements-and-events %)
@@ -38,7 +38,7 @@
            (flatten cum-events)]
           (let [element-tag (first elements)
                 element (element-tag container-state)
-                [updated-drawable events] (update-state element game-state)]
+                [updated-drawable events] (update-state element global-state)]
             (recur (rest elements)
                    (conj key-vals [element-tag updated-drawable])
                    (conj cum-events events))))))))

@@ -108,7 +108,7 @@
   (setup [_]
     (tactical-scan. state))
 
-  (update-state [_ {:keys [global-state]}]
+  (update-state [_ global-state]
     (p/pack-update
       (tactical-scan.
         (assoc state :stars (:stars global-state)
