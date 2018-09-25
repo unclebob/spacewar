@@ -102,16 +102,14 @@
   )
 
 (defn- set-heading-handler [{:keys [angle]} ship]
-  [[{:command :set-engine-direction :angle angle}]
-   (assoc ship :heading-setting angle)])
+  [[] (assoc ship :heading-setting angle)])
 
 (defn- set-target-bearing-handler [{:keys [angle]} ship]
   [[{:command :set-weapon-direction :angle angle}]
    (assoc ship :target-bearing angle)])
 
 (defn- set-engine-power-handler [{:keys [value]} ship]
-  [[{:command :set-engine-power :power value}]
-   (assoc ship :engine-power-setting value)])
+  [[] (assoc ship :engine-power-setting value)])
 
 (defn- set-weapon-number-handler [{:keys [value]} ship]
   [[{:command :set-weapon-number :number value}]

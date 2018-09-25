@@ -116,8 +116,7 @@
           :elements [:warp :impulse :dock :direction-selector :power-slider :engage]))))
 
   (update-state [_ commands-and-state]
-    (let [_ (:commands commands-and-state)
-          global-state (:global-state commands-and-state)
+    (let [global-state (:global-state commands-and-state)
           ship (:ship global-state)
           {:keys [heading heading-setting velocity selected-engine engine-power-setting warp]} ship
           warp (or warp 0)
