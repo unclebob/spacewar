@@ -11,7 +11,7 @@
     x))
 
 (defn round [x]
-  (int (Math/round (double x))))
+  (long (Math/round (double x))))
 
 (defn ->degrees [radians]
   (mod (* 360 (/ radians (* 2 Math/PI))) 360))

@@ -16,16 +16,13 @@
 (s/def ::event keyword?)
 (s/def ::event-map (s/keys :req-un [::event]))
 (s/def ::updated-elements-and-events (s/tuple ::drawable-state (s/coll-of ::event-map)))
-(s/def ::command keyword?)
 (s/def ::global-state map?)
-(s/def ::command-map (s/keys :req-un [::command]))
-(s/def ::commands (s/coll-of ::command-map))
-(s/def ::commands-and-state (s/keys :req-un [::commands ::global-state]))
+(s/def ::game-state (s/keys :req-un [::global-state]))
 
-(defn update-elements [container-state commands]
+(defn update-elements [container-state game-state]
   {:pre [
          (s/valid? ::drawable-state container-state)
-         (s/valid? ::commands-and-state commands)
+         (s/valid? ::game-state game-state)
          ]
    :post [
           (s/valid? ::updated-elements-and-events %)
@@ -41,7 +38,7 @@
            (flatten cum-events)]
           (let [element-tag (first elements)
                 element (element-tag container-state)
-                [updated-drawable events] (update-state element commands)]
+                [updated-drawable events] (update-state element game-state)]
             (recur (rest elements)
                    (conj key-vals [element-tag updated-drawable])
                    (conj cum-events events))))))))
@@ -57,9 +54,6 @@
    (if (some? event)
      [new-drawable [event]]
      [new-drawable []])))
-
-(defn get-command [command-id commands]
-  (get-named-map :command command-id commands))
 
 (defn change-element [container element key value]
   (let [drawable-element (element container)

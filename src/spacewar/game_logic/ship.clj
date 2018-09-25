@@ -60,13 +60,13 @@
         new-heading (+ heading rotation-step)]
     new-heading))
 
-(defn- handle-event [event handler [events state commands :as input]]
+(defn- handle-event [event handler [events state :as input]]
   (if-let [e (get-event event events)]
-    (let [[new-commands new-state] (handler e state)]
-      [events new-state (concat commands new-commands)])
+    (let [new-state (handler e state)]
+      [events new-state])
     input))
 
-(defn- update-ship [ms [events ship commands]]
+(defn- update-ship [ms [_ ship]]
   (let [{:keys [velocity x y heading heading-setting impulse warp warp-charge]} ship
         warp (or warp 0)
         impulse (or impulse 0)
@@ -93,71 +93,67 @@
                              :velocity new-velocity
                              :heading new-heading
                              :warp-charge warp-charge)]
-    [events new-ship commands]
+    new-ship
     )
   )
 
 (defn- set-heading-handler [{:keys [angle]} ship]
-  [[] (assoc ship :heading-setting angle)])
+  (assoc ship :heading-setting angle))
 
 (defn- set-target-bearing-handler [{:keys [angle]} ship]
-  [[] (assoc ship :target-bearing angle)])
+  (assoc ship :target-bearing angle))
 
 (defn- set-engine-power-handler [{:keys [value]} ship]
-  [[] (assoc ship :engine-power-setting value)])
+  (assoc ship :engine-power-setting value))
 
 (defn- set-weapon-number-handler [{:keys [value]} ship]
-  [[] (assoc ship :weapon-number-setting value)])
+  (assoc ship :weapon-number-setting value))
 
 (defn- set-weapon-spread-handler [{:keys [value]} ship]
-  [[] (assoc ship :weapon-spread-setting value)])
+  (assoc ship :weapon-spread-setting value))
 
 (defn- engage-engine-handler [_ ship]
   (let [{:keys [selected-engine engine-power-setting]} ship]
-    [[]
-     (if (= selected-engine :none)
-       ship
-       (assoc ship selected-engine engine-power-setting
-                   :engine-power-setting 0))]))
+    (if (= selected-engine :none)
+      ship
+      (assoc ship selected-engine engine-power-setting
+                  :engine-power-setting 0))))
 
 (defn- select-impulse [_ ship]
   (let [selected-engine (:selected-engine ship)]
-    [[]
-     (assoc ship :selected-engine
-                 (if (= selected-engine :impulse)
-                   :none
-                   :impulse))]))
+    (assoc ship :selected-engine
+                (if (= selected-engine :impulse)
+                  :none
+                  :impulse))))
 
 (defn- select-warp [_ ship]
   (let [selected-engine (:selected-engine ship)]
-    [[]
-     (assoc ship :selected-engine
-                 (if (= selected-engine :warp)
-                   :none
-                   :warp))]))
+    (assoc ship :selected-engine
+                (if (= selected-engine :warp)
+                  :none
+                  :warp))))
 
 (defn- select-front-view [_ ship]
-  [[] (assoc ship :selected-view :front-view)])
+  (assoc ship :selected-view :front-view))
 
 (defn- select-strat-view [_ ship]
-  [[] (assoc ship :selected-view :strat-view)])
+  (assoc ship :selected-view :strat-view))
 
 (defn- select-tact-view [_ ship]
-  [[] (assoc ship :selected-view :tact-view)])
+  (assoc ship :selected-view :tact-view))
 
 (defn process-events [events global-state]
-  (let [{:keys [ship since-last-update]} global-state
-        [_ state commands] (->> [events ship []]
-                                (handle-event :front-view select-front-view)
-                                (handle-event :strategic-scan select-strat-view)
-                                (handle-event :tactical-scan select-tact-view)
-                                (handle-event :engine-direction set-heading-handler)
-                                (handle-event :engine-power set-engine-power-handler)
-                                (handle-event :weapon-direction set-target-bearing-handler)
-                                (handle-event :weapon-number set-weapon-number-handler)
-                                (handle-event :weapon-spread set-weapon-spread-handler)
-                                (handle-event :engine-engage engage-engine-handler)
-                                (handle-event :select-impulse select-impulse)
-                                (handle-event :select-warp select-warp)
-                                (update-ship since-last-update))]
-    [commands state]))
+  (let [{:keys [ship since-last-update]} global-state]
+    (->> [events ship]
+         (handle-event :front-view select-front-view)
+         (handle-event :strategic-scan select-strat-view)
+         (handle-event :tactical-scan select-tact-view)
+         (handle-event :engine-direction set-heading-handler)
+         (handle-event :engine-power set-engine-power-handler)
+         (handle-event :weapon-direction set-target-bearing-handler)
+         (handle-event :weapon-number set-weapon-number-handler)
+         (handle-event :weapon-spread set-weapon-spread-handler)
+         (handle-event :engine-engage engage-engine-handler)
+         (handle-event :select-impulse select-impulse)
+         (handle-event :select-warp select-warp)
+         (update-ship since-last-update))))

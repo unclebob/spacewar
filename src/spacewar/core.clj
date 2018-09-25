@@ -33,25 +33,23 @@
              :lcars-small (q/create-font "Arial" 18)}}))
 
 (defn process-events [events global-state]
-  (let [[ship-commands ship-state] (ship/process-events events global-state)]
-    [(concat ship-commands)
-     (assoc global-state :ship ship-state)]))
+  (let [ship-state (ship/process-events events global-state)]
+    (assoc global-state :ship ship-state)))
 
 (defn update-state [context]
   (let [time (q/millis)
         complex (:state context)
         commands-and-state (:commands-and-state context)
-        old-global-state (:global-state commands-and-state)
-        stamped-global-state (assoc old-global-state
+        global-state (:global-state commands-and-state)
+        global-state (assoc global-state
                        :update-time time
-                       :since-last-update (- time (:update-time old-global-state)))
-        [new-complex events] (p/update-state complex commands-and-state)
+                       :since-last-update (- time (:update-time global-state)))
+        [complex events] (p/update-state complex commands-and-state)
         flat-events (flatten events)
-        [commands new-global-state] (process-events flat-events stamped-global-state)]
+        global-state (process-events flat-events global-state)]
     (assoc context
-      :state new-complex
-      :commands-and-state {:commands commands
-                           :global-state new-global-state})))
+      :state complex
+      :commands-and-state {:global-state global-state})))
 
 (defn draw-state [{:keys [state]}]
   (q/fill 200 200 200)
