@@ -59,10 +59,13 @@
     (fact
       "apply impulse"
       (apply-impulse ?ms ?velocity ?heading ?impulse) => ?new-velocity)
-    ?ms   ?velocity ?heading  ?impulse ?new-velocity
-    1000  [0 0]     0         0       (vt/roughly-v [0 0])
-    1000  [0 0]     0         1       (vt/roughly-v [1 0])
-    1000  [0 0]     90        1       (vt/roughly-v [0 1])
-    500   [0 0]     90        2       (vt/roughly-v [0 1])
-    1000  [1 1]     180       3       (vt/roughly-v [-2 1])))
+    ?ms ?velocity ?heading ?impulse ?new-velocity
+    1000 [0 0] 0 0 (vt/roughly-v [0 0])
+    1000 [0 0] 0 1 (vt/roughly-v [(* impulse-thrust ?ms ?impulse) 0])
+    1000 [0 0] 90 1 (vt/roughly-v [0 (* impulse-thrust ?ms ?impulse)])
+    500 [0 0] 90 2 (vt/roughly-v [0 (* impulse-thrust ?ms ?impulse)])
+    1000 [1 1] 180 3 (vt/roughly-v (vector/add
+                                     ?velocity
+                                     [(* -1 impulse-thrust ?ms ?impulse) 0])))
+  )
 

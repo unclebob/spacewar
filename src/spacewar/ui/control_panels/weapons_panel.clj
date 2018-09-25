@@ -61,7 +61,6 @@
                            :h button-h
                            :name "TORPEDO"
                            :color button-color
-                           :status "20"
                            :left-up-event {:event :select-torpedo}}))
              :kinetic (p/setup
                         (->button
@@ -71,7 +70,6 @@
                            :h button-h
                            :name "KINETIC"
                            :color button-color
-                           :status "100"
                            :left-up-event {:event :select-kinetic}}))
              :phaser (p/setup
                        (->button
@@ -81,7 +79,6 @@
                           :h button-h
                           :name "PHASER"
                           :color button-color
-                          :status "78%"
                           :left-up-event {:event :select-phaser}}))
 
              :direction-selector (p/setup
@@ -132,22 +129,14 @@
              :elements [:torpedo :kinetic :phaser :direction-selector :number-slider :spread-slider :fire]))))
 
 (update-state [_ commands-and-state]
-              (let [commands (:commands commands-and-state)
-                    direction-command (p/get-command :set-weapon-direction commands)
-                    number-command (p/get-command :set-weapon-number commands)
-                    spread-command (p/get-command :set-weapon-spread commands)
-                    commanded-state (cond
-                                      (some? direction-command)
-                                      (p/change-element state :direction-selector :direction (:angle direction-command))
+              (let [global-state (:global-state commands-and-state)
+                    ship (:ship global-state)
+                    {:keys [target-bearing weapon-number-setting weapon-spread-setting]} ship
 
-                                      (some? number-command)
-                                      (p/change-element state :number-slider :value (:number number-command))
-
-                                      (some? spread-command)
-                                      (p/change-element state :spread-slider :value (:spread spread-command))
-
-                                      :else state)
-                    [new-state events] (p/update-elements commanded-state commands-and-state)]
+                    state (p/change-elements state [[:direction-selector :direction target-bearing]
+                                                    [:number-slider :value weapon-number-setting]
+                                                    [:spread-slider :value weapon-spread-setting]])
+                    [state events] (p/update-elements state commands-and-state)]
                 (p/pack-update
-                  (weapons-panel. new-state)
+                  (weapons-panel. state)
                   events))) )

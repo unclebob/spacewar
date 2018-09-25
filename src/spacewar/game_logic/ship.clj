@@ -12,7 +12,7 @@
    :velocity [0 0]
    :target-bearing 0
    :engine-power-setting 0
-   :weapon-number-setting 0
+   :weapon-number-setting 1
    :weapon-spread-setting 0
    :heading-setting 0
    :antimatter 100
@@ -105,19 +105,16 @@
   [[] (assoc ship :heading-setting angle)])
 
 (defn- set-target-bearing-handler [{:keys [angle]} ship]
-  [[{:command :set-weapon-direction :angle angle}]
-   (assoc ship :target-bearing angle)])
+  [[] (assoc ship :target-bearing angle)])
 
 (defn- set-engine-power-handler [{:keys [value]} ship]
   [[] (assoc ship :engine-power-setting value)])
 
 (defn- set-weapon-number-handler [{:keys [value]} ship]
-  [[{:command :set-weapon-number :number value}]
-   (assoc ship :weapon-number-setting value)])
+  [[] (assoc ship :weapon-number-setting value)])
 
 (defn- set-weapon-spread-handler [{:keys [value]} ship]
-  [[{:command :set-weapon-spread :spread value}]
-   (assoc ship :weapon-spread-setting value)])
+  [[] (assoc ship :weapon-spread-setting value)])
 
 (defn- engage-engine-handler [_ ship]
   (let [{:keys [selected-engine engine-power-setting]} ship]
