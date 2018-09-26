@@ -12,6 +12,8 @@
 (def phaser-range 30000)
 (def phaser-velocity 10) ;per ms
 
+(def torpedo-range 100000)
+(def torpedo-velocity 5)
 
 (def number-of-stars 1000)
 (def number-of-klingons 100)

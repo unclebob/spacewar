@@ -98,7 +98,29 @@
   (let [intensity (* 255 (- 1 (/ range phaser-range)))]
     [intensity intensity intensity]))
 
-(defn- draw-shots [state]
+(defn- draw-torpedo-segment []
+  (let [angle (rand 360)
+        color (repeatedly 3 #(+ 128 (rand 127)))
+        length (+ 5 (rand 5))
+        radians (->radians angle)
+        [tx ty] (vector/from-angular length radians)]
+    (apply q/stroke color)
+    (q/line 0 0 tx ty)))
+
+(defn- draw-torpedo-shots [state]
+  (let [{:keys [w h ship]} state
+        torpedo-shots (:torpedo-shots ship)
+        presentable-torpedo-shots (present-objects state torpedo-shots)]
+    (doseq [{:keys [x y]} presentable-torpedo-shots]
+      (q/with-translation
+        [(+ x (/ w 2)) (+ y (/ h 2))]
+        (draw-torpedo-segment)
+        (draw-torpedo-segment)
+        (draw-torpedo-segment)))))
+
+(defn- draw-kinetic-shots [state])
+
+(defn- draw-phaser-shots [state]
   (let [{:keys [w h ship]} state
         phaser-shots (:phaser-shots ship)
         presentable-phaser-shots (present-objects state phaser-shots)]
@@ -106,11 +128,15 @@
       (q/with-translation
         [(+ x (/ w 2)) (+ y (/ h 2))]
         (let [radians (->radians bearing)
-
               [sx sy] (vector/from-angular phaser-length radians)
               beam-color (phaser-intensity range)]
           (apply q/stroke beam-color)
           (q/line 0 0 sx sy))))))
+
+(defn- draw-shots [state]
+  (draw-phaser-shots state)
+  (draw-torpedo-shots state)
+  (draw-kinetic-shots state))
 
 (deftype tactical-scan [state]
   p/Drawable

@@ -79,18 +79,18 @@
                                                                    :weapon-number-setting 2
                                                                    :target-bearing 90
                                                                    :phaser-shots [:previous-shots :shot1 :shot2]}
-    (provided (fire-phasers
+    (provided (fire-weapon
                 anything
                 anything
                 anything
                 anything) => [:shot1 :shot2]))
 
   (fact
-    "fire-phasers"
-    (fire-phasers [0 0] 0 1 0) => [{:x 0 :y 0 :bearing 0 :range 0}]
-    (fire-phasers [1 1] 90 1 0) => [{:x 1 :y 1 :bearing 90 :range 0}]
-    (fire-phasers [0 0] 90 2 10) => [{:x 0 :y 0 :bearing 85 :range 0}
-                                     {:x 0 :y 0 :bearing 95 :range 0}]
+    "fire-weapon"
+    (fire-weapon [0 0] 0 1 0) => [{:x 0 :y 0 :bearing 0 :range 0}]
+    (fire-weapon [1 1] 90 1 0) => [{:x 1 :y 1 :bearing 90 :range 0}]
+    (fire-weapon [0 0] 90 2 10) => [{:x 0 :y 0 :bearing 85 :range 0}
+                                    {:x 0 :y 0 :bearing 95 :range 0}]
 
     )
 
@@ -115,5 +115,24 @@
       (update-phaser-shot
         ms-out-of-range
         {:x 0 :y 0 :bearing 0 :range 0}) => nil))
+
+  (tabular
+    (fact
+      "update-torpedo-shot"
+      (let [shot
+            (update-torpedo-shot
+              ?ms {:x ?x :y ?y :bearing ?bearing :range ?range})]
+        (:x shot) => (roughly ?sx 1e-10)
+        (:y shot) => (roughly ?sy 1e-10)
+        (:bearing shot) => (roughly ?bearing 1e-10)
+        (:range shot) => (roughly
+                           (+ ?range
+                              (* ?ms torpedo-velocity
+                                 (- 1 (/ ?range torpedo-range)))))))
+    ?ms ?x ?y ?bearing ?range ?sx ?sy
+    1000 0 0 0 0 (* torpedo-velocity ?ms) 0
+    1000 0 0 90 0 0 (* torpedo-velocity ?ms)
+    1000 0 0 0 (/ torpedo-range 2) (* torpedo-velocity ?ms 0.5) 0
+    )
   )
 

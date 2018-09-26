@@ -80,10 +80,22 @@
       nil
       {:x sx :y sy :bearing bearing :range range})))
 
+(defn update-torpedo-shot [ms shot]
+  (let [{:keys [x y bearing range]} shot
+        radians (->radians bearing)
+        distance (* ms torpedo-velocity (- 1 (/ range torpedo-range)))
+        distance (max distance ms) ; minimum torpedo velocity.
+        delta (vector/from-angular distance radians)
+        [sx sy] (vector/add [x y] delta)
+        range (+ range distance)]
+    (if (> range torpedo-range)
+      nil
+      {:x sx :y sy :bearing bearing :range range})))
+
 (defn- update-ship [ms [_ ship]]
   (let [{:keys [velocity x y heading heading-setting
                 impulse warp warp-charge
-                phaser-shots]} ship
+                phaser-shots torpedo-shots]} ship
         warp (or warp 0)
         impulse (or impulse 0)
         warp-charge (or warp-charge 0)
@@ -107,15 +119,15 @@
         new-heading (rotate-ship ms heading heading-setting)
         phaser-shots (filter some?
                              (map #(update-phaser-shot ms %) phaser-shots))
+        torpedo-shots (filter some?
+                              (map #(update-torpedo-shot ms %) torpedo-shots))]
 
-        new-ship (assoc ship :x px :y py
-                             :velocity new-velocity
-                             :heading new-heading
-                             :warp-charge warp-charge
-                             :phaser-shots phaser-shots)]
-    new-ship
-    )
-  )
+    (assoc ship :x px :y py
+                :velocity new-velocity
+                :heading new-heading
+                :warp-charge warp-charge
+                :phaser-shots phaser-shots
+                :torpedo-shots torpedo-shots)))
 
 (defn- set-heading-handler [{:keys [angle]} ship]
   (assoc ship :heading-setting angle))
@@ -139,7 +151,7 @@
       (assoc ship selected-engine engine-power-setting
                   :engine-power-setting 0))))
 
-(defn fire-phasers [pos bearing number spread]
+(defn fire-weapon [pos bearing number spread]
   (let [start-bearing (if (= number 1)
                         bearing
                         (- bearing (/ spread 2)))
@@ -162,16 +174,20 @@
 (defn weapon-fire-handler [_ ship]
   (let [{:keys [x y selected-weapon weapon-spread-setting
                 weapon-number-setting target-bearing
-                phaser-shots]} ship]
-        (condp = selected-weapon
-          :phaser
-          (assoc ship
-            :phaser-shots
-            (concat phaser-shots
-                    (fire-phasers [x y]
-                                  target-bearing
-                                  weapon-number-setting
-                                  weapon-spread-setting)))))
+                phaser-shots torpedo-shots kinetic-shots]} ship
+        shots (fire-weapon [x y]
+                           target-bearing
+                           weapon-number-setting
+                           weapon-spread-setting)]
+    (condp = selected-weapon
+      :phaser
+      (assoc ship :phaser-shots (concat phaser-shots shots))
+
+      :torpedo
+      (assoc ship :torpedo-shots (concat torpedo-shots shots))
+
+      :kinetic
+      (assoc ship :kinetic-shots (concat kinetic-shots shots))))
   )
 
 (defn- select-impulse [_ ship]
