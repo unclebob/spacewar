@@ -82,10 +82,10 @@
       nil
       {:x sx :y sy :bearing bearing :range range})))
 
-(defn- update-phaser-shot [ms shot]
+(defn update-phaser-shot [ms shot]
   (update-shot shot (* ms phaser-velocity) phaser-range))
 
-(defn- update-kinetic-shot [ms shot]
+(defn update-kinetic-shot [ms shot]
   (update-shot shot (* ms kinetic-velocity) kinetic-range))
 
 (defn- torpedo-distance [ms shot]
@@ -94,7 +94,7 @@
           torpedo-velocity
           (- 1 (/ (:range shot) torpedo-range)))))
 
-(defn- update-torpedo-shot [ms shot]
+(defn update-torpedo-shot [ms shot]
   (update-shot shot (torpedo-distance ms shot) torpedo-range))
 
 (defn- warp-ship [ms ship]
@@ -120,7 +120,7 @@
         [px py] (vector/add [x y] velocity)]
     (assoc ship :x px :y py :velocity velocity)))
 
-(defn- update-ship [ms [_ ship]]
+(defn update-ship [ms ship]
   (let [ship (warp-ship ms ship)
         ship (impulse-ship ms ship)
         {:keys [heading heading-setting
@@ -233,22 +233,22 @@
 (defn- select-kinetic [_ {:keys [selected-weapon] :as ship}]
   (assoc ship :selected-weapon (if (= selected-weapon :kinetic) :none :kinetic)))
 
-(defn process-events [events global-state]
-  (let [{:keys [ship since-last-update]} global-state]
-    (->> [events ship]
-         (handle-event :front-view select-front-view)
-         (handle-event :strategic-scan select-strat-view)
-         (handle-event :tactical-scan select-tact-view)
-         (handle-event :engine-direction set-heading-handler)
-         (handle-event :engine-power set-engine-power-handler)
-         (handle-event :weapon-direction set-target-bearing-handler)
-         (handle-event :weapon-number set-weapon-number-handler)
-         (handle-event :weapon-spread set-weapon-spread-handler)
-         (handle-event :engine-engage engage-engine-handler)
-         (handle-event :weapon-fire weapon-fire-handler)
-         (handle-event :select-impulse select-impulse)
-         (handle-event :select-warp select-warp)
-         (handle-event :select-phaser select-phaser)
-         (handle-event :select-torpedo select-torpedo)
-         (handle-event :select-kinetic select-kinetic)
-         (update-ship since-last-update))))
+(defn process-events [events world]
+  (let [{:keys [ship]} world
+        [_ ship] (->> [events ship]
+                     (handle-event :front-view select-front-view)
+                     (handle-event :strategic-scan select-strat-view)
+                     (handle-event :tactical-scan select-tact-view)
+                     (handle-event :engine-direction set-heading-handler)
+                     (handle-event :engine-power set-engine-power-handler)
+                     (handle-event :weapon-direction set-target-bearing-handler)
+                     (handle-event :weapon-number set-weapon-number-handler)
+                     (handle-event :weapon-spread set-weapon-spread-handler)
+                     (handle-event :engine-engage engage-engine-handler)
+                     (handle-event :weapon-fire weapon-fire-handler)
+                     (handle-event :select-impulse select-impulse)
+                     (handle-event :select-warp select-warp)
+                     (handle-event :select-phaser select-phaser)
+                     (handle-event :select-torpedo select-torpedo)
+                     (handle-event :select-kinetic select-kinetic))]
+    ship))

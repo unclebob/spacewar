@@ -164,10 +164,10 @@
   (setup [_]
     (tactical-scan. state))
 
-  (update-state [_ global-state]
+  (update-state [_ world]
     (p/pack-update
       (tactical-scan.
-        (assoc state :stars (:stars global-state)
-                     :klingons (:klingons global-state)
-                     :ship (:ship global-state)
-                     :bases (:bases global-state))))))
+        (assoc state :stars (:stars world)
+                     :klingons (:klingons world)
+                     :ship (:ship world)
+                     :bases (:bases world))))))

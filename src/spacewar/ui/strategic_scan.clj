@@ -98,10 +98,10 @@
       (assoc state :x-pixel-width (/ (:w state) known-space-x)
                    :y-pixel-width (/ (:h state) known-space-y))))
 
-  (update-state [_ global-state]
+  (update-state [_ world]
     (p/pack-update
       (strategic-scan.
-        (assoc state :stars (:stars global-state)
-                     :klingons (:klingons global-state)
-                     :ship (:ship global-state)
-                     :bases (:bases global-state))))))
+        (assoc state :stars (:stars world)
+                     :klingons (:klingons world)
+                     :ship (:ship world)
+                     :bases (:bases world))))))

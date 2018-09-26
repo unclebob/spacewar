@@ -90,8 +90,8 @@
                         :draw-func round-rectangle-light}))
           :elements [:warp :impulse :life-support :hull :sensors :weapons]))))
 
-  (update-state [_ global-state]
-    (let [[state events] (p/update-elements state global-state)]
+  (update-state [_ world]
+    (let [[state events] (p/update-elements state world)]
       (p/pack-update
         (damage-panel. state)
         events))))

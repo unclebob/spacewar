@@ -28,8 +28,8 @@
 
   (setup [this] this)
 
-  (update-state [_ global-state]
-    (let [[new-state events] (p/update-elements state global-state)]
+  (update-state [_ world]
+    (let [[new-state events] (p/update-elements state world)]
       (p/pack-update
         (h-scale. new-state)
         events))))

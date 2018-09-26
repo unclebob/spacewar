@@ -54,8 +54,8 @@
 
           :elements [:strategic :tactical :front-view]))))
 
-  (update-state [_ global-state]
-    (let [ship (:ship global-state)
+  (update-state [_ world]
+    (let [ship (:ship world)
           {:keys [selected-view]} ship
           tact-color (button-color selected-view :tact-view)
           strat-color (button-color selected-view :strat-view)
@@ -63,7 +63,7 @@
           state (p/change-elements state [[:front-view :color front-color]
                                           [:tactical :color tact-color]
                                           [:strategic :color strat-color]])
-          [state events] (p/update-elements state global-state)]
+          [state events] (p/update-elements state world)]
       (p/pack-update
         (scan-panel. state)
         events))))

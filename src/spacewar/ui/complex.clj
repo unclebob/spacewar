@@ -226,8 +226,8 @@
                                             :damage-panel :status-panel])]
       (complex. new-state)))
 
-  (update-state [_ global-state]
-    (let [[state events] (p/update-elements state global-state)]
+  (update-state [_ world]
+    (let [[state events] (p/update-elements state world)]
       (p/pack-update
         (complex. state)
         events))))

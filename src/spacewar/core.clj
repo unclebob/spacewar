@@ -21,32 +21,36 @@
                 {:x hmargin :y vmargin
                  :w (- (q/width) (* 2 hmargin))
                  :h (- (q/height) (* 2 vmargin))}))
-     :global-state {:stars (stars/initialize)
+     :world {:stars (stars/initialize)
                     :klingons (klingons/initialize)
                     :ship (ship/initialize)
                     :bases (bases/initialize)
-                    :update-time (q/millis)
-                    :since-last-update 0}
+                    :update-time (q/millis)}
      :fonts {:lcars (q/create-font "Helvetica-Bold" 24)
              :lcars-small (q/create-font "Arial" 18)}}))
 
-(defn process-events [events global-state]
-  (let [ship-state (ship/process-events events global-state)]
-    (assoc global-state :ship ship-state)))
+(defn process-events [events world]
+  (let [ship-state (ship/process-events events world)]
+    (assoc world :ship ship-state)))
+
+(defn update-world [ms world]
+  (let [{:keys [ship]} world
+        ship (ship/update-ship ms ship)]
+    (assoc world :ship ship)))
 
 (defn update-state [context]
-  (let [time (q/millis)
+  (let [world (:world context)
+        time (q/millis)
+        ms (- time (:update-time world))
         complex (:state context)
-        global-state (:global-state context)
-        global-state (assoc global-state
-                       :update-time time
-                       :since-last-update (- time (:update-time global-state)))
-        [complex events] (p/update-state complex global-state)
+        world (assoc world :update-time time)
+        [complex events] (p/update-state complex world)
         events (flatten events)
-        global-state (process-events events global-state)]
+        world (process-events events world)
+        world (update-world ms world)]
     (assoc context
       :state complex
-      :global-state global-state)))
+      :world world)))
 
 (defn draw-state [{:keys [state]}]
   (q/fill 200 200 200)

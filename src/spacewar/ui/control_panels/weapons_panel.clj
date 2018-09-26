@@ -133,8 +133,8 @@
 
           :elements [:torpedo :kinetic :phaser :direction-selector :number-slider :spread-slider :fire]))))
 
-  (update-state [_ global-state]
-    (let [ship (:ship global-state)
+  (update-state [_ world]
+    (let [ship (:ship world)
           {:keys [target-bearing selected-weapon
                   weapon-number-setting weapon-spread-setting]} ship
           phaser-button-color (button-color selected-weapon :phaser)
@@ -149,7 +149,7 @@
                                           [:torpedo :color torpedo-button-color]
                                           [:kinetic :color kinetic-button-color]
                                           [:fire :disabled weapon-disabled]])
-          [state events] (p/update-elements state global-state)]
+          [state events] (p/update-elements state world)]
       (p/pack-update
         (weapons-panel. state)
         events))))

@@ -59,8 +59,8 @@
                           :mercury-color mercury-color}))
           :elements [:anti-matter :dilithium :core-temp]))))
 
-  (update-state [_ global-state]
-    (let [[state events] (p/update-elements state global-state)]
+  (update-state [_ world]
+    (let [[state events] (p/update-elements state world)]
       (p/pack-update
         (status-panel. state)
         events))))
