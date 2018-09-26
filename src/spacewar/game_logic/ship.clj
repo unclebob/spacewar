@@ -8,6 +8,9 @@
 (defn initialize []
   {:x (int (rand known-space-x))
    :y (int (rand known-space-y))
+   :warp 0
+   :warp-charge 0
+   :impulse 0
    :heading 0
    :velocity [0 0]
    :selected-view :front-view
@@ -84,7 +87,7 @@
   (let [{:keys [x y bearing range]} shot
         radians (->radians bearing)
         distance (* ms torpedo-velocity (- 1 (/ range torpedo-range)))
-        distance (max distance ms) ; minimum torpedo velocity.
+        distance (max distance ms)
         delta (vector/from-angular distance radians)
         [sx sy] (vector/add [x y] delta)
         range (+ range distance)]
@@ -92,12 +95,9 @@
       nil
       {:x sx :y sy :bearing bearing :range range})))
 
-(defn- update-ship [ms [_ ship]]
-  (let [{:keys [velocity x y heading heading-setting
-                impulse warp warp-charge
-                phaser-shots torpedo-shots]} ship
+(defn- warp-ship [ms ship]
+  (let [{:keys [x y warp warp-charge heading]} ship
         warp (or warp 0)
-        impulse (or impulse 0)
         warp-charge (or warp-charge 0)
         warp-charge-increment (* ms warp warp-charge-rate)
         warp-charge (+ warp-charge-increment warp-charge)
@@ -105,27 +105,32 @@
         warp-charge (if warp-trigger 0 warp-charge)
         radians (->radians heading)
         warp-vector (vector/from-angular warp-leap radians)
-        position (if warp-trigger
-                   (vector/add [x y] warp-vector)
-                   [x y])
+        [wx wy] (if warp-trigger
+                  (vector/add [x y] warp-vector)
+                  [x y])]
+    (assoc ship :x wx :y wy :warp-charge warp-charge)))
 
+(defn- impulse-ship [ms ship]
+  (let [{:keys [velocity heading impulse x y]} ship
         drag (drag velocity)
-        accelerated-v (apply-impulse ms
-                                     velocity
-                                     heading
-                                     impulse)
-        new-velocity (apply-drag drag accelerated-v)
-        [px py] (vector/add position new-velocity)
+        accelerated-v (apply-impulse ms velocity heading impulse)
+        velocity (apply-drag drag accelerated-v)
+        [px py] (vector/add [x y] velocity)]
+    (assoc ship :x px :y py :velocity velocity)))
+
+(defn- update-ship [ms [_ ship]]
+  (let [ship (warp-ship ms ship)
+        ship (impulse-ship ms ship)
+        {:keys [heading heading-setting
+                phaser-shots torpedo-shots]} ship
+
         new-heading (rotate-ship ms heading heading-setting)
         phaser-shots (filter some?
                              (map #(update-phaser-shot ms %) phaser-shots))
         torpedo-shots (filter some?
                               (map #(update-torpedo-shot ms %) torpedo-shots))]
 
-    (assoc ship :x px :y py
-                :velocity new-velocity
-                :heading new-heading
-                :warp-charge warp-charge
+    (assoc ship :heading new-heading
                 :phaser-shots phaser-shots
                 :torpedo-shots torpedo-shots)))
 
