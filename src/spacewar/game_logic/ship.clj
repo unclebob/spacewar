@@ -72,39 +72,30 @@
       [events new-state])
     input))
 
-(defn update-phaser-shot [ms shot]
+(defn update-shot [shot distance range-limit]
   (let [{:keys [x y bearing range]} shot
         radians (->radians bearing)
-        distance (* ms phaser-velocity)
         delta (vector/from-angular distance radians)
         [sx sy] (vector/add [x y] delta)
         range (+ range distance)]
-    (if (> range phaser-range)
+    (if (> range range-limit)
       nil
       {:x sx :y sy :bearing bearing :range range})))
 
-(defn update-kinetic-shot [ms shot]
-  (let [{:keys [x y bearing range]} shot
-        radians (->radians bearing)
-        distance (* ms kinetic-velocity)
-        delta (vector/from-angular distance radians)
-        [sx sy] (vector/add [x y] delta)
-        range (+ range distance)]
-    (if (> range kinetic-range)
-      nil
-      {:x sx :y sy :bearing bearing :range range})))
+(defn- update-phaser-shot [ms shot]
+  (update-shot shot (* ms phaser-velocity) phaser-range))
 
-(defn update-torpedo-shot [ms shot]
-  (let [{:keys [x y bearing range]} shot
-        radians (->radians bearing)
-        distance (* ms torpedo-velocity (- 1 (/ range torpedo-range)))
-        distance (max distance ms)
-        delta (vector/from-angular distance radians)
-        [sx sy] (vector/add [x y] delta)
-        range (+ range distance)]
-    (if (> range torpedo-range)
-      nil
-      {:x sx :y sy :bearing bearing :range range})))
+(defn- update-kinetic-shot [ms shot]
+  (update-shot shot (* ms kinetic-velocity) kinetic-range))
+
+(defn- torpedo-distance [ms shot]
+  (max ms
+       (* ms
+          torpedo-velocity
+          (- 1 (/ (:range shot) torpedo-range)))))
+
+(defn- update-torpedo-shot [ms shot]
+  (update-shot shot (torpedo-distance ms shot) torpedo-range))
 
 (defn- warp-ship [ms ship]
   (let [{:keys [x y warp warp-charge heading]} ship
