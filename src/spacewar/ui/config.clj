@@ -24,11 +24,11 @@
 (def status-panel-color [255 255 200])
 (def status-panel-mercury-color [240 240 0])
 
-
-
 (def banner-width 40)
 (def stringer-width 15)
 (def button-gap 10)
 (def button-h 40)
 (def slider-width 50)
 (def engage-width 100)
+
+(def phaser-length 30)

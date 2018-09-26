@@ -67,5 +67,31 @@
     1000 [1 1] 180 3 (vt/roughly-v (vector/add
                                      ?velocity
                                      [(* -1 impulse-thrust ?ms ?impulse) 0])))
+
+  (fact
+    "weapon-fire-handler"
+    (weapon-fire-handler [] {:selected-weapon :phaser
+                             :weapon-spread-setting 1
+                             :weapon-number-setting 2
+                             :target-bearing 90
+                             :phaser-shots [:previous-shots]}) => {:selected-weapon :phaser
+                                                                   :weapon-spread-setting 1
+                                                                   :weapon-number-setting 2
+                                                                   :target-bearing 90
+                                                                   :phaser-shots [:previous-shots :shot1 :shot2]}
+    (provided (fire-phasers
+                anything
+                anything
+                anything
+                anything) => [:shot1 :shot2]))
+
+  (fact
+    "fire-phasers"
+    (fire-phasers [0 0] 0 1 0) => [{:x 0 :y 0 :bearing 0}]
+    (fire-phasers [1 1] 90 1 0) => [{:x 1 :y 1 :bearing 90}]
+    (fire-phasers [0 0] 90 2 10) => [{:x 0 :y 0  :bearing 85}
+                                     {:x 0 :y 0  :bearing 95}]
+
+    )
   )
 

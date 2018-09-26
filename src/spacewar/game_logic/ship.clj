@@ -11,6 +11,8 @@
    :heading 0
    :velocity [0 0]
    :selected-view :front-view
+   :selected-weapon :none
+   :selected-engine :none
    :target-bearing 0
    :engine-power-setting 0
    :weapon-number-setting 1
@@ -18,7 +20,8 @@
    :heading-setting 0
    :antimatter 100
    :core-temp 0
-   :dilithium 100}
+   :dilithium 100
+   :phaser-shots []}
   )
 
 (defn drag [[x y :as v]]
@@ -119,6 +122,34 @@
       (assoc ship selected-engine engine-power-setting
                   :engine-power-setting 0))))
 
+(defn fire-phasers [pos bearing number spread]
+  (let [start-bearing (if (= number 1)
+                        bearing
+                        (- bearing (/ spread 2)))
+        bearing-inc (if (= number 1)
+                      0
+                      (/ spread (dec number)))]
+        (loop [shots []
+               bearing start-bearing
+               number number]
+          (if (zero? number)
+            shots
+            (recur (conj shots {:x (first pos) :y (second pos) :bearing bearing})
+                   (+ bearing bearing-inc)
+                   (dec number))))))
+
+(defn weapon-fire-handler [_ ship]
+  (let [{:keys [x y selected-weapon weapon-spread-setting
+                weapon-number-setting target-bearing
+                phaser-shots]} ship
+        phaser-shots (concat phaser-shots
+                             (fire-phasers [x y]
+                                           target-bearing
+                                           weapon-number-setting
+                                           weapon-spread-setting))]
+    (assoc ship :phaser-shots phaser-shots))
+  )
+
 (defn- select-impulse [_ ship]
   (let [selected-engine (:selected-engine ship)]
     (assoc ship :selected-engine
@@ -142,6 +173,15 @@
 (defn- select-tact-view [_ ship]
   (assoc ship :selected-view :tact-view))
 
+(defn- select-phaser [_ {:keys [selected-weapon] :as ship}]
+  (assoc ship :selected-weapon (if (= selected-weapon :phaser) :none :phaser)))
+
+(defn- select-torpedo [_ {:keys [selected-weapon] :as ship}]
+  (assoc ship :selected-weapon (if (= selected-weapon :torpedo) :none :torpedo)))
+
+(defn- select-kinetic [_ {:keys [selected-weapon] :as ship}]
+  (assoc ship :selected-weapon (if (= selected-weapon :kinetic) :none :kinetic)))
+
 (defn process-events [events global-state]
   (let [{:keys [ship since-last-update]} global-state]
     (->> [events ship]
@@ -154,6 +194,10 @@
          (handle-event :weapon-number set-weapon-number-handler)
          (handle-event :weapon-spread set-weapon-spread-handler)
          (handle-event :engine-engage engage-engine-handler)
+         (handle-event :weapon-fire weapon-fire-handler)
          (handle-event :select-impulse select-impulse)
          (handle-event :select-warp select-warp)
+         (handle-event :select-phaser select-phaser)
+         (handle-event :select-torpedo select-torpedo)
+         (handle-event :select-kinetic select-kinetic)
          (update-ship since-last-update))))

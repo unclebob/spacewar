@@ -4,7 +4,8 @@
             [spacewar.game-logic.config :refer :all]
             [spacewar.ui.protocols :as p]
             [spacewar.geometry :refer :all]
-            [spacewar.vector :as v]))
+            [spacewar.vector :as v]
+            [spacewar.vector :as vector]))
 
 (defn- draw-background [state]
   (let [{:keys [w h]} state]
@@ -13,12 +14,12 @@
     (q/rect 0 0 w h)))
 
 (defn- in-range [x y ship]
-  (< (distance [x y] [(:x ship) (:y ship)]) (/ sector-size 2)))
+  (< (distance [x y] [(:x ship) (:y ship)]) (/ tactical-range 2)))
 
 (defn- present-objects [state objects]
   (let [{:keys [w h ship]} state
-        scale-x (/ w sector-size)
-        scale-y (/ h sector-size)]
+        scale-x (/ w tactical-range)
+        scale-y (/ h tactical-range)]
     (->> objects
          (filter #(in-range (:x %) (:y %) ship))
          (map #(assoc % :x (- (:x %) (:x ship))
@@ -93,6 +94,19 @@
         (q/line 0 -6 0 6)
         (q/line -6 0 6 0)))))
 
+(defn- draw-shots [state]
+  (let [{:keys [w h ship]} state
+        phaser-shots (:phaser-shots ship)
+        presentable-phaser-shots (present-objects state phaser-shots)]
+    (apply q/stroke white)
+    (doseq [{:keys [x y bearing]} presentable-phaser-shots]
+      (q/with-translation
+        [(+ x (/ w 2)) (+ y (/ h 2))]
+        (let [radians (->radians bearing)
+
+              [sx sy] (vector/from-angular phaser-length radians)]
+          (q/line 0 0 sx sy))))))
+
 (deftype tactical-scan [state]
   p/Drawable
   (draw [_]
@@ -101,6 +115,7 @@
         [x y]
         (draw-background state)
         (draw-stars state)
+        (draw-shots state)
         (draw-klingons state)
         (draw-ship state)
         (draw-bases state))))
