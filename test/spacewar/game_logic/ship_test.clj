@@ -87,11 +87,33 @@
 
   (fact
     "fire-phasers"
-    (fire-phasers [0 0] 0 1 0) => [{:x 0 :y 0 :bearing 0}]
-    (fire-phasers [1 1] 90 1 0) => [{:x 1 :y 1 :bearing 90}]
-    (fire-phasers [0 0] 90 2 10) => [{:x 0 :y 0  :bearing 85}
-                                     {:x 0 :y 0  :bearing 95}]
+    (fire-phasers [0 0] 0 1 0) => [{:x 0 :y 0 :bearing 0 :range 0}]
+    (fire-phasers [1 1] 90 1 0) => [{:x 1 :y 1 :bearing 90 :range 0}]
+    (fire-phasers [0 0] 90 2 10) => [{:x 0 :y 0 :bearing 85 :range 0}
+                                     {:x 0 :y 0 :bearing 95 :range 0}]
 
     )
+
+  (tabular
+    (fact
+      "update-phaser-shot"
+      (let [shot
+            (update-phaser-shot
+              ?ms {:x ?x :y ?y :bearing ?bearing :range 0})]
+        (:x shot) => (roughly ?sx 1e-10)
+        (:y shot) => (roughly ?sy 1e-10)
+        (:bearing shot) => (roughly ?bearing 1e-10)
+        (:range shot) => (roughly (* ?ms phaser-velocity))))
+    ?ms ?x ?y ?bearing ?sx ?sy
+    1000 0 0 0 (* phaser-velocity ?ms) 0
+    1000 0 0 90 0 (* phaser-velocity ?ms)
+    )
+
+  (fact
+    "phaser shots go out of range"
+    (let [ms-out-of-range (+ 1 (/ phaser-range phaser-velocity))]
+      (update-phaser-shot
+        ms-out-of-range
+        {:x 0 :y 0 :bearing 0 :range 0}) => nil))
   )
 

@@ -94,17 +94,22 @@
         (q/line 0 -6 0 6)
         (q/line -6 0 6 0)))))
 
+(defn- phaser-intensity [range]
+  (let [intensity (* 255 (- 1 (/ range phaser-range)))]
+    [intensity intensity intensity]))
+
 (defn- draw-shots [state]
   (let [{:keys [w h ship]} state
         phaser-shots (:phaser-shots ship)
         presentable-phaser-shots (present-objects state phaser-shots)]
-    (apply q/stroke white)
-    (doseq [{:keys [x y bearing]} presentable-phaser-shots]
+    (doseq [{:keys [x y bearing range]} presentable-phaser-shots]
       (q/with-translation
         [(+ x (/ w 2)) (+ y (/ h 2))]
         (let [radians (->radians bearing)
 
-              [sx sy] (vector/from-angular phaser-length radians)]
+              [sx sy] (vector/from-angular phaser-length radians)
+              beam-color (phaser-intensity range)]
+          (apply q/stroke beam-color)
           (q/line 0 0 sx sy))))))
 
 (deftype tactical-scan [state]

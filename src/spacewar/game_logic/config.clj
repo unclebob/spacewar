@@ -10,7 +10,7 @@
 (def warp-threshold 2000)
 
 (def phaser-range 30000)
-(def phaser-velocity 30) ;per ms
+(def phaser-velocity 10) ;per ms
 
 
 (def number-of-stars 1000)

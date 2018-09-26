@@ -69,8 +69,21 @@
       [events new-state])
     input))
 
+(defn update-phaser-shot [ms shot]
+  (let [{:keys [x y bearing range]} shot
+        radians (->radians bearing)
+        distance (* ms phaser-velocity)
+        delta (vector/from-angular distance radians)
+        [sx sy] (vector/add [x y] delta)
+        range (+ range distance)]
+    (if (> range phaser-range)
+      nil
+      {:x sx :y sy :bearing bearing :range range})))
+
 (defn- update-ship [ms [_ ship]]
-  (let [{:keys [velocity x y heading heading-setting impulse warp warp-charge]} ship
+  (let [{:keys [velocity x y heading heading-setting
+                impulse warp warp-charge
+                phaser-shots]} ship
         warp (or warp 0)
         impulse (or impulse 0)
         warp-charge (or warp-charge 0)
@@ -92,10 +105,14 @@
         new-velocity (apply-drag drag accelerated-v)
         [px py] (vector/add position new-velocity)
         new-heading (rotate-ship ms heading heading-setting)
+        phaser-shots (filter some?
+                             (map #(update-phaser-shot ms %) phaser-shots))
+
         new-ship (assoc ship :x px :y py
                              :velocity new-velocity
                              :heading new-heading
-                             :warp-charge warp-charge)]
+                             :warp-charge warp-charge
+                             :phaser-shots phaser-shots)]
     new-ship
     )
   )
@@ -129,25 +146,32 @@
         bearing-inc (if (= number 1)
                       0
                       (/ spread (dec number)))]
-        (loop [shots []
-               bearing start-bearing
-               number number]
-          (if (zero? number)
-            shots
-            (recur (conj shots {:x (first pos) :y (second pos) :bearing bearing})
-                   (+ bearing bearing-inc)
-                   (dec number))))))
+    (loop [shots []
+           bearing start-bearing
+           number number]
+      (if (zero? number)
+        shots
+        (recur (conj shots
+                     {:x (first pos)
+                      :y (second pos)
+                      :bearing bearing
+                      :range 0})
+               (+ bearing bearing-inc)
+               (dec number))))))
 
 (defn weapon-fire-handler [_ ship]
   (let [{:keys [x y selected-weapon weapon-spread-setting
                 weapon-number-setting target-bearing
-                phaser-shots]} ship
-        phaser-shots (concat phaser-shots
-                             (fire-phasers [x y]
-                                           target-bearing
-                                           weapon-number-setting
-                                           weapon-spread-setting))]
-    (assoc ship :phaser-shots phaser-shots))
+                phaser-shots]} ship]
+        (condp = selected-weapon
+          :phaser
+          (assoc ship
+            :phaser-shots
+            (concat phaser-shots
+                    (fire-phasers [x y]
+                                  target-bearing
+                                  weapon-number-setting
+                                  weapon-spread-setting)))))
   )
 
 (defn- select-impulse [_ ship]
