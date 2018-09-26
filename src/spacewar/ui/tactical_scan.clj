@@ -118,7 +118,17 @@
         (draw-torpedo-segment)
         (draw-torpedo-segment)))))
 
-(defn- draw-kinetic-shots [state])
+(defn- draw-kinetic-shots [state]
+  (let [{:keys [w h ship]} state
+          kinetic-shots (:kinetic-shots ship)
+          presentable-kinetic-shots (present-objects state kinetic-shots)]
+      (doseq [{:keys [x y]} presentable-kinetic-shots]
+        (q/with-translation
+          [(+ x (/ w 2)) (+ y (/ h 2))]
+          (q/ellipse-mode :center)
+          (q/no-stroke)
+          (apply q/fill kinetic-color)
+          (q/ellipse 0 0 3 3)))))
 
 (defn- draw-phaser-shots [state]
   (let [{:keys [w h ship]} state

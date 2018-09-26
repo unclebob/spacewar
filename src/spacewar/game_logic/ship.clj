@@ -83,6 +83,17 @@
       nil
       {:x sx :y sy :bearing bearing :range range})))
 
+(defn update-kinetic-shot [ms shot]
+  (let [{:keys [x y bearing range]} shot
+        radians (->radians bearing)
+        distance (* ms kinetic-velocity)
+        delta (vector/from-angular distance radians)
+        [sx sy] (vector/add [x y] delta)
+        range (+ range distance)]
+    (if (> range kinetic-range)
+      nil
+      {:x sx :y sy :bearing bearing :range range})))
+
 (defn update-torpedo-shot [ms shot]
   (let [{:keys [x y bearing range]} shot
         radians (->radians bearing)
@@ -122,17 +133,21 @@
   (let [ship (warp-ship ms ship)
         ship (impulse-ship ms ship)
         {:keys [heading heading-setting
-                phaser-shots torpedo-shots]} ship
+                phaser-shots torpedo-shots
+                kinetic-shots]} ship
 
         new-heading (rotate-ship ms heading heading-setting)
         phaser-shots (filter some?
                              (map #(update-phaser-shot ms %) phaser-shots))
         torpedo-shots (filter some?
-                              (map #(update-torpedo-shot ms %) torpedo-shots))]
+                              (map #(update-torpedo-shot ms %) torpedo-shots))
+        kinetic-shots (filter some?
+                              (map #(update-kinetic-shot ms %) kinetic-shots))]
 
     (assoc ship :heading new-heading
                 :phaser-shots phaser-shots
-                :torpedo-shots torpedo-shots)))
+                :torpedo-shots torpedo-shots
+                :kinetic-shots kinetic-shots)))
 
 (defn- set-heading-handler [{:keys [angle]} ship]
   (assoc ship :heading-setting angle))

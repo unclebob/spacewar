@@ -109,6 +109,21 @@
     1000 0 0 90 0 (* phaser-velocity ?ms)
     )
 
+  (tabular
+    (fact
+      "update-kinetic-shot"
+      (let [shot
+            (update-kinetic-shot
+              ?ms {:x ?x :y ?y :bearing ?bearing :range 0})]
+        (:x shot) => (roughly ?sx 1e-10)
+        (:y shot) => (roughly ?sy 1e-10)
+        (:bearing shot) => (roughly ?bearing 1e-10)
+        (:range shot) => (roughly (* ?ms kinetic-velocity))))
+    ?ms ?x ?y ?bearing ?sx ?sy
+    1000 0 0 0 (* kinetic-velocity ?ms) 0
+    1000 0 0 90 0 (* kinetic-velocity ?ms)
+    )
+
   (fact
     "phaser shots go out of range"
     (let [ms-out-of-range (+ 1 (/ phaser-range phaser-velocity))]

@@ -32,3 +32,5 @@
 (def engage-width 100)
 
 (def phaser-length 30)
+(def kinetic-color [255 0 0])
+
