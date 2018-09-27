@@ -17,7 +17,8 @@
   (< (distance [x y] [(:x ship) (:y ship)]) (/ tactical-range 2)))
 
 (defn- present-objects [state objects]
-  (let [{:keys [w h ship]} state
+  (let [{:keys [w h world]} state
+        ship (:ship world)
         scale-x (/ w tactical-range)
         scale-y (/ h tactical-range)]
     (->> objects
@@ -28,7 +29,8 @@
                         :y (* (:y %) scale-y))))))
 
 (defn- draw-stars [state]
-  (let [{:keys [w h stars]} state
+  (let [{:keys [w h world]} state
+        stars (:stars world)
         presentable-stars (present-objects state stars)]
     (apply q/fill grey)
     (q/no-stroke)
@@ -39,7 +41,8 @@
         (q/ellipse x y 4 4)))))
 
 (defn- draw-klingons [state]
-  (let [{:keys [w h klingons]} state
+  (let [{:keys [w h world]} state
+        klingons (:klingons world)
         presentable-klingons (present-objects state klingons)]
     (when klingons
       (apply q/fill black)
@@ -58,8 +61,8 @@
 
 (defn- draw-ship [state]
   (let [{:keys [w h]} state
-        heading (or (->> state :ship :heading) 0)
-        velocity (or (->> state :ship :velocity) [0 0])
+        heading (or (->> state :world :ship :heading) 0)
+        velocity (or (->> state :world :ship :velocity) [0 0])
         [vx vy] (v/scale velocity-vector-scale velocity)
         radians (->radians heading)]
     (q/with-translation
@@ -108,8 +111,8 @@
     (q/line 0 0 tx ty)))
 
 (defn- draw-torpedo-shots [state]
-  (let [{:keys [w h ship]} state
-        torpedo-shots (:torpedo-shots ship)
+  (let [{:keys [w h world]} state
+        torpedo-shots (:torpedo-shots world)
         presentable-torpedo-shots (present-objects state torpedo-shots)]
     (doseq [{:keys [x y]} presentable-torpedo-shots]
       (q/with-translation
@@ -119,8 +122,8 @@
         (draw-torpedo-segment)))))
 
 (defn- draw-kinetic-shots [state]
-  (let [{:keys [w h ship]} state
-          kinetic-shots (:kinetic-shots ship)
+  (let [{:keys [w h world]} state
+          kinetic-shots (:kinetic-shots world)
           presentable-kinetic-shots (present-objects state kinetic-shots)]
       (doseq [{:keys [x y]} presentable-kinetic-shots]
         (q/with-translation
@@ -131,8 +134,8 @@
           (q/ellipse 0 0 3 3)))))
 
 (defn- draw-phaser-shots [state]
-  (let [{:keys [w h ship]} state
-        phaser-shots (:phaser-shots ship)
+  (let [{:keys [w h world]} state
+        phaser-shots (:phaser-shots world)
         presentable-phaser-shots (present-objects state phaser-shots)]
     (doseq [{:keys [x y bearing range]} presentable-phaser-shots]
       (q/with-translation
@@ -167,7 +170,4 @@
   (update-state [_ world]
     (p/pack-update
       (tactical-scan.
-        (assoc state :stars (:stars world)
-                     :klingons (:klingons world)
-                     :ship (:ship world)
-                     :bases (:bases world))))))
+        (assoc state :world world)))))

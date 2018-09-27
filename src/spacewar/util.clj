@@ -11,3 +11,9 @@
 
 (defn get-event [event-id events]
   (get-named-map :event event-id events))
+
+(defn handle-event [event handler [events state :as input]]
+  (if-let [e (get-event event events)]
+    (let [new-state (handler e state)]
+      [events new-state])
+    input))

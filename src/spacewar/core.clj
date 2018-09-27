@@ -7,7 +7,8 @@
             [spacewar.game-logic.ship :as ship]
             [spacewar.game-logic.stars :as stars]
             [spacewar.game-logic.klingons :as klingons]
-            [spacewar.game-logic.bases :as bases]))
+            [spacewar.game-logic.bases :as bases]
+            [spacewar.game-logic.shots :as shots]))
 
 (defn setup []
   (let [vmargin 30 hmargin 5]
@@ -31,13 +32,15 @@
 
 (defn process-events [events world]
   (let [{:keys [ship]} world
-        ship (ship/process-events events ship)]
-    (assoc world :ship ship)))
+        world (assoc world :ship (ship/process-events events ship))
+        world (shots/process-events events world)]
+    world))
 
 (defn update-world [ms world]
   (let [{:keys [ship]} world
-        ship (ship/update-ship ms ship)]
-    (assoc world :ship ship)))
+        world (assoc world :ship (ship/update-ship ms ship))
+        world (shots/update-shots ms world)]
+    world))
 
 (defn update-state [context]
   (let [world (:world context)

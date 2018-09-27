@@ -4,7 +4,7 @@
     [spacewar.vector :as vector]
     [spacewar.util :refer :all]
     [spacewar.game-logic.config :refer :all]
-    [spacewar.game-logic.shots :refer :all]))
+    [spacewar.game-logic.shots :as shots]))
 
 (defn initialize []
   {:x (int (rand known-space-x))
@@ -24,8 +24,7 @@
    :heading-setting 0
    :antimatter 100
    :core-temp 0
-   :dilithium 100
-   :phaser-shots []}
+   :dilithium 100}
   )
 
 (defn drag [[x y :as v]]
@@ -67,12 +66,6 @@
         new-heading (+ heading rotation-step)]
     new-heading))
 
-(defn- handle-event [event handler [events state :as input]]
-  (if-let [e (get-event event events)]
-    (let [new-state (handler e state)]
-      [events new-state])
-    input))
-
 (defn- warp-ship [ms ship]
   (let [{:keys [x y warp warp-charge heading]} ship
         warp (or warp 0)
@@ -99,22 +92,9 @@
 (defn update-ship [ms ship]
   (let [ship (warp-ship ms ship)
         ship (impulse-ship ms ship)
-        {:keys [heading heading-setting
-                phaser-shots torpedo-shots
-                kinetic-shots]} ship
-
-        new-heading (rotate-ship ms heading heading-setting)
-        phaser-shots (filter some?
-                             (map #(update-phaser-shot ms %) phaser-shots))
-        torpedo-shots (filter some?
-                              (map #(update-torpedo-shot ms %) torpedo-shots))
-        kinetic-shots (filter some?
-                              (map #(update-kinetic-shot ms %) kinetic-shots))]
-
-    (assoc ship :heading new-heading
-                :phaser-shots phaser-shots
-                :torpedo-shots torpedo-shots
-                :kinetic-shots kinetic-shots)))
+        {:keys [heading heading-setting]} ship
+        new-heading (rotate-ship ms heading heading-setting)]
+    (assoc ship :heading new-heading)))
 
 (defn- set-heading-handler [{:keys [angle]} ship]
   (assoc ship :heading-setting angle))
@@ -138,31 +118,11 @@
       (assoc ship selected-engine engine-power-setting
                   :engine-power-setting 0))))
 
-(defn fire-weapon [pos bearing number spread]
-  (let [start-bearing (if (= number 1)
-                        bearing
-                        (- bearing (/ spread 2)))
-        bearing-inc (if (= number 1)
-                      0
-                      (/ spread (dec number)))]
-    (loop [shots []
-           bearing start-bearing
-           number number]
-      (if (zero? number)
-        shots
-        (recur (conj shots
-                     {:x (first pos)
-                      :y (second pos)
-                      :bearing bearing
-                      :range 0})
-               (+ bearing bearing-inc)
-               (dec number))))))
-
 (defn weapon-fire-handler [_ ship]
   (let [{:keys [x y selected-weapon weapon-spread-setting
                 weapon-number-setting target-bearing
                 phaser-shots torpedo-shots kinetic-shots]} ship
-        shots (fire-weapon [x y]
+        shots (shots/fire-weapon [x y]
                            target-bearing
                            weapon-number-setting
                            weapon-spread-setting)]
@@ -211,19 +171,18 @@
 
 (defn process-events [events ship]
   (let [[_ ship] (->> [events ship]
-                     (handle-event :front-view select-front-view)
-                     (handle-event :strategic-scan select-strat-view)
-                     (handle-event :tactical-scan select-tact-view)
-                     (handle-event :engine-direction set-heading-handler)
-                     (handle-event :engine-power set-engine-power-handler)
-                     (handle-event :weapon-direction set-target-bearing-handler)
-                     (handle-event :weapon-number set-weapon-number-handler)
-                     (handle-event :weapon-spread set-weapon-spread-handler)
-                     (handle-event :engine-engage engage-engine-handler)
-                     (handle-event :weapon-fire weapon-fire-handler)
-                     (handle-event :select-impulse select-impulse)
-                     (handle-event :select-warp select-warp)
-                     (handle-event :select-phaser select-phaser)
-                     (handle-event :select-torpedo select-torpedo)
-                     (handle-event :select-kinetic select-kinetic))]
+                      (handle-event :front-view select-front-view)
+                      (handle-event :strategic-scan select-strat-view)
+                      (handle-event :tactical-scan select-tact-view)
+                      (handle-event :engine-direction set-heading-handler)
+                      (handle-event :engine-power set-engine-power-handler)
+                      (handle-event :weapon-direction set-target-bearing-handler)
+                      (handle-event :weapon-number set-weapon-number-handler)
+                      (handle-event :weapon-spread set-weapon-spread-handler)
+                      (handle-event :engine-engage engage-engine-handler)
+                      (handle-event :select-impulse select-impulse)
+                      (handle-event :select-warp select-warp)
+                      (handle-event :select-phaser select-phaser)
+                      (handle-event :select-torpedo select-torpedo)
+                      (handle-event :select-kinetic select-kinetic))]
     ship))

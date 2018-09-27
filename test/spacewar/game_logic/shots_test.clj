@@ -60,6 +60,13 @@
     1000 0 0 90 0 0 (* torpedo-velocity ?ms)
     1000 0 0 0 (/ torpedo-range 2) (* torpedo-velocity ?ms 0.5) 0
     )
+
+  (fact
+      "fire-weapon"
+      (fire-weapon [0 0] 0 1 0) => [{:x 0 :y 0 :bearing 0 :range 0}]
+      (fire-weapon [1 1] 90 1 0) => [{:x 1 :y 1 :bearing 90 :range 0}]
+      (fire-weapon [0 0] 90 2 10) => [{:x 0 :y 0 :bearing 85 :range 0}
+                                      {:x 0 :y 0 :bearing 95 :range 0}])
   )
 
 
