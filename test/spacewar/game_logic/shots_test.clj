@@ -109,6 +109,72 @@
         shots => [{:x (inc phaser-proximity) :y 0 :bearing 0 :range ..range..}]
         klingons => [{:x 0 :y 0 :hit {:weapon :phaser :damage [..range..]}}]))
 
+  (fact
+        "Two phaser shots, both hit klingon"
+        (let [world {:phaser-shots [{:x (dec phaser-proximity) :y 0 :bearing 0 :range ..range..}
+                                    {:x (dec phaser-proximity) :y 0 :bearing 0 :range ..range..}]
+                     :klingons [{:x 0 :y 0}]}
+              world (update-phaser-klingon-hits world)
+              klingons (:klingons world)
+              shots (:phaser-shots world)]
+          shots => []
+          klingons => [{:x 0 :y 0 :hit {:weapon :phaser :damage [..range.. ..range..]}}]))
+
+  )
+
+(facts
+  "about Torpedos hitting klingons"
+  (fact
+  "no torpedo"
+    (let [world {:torpedo-shots []
+                 :klingons [{:x 0 :y 0}]}
+          world (update-torpedo-klingon-hits world)
+          klingons (:klingons world)
+          shots (:torpedo-shots world)]
+      shots => []
+      klingons => [{:x 0 :y 0}]))
+
+  (fact
+  "Torpedo out of range"
+    (let [world {:torpedo-shots [{:x (inc torpedo-proximity) :y 0 :bearing 0 :range ..range..}]
+                 :klingons [{:x 0 :y 0}]}
+          world (update-torpedo-klingon-hits world)
+          klingons (:klingons world)
+          shots (:torpedo-shots world)]
+      shots => [{:x (inc torpedo-proximity) :y 0 :bearing 0 :range ..range..}]
+      klingons => [{:x 0 :y 0}]))
+
+  (fact
+    "Torpedo hits klingon"
+    (let [world {:torpedo-shots [{:x (dec torpedo-proximity) :y 0 :bearing 0 :range ..range..}]
+                 :klingons [{:x 0 :y 0}]}
+          world (update-torpedo-klingon-hits world)
+          klingons (:klingons world)
+          shots (:torpedo-shots world)]
+      shots => []
+      klingons => [{:x 0 :y 0 :hit {:weapon :torpedo :damage torpedo-damage}}]))
+
+  (fact
+      "Two torpedoes, one hits klingon"
+      (let [world {:torpedo-shots [{:x (inc torpedo-proximity) :y 0 :bearing 0 :range ..range..}
+                                  {:x (dec torpedo-proximity) :y 0 :bearing 0 :range ..range..}]
+                   :klingons [{:x 0 :y 0}]}
+            world (update-torpedo-klingon-hits world)
+            klingons (:klingons world)
+            shots (:torpedo-shots world)]
+        shots => [{:x (inc torpedo-proximity) :y 0 :bearing 0 :range ..range..}]
+        klingons => [{:x 0 :y 0 :hit {:weapon :torpedo :damage torpedo-damage}}]))
+
+  (fact
+        "Two torpedoes, both hit klingon"
+        (let [world {:torpedo-shots [{:x (dec torpedo-proximity) :y 0 :bearing 0 :range ..range..}
+                                    {:x (dec torpedo-proximity) :y 0 :bearing 0 :range ..range..}]
+                     :klingons [{:x 0 :y 0}]}
+              world (update-torpedo-klingon-hits world)
+              klingons (:klingons world)
+              shots (:torpedo-shots world)]
+          shots => []
+          klingons => [{:x 0 :y 0 :hit {:weapon :torpedo :damage (* 2 torpedo-damage)}}]))
   )
 
 

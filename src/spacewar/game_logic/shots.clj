@@ -117,9 +117,36 @@
 
     ))
 
+(defn- hit-by-torpedo [hit-pairs target]
+  (let [hit-shots (map :shot (filter #(= target (:target %)) hit-pairs))]
+    (assoc target :hit {:weapon :torpedo :damage (* torpedo-damage (count hit-shots))}))
+  )
+
+
+(defn update-torpedo-klingon-hits [world]
+  (let [shots (:torpedo-shots world)
+        klingons (:klingons world)
+        pairs (for [k klingons s shots]
+                {:target k
+                 :shot s
+                 :distance (distance [(:x s) (:y s)]
+                                     [(:x k) (:y k)])})
+        hits (filter #(>= torpedo-proximity (:distance %)) pairs)
+        hit-targets (set (map :target hits))
+        hit-shots (set (map :shot hits))
+        klingons (set/difference (set klingons) hit-targets)
+        shots (set/difference (set shots) hit-shots)
+        hit-targets (map #(hit-by-torpedo hits %) hit-targets)]
+
+    (assoc world :klingons (concat klingons hit-targets)
+                 :torpedo-shots (concat shots))
+
+    ))
+
 (defn update-shots [ms world]
   (let [world (update-shot-positions ms world)
         world (update-phaser-klingon-hits world)
+        world (update-torpedo-klingon-hits world)
         ]
     world))
 

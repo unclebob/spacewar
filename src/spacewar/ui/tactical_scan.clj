@@ -58,7 +58,6 @@
             (q/line 0 0 -10 -6)
             (q/line -10 -6 -14 -3)
             (q/ellipse 0 0 6 6)
-            (println klingon)
             (when (some? (:hit klingon))
               (apply q/fill grey)
               (q/ellipse 0 0 20 20))                        ; hit.

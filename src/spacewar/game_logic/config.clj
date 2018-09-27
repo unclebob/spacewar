@@ -15,6 +15,8 @@
 
 (def torpedo-range 100000)
 (def torpedo-velocity 5)
+(def torpedo-proximity 2000)
+(def torpedo-damage 100)
 
 (def kinetic-range 1000000)
 (def kinetic-velocity 2)
