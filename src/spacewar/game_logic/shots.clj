@@ -90,11 +90,18 @@
                  :kinetic-shots kinetic-shots))
   )
 
-
+(defn- shot-to-explosion [weapon-tag {:keys [x y]}]
+  {:x x :y y :type (condp = weapon-tag
+                     :phaser-shots :phaser
+                     :torpedo-shots :torpedo
+                     :kinetic-shots :kinetic
+                     :else :none)}
+  )
 
 (defn- update-hits [world weapon-tag target-tag proximity hit-by]
   (let [shots (weapon-tag world)
         targets (target-tag world)
+        explosions (or (:explosions world) [])
         pairs (for [t targets s shots]
                 {:target t
                  :shot s
@@ -105,10 +112,12 @@
         hit-shots (set (map :shot hits))
         targets (set/difference (set targets) hit-targets)
         shots (set/difference (set shots) hit-shots)
-        hit-targets (map #(hit-by hits %) hit-targets)]
+        hit-targets (map #(hit-by hits %) hit-targets)
+        explosions (concat explosions (map #(shot-to-explosion weapon-tag %) hit-shots))]
 
     (assoc world target-tag (concat targets hit-targets)
-                 weapon-tag (concat shots))))
+                 weapon-tag (concat shots)
+                 :explosions explosions)))
 
 (defn- hit-by-phaser [hit-pairs target]
   (let [hit-shots (map :shot (filter #(= target (:target %)) hit-pairs))

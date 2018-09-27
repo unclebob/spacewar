@@ -57,11 +57,7 @@
             (q/line 10 -6 14 -3)
             (q/line 0 0 -10 -6)
             (q/line -10 -6 -14 -3)
-            (q/ellipse 0 0 6 6)
-            (when (some? (:hit klingon))
-              (apply q/fill grey)
-              (q/ellipse 0 0 20 20))                        ; hit.
-            ))))))
+            (q/ellipse 0 0 6 6)))))))
 
 (defn- draw-ship [state]
   (let [{:keys [w h]} state
@@ -150,6 +146,19 @@
           (apply q/stroke beam-color)
           (q/line 0 0 sx sy))))))
 
+(defn- draw-explosions [state]
+  (let [{:keys [w h world]} state
+        explosions (:explosions world)
+        presentable-explosions (present-objects state explosions)]
+    (doseq [{:keys [x y type]} presentable-explosions]
+      (q/with-translation
+        [(+ x (/ w 2)) (+ y (/ h 2))]
+        (apply q/fill grey)
+        (q/ellipse-mode :center)
+        (q/no-stroke)
+        (q/ellipse 0 0 20 20)))
+    ))
+
 (defn- draw-shots [state]
   (draw-phaser-shots state)
   (draw-torpedo-shots state)
@@ -166,7 +175,8 @@
         (draw-shots state)
         (draw-klingons state)
         (draw-ship state)
-        (draw-bases state))))
+        (draw-bases state)
+        (draw-explosions state))))
 
   (setup [_]
     (tactical-scan. state))
