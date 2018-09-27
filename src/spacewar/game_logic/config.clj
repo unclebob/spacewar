@@ -20,6 +20,8 @@
 
 (def kinetic-range 1000000)
 (def kinetic-velocity 2)
+(def kinetic-proximity 500)
+(def kinetic-damage 100)
 
 (def number-of-stars 1000)
 (def number-of-klingons 100)

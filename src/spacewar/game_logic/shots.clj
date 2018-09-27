@@ -90,63 +90,56 @@
                  :kinetic-shots kinetic-shots))
   )
 
+
+
+(defn- update-hits [world weapon-tag target-tag proximity hit-by]
+  (let [shots (weapon-tag world)
+        targets (target-tag world)
+        pairs (for [t targets s shots]
+                {:target t
+                 :shot s
+                 :distance (distance [(:x s) (:y s)]
+                                     [(:x t) (:y t)])})
+        hits (filter #(>= proximity (:distance %)) pairs)
+        hit-targets (set (map :target hits))
+        hit-shots (set (map :shot hits))
+        targets (set/difference (set targets) hit-targets)
+        shots (set/difference (set shots) hit-shots)
+        hit-targets (map #(hit-by hits %) hit-targets)]
+
+    (assoc world target-tag (concat targets hit-targets)
+                 weapon-tag (concat shots))))
+
 (defn- hit-by-phaser [hit-pairs target]
   (let [hit-shots (map :shot (filter #(= target (:target %)) hit-pairs))
         ranges (map :range hit-shots)]
     (assoc target :hit {:weapon :phaser :damage ranges}))
   )
 
-
 (defn update-phaser-klingon-hits [world]
-  (let [shots (:phaser-shots world)
-        klingons (:klingons world)
-        pairs (for [k klingons s shots]
-                {:target k
-                 :shot s
-                 :distance (distance [(:x s) (:y s)]
-                                     [(:x k) (:y k)])})
-        hits (filter #(>= phaser-proximity (:distance %)) pairs)
-        hit-targets (set (map :target hits))
-        hit-shots (set (map :shot hits))
-        klingons (set/difference (set klingons) hit-targets)
-        shots (set/difference (set shots) hit-shots)
-        hit-targets (map #(hit-by-phaser hits %) hit-targets)]
-
-    (assoc world :klingons (concat klingons hit-targets)
-                 :phaser-shots (concat shots))
-
-    ))
+  (update-hits world :phaser-shots :klingons phaser-proximity hit-by-phaser))
 
 (defn- hit-by-torpedo [hit-pairs target]
   (let [hit-shots (map :shot (filter #(= target (:target %)) hit-pairs))]
     (assoc target :hit {:weapon :torpedo :damage (* torpedo-damage (count hit-shots))}))
   )
 
-
 (defn update-torpedo-klingon-hits [world]
-  (let [shots (:torpedo-shots world)
-        klingons (:klingons world)
-        pairs (for [k klingons s shots]
-                {:target k
-                 :shot s
-                 :distance (distance [(:x s) (:y s)]
-                                     [(:x k) (:y k)])})
-        hits (filter #(>= torpedo-proximity (:distance %)) pairs)
-        hit-targets (set (map :target hits))
-        hit-shots (set (map :shot hits))
-        klingons (set/difference (set klingons) hit-targets)
-        shots (set/difference (set shots) hit-shots)
-        hit-targets (map #(hit-by-torpedo hits %) hit-targets)]
+  (update-hits world :torpedo-shots :klingons torpedo-proximity hit-by-torpedo))
 
-    (assoc world :klingons (concat klingons hit-targets)
-                 :torpedo-shots (concat shots))
+(defn- hit-by-kinetic [hit-pairs target]
+  (let [hit-shots (map :shot (filter #(= target (:target %)) hit-pairs))]
+    (assoc target :hit {:weapon :kinetic :damage (* kinetic-damage (count hit-shots))}))
+  )
 
-    ))
+(defn update-kinetic-klingon-hits [world]
+  (update-hits world :kinetic-shots :klingons kinetic-proximity hit-by-kinetic))
 
 (defn update-shots [ms world]
   (let [world (update-shot-positions ms world)
         world (update-phaser-klingon-hits world)
         world (update-torpedo-klingon-hits world)
+        world (update-kinetic-klingon-hits world)
         ]
     world))
 
