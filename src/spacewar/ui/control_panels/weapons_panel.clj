@@ -115,7 +115,7 @@
                               :h spread-h
                               :color color
                               :thumb-color button-color
-                              :min-val 0
+                              :min-val 1
                               :max-val 20
                               :value 0
                               :left-up-event {:event :weapon-spread}}))

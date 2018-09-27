@@ -49,15 +49,20 @@
       (apply q/stroke klingon-color)
       (q/stroke-weight 2)
       (q/ellipse-mode :center)
-      (doseq [{:keys [x y]} presentable-klingons]
-        (q/with-translation
-          [(+ x (/ w 2)) (+ y (/ h 2))]
-          (q/line 0 0 10 -6)
-          (q/line 10 -6 14 -3)
-          (q/line 0 0 -10 -6)
-          (q/line -10 -6 -14 -3)
-          (q/ellipse 0 0 6 6)
-          )))))
+      (doseq [klingon presentable-klingons]
+        (let [{:keys [x y]} klingon]
+          (q/with-translation
+            [(+ x (/ w 2)) (+ y (/ h 2))]
+            (q/line 0 0 10 -6)
+            (q/line 10 -6 14 -3)
+            (q/line 0 0 -10 -6)
+            (q/line -10 -6 -14 -3)
+            (q/ellipse 0 0 6 6)
+            (println klingon)
+            (when (some? (:hit klingon))
+              (apply q/fill grey)
+              (q/ellipse 0 0 20 20))                        ; hit.
+            ))))))
 
 (defn- draw-ship [state]
   (let [{:keys [w h]} state

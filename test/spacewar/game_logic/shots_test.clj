@@ -107,7 +107,7 @@
             klingons (:klingons world)
             shots (:phaser-shots world)]
         shots => [{:x (inc phaser-proximity) :y 0 :bearing 0 :range ..range..}]
-        klingons => [{:x 0 :y 0 :hit {:weapon :phaser :damage [..range.. ..range..]}}]))
+        klingons => [{:x 0 :y 0 :hit {:weapon :phaser :damage [..range..]}}]))
 
   )
 

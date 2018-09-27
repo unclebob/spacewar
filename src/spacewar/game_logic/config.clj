@@ -11,7 +11,7 @@
 
 (def phaser-range 30000)
 (def phaser-velocity 10) ;per ms
-(def phaser-proximity 10)
+(def phaser-proximity 1000)
 
 (def torpedo-range 100000)
 (def torpedo-velocity 5)

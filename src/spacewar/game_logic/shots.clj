@@ -90,8 +90,8 @@
                  :kinetic-shots kinetic-shots))
   )
 
-(defn- hit-by-phaser [pairs target]
-  (let [hit-shots (map :shot (filter #(= target (:target %)) pairs))
+(defn- hit-by-phaser [hit-pairs target]
+  (let [hit-shots (map :shot (filter #(= target (:target %)) hit-pairs))
         ranges (map :range hit-shots)]
     (assoc target :hit {:weapon :phaser :damage ranges}))
   )
@@ -110,7 +110,7 @@
         hit-shots (set (map :shot hits))
         klingons (set/difference (set klingons) hit-targets)
         shots (set/difference (set shots) hit-shots)
-        hit-targets (map #(hit-by-phaser pairs %) hit-targets)]
+        hit-targets (map #(hit-by-phaser hits %) hit-targets)]
 
     (assoc world :klingons (concat klingons hit-targets)
                  :phaser-shots (concat shots))
