@@ -209,9 +209,8 @@
 (defn- select-kinetic [_ {:keys [selected-weapon] :as ship}]
   (assoc ship :selected-weapon (if (= selected-weapon :kinetic) :none :kinetic)))
 
-(defn process-events [events world]
-  (let [{:keys [ship]} world
-        [_ ship] (->> [events ship]
+(defn process-events [events ship]
+  (let [[_ ship] (->> [events ship]
                      (handle-event :front-view select-front-view)
                      (handle-event :strategic-scan select-strat-view)
                      (handle-event :tactical-scan select-tact-view)

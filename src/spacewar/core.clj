@@ -30,8 +30,9 @@
              :lcars-small (q/create-font "Arial" 18)}}))
 
 (defn process-events [events world]
-  (let [ship-state (ship/process-events events world)]
-    (assoc world :ship ship-state)))
+  (let [{:keys [ship]} world
+        ship (ship/process-events events ship)]
+    (assoc world :ship ship)))
 
 (defn update-world [ms world]
   (let [{:keys [ship]} world
