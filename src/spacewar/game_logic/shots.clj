@@ -3,7 +3,8 @@
     [spacewar.geometry :refer :all]
     [spacewar.vector :as vector]
     [spacewar.game-logic.config :refer :all]
-    [spacewar.util :refer :all]))
+    [spacewar.util :refer :all]
+    [clojure.set :as set]))
 
 (defn fire-weapon [pos bearing number spread]
   (let [start-bearing (if (= number 1)
@@ -76,7 +77,7 @@
   (update-shot shot (torpedo-distance ms shot) torpedo-range))
 
 
-(defn update-shots [ms world]
+(defn update-shot-positions [ms world]
   (let [{:keys [phaser-shots torpedo-shots kinetic-shots]} world
         phaser-shots (filter some?
                              (map #(update-phaser-shot ms %) phaser-shots))
@@ -88,5 +89,38 @@
                  :torpedo-shots torpedo-shots
                  :kinetic-shots kinetic-shots))
   )
+
+(defn- hit-by-phaser [pairs target]
+  (let [hit-shots (map :shot (filter #(= target (:target %)) pairs))
+        ranges (map :range hit-shots)]
+    (assoc target :hit {:weapon :phaser :damage ranges}))
+  )
+
+
+(defn update-phaser-klingon-hits [world]
+  (let [shots (:phaser-shots world)
+        klingons (:klingons world)
+        pairs (for [k klingons s shots]
+                {:target k
+                 :shot s
+                 :distance (distance [(:x s) (:y s)]
+                                     [(:x k) (:y k)])})
+        hits (filter #(>= phaser-proximity (:distance %)) pairs)
+        hit-targets (set (map :target hits))
+        hit-shots (set (map :shot hits))
+        klingons (set/difference (set klingons) hit-targets)
+        shots (set/difference (set shots) hit-shots)
+        hit-targets (map #(hit-by-phaser pairs %) hit-targets)]
+
+    (assoc world :klingons (concat klingons hit-targets)
+                 :phaser-shots (concat shots))
+
+    ))
+
+(defn update-shots [ms world]
+  (let [world (update-shot-positions ms world)
+        world (update-phaser-klingon-hits world)
+        ]
+    world))
 
 

@@ -4,7 +4,7 @@
             [spacewar.game-logic.shots :refer :all]))
 
 (facts
-  "about shots"
+  "about shot movement"
   (tabular
     (fact
       "update-phaser-shot"
@@ -58,15 +58,57 @@
     ?ms ?x ?y ?bearing ?range ?sx ?sy
     1000 0 0 0 0 (* torpedo-velocity ?ms) 0
     1000 0 0 90 0 0 (* torpedo-velocity ?ms)
-    1000 0 0 0 (/ torpedo-range 2) (* torpedo-velocity ?ms 0.5) 0
-    )
+    1000 0 0 0 (/ torpedo-range 2) (* torpedo-velocity ?ms 0.5) 0))
+
+(fact
+  "fire-weapon"
+  (fire-weapon [0 0] 0 1 0) => [{:x 0 :y 0 :bearing 0 :range 0}]
+  (fire-weapon [1 1] 90 1 0) => [{:x 1 :y 1 :bearing 90 :range 0}]
+  (fire-weapon [0 0] 90 2 10) => [{:x 0 :y 0 :bearing 85 :range 0} {:x 0 :y 0 :bearing 95 :range 0}])
+
+(facts
+  "about phasers hitting klingons"
+  (fact
+  "no shots"
+    (let [world {:phaser-shots []
+                 :klingons [{:x 0 :y 0}]}
+          world (update-phaser-klingon-hits world)
+          klingons (:klingons world)
+          shots (:phaser-shots world)]
+      shots => []
+      klingons => [{:x 0 :y 0}]))
 
   (fact
-      "fire-weapon"
-      (fire-weapon [0 0] 0 1 0) => [{:x 0 :y 0 :bearing 0 :range 0}]
-      (fire-weapon [1 1] 90 1 0) => [{:x 1 :y 1 :bearing 90 :range 0}]
-      (fire-weapon [0 0] 90 2 10) => [{:x 0 :y 0 :bearing 85 :range 0}
-                                      {:x 0 :y 0 :bearing 95 :range 0}])
+  "shot out of range"
+    (let [world {:phaser-shots [{:x (inc phaser-proximity) :y 0 :bearing 0 :range ..range..}]
+                 :klingons [{:x 0 :y 0}]}
+          world (update-phaser-klingon-hits world)
+          klingons (:klingons world)
+          shots (:phaser-shots world)]
+      shots => [{:x (inc phaser-proximity) :y 0 :bearing 0 :range ..range..}]
+      klingons => [{:x 0 :y 0}]))
+
+  (fact
+    "phaser shots hit klingon"
+    (let [world {:phaser-shots [{:x (dec phaser-proximity) :y 0 :bearing 0 :range ..range..}]
+                 :klingons [{:x 0 :y 0}]}
+          world (update-phaser-klingon-hits world)
+          klingons (:klingons world)
+          shots (:phaser-shots world)]
+      shots => []
+      klingons => [{:x 0 :y 0 :hit {:weapon :phaser :damage [..range..]}}]))
+
+  (fact
+      "Two phaser shots, one hits klingon"
+      (let [world {:phaser-shots [{:x (inc phaser-proximity) :y 0 :bearing 0 :range ..range..}
+                                  {:x (dec phaser-proximity) :y 0 :bearing 0 :range ..range..}]
+                   :klingons [{:x 0 :y 0}]}
+            world (update-phaser-klingon-hits world)
+            klingons (:klingons world)
+            shots (:phaser-shots world)]
+        shots => [{:x (inc phaser-proximity) :y 0 :bearing 0 :range ..range..}]
+        klingons => [{:x 0 :y 0 :hit {:weapon :phaser :damage [..range.. ..range..]}}]))
+
   )
 
 
