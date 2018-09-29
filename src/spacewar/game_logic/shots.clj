@@ -3,6 +3,7 @@
     [spacewar.geometry :refer :all]
     [spacewar.vector :as vector]
     [spacewar.game-logic.config :refer :all]
+    [spacewar.ui.config :refer :all]
     [spacewar.util :refer :all]
     [clojure.set :as set]))
 
@@ -91,11 +92,11 @@
   )
 
 (defn- shot-to-explosion [weapon-tag {:keys [x y]}]
-  {:x x :y y :type (condp = weapon-tag
-                     :phaser-shots :phaser
-                     :torpedo-shots :torpedo
-                     :kinetic-shots :kinetic
-                     :else :none)}
+  {:x x :y y :age 0 :type (condp = weapon-tag
+                            :phaser-shots :phaser
+                            :torpedo-shots :torpedo
+                            :kinetic-shots :kinetic
+                            :else :none)}
   )
 
 (defn- update-hits [world weapon-tag target-tag proximity hit-by]
@@ -144,11 +145,19 @@
 (defn update-kinetic-klingon-hits [world]
   (update-hits world :kinetic-shots :klingons kinetic-proximity hit-by-kinetic))
 
+(defn update-explosions [ms world]
+  (let [explosions (:explosions world)
+        explosions (map #(update % :age + ms) explosions)
+        explosions (filter #(> explosion-duration (:age %)) explosions)]
+    (assoc world :explosions explosions)))
+
+
 (defn update-shots [ms world]
   (let [world (update-shot-positions ms world)
         world (update-phaser-klingon-hits world)
         world (update-torpedo-klingon-hits world)
         world (update-kinetic-klingon-hits world)
+        world (update-explosions ms world)
         ]
     world))
 

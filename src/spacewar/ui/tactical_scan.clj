@@ -123,15 +123,15 @@
 
 (defn- draw-kinetic-shots [state]
   (let [{:keys [w h world]} state
-          kinetic-shots (:kinetic-shots world)
-          presentable-kinetic-shots (present-objects state kinetic-shots)]
-      (doseq [{:keys [x y]} presentable-kinetic-shots]
-        (q/with-translation
-          [(+ x (/ w 2)) (+ y (/ h 2))]
-          (q/ellipse-mode :center)
-          (q/no-stroke)
-          (apply q/fill kinetic-color)
-          (q/ellipse 0 0 3 3)))))
+        kinetic-shots (:kinetic-shots world)
+        presentable-kinetic-shots (present-objects state kinetic-shots)]
+    (doseq [{:keys [x y]} presentable-kinetic-shots]
+      (q/with-translation
+        [(+ x (/ w 2)) (+ y (/ h 2))]
+        (q/ellipse-mode :center)
+        (q/no-stroke)
+        (apply q/fill kinetic-color)
+        (q/ellipse 0 0 3 3)))))
 
 (defn- draw-phaser-shots [state]
   (let [{:keys [w h world]} state
@@ -146,17 +146,32 @@
           (apply q/stroke beam-color)
           (q/line 0 0 sx sy))))))
 
+(defn explosion-radius [age profile]
+  (loop [profile profile radius 0 last-time 0]
+    (let [{:keys [velocity until]} (first profile)]
+      (cond (empty? profile)
+            nil
+
+            (> age until)
+            (recur (rest profile)
+                   (+ radius (* (- until last-time) velocity))
+                   until)
+
+            :else
+            (+ radius (* velocity (- age last-time)))))))
+
 (defn- draw-explosions [state]
   (let [{:keys [w h world]} state
         explosions (:explosions world)
         presentable-explosions (present-objects state explosions)]
-    (doseq [{:keys [x y type]} presentable-explosions]
+    (doseq [{:keys [x y type age]} presentable-explosions]
       (q/with-translation
         [(+ x (/ w 2)) (+ y (/ h 2))]
-        (apply q/fill grey)
-        (q/ellipse-mode :center)
-        (q/no-stroke)
-        (q/ellipse 0 0 20 20)))
+        (let [radius (explosion-radius age phaser-explosion-profile)]
+          (apply q/fill grey)
+          (q/ellipse-mode :center)
+          (q/no-stroke)
+          (q/ellipse 0 0 radius radius))))
     ))
 
 (defn- draw-shots [state]

@@ -34,3 +34,7 @@
 (def phaser-length 30)
 (def kinetic-color [255 0 0])
 
+(def explosion-duration 1000)
+(def phaser-explosion-profile [{:velocity 1.5 :until 100}
+                               {:velocity -0.15 :until 1000}])
+

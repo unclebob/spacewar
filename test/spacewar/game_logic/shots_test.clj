@@ -98,7 +98,7 @@
           explosions (:explosions world)]
       shots => []
       klingons => [{:x 0 :y 0 :hit {:weapon :phaser :damage [..range..]}}]
-      explosions => [:before {:x (dec phaser-proximity) :y 0 :type :phaser}]))
+      explosions => [:before {:x (dec phaser-proximity) :y 0 :type :phaser :age 0}]))
 
   (fact
     "Two phaser shots, one hits klingon"
@@ -112,7 +112,7 @@
           explosions (:explosions world)]
       shots => [{:x (inc phaser-proximity) :y 0 :bearing 0 :range ..range..}]
       klingons => [{:x 0 :y 0 :hit {:weapon :phaser :damage [..range..]}}]
-      explosions => [:before {:x (dec phaser-proximity) :y 0 :type :phaser}]))
+      explosions => [:before {:x (dec phaser-proximity) :y 0 :type :phaser :age 0}]))
 
   (fact
     "Two phaser shots, both hit klingon"
@@ -127,8 +127,8 @@
       shots => []
       klingons => [{:x 0 :y 0 :hit {:weapon :phaser :damage [..range.. ..range..]}}]
       explosions => [:before
-                     {:x (dec phaser-proximity) :y 0 :type :phaser}
-                     {:x (dec phaser-proximity) :y 0 :type :phaser}]))
+                     {:x (dec phaser-proximity) :y 0 :type :phaser :age 0}
+                     {:x (dec phaser-proximity) :y 0 :type :phaser :age 0}]))
 
   )
 
@@ -165,7 +165,7 @@
           explosions (:explosions world)]
       shots => []
       klingons => [{:x 0 :y 0 :hit {:weapon :torpedo :damage torpedo-damage}}]
-      explosions => [:before {:x (dec torpedo-proximity) :y 0 :type :torpedo}]))
+      explosions => [:before {:x (dec torpedo-proximity) :y 0 :type :torpedo :age 0}]))
 
   (fact
     "Two torpedoes, one hits klingon"
@@ -223,7 +223,7 @@
           explosions (:explosions world)]
       shots => []
       klingons => [{:x 0 :y 0 :hit {:weapon :kinetic :damage kinetic-damage}}]
-      explosions [:before {:x (dec kinetic-proximity) :y 0 :type :kinetic}]))
+      explosions [:before {:x (dec kinetic-proximity) :y 0 :type :kinetic :age 0}]))
 
   (fact
     "Two kinetics, one hits klingon"
@@ -246,4 +246,9 @@
           shots (:kinetic-shots world)]
       shots => []
       klingons => [{:x 0 :y 0 :hit {:weapon :kinetic :damage (* 2 kinetic-damage)}}]))
+  )
+
+(fact
+  "update-explosions"
+  (update-explosions 10 {:explosions [{:age 10}]}) => {:explosions [{:age 20}]}
   )
