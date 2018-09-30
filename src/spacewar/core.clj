@@ -8,7 +8,8 @@
             [spacewar.game-logic.stars :as stars]
             [spacewar.game-logic.klingons :as klingons]
             [spacewar.game-logic.bases :as bases]
-            [spacewar.game-logic.shots :as shots]))
+            [spacewar.game-logic.shots :as shots]
+            [spacewar.util :refer :all]))
 
 (defn setup []
   (let [vmargin 30 hmargin 5]
@@ -23,15 +24,28 @@
                  :w (- (q/width) (* 2 hmargin))
                  :h (- (q/height) (* 2 vmargin))}))
      :world {:stars (stars/initialize)
-                    :klingons (klingons/initialize)
-                    :ship (ship/initialize)
-                    :bases (bases/initialize)
-                    :update-time (q/millis)}
+             :klingons (klingons/initialize)
+             :ship (ship/initialize)
+             :bases (bases/initialize)
+             :update-time (q/millis)}
      :fonts {:lcars (q/create-font "Helvetica-Bold" 24)
              :lcars-small (q/create-font "Arial" 18)}}))
 
+(defn- add-explosion-debug [event world]
+  (let [[x y] (:position event)
+        explosions (:explosions world)]
+    (assoc world :explosions (conj explosions {:x x :y y :age 0 :type :phaser}))))
+
+(defn- process-debug-events [events world]
+  (let [[_ world] (->> [events world]
+                       (handle-event :explosion-debug add-explosion-debug)
+                       )]
+    world)
+  )
+
 (defn process-events [events world]
   (let [{:keys [ship]} world
+        world (process-debug-events events world)
         world (assoc world :ship (ship/process-events events ship))
         world (shots/process-events events world)]
     world))

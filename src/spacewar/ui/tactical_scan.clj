@@ -16,6 +16,15 @@
 (defn- in-range [x y ship]
   (< (distance [x y] [(:x ship) (:y ship)]) (/ tactical-range 2)))
 
+(defn- click->tactical [tactical-scan click]
+  (let [{:keys [x y w h world]} tactical-scan
+        ship (:ship world)
+        center (vector/add [(/ w 2) (/ h 2)] [x y])
+        scale [(/ tactical-range w) (/ tactical-range h)]
+        click-delta (vector/subtract click center)
+        tactical-click-delta (vector/multiply click-delta scale)]
+    (vector/add tactical-click-delta [(:x ship) (:y ship)])))
+
 (defn- present-objects [state objects]
   (let [{:keys [w h world]} state
         ship (:ship world)
@@ -197,6 +206,16 @@
     (tactical-scan. state))
 
   (update-state [_ world]
-    (p/pack-update
-      (tactical-scan.
-        (assoc state :world world)))))
+    (let [{:keys [x y w h]} state
+          last-left-down (:left-down state)
+          mx (q/mouse-x)
+          my (q/mouse-y)
+          mouse-in (inside-rect [x y w h] [mx my])
+          left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
+          state (assoc state :mouse-in mouse-in :left-down left-down)
+          event (if (and (not left-down) last-left-down mouse-in)
+                  {:event :explosion-debug :position (click->tactical state [mx my])}
+                  nil)]
+      (p/pack-update (tactical-scan. (assoc state :world world)) event)))
+
+  )

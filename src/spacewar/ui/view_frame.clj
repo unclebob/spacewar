@@ -44,6 +44,6 @@
                   (assoc state :contents (selected-view state)
                                :last-view selected-view)
                   state)
-          [state _] (p/update-elements state world)]
+          [state events] (p/update-elements state world)]
       (p/pack-update
-        (view-frame. state)))))
+        (view-frame. state) events))))

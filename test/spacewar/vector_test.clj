@@ -25,6 +25,14 @@
     )
 
   (fact
+    "vector subtract values"
+    (v/subtract [0 0] [1 2]) => [-1 -2])
+
+  (fact
+    "vector multiply values"
+    (v/multiply [2 3] [4 5]) => [8 15])
+
+  (fact
     "vector scale properties"
     (for-all
       [v (s/gen ::v/vector)
