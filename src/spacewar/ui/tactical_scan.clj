@@ -168,6 +168,31 @@
 
             :else
             (+ radius (* velocity (- age last-time)))))))
+(defn- color-diff [[r1 g1 b1] [r2 g2 b2]]
+  [(- r1 r2) (- g1 g2) (- b1 b2)])
+
+(defn- color-scale [[r g b] s]
+  [(* s r) (* s g) (* s b)])
+
+(defn- color-add [[r1 g1 b1] [r2 g2 b2]]
+  [(+ r1 r2) (+ g1 g2) (+ b1 b2)])
+
+
+(defn explosion-color [age profile]
+  (loop [profile profile last-age 0 last-color [0 0 0]]
+    (if (empty? profile)
+      last-color
+      (if (<= age (:until (first profile)))
+        (let [profile-entry (first profile)
+              {:keys [until colors]} profile-entry
+              [c1 c2] colors
+              diff (color-diff c2 c1)
+              span (- until last-age)
+              increment (color-scale diff (/ (- age last-age) span))]
+          (color-add increment c1))
+        (let [profile-entry (first profile)
+              {:keys [until colors]} profile-entry]
+          (recur (rest profile) until (last colors)))))))
 
 (defn- draw-explosions [state]
   (let [{:keys [w h world]} state
@@ -177,7 +202,7 @@
       (q/with-translation
         [(+ x (/ w 2)) (+ y (/ h 2))]
         (let [radius (explosion-radius age phaser-explosion-profile)]
-          (apply q/fill grey)
+          (apply q/fill (explosion-color age phaser-explosion-color-profile))
           (q/ellipse-mode :center)
           (q/no-stroke)
           (q/ellipse 0 0 radius radius))))
