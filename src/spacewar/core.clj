@@ -34,8 +34,11 @@
 
 (defn- add-explosion-debug [event world]
   (let [[x y] (:position event)
-        explosions (:explosions world)]
-    (assoc world :explosions (conj explosions (explosions/shot-to-explosion :phaser-shots {:x x :y y})))))
+        explosions (:explosions world)
+        weapon (->> world :ship :selected-weapon)
+        ]
+    (println "Weapon:" weapon)
+    (assoc world :explosions (conj explosions (explosions/shot-to-explosion weapon {:x x :y y})))))
 
 (defn- process-debug-events [events world]
   (let [[_ world] (->> [events world]

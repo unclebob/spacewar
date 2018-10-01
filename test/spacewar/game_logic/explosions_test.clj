@@ -5,7 +5,7 @@
 
 (fact
   "update-explosions"
-  (update-explosions 10 {:explosions [{:age 10}]}) => {:explosions [{:age 20}]}
+  (update-explosions 10 {:explosions [{:age 10 :type :phaser}]}) => {:explosions [{:age 20 :type :phaser}]}
   )
 
 (defn valid-explosions [n x y velocity]

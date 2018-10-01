@@ -12,10 +12,16 @@
                             :velocity (* (+ 0.8 (rand 0.2)) velocity)
                             :direction (rand 360)}))))
 
+(defn- active-explosion [explosion]
+  (let [{:keys [age type]} explosion
+        profile (type explosion-profiles)
+        duration (:duration profile)]
+    (> duration age)))
+
 (defn update-explosions [ms world]
   (let [explosions (:explosions world)
         explosions (map #(update % :age + ms) explosions)
-        explosions (filter #(> explosion-duration (:age %)) explosions)]
+        explosions (filter active-explosion explosions)]
     (assoc world :explosions explosions)))
 
 (defn shot-to-explosion [weapon-tag {:keys [x y] :as explosion}]
@@ -23,7 +29,7 @@
                  :phaser-shots :phaser
                  :torpedo-shots :torpedo
                  :kinetic-shots :kinetic
-                 :else :none)
+                 weapon-tag)
         profile (weapon explosion-profiles)]
     {:x x :y y
      :age 0 :type weapon
