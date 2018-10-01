@@ -35,7 +35,7 @@
 (defn- add-explosion-debug [event world]
   (let [[x y] (:position event)
         explosions (:explosions world)]
-    (assoc world :explosions (conj explosions {:x x :y y :age 0 :type :phaser}))))
+    (assoc world :explosions (conj explosions (explosions/shot-to-explosion :phaser-shots {:x x :y y})))))
 
 (defn- process-debug-events [events world]
   (let [[_ world] (->> [events world]

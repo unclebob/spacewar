@@ -198,15 +198,27 @@
   (let [{:keys [w h world]} state
         explosions (:explosions world)
         presentable-explosions (present-objects state explosions)]
-    (doseq [{:keys [x y type age]} presentable-explosions]
-      (q/with-translation
-        [(+ x (/ w 2)) (+ y (/ h 2))]
-        (let [radius (explosion-radius age phaser-explosion-profile)]
-          (apply q/fill (explosion-color age phaser-explosion-color-profile))
-          (q/ellipse-mode :center)
-          (q/no-stroke)
-          (q/ellipse 0 0 radius radius))))
-    ))
+    (doseq [explosion presentable-explosions]
+      (let [{:keys [x y type age]} explosion]
+        (q/with-translation
+          [(+ x (/ w 2)) (+ y (/ h 2))]
+          (let [fragments (present-objects state (:fragments explosion))
+                radius (explosion-radius age phaser-explosion-profile)
+                explosion-color (explosion-color age phaser-explosion-color-profile)]
+            (apply q/fill explosion-color)
+            (q/ellipse-mode :center)
+            (q/no-stroke)
+            (q/ellipse 0 0 radius radius)
+            (doseq [fragment fragments]
+              (let [{:keys [velocity direction]} fragment
+                    radians (->radians direction)
+                    velocity-vector (vector/from-angular velocity radians)
+                    [hx hy] (vector/scale age velocity-vector)
+                    [tx ty] (vector/scale (* age 0.9) velocity-vector)
+                    ]
+                (q/stroke-weight 1)
+                (apply q/stroke explosion-color)
+                (q/line hx hy tx ty)))))))))
 
 (defn- draw-shots [state]
   (draw-phaser-shots state)
