@@ -98,7 +98,8 @@
           explosions (:explosions world)]
       shots => []
       klingons => [{:x 0 :y 0 :hit {:weapon :phaser :damage [..range..]}}]
-      explosions => [:before {:x (dec phaser-proximity) :y 0 :type :phaser :age 0}]))
+      (first explosions) => :before
+      (dissoc (second explosions) :fragments) => {:x (dec phaser-proximity) :y 0 :type :phaser :age 0}))
 
   (fact
     "Two phaser shots, one hits klingon"
@@ -112,7 +113,8 @@
           explosions (:explosions world)]
       shots => [{:x (inc phaser-proximity) :y 0 :bearing 0 :range ..range..}]
       klingons => [{:x 0 :y 0 :hit {:weapon :phaser :damage [..range..]}}]
-      explosions => [:before {:x (dec phaser-proximity) :y 0 :type :phaser :age 0}]))
+      (first explosions) => :before
+      (dissoc (second explosions) :fragments) => {:x (dec phaser-proximity) :y 0 :type :phaser :age 0}))
 
   (fact
     "Two phaser shots, both hit klingon"
@@ -126,10 +128,9 @@
           explosions (:explosions world)]
       shots => []
       klingons => [{:x 0 :y 0 :hit {:weapon :phaser :damage [..range.. ..range..]}}]
-      explosions => [:before
-                     {:x (dec phaser-proximity) :y 0 :type :phaser :age 0}
-                     {:x (dec phaser-proximity) :y 0 :type :phaser :age 0}]))
-
+      (nth explosions 0) => :before
+      (dissoc (nth explosions 1) :fragments) => {:x (dec phaser-proximity) :y 0 :type :phaser :age 0}
+      (dissoc (nth explosions 2) :fragments) => {:x (dec phaser-proximity) :y 0 :type :phaser :age 0}))
   )
 
 (facts
@@ -165,7 +166,8 @@
           explosions (:explosions world)]
       shots => []
       klingons => [{:x 0 :y 0 :hit {:weapon :torpedo :damage torpedo-damage}}]
-      explosions => [:before {:x (dec torpedo-proximity) :y 0 :type :torpedo :age 0}]))
+      (first explosions) => :before
+      (dissoc (second explosions) :fragments) => {:x (dec torpedo-proximity) :y 0 :type :torpedo :age 0}))
 
   (fact
     "Two torpedoes, one hits klingon"
@@ -223,7 +225,7 @@
           explosions (:explosions world)]
       shots => []
       klingons => [{:x 0 :y 0 :hit {:weapon :kinetic :damage kinetic-damage}}]
-      explosions [:before {:x (dec kinetic-proximity) :y 0 :type :kinetic :age 0}]))
+      (dissoc (first explosions) :fragments) => {:x (dec kinetic-proximity) :y 0 :type :kinetic :age 0}))
 
   (fact
     "Two kinetics, one hits klingon"

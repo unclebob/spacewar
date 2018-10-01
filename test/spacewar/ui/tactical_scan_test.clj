@@ -23,7 +23,7 @@
 (tabular
   (fact
     "explosion color"
-    (explosion-color ?age ?profile) => ?color)
+    (age-color ?age ?profile) => ?color)
   ?age ?profile ?color
   0 [{:until 100 :colors [[0 0 0] [100 100 100]]}] [0 0 0]
   1 [{:until 100 :colors [[0 0 0] [100 100 100]]}] [1 1 1]

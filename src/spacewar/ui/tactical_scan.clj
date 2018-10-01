@@ -178,7 +178,7 @@
   [(+ r1 r2) (+ g1 g2) (+ b1 b2)])
 
 
-(defn explosion-color [age profile]
+(defn age-color [age profile]
   (loop [profile profile last-age 0 last-color [0 0 0]]
     (if (empty? profile)
       last-color
@@ -194,7 +194,7 @@
               {:keys [until colors]} profile-entry]
           (recur (rest profile) until (last colors)))))))
 
-(defn draw-fragment [fragment age explosion-color]
+(defn draw-fragment [fragment age fragment-color]
   (let [{:keys [velocity direction]} fragment
         radians (->radians direction)
         velocity-vector (vector/from-angular velocity radians)
@@ -202,23 +202,27 @@
         [tx ty] (vector/scale (* age 0.9) velocity-vector)
         ]
     (q/stroke-weight 1)
-    (apply q/stroke explosion-color)
+    (apply q/stroke fragment-color)
     (q/line hx hy tx ty)))
 
 (defn draw-explosion [explosion state]
   (let [{:keys [w h]} state
-        {:keys [x y age]} explosion]
+        {:keys [x y age type]} explosion
+        {:keys [explosion-profile
+                explosion-color-profile
+                fragment-color-profile]} (type explosion-profiles)]
     (q/with-translation
       [(+ x (/ w 2)) (+ y (/ h 2))]
       (let [fragments (present-objects state (:fragments explosion))
-            radius (explosion-radius age phaser-explosion-profile)
-            explosion-color (explosion-color age phaser-explosion-color-profile)]
+            radius (explosion-radius age explosion-profile)
+            explosion-color (age-color age explosion-color-profile)
+            fragment-color (age-color age fragment-color-profile)]
         (apply q/fill explosion-color)
         (q/ellipse-mode :center)
         (q/no-stroke)
         (q/ellipse 0 0 radius radius)
         (doseq [fragment fragments]
-          (draw-fragment fragment age explosion-color))))))
+          (draw-fragment fragment age fragment-color))))))
 
 (defn- draw-explosions [state]
   (let [{:keys [world]} state

@@ -11,7 +11,7 @@
 (defn valid-explosions [n x y velocity]
   (let [valid-explosion (fn [e] (and (= x (:x e))
                                      (= y (:y e))
-                                     (= velocity (:velocity e))
+                                     (<= (/ velocity 2) (:velocity e) (* 2 velocity))
                                      (<= 0 (:direction e) 360)))]
     (fn [explosions]
       (and (= n (count explosions))

@@ -8,7 +8,9 @@
 (defn make-fragments [n explosion velocity]
   (let [{:keys [x y]} explosion]
     (repeatedly n
-                #(identity {:x x :y y :velocity (* (+ 0.8 (rand 0.2)) velocity) :direction (rand 360)}))))
+                #(identity {:x x :y y
+                            :velocity (* (+ 0.8 (rand 0.2)) velocity)
+                            :direction (rand 360)}))))
 
 (defn update-explosions [ms world]
   (let [explosions (:explosions world)
@@ -21,6 +23,9 @@
                  :phaser-shots :phaser
                  :torpedo-shots :torpedo
                  :kinetic-shots :kinetic
-                 :else :none)]
-    {:x x :y y :age 0 :type weapon :fragments (make-fragments 20 explosion 0.5)})
+                 :else :none)
+        profile (weapon explosion-profiles)]
+    {:x x :y y
+     :age 0 :type weapon
+     :fragments (make-fragments (:fragments profile) explosion (:fragment-velocity profile))})
   )

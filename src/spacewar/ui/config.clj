@@ -5,6 +5,8 @@
 (def dark-grey [50 50 50])
 (def grey [128 128 128])
 (def light-grey [200 200 200])
+(def yellow [255 255 0])
+(def red [255 0 0])
 (def klingon-color [200 0 50])
 (def enterprise-color [0 255 50])
 (def enterprise-vector-color [0 100 20])
@@ -35,9 +37,41 @@
 (def kinetic-color [255 0 0])
 
 (def explosion-duration 1000)
-(def phaser-explosion-profile [{:velocity 1 :until 100}
-                               {:velocity -0.1 :until 1000}])
-(def phaser-explosion-color-profile
+
+(def phaser-fragment-color-profile
   [{:until 100 :colors [white white]}
-   {:until 1000 :colors [white black]}])
+   {:until 300 :colors [white yellow]}
+   {:until 500 :colors [yellow red]}
+   {:until 1000 :colors [red black]}])
+
+(def explosion-profiles {:phaser {:explosion-profile [{:velocity 0.5 :until 100}
+                                                      {:velocity -0.05 :until 1000}]
+                                  :explosion-color-profile [{:until 100 :colors [white white]}
+                                                            {:until 1000 :colors [white black]}]
+                                  :fragments 20
+                                  :fragment-velocity 0.5
+                                  :fragment-color-profile [{:until 100 :colors [white white]}
+                                                           {:until 300 :colors [white yellow]}
+                                                           {:until 500 :colors [yellow red]}
+                                                           {:until 1000 :colors [red black]}]}
+                         :torpedo {:explosion-profile [{:velocity 0.5 :until 100}
+                                                       {:velocity -0.05 :until 1000}]
+                                   :explosion-color-profile [{:until 100 :colors [white white]}
+                                                             {:until 1000 :colors [white black]}]
+                                   :fragments 20
+                                   :fragment-velocity 0.5
+                                   :fragment-color-profile [{:until 100 :colors [white white]}
+                                                            {:until 300 :colors [white yellow]}
+                                                            {:until 500 :colors [yellow red]}
+                                                            {:until 1000 :colors [red black]}]}
+                         :kinetic {:explosion-profile [{:velocity 0.5 :until 100}
+                                                       {:velocity -0.05 :until 1000}]
+                                   :explosion-color-profile [{:until 100 :colors [white white]}
+                                                             {:until 1000 :colors [white black]}]
+                                   :fragments 20
+                                   :fragment-velocity 0.5
+                                   :fragment-color-profile [{:until 100 :colors [white white]}
+                                                            {:until 300 :colors [white yellow]}
+                                                            {:until 500 :colors [yellow red]}
+                                                            {:until 1000 :colors [red black]}]}})
 
