@@ -216,11 +216,13 @@
       (let [fragments (present-objects state (:fragments explosion))
             radius (explosion-radius age explosion-profile)
             explosion-color (age-color age explosion-color-profile)
-            fragment-color (age-color age fragment-color-profile)]
+            fragment-color (age-color age fragment-color-profile)
+            ex (- (rand 6) 3)
+            ey (- (rand 6) 3)]
         (apply q/fill explosion-color)
         (q/ellipse-mode :center)
         (q/no-stroke)
-        (q/ellipse 0 0 radius radius)
+        (q/ellipse ex ey radius radius)
         (doseq [fragment fragments]
           (draw-fragment fragment age fragment-color))))))
 
