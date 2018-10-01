@@ -248,7 +248,4 @@
       klingons => [{:x 0 :y 0 :hit {:weapon :kinetic :damage (* 2 kinetic-damage)}}]))
   )
 
-(fact
-  "update-explosions"
-  (update-explosions 10 {:explosions [{:age 10}]}) => {:explosions [{:age 20}]}
-  )
+

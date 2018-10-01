@@ -9,6 +9,7 @@
             [spacewar.game-logic.klingons :as klingons]
             [spacewar.game-logic.bases :as bases]
             [spacewar.game-logic.shots :as shots]
+            [spacewar.game-logic.explosions :as explosions]
             [spacewar.util :refer :all]))
 
 (defn setup []
@@ -53,7 +54,8 @@
 (defn update-world [ms world]
   (let [{:keys [ship]} world
         world (assoc world :ship (ship/update-ship ms ship))
-        world (shots/update-shots ms world)]
+        world (shots/update-shots ms world)
+        world (explosions/update-explosions ms world)]
     world))
 
 (defn update-state [context]

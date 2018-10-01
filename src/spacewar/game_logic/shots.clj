@@ -5,7 +5,8 @@
     [spacewar.game-logic.config :refer :all]
     [spacewar.ui.config :refer :all]
     [spacewar.util :refer :all]
-    [clojure.set :as set]))
+    [clojure.set :as set]
+    [spacewar.game-logic.explosions :as explosions]))
 
 (defn fire-weapon [pos bearing number spread]
   (let [start-bearing (if (= number 1)
@@ -91,14 +92,6 @@
                  :kinetic-shots kinetic-shots))
   )
 
-(defn- shot-to-explosion [weapon-tag {:keys [x y]}]
-  {:x x :y y :age 0 :type (condp = weapon-tag
-                            :phaser-shots :phaser
-                            :torpedo-shots :torpedo
-                            :kinetic-shots :kinetic
-                            :else :none)}
-  )
-
 (defn- update-hits [world weapon-tag target-tag proximity hit-by]
   (let [shots (weapon-tag world)
         targets (target-tag world)
@@ -114,7 +107,7 @@
         targets (set/difference (set targets) hit-targets)
         shots (set/difference (set shots) hit-shots)
         hit-targets (map #(hit-by hits %) hit-targets)
-        explosions (concat explosions (map #(shot-to-explosion weapon-tag %) hit-shots))]
+        explosions (concat explosions (map #(explosions/shot-to-explosion weapon-tag %) hit-shots))]
 
     (assoc world target-tag (concat targets hit-targets)
                  weapon-tag (concat shots)
@@ -145,19 +138,12 @@
 (defn update-kinetic-klingon-hits [world]
   (update-hits world :kinetic-shots :klingons kinetic-proximity hit-by-kinetic))
 
-(defn update-explosions [ms world]
-  (let [explosions (:explosions world)
-        explosions (map #(update % :age + ms) explosions)
-        explosions (filter #(> explosion-duration (:age %)) explosions)]
-    (assoc world :explosions explosions)))
-
 
 (defn update-shots [ms world]
   (let [world (update-shot-positions ms world)
         world (update-phaser-klingon-hits world)
         world (update-torpedo-klingon-hits world)
         world (update-kinetic-klingon-hits world)
-        world (update-explosions ms world)
         ]
     world))
 
