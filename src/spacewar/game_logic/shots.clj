@@ -87,9 +87,9 @@
                               (map #(update-torpedo-shot ms %) torpedo-shots))
         kinetic-shots (filter some?
                               (map #(update-kinetic-shot ms %) kinetic-shots))]
-    (assoc world :phaser-shots phaser-shots
-                 :torpedo-shots torpedo-shots
-                 :kinetic-shots kinetic-shots))
+    (assoc world :phaser-shots (doall phaser-shots)
+                 :torpedo-shots (doall torpedo-shots)
+                 :kinetic-shots (doall kinetic-shots)))
   )
 
 (defn- update-hits [world weapon-tag target-tag proximity hit-by]
@@ -109,9 +109,9 @@
         hit-targets (map #(hit-by hits %) hit-targets)
         explosions (concat explosions (map #(explosions/shot-to-explosion weapon-tag %) hit-shots))]
 
-    (assoc world target-tag (concat targets hit-targets)
-                 weapon-tag (concat shots)
-                 :explosions explosions)))
+    (assoc world target-tag (doall (concat targets hit-targets))
+                 weapon-tag (doall (concat shots))
+                 :explosions (doall explosions))))
 
 (defn- hit-by-phaser [hit-pairs target]
   (let [hit-shots (map :shot (filter #(= target (:target %)) hit-pairs))
