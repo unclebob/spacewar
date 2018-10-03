@@ -105,6 +105,7 @@
                               :min-val 1
                               :max-val 5
                               :value 1
+                              :disabled false
                               :left-up-event {:event :weapon-number}}))
 
           :spread-slider (p/setup
@@ -117,7 +118,8 @@
                               :thumb-color button-color
                               :min-val 1
                               :max-val 20
-                              :value 0
+                              :value 1
+                              :disabled false
                               :left-up-event {:event :weapon-spread}}))
           :fire (p/setup
                   (->engage
@@ -145,6 +147,7 @@
           state (p/change-elements state [[:direction-selector :direction target-bearing]
                                           [:number-slider :value weapon-number-setting]
                                           [:spread-slider :value weapon-spread-setting]
+                                          [:spread-slider :disabled (< weapon-number-setting 2)]
                                           [:phaser :color phaser-button-color]
                                           [:torpedo :color torpedo-button-color]
                                           [:kinetic :color kinetic-button-color]

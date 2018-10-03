@@ -20,7 +20,7 @@
    :target-bearing 0
    :engine-power-setting 0
    :weapon-number-setting 1
-   :weapon-spread-setting 0
+   :weapon-spread-setting 1
    :heading-setting 0
    :antimatter 100
    :core-temp 0

@@ -48,33 +48,34 @@
   (clone [_ clone-state] (slider. clone-state))
   (draw [_]
     (let [{:keys [x y w max-val value thumb-color mouse-in left-down
-                  margin increment thumb-x thumb-h]} state
+                  margin increment thumb-x thumb-h disabled]} state
           relative-pos (- max-val value)                    ;top is max
           thumb-y (+ margin (* relative-pos increment))]
-      (q/with-translation
-        [x y]
-        (draw-slider-bezel state)
-        (when (not left-down)
-          (draw-slider-labels state))
+      (when (not disabled)
+        (q/with-translation
+          [x y]
+          (draw-slider-bezel state)
+          (when (not left-down)
+            (draw-slider-labels state))
 
-        (draw-slider-thumb {:stroke (if mouse-in black light-grey)
-                            :thumb-color thumb-color
-                            :thumb-x thumb-x
-                            :thumb-y thumb-y
-                            :w w
-                            :thumb-h thumb-h
-                            :value value})
-        (when left-down
-          (let [m-val (slider-thumb-val state)
-                m-pos (- max-val m-val)                     ; top is max
-                mouse-thumb-y (+ margin (* m-pos increment))]
-            (draw-slider-thumb {:stroke light-grey
-                                :thumb-color light-grey
-                                :thumb-x thumb-x
-                                :thumb-y mouse-thumb-y
-                                :w w
-                                :thumb-h thumb-h
-                                :value m-val}))))))
+          (draw-slider-thumb {:stroke (if mouse-in black light-grey)
+                              :thumb-color thumb-color
+                              :thumb-x thumb-x
+                              :thumb-y thumb-y
+                              :w w
+                              :thumb-h thumb-h
+                              :value value})
+          (when left-down
+            (let [m-val (slider-thumb-val state)
+                  m-pos (- max-val m-val)                   ; top is max
+                  mouse-thumb-y (+ margin (* m-pos increment))]
+              (draw-slider-thumb {:stroke light-grey
+                                  :thumb-color light-grey
+                                  :thumb-x thumb-x
+                                  :thumb-y mouse-thumb-y
+                                  :w w
+                                  :thumb-h thumb-h
+                                  :value m-val})))))))
 
   (setup [_]
     (let [{:keys [w h min-val max-val]} state
