@@ -37,9 +37,9 @@
 (def phaser-length 30)
 (def kinetic-color [255 0 0])
 
-(def phaser-target 300)
-(def torpedo-target 500)
-(def kinetic-target 700)
+(def phaser-target 500)
+(def torpedo-target 700)
+(def kinetic-target 900)
 
 (def explosion-profiles {:phaser {:duration 1000
                                   :explosion-profile [{:velocity 0.5 :until 100}

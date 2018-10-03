@@ -20,24 +20,23 @@
   (let [{:keys [x y w h world]} tactical-scan
         ship (:ship world)
         center (vector/add [(/ w 2) (/ h 2)] [x y])
-        scale [(/ tactical-range w) (/ tactical-range h)]
+        scale (/ tactical-range w)
         click-delta (vector/subtract click center)
-        tactical-click-delta (vector/multiply click-delta scale)]
+        tactical-click-delta (vector/scale scale click-delta)]
     (vector/add tactical-click-delta [(:x ship) (:y ship)])))
 
 (defn- present-objects [state objects]
   (if (empty? objects)
     []
-    (let [{:keys [w h world]} state
+    (let [{:keys [w world]} state
           ship (:ship world)
-          scale-x (/ w tactical-range)
-          scale-y (/ h tactical-range)
+          scale (/ w tactical-range)
           presentables (->> objects
                             (filter #(in-range (:x %) (:y %) ship))
                             (map #(assoc % :x (- (:x %) (:x ship))
                                            :y (- (:y %) (:y ship))))
-                            (map #(assoc % :x (* (:x %) scale-x)
-                                           :y (* (:y %) scale-y))))]
+                            (map #(assoc % :x (* (:x %) scale)
+                                           :y (* (:y %) scale))))]
       presentables)))
 
 (defn- draw-stars [state]
