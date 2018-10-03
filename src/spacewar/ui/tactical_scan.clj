@@ -71,14 +71,38 @@
             (q/line -10 -6 -14 -3)
             (q/ellipse 0 0 6 6)))))))
 
+(defn target-arc [ship]
+  (let [{:keys [selected-weapon
+                target-bearing
+                weapon-spread-setting]} ship
+        range (condp = selected-weapon
+                :phaser phaser-target
+                :torpedo torpedo-target
+                :kinetic kinetic-target
+                0)
+        half-spread (max 3 (/ weapon-spread-setting 2))]
+    [range
+     (- target-bearing half-spread)
+     (+ target-bearing half-spread)]))
+
 (defn- draw-ship [state]
   (let [{:keys [w h]} state
-        heading (or (->> state :world :ship :heading) 0)
-        velocity (or (->> state :world :ship :velocity) [0 0])
+        ship (->> state :world :ship)
+        heading (or (:heading ship) 0)
+        velocity (or (:velocity ship) [0 0])
         [vx vy] (v/scale velocity-vector-scale velocity)
-        radians (->radians heading)]
+        radians (q/radians heading)
+        [tgt-radius start stop] (target-arc ship)
+        start (q/radians start)
+        stop (q/radians stop)
+        draw-arc (not= (:selected-weapon ship) :none)]
     (q/with-translation
       [(/ w 2) (/ h 2)]
+      (when draw-arc
+        (q/no-stroke)
+        (q/fill 255 255 255 50)
+        (q/ellipse-mode :center)
+        (q/arc 0 0 tgt-radius tgt-radius start stop :pie))
       (apply q/stroke enterprise-vector-color)
       (q/stroke-weight 2)
       (q/line 0 0 vx vy)
@@ -92,22 +116,22 @@
         (q/line -9 9 0 0)
         (q/ellipse 0 0 9 9)
         (q/line -5 9 -15 9)
-        (q/line -5 -9 -15 -9)))))
+        (q/line -5 -9 -15 -9))))
 
-(defn- draw-bases [state]
-  (let [{:keys [w h bases]} state
-        presentable-bases (present-objects state bases)]
-    (q/no-fill)
-    (apply q/stroke base-color)
-    (q/stroke-weight 2)
-    (q/ellipse-mode :center)
-    (doseq [{:keys [x y]} presentable-bases]
-      (q/with-translation
-        [(+ x (/ w 2)) (+ y (/ h 2))]
-        (q/ellipse 0 0 12 12)
-        (q/ellipse 0 0 20 20)
-        (q/line 0 -6 0 6)
-        (q/line -6 0 6 0)))))
+  (defn- draw-bases [state]
+    (let [{:keys [w h bases]} state
+          presentable-bases (present-objects state bases)]
+      (q/no-fill)
+      (apply q/stroke base-color)
+      (q/stroke-weight 2)
+      (q/ellipse-mode :center)
+      (doseq [{:keys [x y]} presentable-bases]
+        (q/with-translation
+          [(+ x (/ w 2)) (+ y (/ h 2))]
+          (q/ellipse 0 0 12 12)
+          (q/ellipse 0 0 20 20)
+          (q/line 0 -6 0 6)
+          (q/line -6 0 6 0))))))
 
 (defn- phaser-intensity [range]
   (let [intensity (* 255 (- 1 (/ range phaser-range)))]

@@ -106,7 +106,8 @@
   (assoc ship :engine-power-setting value))
 
 (defn- set-weapon-number-handler [{:keys [value]} ship]
-  (assoc ship :weapon-number-setting value))
+  (assoc ship :weapon-number-setting value
+              :weapon-spread-setting (if (> value 1) 1 0)))
 
 (defn- set-weapon-spread-handler [{:keys [value]} ship]
   (assoc ship :weapon-spread-setting value))

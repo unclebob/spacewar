@@ -87,12 +87,16 @@
       {:ship {}})
     => {:ship {:target-bearing ..angle..}})
 
-  (fact
+  (tabular (fact
     "weapon number event"
     (process-events
-      [{:event :weapon-number :value ..number..}]
+      [{:event :weapon-number :value ?number}]
       {:ship {}})
-    => {:ship {:weapon-number-setting ..number..}})
+    => {:ship {:weapon-number-setting ?number :weapon-spread-setting ?spread}})
+           ?number ?spread
+           1 0
+           2 1
+           3 1)
 
   (fact
     "weapon spread event"
