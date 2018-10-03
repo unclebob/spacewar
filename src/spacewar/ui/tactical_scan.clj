@@ -26,16 +26,19 @@
     (vector/add tactical-click-delta [(:x ship) (:y ship)])))
 
 (defn- present-objects [state objects]
-  (let [{:keys [w h world]} state
-        ship (:ship world)
-        scale-x (/ w tactical-range)
-        scale-y (/ h tactical-range)]
-    (->> objects
-         (filter #(in-range (:x %) (:y %) ship))
-         (map #(assoc % :x (- (:x %) (:x ship))
-                        :y (- (:y %) (:y ship))))
-         (map #(assoc % :x (* (:x %) scale-x)
-                        :y (* (:y %) scale-y))))))
+  (if (empty? objects)
+    []
+    (let [{:keys [w h world]} state
+          ship (:ship world)
+          scale-x (/ w tactical-range)
+          scale-y (/ h tactical-range)
+          presentables (->> objects
+                            (filter #(in-range (:x %) (:y %) ship))
+                            (map #(assoc % :x (- (:x %) (:x ship))
+                                           :y (- (:y %) (:y ship))))
+                            (map #(assoc % :x (* (:x %) scale-x)
+                                           :y (* (:y %) scale-y))))]
+      presentables)))
 
 (defn- draw-stars [state]
   (let [{:keys [w h world]} state
@@ -250,7 +253,8 @@
         (draw-klingons state)
         (draw-ship state)
         (draw-bases state)
-        (draw-explosions state))))
+        (draw-explosions state)
+        )))
 
   (setup [_]
     (tactical-scan. state))

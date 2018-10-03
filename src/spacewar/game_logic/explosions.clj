@@ -22,7 +22,7 @@
   (let [explosions (:explosions world)
         explosions (map #(update % :age + ms) explosions)
         explosions (filter active-explosion explosions)]
-    (assoc world :explosions explosions)))
+    (assoc world :explosions (doall explosions))))
 
 (defn shot-to-explosion [weapon-tag {:keys [x y] :as explosion}]
   (let [weapon (condp = weapon-tag
