@@ -1,5 +1,6 @@
 (ns spacewar.ui.tactical-scan
   (:require [quil.core :as q]
+            [spacewar.util :refer :all]
             [spacewar.ui.config :refer :all]
             [spacewar.game-logic.config :refer :all]
             [spacewar.ui.protocols :as p]
@@ -51,24 +52,39 @@
       (doseq [{:keys [x y]} presentable-stars]
         (q/ellipse x y 4 4)))))
 
+(defn- draw-klingon-icon []
+  (apply q/fill black)
+  (apply q/stroke klingon-color)
+  (q/stroke-weight 2)
+  (q/ellipse-mode :center)
+  (q/line 0 0 10 -6)
+  (q/line 10 -6 14 -3)
+  (q/line 0 0 -10 -6)
+  (q/line -10 -6 -14 -3)
+  (q/ellipse 0 0 6 6))
+
+(defn- draw-klingon-shields [shields]
+  (when (< shields klingon-shields)
+    (let [pct (/ shields klingon-shields)
+          flicker (< (rand 3) pct)
+          color [255 (* pct 255) 0 (if flicker 100 60)]
+          radius (+ 35 (* pct 20))]
+      (apply q/fill color)
+      (q/ellipse-mode :center)
+      (q/no-stroke)
+      (q/ellipse 0 0 radius radius))))
+
 (defn- draw-klingons [state]
   (let [{:keys [w h world]} state
         klingons (:klingons world)
         presentable-klingons (present-objects state klingons)]
     (when klingons
-      (apply q/fill black)
-      (apply q/stroke klingon-color)
-      (q/stroke-weight 2)
-      (q/ellipse-mode :center)
       (doseq [klingon presentable-klingons]
-        (let [{:keys [x y]} klingon]
+        (let [{:keys [x y shields]} klingon]
           (q/with-translation
             [(+ x (/ w 2)) (+ y (/ h 2))]
-            (q/line 0 0 10 -6)
-            (q/line 10 -6 14 -3)
-            (q/line 0 0 -10 -6)
-            (q/line -10 -6 -14 -3)
-            (q/ellipse 0 0 6 6)))))))
+            (draw-klingon-shields shields)
+            (draw-klingon-icon)))))))
 
 (defn target-arc [ship]
   (let [{:keys [selected-weapon
@@ -194,15 +210,6 @@
 
             :else
             (+ radius (* velocity (- age last-time)))))))
-(defn- color-diff [[r1 g1 b1] [r2 g2 b2]]
-  [(- r1 r2) (- g1 g2) (- b1 b2)])
-
-(defn- color-scale [[r g b] s]
-  [(* s r) (* s g) (* s b)])
-
-(defn- color-add [[r1 g1 b1] [r2 g2 b2]]
-  [(+ r1 r2) (+ g1 g2) (+ b1 b2)])
-
 
 (defn age-color [age profile]
   (loop [profile profile last-age 0 last-color [0 0 0]]
