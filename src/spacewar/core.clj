@@ -57,7 +57,8 @@
   (let [{:keys [ship]} world
         world (assoc world :ship (ship/update-ship ms ship))
         world (shots/update-shots ms world)
-        world (explosions/update-explosions ms world)]
+        world (explosions/update-explosions ms world)
+        world (klingons/update-klingons ms world)]
     world))
 
 (defn update-state [context]

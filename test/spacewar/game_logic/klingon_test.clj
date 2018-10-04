@@ -1,8 +1,8 @@
 (ns spacewar.game-logic.klingon-test
   (:require [midje.sweet :refer :all]
-              [spacewar.game-logic.config :refer :all]
-              [spacewar.game-logic.klingons :as k]
-              [clojure.spec.alpha :as s]))
+            [spacewar.game-logic.config :refer :all]
+            [spacewar.game-logic.klingons :as k]
+            [clojure.spec.alpha :as s]))
 
 (facts
   "about klingons"
@@ -13,4 +13,30 @@
     "initialize"
     (let [klingons (k/initialize)]
       (s/explain-data ::k/klingons klingons) => nil
-      (count klingons) => number-of-klingons)))
+      (count klingons) => number-of-klingons))
+
+  (fact
+    "no hit"
+    (k/update-klingons
+      ..ms..
+      {:klingons [{:shields 100}]}) => {:klingons [{:shields 100}]})
+
+  (fact
+    "simple kinetic hit"
+    (k/update-klingons
+      ..ms..
+      {:klingons
+       [{:shields 200
+         :hit {:weapon :kinetic
+               :damage 20}}]}) => {:klingons [{:shields 180}]})
+
+  (fact
+    "klingon destroyed"
+    (k/update-klingons
+      ..ms..
+      {:klingons
+             [{:shields 10
+               :hit {:weapon :kinetic
+                     :damage 20}}]}) => {:klingons []})
+
+    )

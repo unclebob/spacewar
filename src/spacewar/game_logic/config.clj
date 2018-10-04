@@ -21,7 +21,7 @@
 (def kinetic-range 1000000)
 (def kinetic-velocity 2)
 (def kinetic-proximity 500)
-(def kinetic-damage 100)
+(def kinetic-damage 50)
 
 (def number-of-stars 1000)
 (def number-of-klingons 100)
@@ -30,3 +30,5 @@
 
 (def known-space-x 3000000)
 (def known-space-y 2000000)
+
+(def klingon-shields 200)
