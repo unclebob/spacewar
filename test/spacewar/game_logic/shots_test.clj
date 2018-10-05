@@ -53,12 +53,11 @@
         (:bearing shot) => (roughly ?bearing 1e-10)
         (:range shot) => (roughly
                            (+ ?range
-                              (* ?ms torpedo-velocity
-                                 (- 1 (/ ?range torpedo-range)))))))
+                              (* ?ms torpedo-velocity)))))
     ?ms ?x ?y ?bearing ?range ?sx ?sy
     1000 0 0 0 0 (* torpedo-velocity ?ms) 0
     1000 0 0 90 0 0 (* torpedo-velocity ?ms)
-    1000 0 0 0 (/ torpedo-range 2) (* torpedo-velocity ?ms 0.5) 0))
+    1000 0 0 0 (/ torpedo-range 2) (* torpedo-velocity ?ms) 0))
 
 (fact
   "fire-weapon"

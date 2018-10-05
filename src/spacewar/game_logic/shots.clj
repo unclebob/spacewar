@@ -69,14 +69,8 @@
 (defn update-kinetic-shot [ms shot]
   (update-shot shot (* ms kinetic-velocity) kinetic-range))
 
-(defn- torpedo-distance [ms shot]
-  (max ms
-       (* ms
-          torpedo-velocity
-          (- 1 (/ (:range shot) torpedo-range)))))
-
 (defn update-torpedo-shot [ms shot]
-  (update-shot shot (torpedo-distance ms shot) torpedo-range))
+  (update-shot shot (* ms torpedo-velocity) torpedo-range))
 
 
 (defn update-shot-positions [ms world]
