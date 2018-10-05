@@ -33,3 +33,5 @@
 (def known-space-y 2000000)
 
 (def klingon-shields 200)
+(def klingon-anti-matter 1000)
+(def klingon-shield-recharge-rate 0.01)

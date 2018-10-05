@@ -18,24 +18,33 @@
   (fact
     "no hit"
     (k/update-klingons
-      ..ms..
-      {:klingons [{:shields 100}]}) => {:klingons [{:shields 100}]
-                                        :explosions []})
+      20
+      {:klingons [{:anti-matter 1000
+                   :shields klingon-shields}]}) =>
+    {:klingons [{:shields klingon-shields :anti-matter 1000}]
+     :explosions []})
 
   (fact
     "simple kinetic hit"
-    (k/update-klingons
-      ..ms..
+    (let [world (k/update-klingons
+      0
       {:klingons
-       [{:shields 200
+       [{:anti-matter 1000
+         :shields 200
          :hit {:weapon :kinetic
-               :damage 20}}]}) => {:klingons [{:shields 180}]
-                                   :explosions []})
+               :damage 20}}]})
+          klingons (:klingons world)
+          explosions (:explosions world)]
+      (count klingons) => 1
+      (:hit (first klingons)) => nil
+      (:shields (first klingons)) => (roughly 180)
+      explosions => []))
+
 
   (fact
     "klingon destroyed"
     (let [world (k/update-klingons
-                  ..ms..
+                  20
                   {:klingons
                    [{:x 50 :y 50 :shields 10
                      :hit {:weapon :kinetic
@@ -55,4 +64,19 @@
     [0 0] (* 2 phaser-damage)
     )
 
+  (tabular
+    (fact
+      "recharge-shield"
+      (k/recharge-shield
+        ?ms
+        {:anti-matter ?am-in
+         :shields ?shields-in}) => {:anti-matter ?am-out
+                                    :shields ?shields-out})
+    ?ms ?am-in ?shields-in ?am-out ?shields-out
+    20 1000 klingon-shields 1000 klingon-shields
+    20 1000
+    (- klingon-shields 50)
+    (- ?am-in (* klingon-shield-recharge-rate ?ms))
+    (+ ?shields-in (* klingon-shield-recharge-rate ?ms))
+    )
   )
