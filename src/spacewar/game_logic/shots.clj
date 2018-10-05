@@ -107,7 +107,11 @@
         targets (set/difference (set targets) hit-targets)
         shots (set/difference (set shots) hit-shots)
         hit-targets (map #(hit-by hits %) hit-targets)
-        explosions (concat explosions (map #(explosions/shot-to-explosion weapon-tag %) hit-shots))]
+        explosion-type (condp = weapon-tag
+                         :phaser-shots :phaser
+                         :torpedo-shots :torpedo
+                         :kinetic-shots :kinetic)
+        explosions (concat explosions (map #(explosions/->explosion explosion-type %) hit-shots))]
 
     (assoc world target-tag (doall (concat targets hit-targets))
                  weapon-tag (doall (concat shots))

@@ -19,7 +19,8 @@
     "no hit"
     (k/update-klingons
       ..ms..
-      {:klingons [{:shields 100}]}) => {:klingons [{:shields 100}]})
+      {:klingons [{:shields 100}]}) => {:klingons [{:shields 100}]
+                                        :explosions []})
 
   (fact
     "simple kinetic hit"
@@ -28,16 +29,20 @@
       {:klingons
        [{:shields 200
          :hit {:weapon :kinetic
-               :damage 20}}]}) => {:klingons [{:shields 180}]})
+               :damage 20}}]}) => {:klingons [{:shields 180}]
+                                   :explosions []})
 
   (fact
     "klingon destroyed"
-    (k/update-klingons
-      ..ms..
-      {:klingons
-       [{:shields 10
-         :hit {:weapon :kinetic
-               :damage 20}}]}) => {:klingons []})
+    (let [world (k/update-klingons
+                  ..ms..
+                  {:klingons
+                   [{:x 50 :y 50 :shields 10
+                     :hit {:weapon :kinetic
+                           :damage 20}}]})]
+      (:klingons world) => []
+      (count (:explosions world)) => 1
+      (dissoc (first (:explosions world)) :fragments) => {:age 0 :x 50 :y 50 :type :klingon}))
 
   (tabular
     (fact

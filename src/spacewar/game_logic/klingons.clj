@@ -1,6 +1,7 @@
 (ns spacewar.game-logic.klingons
   (:require [clojure.spec.alpha :as s]
-            [spacewar.game-logic.config :refer :all]))
+            [spacewar.game-logic.config :refer :all]
+            [spacewar.game-logic.explosions :as explosions]))
 
 (s/def ::x int?)
 (s/def ::y int?)
@@ -42,8 +43,15 @@
         shields (if (some? hit) (- shields (hit-damage hit)) shields)]
     (assoc klingon :shields shields)))
 
+(defn- klingon-destruction [klingons]
+  (if (empty? klingons)
+    []
+    (map #(explosions/->explosion :klingon %) klingons)))
+
 (defn update-klingons [_ms world]
   (let [klingons (:klingons world)
         klingons (map hit-klingon klingons)
-        klingons (filter #(< 0 (:shields %)) klingons)]
-    (assoc world :klingons klingons)))
+        dead-klingons (filter #(> 0 (:shields %)) klingons)
+        klingons (filter #(<= 0 (:shields %)) klingons)]
+    (assoc world :klingons klingons
+                 :explosions (concat (:explosions world) (klingon-destruction dead-klingons)))))

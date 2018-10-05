@@ -67,7 +67,7 @@
   (when (< shields klingon-shields)
     (let [pct (/ shields klingon-shields)
           flicker (< (rand 3) pct)
-          color [255 (* pct 255) 0 (if flicker 100 60)]
+          color [255 (* pct 255) 0 (if flicker 100 40)]
           radius (+ 35 (* pct 20))]
       (apply q/fill color)
       (q/ellipse-mode :center)

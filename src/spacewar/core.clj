@@ -37,7 +37,7 @@
         explosions (:explosions world)
         weapon (->> world :ship :selected-weapon)
         ]
-    (assoc world :explosions (conj explosions (explosions/shot-to-explosion weapon {:x x :y y})))))
+    (assoc world :explosions (conj explosions (explosions/->explosion weapon {:x x :y y})))))
 
 (defn- process-debug-events [events world]
   (let [[_ world] (->> [events world]

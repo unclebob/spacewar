@@ -83,5 +83,25 @@
              :fragment-color-profile [{:until 100 :colors [white white]}
                                       {:until 300 :colors [white yellow]}
                                       {:until 500 :colors [yellow red]}
-                                      {:until 800 :colors [red black]}]}})
+                                      {:until 800 :colors [red black]}]}
+
+   :klingon {:duration 4000
+                :explosion-profile [{:velocity 0.8 :until 100}
+                                    {:velocity 0.9 :until 200}
+                                    {:velocity 1 :until 400}
+                                    {:velocity 0.2 :until 600}
+                                    {:velocity 0.1 :until 600}
+                                    {:velocity -0.3 :until 800}
+                                    {:velocity 1 :until 1000}
+                                    {:velocity -0.05 :until 4000}]
+                :explosion-color-profile [{:until 100 :colors [white white]}
+                                          {:until 700 :colors [white yellow]}
+                                          {:until 2500 :colors [yellow dark-red]}
+                                          {:until 4000 :colors [dark-red black]}]
+                :fragments 100
+                :fragment-velocity 0.2
+                :fragment-color-profile [{:until 500 :colors [white white]}
+                                         {:until 800 :colors [white yellow]}
+                                         {:until 2000 :colors [yellow red]}
+                                         {:until 4000 :colors [red black]}]}})
 
