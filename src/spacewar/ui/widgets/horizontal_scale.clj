@@ -6,6 +6,9 @@
 
 (deftype h-scale [state]
   p/Drawable
+  (get-state [_] state)
+  (clone [_ clone-state] (h-scale. clone-state))
+
   (draw [_]
     (let [{:keys [x y w h name min max value color mercury-color]} state
           name-gap 150

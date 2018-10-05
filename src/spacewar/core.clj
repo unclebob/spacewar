@@ -66,7 +66,7 @@
         time (q/millis)
         ms (- time (:update-time world))
         complex (:state context)
-        world (assoc world :update-time time)
+        world (assoc world :update-time time :ms ms)
         [complex events] (p/update-state complex world)
         events (flatten events)
         world (process-events events world)

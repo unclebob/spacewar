@@ -1,11 +1,13 @@
 (ns spacewar.ui.control-panels.status-panel
   (:require [spacewar.ui.protocols :as p]
             [spacewar.ui.config :refer :all]
-            (spacewar.ui.widgets[lcars :refer :all]
-                                [horizontal-scale :refer :all])))
+            (spacewar.ui.widgets [lcars :refer :all]
+                                 [horizontal-scale :refer :all])))
 
 (deftype status-panel [state]
   p/Drawable
+  (get-state [_] state)
+  (clone [_ clone-state] (status-panel. clone-state))
   (draw [_]
     (draw-bottom-lcars state)
     (p/draw-elements state))
@@ -60,7 +62,9 @@
           :elements [:anti-matter :dilithium :core-temp]))))
 
   (update-state [_ world]
-    (let [[state events] (p/update-elements state world)]
+    (let [state (p/change-elements state [[:core-temp :value (:ms world)]])
+          [state events] (p/update-elements state world)]
       (p/pack-update
         (status-panel. state)
-        events))))
+        events)))
+  )
