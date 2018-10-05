@@ -35,8 +35,19 @@
     (k/update-klingons
       ..ms..
       {:klingons
-             [{:shields 10
-               :hit {:weapon :kinetic
-                     :damage 20}}]}) => {:klingons []})
+       [{:shields 10
+         :hit {:weapon :kinetic
+               :damage 20}}]}) => {:klingons []})
 
+  (tabular
+    (fact
+      "phaser damage"
+      (k/damage-by-phasers {:damage ?ranges}) => ?damage)
+    ?ranges ?damage
+    [phaser-range] 0
+    [0] phaser-damage
+    [(/ phaser-range 2)] (/ phaser-damage 2)
+    [0 0] (* 2 phaser-damage)
     )
+
+  )

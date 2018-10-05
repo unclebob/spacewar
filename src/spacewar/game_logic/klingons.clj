@@ -4,7 +4,15 @@
 
 (s/def ::x int?)
 (s/def ::y int?)
-(s/def ::klingon (s/keys :req-un [::x ::y ::shields]))
+(s/def ::shields number?)
+
+(s/def ::weapon #{:phaser :torpedo :kinetic})
+(s/def ::damage (s/or :damage-amount number?
+                      :phaser-ranges (s/coll-of number?)))
+
+(s/def ::hit (s/keys :req-un [::weapon ::damage]))
+(s/def ::klingon (s/keys :req-un [::x ::y ::shields]
+                         :opt-un [::hit]))
 (s/def ::klingons (s/coll-of ::klingon))
 
 (defn make-random-klingon []
@@ -15,11 +23,23 @@
 (defn initialize []
   (repeatedly number-of-klingons make-random-klingon))
 
+(defn damage-by-phasers [hit]
+  (let [ranges (:damage hit)]
+    (reduce +
+            (map #(* phaser-damage (- 1 (/ % phaser-range)))
+                 ranges))))
+
+(defn- hit-damage [hit]
+  (condp = (:weapon hit)
+    :torpedo (:damage hit)
+    :kinetic (:damage hit)
+    :phaser (damage-by-phasers hit)))
+
 (defn hit-klingon [klingon]
   (let [hit (:hit klingon)
         shields (:shields klingon)
         klingon (dissoc klingon :hit)
-        shields (if (some? hit) (- shields (:damage hit)) shields)]
+        shields (if (some? hit) (- shields (hit-damage hit)) shields)]
     (assoc klingon :shields shields)))
 
 (defn update-klingons [_ms world]
