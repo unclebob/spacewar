@@ -24,7 +24,8 @@
    :heading-setting 0
    :antimatter 100
    :core-temp 0
-   :dilithium 100}
+   :dilithium 100
+   :strat-scale 1}
   )
 
 (defn drag [[x y :as v]]
@@ -170,6 +171,9 @@
 (defn- select-kinetic [_ {:keys [selected-weapon] :as ship}]
   (assoc ship :selected-weapon (if (= selected-weapon :kinetic) :none :kinetic)))
 
+(defn- set-strat-scale [{:keys [value]} ship]
+  (assoc ship :strat-scale value))
+
 (defn process-events [events ship]
   (let [[_ ship] (->> [events ship]
                       (handle-event :front-view select-front-view)
@@ -185,5 +189,6 @@
                       (handle-event :select-warp select-warp)
                       (handle-event :select-phaser select-phaser)
                       (handle-event :select-torpedo select-torpedo)
-                      (handle-event :select-kinetic select-kinetic))]
+                      (handle-event :select-kinetic select-kinetic)
+                      (handle-event :strat-scale set-strat-scale))]
     ship))

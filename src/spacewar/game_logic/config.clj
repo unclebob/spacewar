@@ -28,9 +28,10 @@
 (def number-of-klingons 100)
 (def number-of-bases 15)
 (def tactical-range 100000)
+(def strategic-range 1000000)
 
-(def known-space-x 3000000)
-(def known-space-y 2000000)
+(def known-space-x 18000000)
+(def known-space-y 10000000)
 
 (def klingon-shields 200)
 (def klingon-anti-matter 1000)
