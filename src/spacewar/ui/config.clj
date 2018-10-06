@@ -41,6 +41,22 @@
 (def torpedo-target 700)
 (def kinetic-target 900)
 
+(def star-colors {:o [200 200 255]
+                  :b [220 220 255]
+                  :a [240 240 240]
+                  :f [250 250 200]
+                  :g [250 250 150]
+                  :k [255 200 150]
+                  :m [255 150 150]})
+
+(def star-sizes {:o 6
+                :b 5
+                :a 5
+                :f 4
+                :g 4
+                :k 3
+                :m 2})
+
 (def explosion-profiles
   {:phaser {:duration 1000
             :explosion-profile [{:velocity 0.5 :until 100}

@@ -44,13 +44,13 @@
   (let [{:keys [w h world]} state
         stars (:stars world)
         presentable-stars (present-objects state stars)]
-    (apply q/fill grey)
-    (q/no-stroke)
+\    (q/no-stroke)
     (q/ellipse-mode :center)
     (q/with-translation
       [(/ w 2) (/ h 2)]
-      (doseq [{:keys [x y]} presentable-stars]
-        (q/ellipse x y 4 4)))))
+      (doseq [{:keys [x y class]} presentable-stars]
+        (apply q/fill (class star-colors))
+        (q/ellipse x y (class star-sizes) (class star-sizes))))))
 
 (defn- draw-klingon-icon []
   (apply q/fill black)

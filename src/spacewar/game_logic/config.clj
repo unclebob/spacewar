@@ -2,6 +2,7 @@
 
 (def frame-rate 30)
 
+(def spectral-classes [:o :b :a :f :g :k :m])
 (def drag-factor 0.001)
 (def rotation-rate 0.01) ; degrees per millisecond.
 (def impulse-thrust 0.01) ; per millisecond per power.
@@ -27,7 +28,7 @@
 (def number-of-stars 1000)
 (def number-of-klingons 100)
 (def number-of-bases 15)
-(def tactical-range 100000)
+(def tactical-range 200000)
 (def strategic-range 1000000)
 
 (def known-space-x 18000000)

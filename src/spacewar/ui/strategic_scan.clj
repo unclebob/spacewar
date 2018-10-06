@@ -17,10 +17,10 @@
         sx (:x ship)
         sy (:y ship)]
     (when stars
-      (apply q/fill grey)
       (q/no-stroke)
       (q/ellipse-mode :center)
-      (doseq [{:keys [x y]} stars]
+      (doseq [{:keys [x y class]} stars]
+        (apply q/fill (class star-colors))
         (q/ellipse (* (- x sx) pixel-width) (* (- y sy) pixel-width) 4 4)))))
 
 
