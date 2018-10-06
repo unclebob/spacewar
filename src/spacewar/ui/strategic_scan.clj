@@ -13,100 +13,93 @@
     (q/rect 0 0 w h)))
 
 (defn- draw-stars [state]
-  (let [{:keys [stars pixel-width sector-top-left]} state]
+  (let [{:keys [stars pixel-width ship]} state
+        sx (:x ship)
+        sy (:y ship)]
     (when stars
       (apply q/fill grey)
       (q/no-stroke)
       (q/ellipse-mode :center)
       (doseq [{:keys [x y]} stars]
-        (let [[ox oy] sector-top-left
-              x (- x ox)
-              y (- y oy)]
-          (q/ellipse (* x pixel-width) (* y pixel-width) 4 4))))
-    )
-  )
+        (q/ellipse (* (- x sx) pixel-width) (* (- y sy) pixel-width) 4 4)))))
+
 
 (defn- draw-klingons [state]
-  (let [{:keys [klingons pixel-width sector-top-left]} state]
+  (let [{:keys [klingons pixel-width ship]} state
+        sx (:x ship)
+        sy (:y ship)]
     (when klingons
       (apply q/fill black)
       (apply q/stroke klingon-color)
       (q/stroke-weight 2)
       (q/ellipse-mode :center)
       (doseq [{:keys [x y]} klingons]
-        (let [[ox oy] sector-top-left
-                      x (- x ox)
-                      y (- y oy)]
         (q/with-translation
-          [(* x pixel-width)
-           (* y pixel-width)]
+          [(* (- x sx) pixel-width)
+           (* (- y sy) pixel-width)]
           (q/line 0 0 10 -6)
           (q/line 10 -6 14 -3)
           (q/line 0 0 -10 -6)
           (q/line -10 -6 -14 -3)
-          (q/ellipse 0 0 6 6)))))))
+          (q/ellipse 0 0 6 6))))))
 
 (defn- draw-ship [state]
-  (let [{:keys [ship pixel-width sector-top-left]} state
-        heading (or (->> state :ship :heading) 0)
+  (let [heading (or (->> state :ship :heading) 0)
         velocity (or (->> state :ship :velocity) [0 0])
         [vx vy] (v/scale velocity-vector-scale velocity)
-        radians (->radians heading)
-        [ox oy] sector-top-left
-        x (- (:x ship) ox)
-        y (- (:y ship) oy)]
-    (q/with-translation
-      [(* x pixel-width)
-       (* y pixel-width)]
-      (apply q/stroke enterprise-vector-color)
+        radians (->radians heading)]
+    (apply q/stroke enterprise-vector-color)
+    (q/stroke-weight 2)
+    (q/line 0 0 vx vy)
+    (q/with-rotation
+      [radians]
+      (apply q/stroke enterprise-color)
       (q/stroke-weight 2)
-      (q/line 0 0 vx vy)
-      (q/with-rotation
-        [radians]
-        (apply q/stroke enterprise-color)
-        (q/stroke-weight 2)
-        (q/ellipse-mode :center)
-        (apply q/fill black)
-        (q/line -9 -9 0 0)
-        (q/line -9 9 0 0)
-        (q/ellipse 0 0 9 9)
-        (q/line -5 9 -15 9)
-        (q/line -5 -9 -15 -9)))))
+      (q/ellipse-mode :center)
+      (apply q/fill black)
+      (q/line -9 -9 0 0)
+      (q/line -9 9 0 0)
+      (q/ellipse 0 0 9 9)
+      (q/line -5 9 -15 9)
+      (q/line -5 -9 -15 -9))))
 
 (defn- draw-bases [state]
-  (let [{:keys [bases pixel-width sector-top-left]} state]
+  (let [{:keys [bases pixel-width ship]} state
+        sx (:x ship)
+        sy (:y ship)]
     (when bases
       (q/no-fill)
       (apply q/stroke base-color)
       (q/stroke-weight 2)
       (q/ellipse-mode :center)
       (doseq [{:keys [x y]} bases]
-        (let [[ox oy] sector-top-left
-                      x (- x ox)
-                      y (- y oy)]
         (q/with-translation
-          [(* x pixel-width)
-           (* y pixel-width)]
+          [(* (- x sx) pixel-width)
+           (* (- y sy) pixel-width)]
           (q/ellipse 0 0 12 12)
           (q/ellipse 0 0 20 20)
           (q/line 0 -6 0 6)
-          (q/line -6 0 6 0)))))))
+          (q/line -6 0 6 0))))))
 
 (defn- draw-sectors [state]
-  (let [{:keys [pixel-width]} state]
+  (let [{:keys [pixel-width ship]} state
+        sx (:x ship)
+        sy (:y ship)
+        x->frame (fn [x] (* pixel-width (- x sx)))
+        y->frame (fn [y] (* pixel-width (- y sy)))]
     (q/stroke-weight 1)
     (apply q/stroke (conj white 100))
     (doseq [x (range 0 known-space-x strategic-range)]
-      (q/line (* x pixel-width) 0 (* x pixel-width) known-space-y))
+      (q/line (x->frame x) (y->frame 0) (x->frame x) (y->frame known-space-y)))
     (doseq [y (range 0 known-space-y strategic-range)]
-      (q/line 0 (* y pixel-width) known-space-x (* y pixel-width)))))
+      (q/line (x->frame 0) (y->frame y) (x->frame known-space-x) (y->frame y)))))
 
 (deftype strategic-scan [state]
   p/Drawable
   (draw [_]
-    (let [{:keys [x y]} state]
+    (let [{:keys [x y w h]} state]
       (q/with-translation
-        [x y]
+        [(+ x (/ w 2)) (+ y (/ h 2))]
         (draw-background state)
         (draw-stars state)
         (draw-klingons state)
@@ -121,10 +114,7 @@
   (update-state [_ world]
     (let [ship (:ship world)
           scale (:strat-scale ship)
-          range (* scale strategic-range)
-          sector-top-left [(- (:x ship) (rem (:x ship) range))
-                           (- (:y ship) (rem (:y ship) range))]
-          ]
+          range (* scale strategic-range)]
       (p/pack-update
         (strategic-scan.
           (assoc state :stars (:stars world)
@@ -132,5 +122,4 @@
                        :ship ship
                        :bases (:bases world)
                        :pixel-width (/ (:h state) range)
-                       :sector-top-left sector-top-left
-                       :range range))))))
+                       :sector-top-left [0 0]))))))
