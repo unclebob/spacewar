@@ -14,7 +14,7 @@
 (s/def ::direction number?)
 (s/def ::fragments (s/coll-of (s/keys :req-un [::x ::y ::velocity ::direction])))
 (s/def ::explosion (s/keys :req-un [::x ::y ::type ::age ::fragments]))
-(s/def ::explosions (s/coll-of ::explosions/explosion))
+(s/def ::explosions (s/coll-of ::explosion))
 
 (defn make-fragments [n explosion velocity]
   (let [{:keys [x y]} explosion]

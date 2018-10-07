@@ -23,7 +23,7 @@
           core-temp-y (+ dilithium-y scale-h scale-gap)]
       (status-panel.
         (assoc state
-          :anti-matter (p/setup
+          :antimatter (p/setup
                          (->h-scale
                            {:x scale-x
                             :y antimatter-y
@@ -59,7 +59,7 @@
                           :name "CORE TEMP"
                           :color color
                           :mercury-color mercury-color}))
-          :elements [:anti-matter :dilithium :core-temp]))))
+          :elements [:antimatter :dilithium :core-temp]))))
 
   (update-state [_ world]
     (let [state (p/change-elements state [[:core-temp :value (:ms world)]])

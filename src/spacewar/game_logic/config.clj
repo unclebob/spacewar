@@ -35,7 +35,9 @@
 (def known-space-y 10000000)
 
 (def klingon-shields 200)
-(def klingon-anti-matter 1000)
+(def klingon-antimatter 1000)
 (def klingon-shield-recharge-rate 0.01)
 (def klingon-tactical-range 150000)
 (def klingon-kinetic-range 1000000)
+(def klingon-kinetics 100)
+(def klingon-kinetic-threshold 2000)

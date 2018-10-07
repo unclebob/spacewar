@@ -1,13 +1,18 @@
-(ns spacewar.game-logic.test-mother)
+(ns spacewar.game-logic.test-mother
+  (:require [midje.sweet :refer :all]
+            [clojure.spec.alpha :as spec]
+            [spacewar.core :as core]
+            [spacewar.game-logic.ship :as ship]
+            [spacewar.game-logic.klingons :as klingons]))
 
-(defn make-world []
-  {:explosions []
-   :ship (make-ship)
-   :klingons []
-   :stars []
-   :bases []
-   :update-time 0
-   })
+(def valid-world? (chatty-checker [world]
+  (nil? (spec/explain-data ::core/world world))))
+
+(def valid-ship? (chatty-checker [ship]
+  (nil? (spec/explain-data ::ship/ship ship))))
+
+(def valid-klingon? (chatty-checker [klingon]
+  (nil? (spec/explain-data ::klingons/klingon klingon))))
 
 (defn make-ship []
   {
@@ -37,13 +42,28 @@
    :x 0
    :y 0
    :shields 0
-   :anti-matter 0
+   :antimatter 0
+   :kinetics 0
+   :kinetic-charge 0
+   })
+
+(defn make-world []
+  {:explosions []
+   :ship (make-ship)
+   :klingons []
+   :stars []
+   :bases []
+   :update-time 0
+   :phaser-shots []
+   :torpedo-shots []
+   :kinetic-shots []
    })
 
 (defn set-pos [obj [x y]]
-  )
+  (assoc obj :x x :y y))
 
-(defn set-ship [ship world]
-  )
+(defn set-ship [world ship]
+  (assoc world :ship ship))
 
-(defn set-klingons [klingons world])
+(defn set-klingons [world klingons]
+  (assoc world :klingons klingons))

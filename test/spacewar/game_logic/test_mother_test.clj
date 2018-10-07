@@ -1,16 +1,32 @@
 (ns spacewar.game-logic.test-mother-test
   (:require [midje.sweet :refer :all]
             [spacewar.game-logic.test-mother :refer :all]
-            [spacewar.game-logic.ship :as ship]
-            [spacewar.game-logic.klingons :as klingons]
-            [clojure.spec.alpha :as spec]
-            [spacewar.core :as core]))
+            ))
 
 (fact "make-world"
-      (spec/explain-data ::core/world (make-world)) => nil)
+      (make-world) => valid-world?
+      )
 
 (fact "make-ship"
-      (spec/explain-data ::ship/ship (make-ship)) => nil)
+      (make-ship) => valid-ship?)
 
 (fact "make-klingon"
-      (spec/explain-data ::klingons/klingon (make-klingon)) => nil)
+      (make-klingon) => valid-klingon?)
+
+(fact "set-pos"
+      (let [object (make-klingon)
+            new-obj (set-pos object [1 2])]
+        (:x new-obj) => 1
+        (:y new-obj) => 2))
+
+(fact "set-ship"
+      (let [ship (make-ship)
+            world (make-world)
+            new-world (set-ship world ship)]
+        (:ship new-world) => ship))
+
+(fact "set-klingons"
+      (let [world (make-world)
+            klingons [(make-klingon)]
+            new-world (set-klingons world klingons)]
+        (:klingons new-world) => klingons))

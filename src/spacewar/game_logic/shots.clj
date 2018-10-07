@@ -6,7 +6,16 @@
     [spacewar.ui.config :refer :all]
     [spacewar.util :refer :all]
     [clojure.set :as set]
-    [spacewar.game-logic.explosions :as explosions]))
+    [spacewar.game-logic.explosions :as explosions]
+    [clojure.spec.alpha :as s]))
+
+
+(s/def ::x number?)
+(s/def ::y number?)
+(s/def ::bearing (s/and number? #(<= 0 % 360)))
+(s/def ::range number?)
+(s/def ::shot (s/keys :req-un [::x ::y ::bearing ::range]))
+(s/def ::shots (s/coll-of ::shot))
 
 (defn fire-weapon [pos bearing number spread]
   (let [start-bearing (if (= number 1)
