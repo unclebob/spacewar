@@ -10,7 +10,16 @@
             [spacewar.game-logic.bases :as bases]
             [spacewar.game-logic.shots :as shots]
             [spacewar.game-logic.explosions :as explosions]
-            [spacewar.util :refer :all]))
+            [spacewar.util :refer :all]
+            [clojure.spec.alpha :as s]))
+
+(s/def ::update-time number?)
+(s/def ::world (s/keys :req-un [::explosions/explosions
+                                ::klingons/klingons
+                                ::ship/ship
+                                ::stars/stars
+                                ::bases/bases
+                                ::update-time]))
 
 (defn setup []
   (let [vmargin 30 hmargin 5]

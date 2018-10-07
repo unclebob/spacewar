@@ -2,6 +2,7 @@
   (:require [midje.sweet :refer :all]
             [spacewar.game-logic.config :refer :all]
             [spacewar.game-logic.klingons :as k]
+            [spacewar.game-logic.test-mother :as mom]
             [clojure.spec.alpha :as s]))
 
 (facts
@@ -79,4 +80,19 @@
     (- ?am-in (* klingon-shield-recharge-rate ?ms))
     (+ ?shields-in (* klingon-shield-recharge-rate ?ms))
     )
+
+  (facts
+    "klingon-offense"
+    (let [ship (mom/make-ship)
+          klingon (mom/make-klingon)
+          world (mom/make-world)]
+      (fact
+        "not in kinetic range"
+        (let [ship (mom/set-pos ship [0 0])
+              out-of-range [(inc klingon-kinetic-range) 0]
+              klingon (mom/set-pos klingon out-of-range)
+              world (->> world (mom/set-ship ship) (mom/set-klingons [klingon]))
+              offense (k/klingon-offense 20 world)]
+          offense => world)
+        )))
   )

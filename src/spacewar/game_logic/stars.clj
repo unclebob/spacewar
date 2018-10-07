@@ -2,8 +2,8 @@
   (:require [clojure.spec.alpha :as s]
             [spacewar.game-logic.config :refer :all]))
 
-(s/def ::x int?)
-(s/def ::y int?)
+(s/def ::x number?)
+(s/def ::y number?)
 (s/def ::class (set spectral-classes))
 (s/def ::star (s/keys :req-un [::x ::y ::class]))
 (s/def ::stars (s/coll-of ::star))

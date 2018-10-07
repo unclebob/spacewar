@@ -63,7 +63,7 @@
 (defn- recharge-shields [ms klingons]
   (map #(recharge-shield ms %) klingons))
 
-(defn update-klingons [ms world]
+(defn klingon-defense [ms world]
   (let [klingons (:klingons world)
         klingons (map hit-klingon klingons)
         dead-klingons (filter #(> 0 (:shields %)) klingons)
@@ -71,3 +71,11 @@
         klingons (recharge-shields ms klingons)]
     (assoc world :klingons klingons
                  :explosions (concat (:explosions world) (klingon-destruction dead-klingons)))))
+
+(defn klingon-offense [me world]
+  world)
+
+(defn update-klingons [ms world]
+  (let [world (klingon-defense ms world)
+        world (klingon-offense ms world)]
+    world))

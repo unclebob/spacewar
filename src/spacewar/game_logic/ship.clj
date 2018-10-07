@@ -4,7 +4,39 @@
     [spacewar.vector :as vector]
     [spacewar.util :refer :all]
     [spacewar.game-logic.config :refer :all]
-    [spacewar.game-logic.shots :as shots]))
+    [spacewar.game-logic.shots :as shots]
+    [clojure.spec.alpha :as s]))
+
+(s/def ::x number?)
+(s/def ::y number?)
+(s/def ::warp number?)
+(s/def ::warp-charge number?)
+(s/def ::impulse number?)
+(s/def ::heading (s/and number? #(<= 0 % 360)))
+(s/def ::velocity number?)
+(s/def ::selected-view #{:front-view :strat-view :tact-view})
+(s/def ::selected-weapon #{:phaser :kinetic :torpedo :none})
+(s/def ::selected-engine #{:warp :impulse :none})
+(s/def ::target-bearing (s/and number? #(<= 0 % 360)))
+(s/def ::engine-power-setting number?)
+(s/def ::weapon-number-setting number?)
+(s/def ::weapon-spread-setting number?)
+(s/def ::heading-setting (s/and number? #(<= 0 % 360)))
+(s/def ::antimatter number?)
+(s/def ::core-temp number?)
+(s/def ::dilithium number?)
+(s/def ::strat-scale (s/and number? #(<= 1 % 10)))
+
+(s/def ::ship (s/keys :req-un [::x ::y ::warp ::warp-charge
+                               ::impulse ::heading ::velocity
+                               ::selected-view ::selected-weapon
+                               ::selected-engine ::target-bearing
+                               ::engine-power-setting
+                               ::weapon-number-setting
+                               ::weapon-spread-setting
+                               ::heading-setting
+                               ::antimatter ::core-temp
+                               ::dilithium ::strat-scale]))
 
 (defn initialize []
   {:x (int (rand known-space-x))

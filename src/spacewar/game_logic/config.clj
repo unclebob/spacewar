@@ -37,3 +37,5 @@
 (def klingon-shields 200)
 (def klingon-anti-matter 1000)
 (def klingon-shield-recharge-rate 0.01)
+(def klingon-tactical-range 150000)
+(def klingon-kinetic-range 1000000)
