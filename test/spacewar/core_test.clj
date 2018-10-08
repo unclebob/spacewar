@@ -113,7 +113,7 @@
                           :weapon-number-setting 1
                           :target-bearing 90
                           :weapon-spread-setting 0}})]
-      (:phaser-shots world) => [{:x ..x.. :y ..y.. :bearing 90 :range 0 :type :phaser}]))
+      (:shots world) => [{:x ..x.. :y ..y.. :bearing 90 :range 0 :type :phaser}]))
 
   (fact
     "fire two torpedoes event"
@@ -123,7 +123,7 @@
                           :weapon-number-setting 2
                           :target-bearing 90
                           :weapon-spread-setting 10}})]
-      (:torpedo-shots world) => [{:x ..x.. :y ..y.. :bearing 85 :range 0 :type :torpedo}
+      (:shots world) => [{:x ..x.. :y ..y.. :bearing 85 :range 0 :type :torpedo}
                                  {:x ..x.. :y ..y.. :bearing 95 :range 0 :type :torpedo}])))
 
 (facts

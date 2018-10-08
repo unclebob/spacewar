@@ -39,7 +39,7 @@
                (dec number))))))
 
 (defn weapon-fire-handler [_ world]
-  (let [{:keys [ship phaser-shots torpedo-shots kinetic-shots]} world
+  (let [{:keys [ship]} world
         {:keys [x y selected-weapon weapon-spread-setting
                 weapon-number-setting target-bearing]} ship
         shots (fire-weapon [x y]
@@ -47,17 +47,7 @@
                            weapon-number-setting
                            weapon-spread-setting)
         shots (map #(assoc % :type selected-weapon) shots)]
-    (assoc world :shots (concat (:shots world) shots))
-    (condp = selected-weapon
-      :phaser
-      (assoc world :phaser-shots (concat phaser-shots shots))
-
-      :torpedo
-      (assoc world :torpedo-shots (concat torpedo-shots shots))
-
-      :kinetic
-      (assoc world :kinetic-shots (concat kinetic-shots shots))))
-  )
+    (assoc world :shots (concat (:shots world) shots))))
 
 (defn process-events [events world]
   (let [[_ world] (->> [events world]
@@ -73,7 +63,7 @@
         range (+ range distance)]
     (if (> range range-limit)
       nil
-      {:x sx :y sy :bearing bearing :range range})))
+      (assoc shot :x sx :y sy :range range))))
 
 (defn update-phaser-shot [ms shot]
   (update-shot shot (* ms phaser-velocity) phaser-range))
@@ -86,7 +76,7 @@
 
 
 (defn update-shot-positions [ms world]
-  (let [{:keys [phaser-shots torpedo-shots kinetic-shots shots]} world
+  (let [{:keys [shots]} world
         shot-groups (group-by :type shots)
         phaser-shots (doall
                        (filter some?
@@ -97,10 +87,7 @@
         kinetic-shots (doall
                         (filter some?
                                 (map #(update-kinetic-shot ms %) (:kinetic shot-groups))))]
-    (assoc world :phaser-shots phaser-shots
-                 :torpedo-shots torpedo-shots
-                 :kinetic-shots kinetic-shots
-                 :shots (concat phaser-shots torpedo-shots kinetic-shots))))
+    (assoc world :shots (concat phaser-shots torpedo-shots kinetic-shots))))
 
 (def hit-proximity
   {:phaser phaser-proximity
@@ -160,22 +147,9 @@
                  weapon-tag (doall (concat shots))
                  :explosions (doall explosions))))
 
-(defn update-phaser-klingon-hits [world]
-  (update-hits world :phaser-shots :klingons))
-
-(defn update-torpedo-klingon-hits [world]
-  (update-hits world :torpedo-shots :klingons))
-
-(defn update-kinetic-klingon-hits [world]
-  (update-hits world :kinetic-shots :klingons))
-
 (defn update-klingon-hits [world]
-  (let [
-        world (update-phaser-klingon-hits world)
-        world (update-torpedo-klingon-hits world)
-        world (update-kinetic-klingon-hits world)
-        ]
-    world))
+  world (update-hits world :shots :klingons)
+  )
 
 (defn update-shots [ms world]
   (let [world (update-shot-positions ms world)

@@ -163,7 +163,7 @@
 
 (defn- draw-torpedo-shots [state]
   (let [{:keys [w h world]} state
-        torpedo-shots (:torpedo-shots world)
+        torpedo-shots (filter #(= :torpedo (:type %)) (:shots world))
         presentable-torpedo-shots (present-objects state torpedo-shots)]
     (doseq [{:keys [x y]} presentable-torpedo-shots]
       (q/with-translation
@@ -174,7 +174,7 @@
 
 (defn- draw-kinetic-shots [state]
   (let [{:keys [w h world]} state
-        kinetic-shots (:kinetic-shots world)
+        kinetic-shots (filter #(= :kinetic (:type %)) (:shots world))
         presentable-kinetic-shots (present-objects state kinetic-shots)]
     (doseq [{:keys [x y]} presentable-kinetic-shots]
       (q/with-translation
@@ -186,7 +186,7 @@
 
 (defn- draw-phaser-shots [state]
   (let [{:keys [w h world]} state
-        phaser-shots (:phaser-shots world)
+        phaser-shots (filter #(= :phaser (:type %)) (:shots world))
         presentable-phaser-shots (present-objects state phaser-shots)]
     (doseq [{:keys [x y bearing range]} presentable-phaser-shots]
       (q/with-translation

@@ -14,18 +14,14 @@
             [clojure.spec.alpha :as s]))
 
 (s/def ::update-time number?)
-(s/def ::phaser-shots ::shots/shots)
-(s/def ::torpedo-shots ::shots/shots)
-(s/def ::kinetic-shots ::shots/shots)
+(s/def ::shots ::shots/shots)
 
 (s/def ::world (s/keys :req-un [::explosions/explosions
                                 ::klingons/klingons
                                 ::ship/ship
                                 ::stars/stars
                                 ::bases/bases
-                                ::phaser-shots
-                                ::kinetic-shots
-                                ::torpedo-shots
+                                ::shots
                                 ::update-time]))
 
 (defn setup []

@@ -58,9 +58,7 @@
    :stars []
    :bases []
    :update-time 0
-   :phaser-shots []
-   :torpedo-shots []
-   :kinetic-shots []
+   :shots []
    })
 
 (defn set-pos [obj [x y]]
