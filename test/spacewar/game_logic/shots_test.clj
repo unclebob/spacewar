@@ -118,7 +118,7 @@
   (fact
     "Two phaser shots, one hits klingon"
     (let [world {:shots [{:x (inc phaser-proximity) :y 0 :bearing 0 :range ..range.. :type :phaser}
-                                {:x (dec phaser-proximity) :y 0 :bearing 0 :range ..range.. :type :phaser}]
+                         {:x (dec phaser-proximity) :y 0 :bearing 0 :range ..range.. :type :phaser}]
                  :klingons [{:x 0 :y 0}]
                  :explosions [:before]}
           world (update-klingon-hits world)
@@ -133,7 +133,7 @@
   (fact
     "Two phaser shots, both hit klingon"
     (let [world {:shots [{:x (dec phaser-proximity) :y 0 :bearing 0 :range ..range.. :type :phaser}
-                                {:x (dec phaser-proximity) :y 0 :bearing 1 :range ..range.. :type :phaser}]
+                         {:x (dec phaser-proximity) :y 0 :bearing 1 :range ..range.. :type :phaser}]
                  :klingons [{:x 0 :y 0}]
                  :explosions [:before]}
           world (update-klingon-hits world)
@@ -186,7 +186,7 @@
   (fact
     "Two torpedoes, one hits klingon"
     (let [world {:shots [{:x (inc torpedo-proximity) :y 0 :bearing 0 :range ..range.. :type :torpedo}
-                                 {:x (dec torpedo-proximity) :y 0 :bearing 0 :range ..range.. :type :torpedo}]
+                         {:x (dec torpedo-proximity) :y 0 :bearing 0 :range ..range.. :type :torpedo}]
                  :klingons [{:x 0 :y 0}]}
           world (update-klingon-hits world)
           klingons (:klingons world)
@@ -197,7 +197,7 @@
   (fact
     "Two torpedoes, both hit klingon"
     (let [world {:shots [{:x (dec torpedo-proximity) :y 0 :bearing 0 :range ..range.. :type :torpedo}
-                                 {:x (dec torpedo-proximity) :y 0 :bearing 0 :range ..range.. :type :torpedo}]
+                         {:x (dec torpedo-proximity) :y 0 :bearing 0 :range ..range.. :type :torpedo}]
                  :klingons [{:x 0 :y 0}]}
           world (update-klingon-hits world)
           klingons (:klingons world)
@@ -244,7 +244,7 @@
   (fact
     "Two kinetics, one hits klingon"
     (let [world {:shots [{:x (inc kinetic-proximity) :y 0 :bearing 0 :range ..range.. :type :kinetic}
-                                 {:x (dec kinetic-proximity) :y 0 :bearing 0 :range ..range.. :type :kinetic}]
+                         {:x (dec kinetic-proximity) :y 0 :bearing 0 :range ..range.. :type :kinetic}]
                  :klingons [{:x 0 :y 0}]}
           world (update-klingon-hits world)
           klingons (:klingons world)
@@ -255,7 +255,7 @@
   (fact
     "Two kinetics, both hit klingon"
     (let [world {:shots [{:x (dec kinetic-proximity) :y 0 :bearing 0 :range ..range.. :type :kinetic}
-                                 {:x (dec kinetic-proximity) :y 0 :bearing 0 :range ..range.. :type :kinetic}]
+                         {:x (dec kinetic-proximity) :y 0 :bearing 0 :range ..range.. :type :kinetic}]
                  :klingons [{:x 0 :y 0}]}
           world (update-klingon-hits world)
           klingons (:klingons world)
@@ -263,5 +263,22 @@
       shots => []
       klingons => [{:x 0 :y 0 :hit {:weapon :kinetic :damage (* 2 kinetic-damage)}}]))
   )
+
+(fact
+  "klingon shot does not hit klingon"
+  (let [world {:shots [{:x (dec kinetic-proximity) :y 0 :bearing 0 :range ..range.. :type :klingon-kinetic}]
+               :klingons [{:x 0 :y 0}]
+               :explosions []}
+        world (update-klingon-hits world)
+        klingons (:klingons world)
+        shots (:shots world)
+        explosions (:explosions world)]
+    (count shots) => 1
+    klingons => [{:x 0 :y 0}]
+    explosions => empty?))
+
+(fact
+  "shot constructor"
+  (->shot 0 0 180 :kinetic) => mom/valid-shot?)
 
 

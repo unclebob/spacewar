@@ -184,6 +184,18 @@
         (apply q/fill kinetic-color)
         (q/ellipse 0 0 3 3)))))
 
+(defn- draw-klingon-kinetic-shots [state]
+  (let [{:keys [w h world]} state
+        kinetic-shots (filter #(= :klingon-kinetic (:type %)) (:shots world))
+        presentable-kinetic-shots (present-objects state kinetic-shots)]
+    (doseq [{:keys [x y]} presentable-kinetic-shots]
+      (q/with-translation
+        [(+ x (/ w 2)) (+ y (/ h 2))]
+        (q/ellipse-mode :center)
+        (q/no-stroke)
+        (apply q/fill klingon-kinetic-color)
+        (q/ellipse 0 0 3 3)))))
+
 (defn- draw-phaser-shots [state]
   (let [{:keys [w h world]} state
         phaser-shots (filter #(= :phaser (:type %)) (:shots world))
@@ -269,7 +281,8 @@
 (defn- draw-shots [state]
   (draw-phaser-shots state)
   (draw-torpedo-shots state)
-  (draw-kinetic-shots state))
+  (draw-kinetic-shots state)
+  (draw-klingon-kinetic-shots state))
 
 (deftype tactical-scan [state]
   p/Drawable

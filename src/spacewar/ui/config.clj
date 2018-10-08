@@ -36,6 +36,7 @@
 
 (def phaser-length 30)
 (def kinetic-color [255 0 0])
+(def klingon-kinetic-color [255 200 0])
 
 (def phaser-target 500)
 (def torpedo-target 700)

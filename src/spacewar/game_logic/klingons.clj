@@ -2,6 +2,7 @@
   (:require [clojure.spec.alpha :as s]
             [spacewar.game-logic.config :refer :all]
             [spacewar.game-logic.explosions :as explosions]
+            [spacewar.game-logic.shots :as shots]
             [spacewar.geometry :refer :all]))
 
 (s/def ::x int?)
@@ -77,20 +78,48 @@
     (assoc world :klingons klingons
                  :explosions (concat (:explosions world) (klingon-destruction dead-klingons)))))
 
-(defn- in-range [distance ship klingons]
-  (filter #(> distance
-              (distance [(:x ship) (:y ship)]
-                        [(:x %) (:y%)])) klingons))
+(defn- charge-weapons [ms klingons ship]
+  (for [klingon klingons]
+    (if (> klingon-kinetic-firing-distance
+           (distance [(:x ship) (:y ship)]
+                     [(:x klingon) (:y klingon)]))
+      (update klingon :kinetic-charge #(+ ms %))
+      klingon)))
+
+(defn- bearing-to [klingon ship]
+  (angle-degrees [(:x klingon) (:y klingon)]
+                 [(:x ship) (:y ship)]))
+
+(defn- ready-to-fire-kinetic? [klingon]
+  (and
+    (> (:kinetics klingon) 0)
+    (<= klingon-kinetic-threshold
+        (:kinetic-charge klingon))))
+
+(defn- fire-charged-weapons [klingons ship]
+  (filter some?
+          (for [klingon klingons]
+            (if (ready-to-fire-kinetic? klingon)
+              (shots/->shot (:x klingon)
+                            (:y klingon)
+                            (bearing-to klingon ship)
+                            :klingon-kinetic)
+              nil))))
+
+(defn- discharge-fired-weapons [klingons]
+  (for [klingon klingons]
+    (if (ready-to-fire-kinetic? klingon)
+      (assoc klingon :kinetic-charge 0
+                     :kinetics (dec (:kinetics klingon)))
+      klingon)))
 
 (defn klingon-offense [ms world]
-  (let [{:keys [klingons ship]} world
-        klingons (for [klingon klingons]
-                   (if (> klingon-kinetic-range
-                          (distance [(:x ship) (:y ship)]
-                                    [(:x klingon) (:y klingon)]))
-                     (update klingon :kinetic-charge #(+ ms %))
-                     klingon))]
-    (assoc world :klingons klingons)))
+  (let [{:keys [klingons ship shots]} world
+        klingons (charge-weapons ms klingons ship)
+        new-shots (fire-charged-weapons klingons ship)
+        klingons (discharge-fired-weapons klingons)]
+    (assoc world :klingons klingons
+                 :shots (concat shots new-shots))))
 
 (defn update-klingons [ms world]
   (let [world (klingon-defense ms world)
