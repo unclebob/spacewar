@@ -14,7 +14,8 @@
 (s/def ::y number?)
 (s/def ::bearing (s/and number? #(<= 0 % 360)))
 (s/def ::range number?)
-(s/def ::shot (s/keys :req-un [::x ::y ::bearing ::range]))
+(s/def ::type #{:phaser :torpedo :kinetic})
+(s/def ::shot (s/keys :req-un [::x ::y ::bearing ::range ::type]))
 (s/def ::shots (s/coll-of ::shot))
 
 (defn fire-weapon [pos bearing number spread]
@@ -44,7 +45,9 @@
         shots (fire-weapon [x y]
                            target-bearing
                            weapon-number-setting
-                           weapon-spread-setting)]
+                           weapon-spread-setting)
+        shots (map #(assoc % :type selected-weapon) shots)]
+    (assoc world :shots (concat (:shots world) shots))
     (condp = selected-weapon
       :phaser
       (assoc world :phaser-shots (concat phaser-shots shots))
@@ -83,19 +86,60 @@
 
 
 (defn update-shot-positions [ms world]
-  (let [{:keys [phaser-shots torpedo-shots kinetic-shots]} world
-        phaser-shots (filter some?
-                             (map #(update-phaser-shot ms %) phaser-shots))
-        torpedo-shots (filter some?
-                              (map #(update-torpedo-shot ms %) torpedo-shots))
-        kinetic-shots (filter some?
-                              (map #(update-kinetic-shot ms %) kinetic-shots))]
-    (assoc world :phaser-shots (doall phaser-shots)
-                 :torpedo-shots (doall torpedo-shots)
-                 :kinetic-shots (doall kinetic-shots)))
+  (let [{:keys [phaser-shots torpedo-shots kinetic-shots shots]} world
+        shot-groups (group-by :type shots)
+        phaser-shots (doall
+                       (filter some?
+                               (map #(update-phaser-shot ms %) (:phaser shot-groups))))
+        torpedo-shots (doall
+                        (filter some?
+                                (map #(update-torpedo-shot ms %) (:torpedo shot-groups))))
+        kinetic-shots (doall
+                        (filter some?
+                                (map #(update-kinetic-shot ms %) (:kinetic shot-groups))))]
+    (assoc world :phaser-shots phaser-shots
+                 :torpedo-shots torpedo-shots
+                 :kinetic-shots kinetic-shots
+                 :shots (concat phaser-shots torpedo-shots kinetic-shots))))
+
+(def hit-proximity
+  {:phaser phaser-proximity
+   :torpedo torpedo-proximity
+   :kinetic kinetic-proximity})
+
+(defn shot-proximity [shot]
+  (let [type (:type shot)]
+    (type hit-proximity)))
+
+(defn- hit-by-kinetic [hit-pairs target]
+  (let [hit-shots (map :shot (filter #(= target (:target %)) hit-pairs))]
+    (assoc target :hit {:weapon :kinetic :damage (* kinetic-damage (count hit-shots))}))
   )
 
-(defn- update-hits [world weapon-tag target-tag proximity hit-by]
+(defn- hit-by-phaser [hit-pairs target]
+  (let [hit-shots (map :shot (filter #(= target (:target %)) hit-pairs))
+        ranges (map :range hit-shots)]
+    (assoc target :hit {:weapon :phaser :damage ranges}))
+  )
+
+(defn- hit-by-torpedo [hit-pairs target]
+  (let [hit-shots (map :shot (filter #(= target (:target %)) hit-pairs))]
+    (assoc target :hit {:weapon :torpedo :damage (* torpedo-damage (count hit-shots))}))
+  )
+
+(def hit-processors
+  {:phaser hit-by-phaser
+   :torpedo hit-by-torpedo
+   :kinetic hit-by-kinetic})
+
+;kluge:  assumes all hits are of same type.
+(defn- process-hit [hits target]
+  (let [shot (:shot (first hits))
+        type (:type shot)
+        hit-by (type hit-processors)]
+    (hit-by hits target)))
+
+(defn- update-hits [world weapon-tag target-tag]
   (let [shots (weapon-tag world)
         targets (target-tag world)
         explosions (or (:explosions world) [])
@@ -104,53 +148,38 @@
                  :shot s
                  :distance (distance [(:x s) (:y s)]
                                      [(:x t) (:y t)])})
-        hits (filter #(>= proximity (:distance %)) pairs)
+        hits (filter #(>= (shot-proximity (:shot %)) (:distance %)) pairs)
         hit-targets (set (map :target hits))
         hit-shots (set (map :shot hits))
         targets (set/difference (set targets) hit-targets)
         shots (set/difference (set shots) hit-shots)
-        hit-targets (map #(hit-by hits %) hit-targets)
-        explosion-type (condp = weapon-tag
-                         :phaser-shots :phaser
-                         :torpedo-shots :torpedo
-                         :kinetic-shots :kinetic)
-        explosions (concat explosions (map #(explosions/->explosion explosion-type %) hit-shots))]
+        hit-targets (map #(process-hit hits %) hit-targets)
+        explosions (concat explosions (map #(explosions/shot->explosion %) hit-shots))]
 
     (assoc world target-tag (doall (concat targets hit-targets))
                  weapon-tag (doall (concat shots))
                  :explosions (doall explosions))))
 
-(defn- hit-by-phaser [hit-pairs target]
-  (let [hit-shots (map :shot (filter #(= target (:target %)) hit-pairs))
-        ranges (map :range hit-shots)]
-    (assoc target :hit {:weapon :phaser :damage ranges}))
-  )
-
 (defn update-phaser-klingon-hits [world]
-  (update-hits world :phaser-shots :klingons phaser-proximity hit-by-phaser))
-
-(defn- hit-by-torpedo [hit-pairs target]
-  (let [hit-shots (map :shot (filter #(= target (:target %)) hit-pairs))]
-    (assoc target :hit {:weapon :torpedo :damage (* torpedo-damage (count hit-shots))}))
-  )
+  (update-hits world :phaser-shots :klingons))
 
 (defn update-torpedo-klingon-hits [world]
-  (update-hits world :torpedo-shots :klingons torpedo-proximity hit-by-torpedo))
-
-(defn- hit-by-kinetic [hit-pairs target]
-  (let [hit-shots (map :shot (filter #(= target (:target %)) hit-pairs))]
-    (assoc target :hit {:weapon :kinetic :damage (* kinetic-damage (count hit-shots))}))
-  )
+  (update-hits world :torpedo-shots :klingons))
 
 (defn update-kinetic-klingon-hits [world]
-  (update-hits world :kinetic-shots :klingons kinetic-proximity hit-by-kinetic))
+  (update-hits world :kinetic-shots :klingons))
 
-
-(defn update-shots [ms world]
-  (let [world (update-shot-positions ms world)
+(defn update-klingon-hits [world]
+  (let [
         world (update-phaser-klingon-hits world)
         world (update-torpedo-klingon-hits world)
         world (update-kinetic-klingon-hits world)
+        ]
+    world))
+
+(defn update-shots [ms world]
+  (let [world (update-shot-positions ms world)
+        world (update-klingon-hits world)
         ]
     world))
 

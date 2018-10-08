@@ -35,9 +35,13 @@
         explosions (filter active-explosion explosions)]
     (assoc world :explosions (doall explosions))))
 
-(defn ->explosion [explosion-type {:keys [x y] :as explosion}]
-  (let [profile (explosion-type explosion-profiles)]
+(defn ->explosion [explosion-type {:keys [x y] :as shot}]
+  (let [
+        profile (explosion-type explosion-profiles)]
     {:x x :y y
      :age 0 :type explosion-type
-     :fragments (make-fragments (:fragments profile) explosion (:fragment-velocity profile))})
+     :fragments (make-fragments (:fragments profile) shot (:fragment-velocity profile))})
   )
+
+(defn shot->explosion [shot]
+  (->explosion (:type shot) shot))

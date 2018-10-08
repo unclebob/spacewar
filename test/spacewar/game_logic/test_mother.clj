@@ -3,7 +3,8 @@
             [clojure.spec.alpha :as spec]
             [spacewar.core :as core]
             [spacewar.game-logic.ship :as ship]
-            [spacewar.game-logic.klingons :as klingons]))
+            [spacewar.game-logic.klingons :as klingons]
+            [spacewar.game-logic.shots :as shots]))
 
 (def valid-world? (chatty-checker [world]
   (nil? (spec/explain-data ::core/world world))))
@@ -13,6 +14,9 @@
 
 (def valid-klingon? (chatty-checker [klingon]
   (nil? (spec/explain-data ::klingons/klingon klingon))))
+
+(def valid-shot? (chatty-checker [shot]
+  (nil? (spec/explain-data ::shots/shot shot))))
 
 (defn make-ship []
   {

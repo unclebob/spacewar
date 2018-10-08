@@ -5,8 +5,7 @@
             [spacewar.vector-test :as vt]
             [spacewar.vector :as vector]
             [midje.experimental :refer [for-all]]
-            [clojure.spec.alpha :as s]
-            [spacewar.game-logic.shots :as shots]))
+            [clojure.spec.alpha :as s]))
 
 (facts
   "ship"
@@ -69,22 +68,7 @@
                                      ?velocity
                                      [(* -1 impulse-thrust ?ms ?impulse) 0])))
 
-  (fact
-    "weapon-fire-handler"
-    (weapon-fire-handler [] {:selected-weapon :phaser
-                             :weapon-spread-setting 1
-                             :weapon-number-setting 2
-                             :target-bearing 90
-                             :phaser-shots [:previous-shots]}) => {:selected-weapon :phaser
-                                                                   :weapon-spread-setting 1
-                                                                   :weapon-number-setting 2
-                                                                   :target-bearing 90
-                                                                   :phaser-shots [:previous-shots :shot1 :shot2]}
-    (provided (shots/fire-weapon
-                anything
-                anything
-                anything
-                anything) => [:shot1 :shot2]))
+
 
 
   )

@@ -4,7 +4,6 @@
     [spacewar.vector :as vector]
     [spacewar.util :refer :all]
     [spacewar.game-logic.config :refer :all]
-    [spacewar.game-logic.shots :as shots]
     [clojure.spec.alpha :as s]))
 
 (s/def ::x number?)
@@ -151,25 +150,6 @@
       ship
       (assoc ship selected-engine engine-power-setting
                   :engine-power-setting 0))))
-
-(defn weapon-fire-handler [_ ship]
-  (let [{:keys [x y selected-weapon weapon-spread-setting
-                weapon-number-setting target-bearing
-                phaser-shots torpedo-shots kinetic-shots]} ship
-        shots (shots/fire-weapon [x y]
-                           target-bearing
-                           weapon-number-setting
-                           weapon-spread-setting)]
-    (condp = selected-weapon
-      :phaser
-      (assoc ship :phaser-shots (concat phaser-shots shots))
-
-      :torpedo
-      (assoc ship :torpedo-shots (concat torpedo-shots shots))
-
-      :kinetic
-      (assoc ship :kinetic-shots (concat kinetic-shots shots))))
-  )
 
 (defn- select-impulse [_ ship]
   (let [selected-engine (:selected-engine ship)]

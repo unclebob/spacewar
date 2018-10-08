@@ -48,12 +48,15 @@
 
     (fact
       "klingon destroyed"
-      (let [world (k/update-klingons
-                    20
-                    {:klingons
-                     [{:x 50 :y 50 :shields 10
-                       :hit {:weapon :kinetic
-                             :damage 20}}]})]
+      (let [world (mom/make-world)
+            klingon (mom/make-klingon)
+            klingon (mom/set-pos klingon [50 50])
+            klingon (assoc klingon :shields 10
+                                   :hit {:weapon :kinetic
+                                         :damage 20})
+            world (assoc world :klingons [klingon])
+            world (k/update-klingons 20 world)
+            ]
         (:klingons world) => []
         (count (:explosions world)) => 1
         (dissoc (first (:explosions world)) :fragments) => {:age 0 :x 50 :y 50 :type :klingon}))
@@ -116,7 +119,7 @@
                 offense (k/klingon-offense 0 world)]
             offense => mom/valid-world?
 
-                        )
+            )
           )
         ))
     ))
