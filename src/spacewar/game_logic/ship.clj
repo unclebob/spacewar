@@ -75,10 +75,10 @@
       [0 0])))
 
 (defn apply-impulse [ms velocity heading impulse]
-  (let [acceleration (* ms impulse-thrust impulse)
+  (let [delta-v (* ms impulse-thrust impulse)
         radians (->radians heading)
-        av (vector/from-angular acceleration radians)
-        new-velocity (vector/add velocity av)]
+        dv (vector/from-angular delta-v radians)
+        new-velocity (vector/add velocity dv)]
     new-velocity))
 
 
@@ -118,7 +118,7 @@
         drag (drag velocity)
         accelerated-v (apply-impulse ms velocity heading impulse)
         velocity (apply-drag drag accelerated-v)
-        [px py] (vector/add [x y] velocity)]
+        [px py] (vector/add [x y] (vector/scale ms velocity))]
     (assoc ship :x px :y py :velocity velocity)))
 
 (defn update-ship [ms ship]

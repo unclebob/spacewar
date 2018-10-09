@@ -3,7 +3,9 @@
             [spacewar.game-logic.config :refer :all]
             [spacewar.game-logic.explosions :as explosions]
             [spacewar.game-logic.shots :as shots]
-            [spacewar.geometry :refer :all]))
+            [spacewar.geometry :refer :all]
+            [spacewar.geometry :refer :all]
+            [quil.core :as q]))
 
 (s/def ::x int?)
 (s/def ::y int?)
@@ -86,9 +88,35 @@
       (update klingon :kinetic-charge #(+ ms %))
       klingon)))
 
-(defn- bearing-to [klingon ship]
-  (angle-degrees [(:x klingon) (:y klingon)]
-                 [(:x ship) (:y ship)]))
+; Firing solution from
+;http://danikgames.com/blog/how-to-intersect-a-moving-target-in-2d/
+(defn- kinetic-firing-solution [klingon ship]
+  (let [ax (:x klingon)
+        ay (:y klingon)
+        bx (:x ship)
+        by (:y ship)
+        [ux uy] (:velocity ship)
+        vmag klingon-kinetic-velocity
+        abx (- bx ax)
+        aby (- by ay)
+        abmag (q/sqrt (+ (* abx abx) (* aby aby)))
+        abx (/ abx abmag)
+        aby (/ aby abmag)
+        udotab (+ (* abx ux) (* aby uy))
+        ujx (* udotab abx)
+        ujy (* udotab aby)
+        uix (- ux ujx)
+        uiy (- uy ujy)
+        vix uix
+        viy uiy
+        vimag (q/sqrt (+ (* vix vix) (* viy viy)))
+        vjmag (q/sqrt (+ (* vmag vmag) (* vimag vimag)))
+        vjx (* abx vjmag)
+        vjy (* aby vjmag)
+        vx (+ vjx vix)
+        vy (+ vjy viy)]
+    (angle-degrees [0 0]
+                   [vx vy])))
 
 (defn- ready-to-fire-kinetic? [klingon]
   (and
@@ -102,7 +130,7 @@
             (if (ready-to-fire-kinetic? klingon)
               (shots/->shot (:x klingon)
                             (:y klingon)
-                            (bearing-to klingon ship)
+                            (kinetic-firing-solution klingon ship)
                             :klingon-kinetic)
               nil))))
 

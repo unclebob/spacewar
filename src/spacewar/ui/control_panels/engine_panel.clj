@@ -131,7 +131,7 @@
           state (p/change-elements
                   state
                   [[:direction-selector :pointer2 heading]
-                   [:impulse :status (str (round (vector/magnitude velocity)))]
+                   [:impulse :status (str (round (* 20 (vector/magnitude velocity))))]
                    [:impulse :color impulse-color]
                    [:warp :color warp-color]
                    [:power-slider :value engine-power-setting]

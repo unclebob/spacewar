@@ -11,7 +11,7 @@
 (def klingon-color [200 0 50])
 (def enterprise-color [0 255 50])
 (def enterprise-vector-color [0 100 20])
-(def velocity-vector-scale 1)
+(def velocity-vector-scale 20)
 (def base-color [0 50 255])
 
 (def scan-panel-color [150 150 255])

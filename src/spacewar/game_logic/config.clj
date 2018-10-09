@@ -3,9 +3,9 @@
 (def frame-rate 30)
 
 (def spectral-classes [:o :b :a :f :g :k :m])
-(def drag-factor 0.001)
+(def drag-factor 0.05)
 (def rotation-rate 0.01) ; degrees per millisecond.
-(def impulse-thrust 0.01) ; per millisecond per power.
+(def impulse-thrust 0.001) ; per millisecond per power.
 (def warp-leap 10000) ;spacial coordinates.
 (def warp-charge-rate 1)
 (def warp-threshold 2000)
@@ -21,7 +21,7 @@
 (def torpedo-damage 100)
 
 (def kinetic-range 1000000)
-(def kinetic-velocity 2)
+(def kinetic-velocity 6)
 (def kinetic-proximity 500)
 (def kinetic-damage 50)
 
@@ -43,4 +43,4 @@
 (def klingon-kinetic-firing-distance 150000)
 (def klingon-kinetics 100)
 (def klingon-kinetic-threshold 2000)
-(def klingon-kinetic-velocity 2.5)
+(def klingon-kinetic-velocity 6.0)
