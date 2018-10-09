@@ -113,20 +113,20 @@
                   :antimatter antimatter))))
 
 (defn- impulse-ship [ms ship]
-  (if (zero? (:impulse ship))
-    ship
-    (let [{:keys [antimatter velocity heading impulse x y]} ship
-          power-required (* ms impulse-power impulse)
-          power-used (min power-required antimatter)
-          actual-impulse (* impulse (/ power-used power-required))
-          antimatter (- antimatter power-used)
-          drag (drag velocity)
-          accelerated-v (apply-impulse ms velocity heading actual-impulse)
-          velocity (apply-drag drag accelerated-v)
-          [px py] (vector/add [x y] (vector/scale ms velocity))]
-      (assoc ship :x px :y py
-                  :velocity velocity
-                  :antimatter antimatter))))
+  (let [{:keys [antimatter velocity heading impulse x y]} ship
+        power-required (* ms impulse-power impulse)
+        power-used (min power-required antimatter)
+        actual-impulse (if (zero? power-used)
+                         0
+                         (* impulse (/ power-used power-required)))
+        antimatter (- antimatter power-used)
+        drag (drag velocity)
+        accelerated-v (apply-impulse ms velocity heading actual-impulse)
+        velocity (apply-drag drag accelerated-v)
+        [px py] (vector/add [x y] (vector/scale ms velocity))]
+    (assoc ship :x px :y py
+                :velocity velocity
+                :antimatter antimatter)))
 
 (defn rotate-ship [ms ship]
   (let [{:keys [heading heading-setting]} ship

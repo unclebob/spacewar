@@ -3,9 +3,9 @@
 (def frame-rate 30)
 
 (def spectral-classes [:o :b :a :f :g :k :m])
-(def drag-factor 0.05)
+(def drag-factor 0.005)
 (def rotation-rate 0.01) ; degrees per millisecond.
-(def impulse-thrust 0.001) ; per millisecond per power.
+(def impulse-thrust 0.0001) ; per millisecond per power.
 (def impulse-power 0.01)
 (def warp-power 0.01)
 (def warp-leap 10000) ;spacial coordinates.
