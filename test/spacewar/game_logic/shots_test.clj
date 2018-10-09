@@ -281,4 +281,26 @@
   "shot constructor"
   (->shot 0 0 180 :kinetic) => mom/valid-shot?)
 
+(fact
+  "klingon-kinetic misses ship"
+  (let [ship (mom/make-ship)
+        shot (->shot 0 (inc klingon-kinetic-proximity)
+                     180 :klingon-kinetic)
+        world (assoc (mom/make-world) :shots [shot] :ship ship)
+        new-world (update-ship-hits world)]
+    (->> new-world :explosions) => []
+    (->> new-world :ship :shields) => ship-shields
+    (count (->> new-world :shots)) => 1))
+
+(fact
+  "klingon-kinetic hits ship"
+  (let [ship (mom/make-ship)
+        shot (->shot 0 (dec klingon-kinetic-proximity)
+                     180 :klingon-kinetic)
+        world (assoc (mom/make-world) :shots [shot] :ship ship)
+        new-world (update-ship-hits world)]
+    (count (->> new-world :explosions)) => 1
+    (->> new-world :ship :shields) => (- ship-shields klingon-kinetic-damage)
+    (count (->> new-world :shots)) => 0))
+
 

@@ -24,6 +24,7 @@
 (s/def ::antimatter number?)
 (s/def ::core-temp number?)
 (s/def ::dilithium number?)
+(s/def ::shields number?)
 (s/def ::strat-scale (s/and number? #(<= 1 % 10)))
 
 (s/def ::ship (s/keys :req-un [::x ::y ::warp ::warp-charge
@@ -35,7 +36,7 @@
                                ::weapon-spread-setting
                                ::heading-setting
                                ::antimatter ::core-temp
-                               ::dilithium ::strat-scale]))
+                               ::dilithium ::shields ::strat-scale]))
 
 (defn initialize []
   {:x (int (rand known-space-x))
@@ -56,6 +57,7 @@
    :antimatter 100
    :core-temp 0
    :dilithium 100
+   :shields ship-shields
    :strat-scale 1}
   )
 

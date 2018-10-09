@@ -2,7 +2,8 @@
   (:require [midje.sweet :refer :all]
             [spacewar.core :refer :all]
             [spacewar.vector-test :as vt]
-            [spacewar.game-logic.config :refer :all]))
+            [spacewar.game-logic.config :refer :all]
+            [spacewar.game-logic.test-mother :as mom]))
 
 (tabular
   (fact
@@ -128,43 +129,42 @@
 
 (facts
   "updating the world"
-  (fact
-    "rotate towards heading"
-    (let [world (update-world 1000 {:ship {:x 0 :y 0 :velocity [0 0]
-                                           :impulse 0
-                                           :heading-setting 90 :heading 70}})]
-      (->> world :ship :heading) => (roughly 80)))
+  (let [world (mom/make-world)
+        ship (mom/make-ship)]
+    (fact
+      "rotate towards heading"
+      (let [ship (assoc ship :heading-setting 90
+                             :heading 70)
+            world (assoc world :ship ship)
+            world (update-world 1000 world)]
+        (->> world :ship :heading) => (roughly 80)))
 
-  (fact
-    "impulse moves ship"
-    (let [world (update-world 1000 {:ship {:x 0 :y 0 :velocity [0 0]
-                                           :impulse 1
-                                           :heading-setting 0 :heading 0}})]
-      (->> world :ship :velocity first) => #(> % 0)
-      (->> world :ship :velocity second) => (roughly 0)))
+    (fact
+      "impulse moves ship"
+      (let [ship (assoc ship :impulse 1)
+            world (assoc world :ship ship)
+            world (update-world 1000 world)]
+        (->> world :ship :velocity first) => #(> % 0)
+        (->> world :ship :velocity second) => (roughly 0)))
 
-  (fact
-    "warp charges warp field"
-    (let [world (update-world 1000 {:ship {:x 0 :y 0 :velocity [0 0]
-                                           :impulse 0
-                                           :warp 1
-                                           :heading-setting 0 :heading 0}})
-          ship (:ship world)
-          warp-charge (:warp-charge ship)]
-      warp-charge => 1000))
+    (fact
+      "warp charges warp field"
+      (let [ship (assoc ship :warp 1)
+            world (assoc world :ship ship)
+            world (update-world 1000 world)
+            ship (:ship world)
+            warp-charge (:warp-charge ship)]
+        warp-charge => 1000))
 
-  (fact
-    "warp field threshold moves ship"
-    (let [world (update-world 1000 {:ship {:x 0 :y 0 :velocity [0 0]
-                                           :impulse 0
-                                           :warp 1 :warp-charge warp-threshold
-                                           :heading-setting 0 :heading 0}})
-          ship (:ship world)
-          pos [(:x ship) (:y ship)]]
-      pos => (vt/roughly-v [warp-leap 0])))
+    (fact
+      "warp field threshold moves ship"
+      (let [ship (assoc ship :warp 1
+                             :warp-charge warp-threshold)
+            world (assoc world :ship ship)
+            world (update-world 1000 world)
+            ship (:ship world)
+            pos [(:x ship) (:y ship)]]
+        pos => (vt/roughly-v [warp-leap 0])))
 
-  (fact
-    "torpedos move"
     )
-
   )

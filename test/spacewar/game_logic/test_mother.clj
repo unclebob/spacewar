@@ -1,6 +1,7 @@
 (ns spacewar.game-logic.test-mother
   (:require [midje.sweet :refer :all]
             [clojure.spec.alpha :as spec]
+            [spacewar.game-logic.config :refer :all]
             [spacewar.core :as core]
             [spacewar.game-logic.ship :as ship]
             [spacewar.game-logic.klingons :as klingons]
@@ -35,9 +36,10 @@
    :weapon-number-setting 1
    :weapon-spread-setting 0
    :heading-setting 0
-   :antimatter 0
+   :antimatter ship-antimatter
    :core-temp 0
    :dilithium 0
+   :shields ship-shields
    :strat-scale 1
    })
 

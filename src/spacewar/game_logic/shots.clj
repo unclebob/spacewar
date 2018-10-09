@@ -156,8 +156,42 @@
   world (update-hits world :klingons)
   )
 
+(defn- friend-or-foe [shot]
+  (if (some? (#{:klingon-kinetic} (:type shot)))
+    :foe
+    :friend))
+
+(defn- foe-weapon-proximity [type]
+  (condp = type
+    :klingon-kinetic klingon-kinetic-proximity))
+
+(defn- ship-hit-damage [shot]
+  (condp = (:type shot)
+    :klingon-kinetic klingon-kinetic-damage))
+
+(defn- hit-miss-ship [ship shot]
+  (let [dist (distance [(:x ship) (:y ship)]
+                        [(:x shot) (:y shot)])
+        proximity (foe-weapon-proximity (:type shot))]
+    (if (<= dist proximity) :hit :miss)))
+
 (defn update-ship-hits [world]
-  world)
+  (let [ship (:ship world)
+        shot-groups (group-by friend-or-foe (:shots world))
+        foe-shots (:foe shot-groups)
+        friend-shots (:friend shot-groups)
+        hit-miss-groups (group-by #(hit-miss-ship ship %) foe-shots)
+        hits (:hit hit-miss-groups)
+        misses (:miss hit-miss-groups)
+        old-explosions (:explosions world)
+        new-explosions (map explosions/shot->explosion hits)
+        damage (reduce + (map ship-hit-damage hits))
+        shields (:shields ship)
+        ship (assoc ship :shields (- shields damage))]
+    (assoc world :shots (concat friend-shots misses)
+                 :ship ship
+                 :explosions (concat old-explosions new-explosions)))
+  )
 
 (defn update-shots [ms world]
   (let [world (update-shot-positions ms world)

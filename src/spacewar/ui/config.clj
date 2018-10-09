@@ -8,6 +8,7 @@
 (def yellow [255 255 0])
 (def red [255 0 0])
 (def dark-red [100 0 0])
+(def green [0 255 0])
 (def klingon-color [200 0 50])
 (def enterprise-color [0 255 50])
 (def enterprise-vector-color [0 100 20])
@@ -51,12 +52,12 @@
                   :m [255 150 150]})
 
 (def star-sizes {:o 6
-                :b 5
-                :a 5
-                :f 4
-                :g 4
-                :k 3
-                :m 2})
+                 :b 5
+                 :a 5
+                 :f 4
+                 :g 4
+                 :k 3
+                 :m 2})
 
 (def explosion-profiles
   {:phaser {:duration 1000
@@ -103,22 +104,35 @@
                                       {:until 800 :colors [red black]}]}
 
    :klingon {:duration 4000
-                :explosion-profile [{:velocity 0.8 :until 100}
-                                    {:velocity 0.9 :until 200}
-                                    {:velocity 1 :until 400}
-                                    {:velocity 0.2 :until 600}
-                                    {:velocity 0.1 :until 600}
-                                    {:velocity -0.3 :until 800}
-                                    {:velocity 1 :until 1000}
-                                    {:velocity -0.05 :until 4000}]
-                :explosion-color-profile [{:until 100 :colors [white white]}
-                                          {:until 700 :colors [white yellow]}
-                                          {:until 2500 :colors [yellow dark-red]}
-                                          {:until 4000 :colors [dark-red black]}]
-                :fragments 100
-                :fragment-velocity 0.2
-                :fragment-color-profile [{:until 500 :colors [white white]}
-                                         {:until 800 :colors [white yellow]}
-                                         {:until 2000 :colors [yellow red]}
-                                         {:until 4000 :colors [red black]}]}})
+             :explosion-profile [{:velocity 0.8 :until 100}
+                                 {:velocity 0.9 :until 200}
+                                 {:velocity 1 :until 400}
+                                 {:velocity 0.2 :until 600}
+                                 {:velocity 0.1 :until 600}
+                                 {:velocity -0.3 :until 800}
+                                 {:velocity 1 :until 1000}
+                                 {:velocity -0.05 :until 4000}]
+             :explosion-color-profile [{:until 100 :colors [white white]}
+                                       {:until 700 :colors [white yellow]}
+                                       {:until 2500 :colors [yellow dark-red]}
+                                       {:until 4000 :colors [dark-red black]}]
+             :fragments 100
+             :fragment-velocity 0.2
+             :fragment-color-profile [{:until 500 :colors [white white]}
+                                      {:until 800 :colors [white yellow]}
+                                      {:until 2000 :colors [yellow red]}
+                                      {:until 4000 :colors [red black]}]}
+   :klingon-kinetic {:duration 800
+                     :explosion-profile [{:velocity 0.5 :until 50}
+                                         {:velocity -0.03 :until 800}]
+                     :explosion-color-profile [{:until 100 :colors [white green]}
+                                               {:until 300 :colors [green yellow]}
+                                               {:until 600 :colors [yellow red]}
+                                               {:until 800 :colors [red black]}]
+                     :fragments 20
+                     :fragment-velocity 0.2
+                     :fragment-color-profile [{:until 100 :colors [grey white]}
+                                              {:until 300 :colors [white yellow]}
+                                              {:until 500 :colors [yellow red]}
+                                              {:until 800 :colors [red black]}]}})
 

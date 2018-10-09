@@ -9,6 +9,8 @@
 (def warp-leap 10000) ;spacial coordinates.
 (def warp-charge-rate 1)
 (def warp-threshold 2000)
+(def ship-shields 1000)
+(def ship-antimatter 1000)
 
 (def phaser-range 30000)
 (def phaser-velocity 10) ;per ms
@@ -44,3 +46,5 @@
 (def klingon-kinetics 100)
 (def klingon-kinetic-threshold 2000)
 (def klingon-kinetic-velocity 6.0)
+(def klingon-kinetic-proximity 1000)
+(def klingon-kinetic-damage 50)
