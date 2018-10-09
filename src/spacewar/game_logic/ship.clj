@@ -89,28 +89,44 @@
     (cond (> diff 180) (- diff 360)
           :else diff)))
 
+(defn- warp-factor [warp]
+  (* warp warp 0.5))
+
 (defn- warp-ship [ms ship]
-  (let [{:keys [x y warp warp-charge heading]} ship
-        warp (or warp 0)
-        warp-charge (or warp-charge 0)
-        warp-charge-increment (* ms warp warp-charge-rate)
-        warp-charge (+ warp-charge-increment warp-charge)
-        warp-trigger (> warp-charge warp-threshold)
-        warp-charge (if warp-trigger 0 warp-charge)
-        radians (->radians heading)
-        warp-vector (vector/from-angular warp-leap radians)
-        [wx wy] (if warp-trigger
-                  (vector/add [x y] warp-vector)
-                  [x y])]
-    (assoc ship :x wx :y wy :warp-charge warp-charge)))
+  (if (zero? (:warp ship))
+    ship
+    (let [{:keys [x y warp warp-charge heading antimatter]} ship
+          power-required (* ms (warp-factor warp) warp-power)
+          power-used (min power-required antimatter)
+          antimatter (- antimatter power-used)
+          actual-warp (* warp (/ power-used power-required))
+          warp-charge-increment (* ms actual-warp warp-charge-rate)
+          warp-charge (+ warp-charge-increment warp-charge)
+          warp-trigger (> warp-charge warp-threshold)
+          warp-charge (if warp-trigger 0 warp-charge)
+          radians (->radians heading)
+          warp-vector (vector/from-angular warp-leap radians)
+          [wx wy] (if warp-trigger
+                    (vector/add [x y] warp-vector)
+                    [x y])]
+      (assoc ship :x wx :y wy :warp-charge warp-charge
+                  :antimatter antimatter))))
 
 (defn- impulse-ship [ms ship]
-  (let [{:keys [velocity heading impulse x y]} ship
-        drag (drag velocity)
-        accelerated-v (apply-impulse ms velocity heading impulse)
-        velocity (apply-drag drag accelerated-v)
-        [px py] (vector/add [x y] (vector/scale ms velocity))]
-    (assoc ship :x px :y py :velocity velocity)))
+  (if (zero? (:impulse ship))
+    ship
+    (let [{:keys [antimatter velocity heading impulse x y]} ship
+          power-required (* ms impulse-power impulse)
+          power-used (min power-required antimatter)
+          actual-impulse (* impulse (/ power-used power-required))
+          antimatter (- antimatter power-used)
+          drag (drag velocity)
+          accelerated-v (apply-impulse ms velocity heading actual-impulse)
+          velocity (apply-drag drag accelerated-v)
+          [px py] (vector/add [x y] (vector/scale ms velocity))]
+      (assoc ship :x px :y py
+                  :velocity velocity
+                  :antimatter antimatter))))
 
 (defn rotate-ship [ms ship]
   (let [{:keys [heading heading-setting]} ship

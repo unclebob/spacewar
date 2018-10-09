@@ -6,11 +6,13 @@
 (def drag-factor 0.05)
 (def rotation-rate 0.01) ; degrees per millisecond.
 (def impulse-thrust 0.001) ; per millisecond per power.
+(def impulse-power 0.01)
+(def warp-power 0.01)
 (def warp-leap 10000) ;spacial coordinates.
 (def warp-charge-rate 1)
 (def warp-threshold 2000)
 (def ship-shields 1000)
-(def ship-antimatter 1000)
+(def ship-antimatter 100000)
 (def ship-shield-recharge-rate 0.01)
 
 (def phaser-range 30000)
