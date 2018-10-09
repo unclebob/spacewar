@@ -1,6 +1,7 @@
 (ns spacewar.ui.control-panels.status-panel
   (:require [spacewar.ui.protocols :as p]
             [spacewar.ui.config :refer :all]
+            [spacewar.game-logic.config :refer :all]
             (spacewar.ui.widgets [lcars :refer :all]
                                  [horizontal-scale :refer :all])))
 
@@ -9,7 +10,6 @@
   (get-state [_] state)
   (clone [_ clone-state] (status-panel. clone-state))
   (draw [_]
-    (draw-bottom-lcars state)
     (p/draw-elements state))
 
   (setup [_]
@@ -20,21 +20,22 @@
           scale-gap 10
           antimatter-y y
           dilithium-y (+ antimatter-y scale-h scale-gap)
-          core-temp-y (+ dilithium-y scale-h scale-gap)]
+          core-temp-y (+ dilithium-y scale-h scale-gap)
+          shields-y (+ core-temp-y scale-h scale-gap)]
       (status-panel.
         (assoc state
           :antimatter (p/setup
-                         (->h-scale
-                           {:x scale-x
-                            :y antimatter-y
-                            :w scale-w
-                            :h scale-h
-                            :min 0
-                            :max 100
-                            :value 50
-                            :name "ANTIMATTER"
-                            :color color
-                            :mercury-color mercury-color}))
+                        (->h-scale
+                          {:x scale-x
+                           :y antimatter-y
+                           :w scale-w
+                           :h scale-h
+                           :min 0
+                           :max ship-antimatter
+                           :value ship-antimatter
+                           :name "ANTIMATTER"
+                           :color color
+                           :mercury-color mercury-color}))
           :dilithium (p/setup
                        (->h-scale
                          {:x scale-x
@@ -59,10 +60,26 @@
                           :name "CORE TEMP"
                           :color color
                           :mercury-color mercury-color}))
-          :elements [:antimatter :dilithium :core-temp]))))
+          :shields (p/setup
+                     (->h-scale
+                       {:x scale-x
+                        :y shields-y
+                        :w scale-w
+                        :h scale-h
+                        :min 0
+                        :max ship-shields
+                        :value ship-shields
+                        :name "SHIELDS"
+                        :color color
+                        :mercury-color mercury-color}))
+          :elements [:antimatter :dilithium :core-temp :shields]))))
 
   (update-state [_ world]
-    (let [state (p/change-elements state [[:core-temp :value (:ms world)]])
+    (let [state (p/change-elements
+                  state
+                  [[:core-temp :value (:ms world)]
+                   [:shields :value (->> world :ship :shields)]
+                   [:antimatter :value (->> world :ship :antimatter)]])
           [state events] (p/update-elements state world)]
       (p/pack-update
         (status-panel. state)

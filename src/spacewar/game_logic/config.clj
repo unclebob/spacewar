@@ -11,6 +11,7 @@
 (def warp-threshold 2000)
 (def ship-shields 1000)
 (def ship-antimatter 1000)
+(def ship-shield-recharge-rate 0.01)
 
 (def phaser-range 30000)
 (def phaser-velocity 10) ;per ms

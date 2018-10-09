@@ -54,7 +54,7 @@
    :weapon-number-setting 1
    :weapon-spread-setting 1
    :heading-setting 0
-   :antimatter 100
+   :antimatter ship-antimatter
    :core-temp 0
    :dilithium 100
    :shields ship-shields
@@ -89,17 +89,6 @@
     (cond (> diff 180) (- diff 360)
           :else diff)))
 
-(defn rotate-ship [milliseconds heading desired-heading]
-  (let [total-rotation (rotation-direction heading desired-heading)
-        rotation-step (* rotation-rate
-                         milliseconds
-                         (sign total-rotation))
-        rotation-step (if (< (abs total-rotation) (abs rotation-step))
-                        total-rotation
-                        rotation-step)
-        new-heading (+ heading rotation-step)]
-    new-heading))
-
 (defn- warp-ship [ms ship]
   (let [{:keys [x y warp warp-charge heading]} ship
         warp (or warp 0)
@@ -123,12 +112,31 @@
         [px py] (vector/add [x y] (vector/scale ms velocity))]
     (assoc ship :x px :y py :velocity velocity)))
 
+(defn rotate-ship [ms ship]
+  (let [{:keys [heading heading-setting]} ship
+        total-rotation (rotation-direction heading heading-setting)
+        rotation-step (* rotation-rate ms (sign total-rotation))
+        rotation-step (if (< (abs total-rotation) (abs rotation-step))
+                        total-rotation
+                        rotation-step)
+        new-heading (+ heading rotation-step)]
+    (assoc ship :heading new-heading)))
+
+(defn charge-shields [ms ship]
+  (let [antimatter (:antimatter ship)
+        shields (:shields ship)
+        difference (- ship-shields shields)
+        charge (min difference antimatter (* ms ship-shield-recharge-rate))
+        ship (update ship :shields + charge)
+        ship (update ship :antimatter - charge)]
+    ship))
+
 (defn update-ship [ms ship]
   (let [ship (warp-ship ms ship)
         ship (impulse-ship ms ship)
-        {:keys [heading heading-setting]} ship
-        new-heading (rotate-ship ms heading heading-setting)]
-    (assoc ship :heading new-heading)))
+        ship (rotate-ship ms ship)
+        ship (charge-shields ms ship)]
+    ship))
 
 (defn- set-heading-handler [{:keys [angle]} ship]
   (assoc ship :heading-setting angle))
