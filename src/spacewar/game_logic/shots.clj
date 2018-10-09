@@ -156,9 +156,13 @@
   world (update-hits world :klingons)
   )
 
+(defn update-ship-hits [world]
+  world)
+
 (defn update-shots [ms world]
   (let [world (update-shot-positions ms world)
         world (update-klingon-hits world)
+        world (update-ship-hits world)
         ]
     world))
 

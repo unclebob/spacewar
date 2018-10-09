@@ -140,7 +140,8 @@
     (let [world (update-world 1000 {:ship {:x 0 :y 0 :velocity [0 0]
                                            :impulse 1
                                            :heading-setting 0 :heading 0}})]
-      (->> world :ship :velocity) => (vt/roughly-v [10 0])))
+      (->> world :ship :velocity first) => #(> % 0)
+      (->> world :ship :velocity second) => (roughly 0)))
 
   (fact
     "warp charges warp field"

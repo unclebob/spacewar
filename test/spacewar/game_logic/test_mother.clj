@@ -26,7 +26,7 @@
    :warp-charge 0
    :impulse 0
    :heading 0
-   :velocity 0
+   :velocity [0 0]
    :selected-view :front-view
    :selected-weapon :none
    :selected-engine :none

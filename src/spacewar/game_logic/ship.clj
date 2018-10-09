@@ -12,7 +12,7 @@
 (s/def ::warp-charge number?)
 (s/def ::impulse number?)
 (s/def ::heading (s/and number? #(<= 0 % 360)))
-(s/def ::velocity number?)
+(s/def ::velocity (s/tuple number? number?))
 (s/def ::selected-view #{:front-view :strat-view :tact-view})
 (s/def ::selected-weapon #{:phaser :kinetic :torpedo :none})
 (s/def ::selected-engine #{:warp :impulse :none})
