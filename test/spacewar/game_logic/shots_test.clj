@@ -303,4 +303,30 @@
     (->> new-world :ship :shields) => (- ship-shields klingon-kinetic-damage)
     (count (->> new-world :shots)) => 0))
 
+(fact
+  "Weapons use power"
+  (let [world (mom/make-world)
+        ship (assoc (mom/make-ship) :selected-weapon :phaser
+                                    :weapon-number-setting 2)
+        world (assoc world :ship ship)
+        new-world (weapon-fire-handler {} world)
+        shots (->> new-world :shots)
+        antimatter (->> new-world :ship :antimatter)]
+    (count shots) => 2
+    antimatter => (- ship-antimatter (* 2 phaser-power))))
+
+(fact
+  "weapons fail if not enough antimatter"
+  (let [world (mom/make-world)
+        ship (assoc (mom/make-ship) :selected-weapon :phaser
+                                    :weapon-number-setting 2
+                                    :antimatter 1)
+        world (assoc world :ship ship)
+        new-world (weapon-fire-handler {} world)
+        shots (->> new-world :shots)
+        antimatter (->> new-world :ship :antimatter)]
+    (count shots) => 0
+    antimatter => 1)
+  )
+
 

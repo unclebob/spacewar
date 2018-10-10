@@ -41,16 +41,31 @@
                (+ bearing bearing-inc)
                (dec number))))))
 
+(defn- power-required [weapon]
+  (condp = weapon
+    :phaser phaser-power
+    :torpedo torpedo-power
+    :kinetic kinetic-power))
+
 (defn weapon-fire-handler [_ world]
   (let [{:keys [ship]} world
         {:keys [x y selected-weapon weapon-spread-setting
-                weapon-number-setting target-bearing]} ship
-        shots (fire-weapon [x y]
+                weapon-number-setting target-bearing
+                antimatter]} ship
+        required-power (* weapon-number-setting (power-required selected-weapon))
+        antimatter (if (< required-power antimatter)
+                     (- antimatter required-power)
+                     antimatter)
+        shots (if (< required-power antimatter)
+                (fire-weapon [x y]
                            target-bearing
                            weapon-number-setting
                            weapon-spread-setting)
-        shots (map #(assoc % :type selected-weapon) shots)]
-    (assoc world :shots (concat (:shots world) shots))))
+                [])
+        shots (map #(assoc % :type selected-weapon) shots)
+        ship (assoc ship :antimatter antimatter)]
+    (assoc world :shots (concat (:shots world) shots)
+                 :ship ship)))
 
 (defn process-events [events world]
   (let [[_ world] (->> [events world]

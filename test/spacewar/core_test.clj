@@ -18,114 +18,123 @@
 
 (facts
   "about engine panel events"
-  (tabular
+  (let [world (mom/make-world)
+        ship (mom/make-ship)
+        world (assoc world :ship ship)]
+    (tabular
+      (fact
+        "about engine selection events"
+        (let [ship (assoc ship :selected-engine ?old-engine)
+              world (assoc world :ship ship)
+              new-world (process-events [{:event ?event}] world)]
+          (->> new-world :ship :selected-engine) => ?new-engine))
+      ?event ?old-engine ?new-engine
+      :select-warp :none :warp
+      :select-warp :impulse :warp
+      :select-warp :warp :none
+      :select-impulse :none :impulse
+      :select-impulse :warp :impulse
+      :select-impulse :impulse :none)
+
     (fact
-      "about engine selection events"
+      "engine direction event"
       (process-events
-        [{:event ?event}]
-        {:ship {:selected-engine ?old-engine}})
-      => {:ship {:selected-engine ?new-engine}})
-    ?event ?old-engine ?new-engine
-    :select-warp :none :warp
-    :select-warp :impulse :warp
-    :select-warp :warp :none
-    :select-impulse :none :impulse
-    :select-impulse :warp :impulse
-    :select-impulse :impulse :none)
+        [{:event :engine-direction :angle ..angle..}]
+        {:ship {}})
+      => {:ship {:heading-setting ..angle..}})
 
-  (fact
-    "engine direction event"
-    (process-events
-      [{:event :engine-direction :angle ..angle..}]
-      {:ship {}})
-    => {:ship {:heading-setting ..angle..}})
+    (fact
+      "engine power event"
+      (process-events
+        [{:event :engine-power :value ..power..}]
+        {:ship {}})
+      => {:ship {:engine-power-setting ..power..}})
 
-  (fact
-    "engine power event"
-    (process-events
-      [{:event :engine-power :value ..power..}]
-      {:ship {}})
-    => {:ship {:engine-power-setting ..power..}})
-
-  (fact
-    "engine engage event"
-    (process-events
-      [{:event :engine-engage}]
-      {:ship {:engine-power-setting ..power..
-              :selected-engine ..engine..}})
-    => {:ship {:engine-power-setting 0
-               :selected-engine ..engine..
-               ..engine.. ..power..}}))
+    (fact
+      "engine engage event"
+      (process-events
+        [{:event :engine-engage}]
+        {:ship {:engine-power-setting ..power..
+                :selected-engine ..engine..}})
+      => {:ship {:engine-power-setting 0
+                 :selected-engine ..engine..
+                 ..engine.. ..power..}})))
 
 
 (facts
   "about weapons panel events"
-  (tabular
+  (let [world (mom/make-world)
+        ship (mom/make-ship)
+        world (assoc world :ship ship)]
+    (tabular
+      (fact
+        "about weapon selection events"
+        (let [ship (assoc ship :selected-weapon ?old-weapon)
+              world (assoc world :ship ship)
+              new-world (process-events [{:event ?event}] world)]
+          (->> new-world :ship :selected-weapon) => ?new-weapon))
+      ?event ?old-weapon ?new-weapon
+      :select-phaser :none :phaser
+      :select-phaser :phaser :none
+      :select-phaser :torpedo :phaser
+      :select-phaser :kinetic :phaser
+      :select-torpedo :none :torpedo
+      :select-torpedo :torpedo :none
+      :select-torpedo :phaser :torpedo
+      :select-torpedo :kinetic :torpedo
+      :select-kinetic :none :kinetic
+      :select-kinetic :kinetic :none
+      :select-kinetic :phaser :kinetic
+      :select-kinetic :torpedo :kinetic)
+
     (fact
-      "about weapon selection events"
-      (process-events
-        [{:event ?event}]
-        {:ship {:selected-weapon ?old-weapon}})
-      => {:ship {:selected-weapon ?new-weapon}})
-    ?event ?old-weapon ?new-weapon
-    :select-phaser :none :phaser
-    :select-phaser :phaser :none
-    :select-phaser :torpedo :phaser
-    :select-phaser :kinetic :phaser
-    :select-torpedo :none :torpedo
-    :select-torpedo :torpedo :none
-    :select-torpedo :phaser :torpedo
-    :select-torpedo :kinetic :torpedo
-    :select-kinetic :none :kinetic
-    :select-kinetic :kinetic :none
-    :select-kinetic :phaser :kinetic
-    :select-kinetic :torpedo :kinetic)
+      "weapon direction event"
+      (let [new-world (process-events
+                        [{:event :weapon-direction :angle ..angle..}]
+                        world)]
+        (->> new-world :ship :target-bearing) => ..angle..))
 
-  (fact
-    "weapon direction event"
-    (process-events
-      [{:event :weapon-direction :angle ..angle..}]
-      {:ship {}})
-    => {:ship {:target-bearing ..angle..}})
+    (tabular
+      (fact
+        "weapon number event"
+        (let [new-world (process-events
+                          [{:event :weapon-number :value ?number}] world)
+              number (->> new-world :ship :weapon-number-setting)
+              spread (->> new-world :ship :weapon-spread-setting)]
+          number => ?number
+          spread => ?spread))
+      ?number ?spread
+      1 0
+      2 1
+      3 1)
 
-  (tabular (fact
-    "weapon number event"
-    (process-events
-      [{:event :weapon-number :value ?number}]
-      {:ship {}})
-    => {:ship {:weapon-number-setting ?number :weapon-spread-setting ?spread}})
-           ?number ?spread
-           1 0
-           2 1
-           3 1)
+    (fact
+      "weapon spread event"
+      (let [new-world (process-events
+                        [{:event :weapon-spread :value ..spread..}] world)]
+        (->> new-world :ship :weapon-spread-setting) => ..spread..))
 
-  (fact
-    "weapon spread event"
-    (process-events
-      [{:event :weapon-spread :value ..spread..}]
-      {:ship {}})
-    => {:ship {:weapon-spread-setting ..spread..}})
+    (fact
+      "fire one phaser event"
+      (let [ship (assoc ship :x ..x.. :y ..y..
+                             :selected-weapon :phaser
+                             :weapon-number-setting 1
+                             :target-bearing 90
+                             :weapon-spread-setting 0)
+            world (assoc world :ship ship)
+            new-world (process-events [{:event :weapon-fire}] world)]
+        (:shots new-world) => [{:x ..x.. :y ..y.. :bearing 90 :range 0 :type :phaser}]))
 
-  (fact
-    "fire one phaser event"
-    (let [world (process-events
-                  [{:event :weapon-fire}]
-                  {:ship {:x ..x.. :y ..y.. :selected-weapon :phaser
-                          :weapon-number-setting 1
-                          :target-bearing 90
-                          :weapon-spread-setting 0}})]
-      (:shots world) => [{:x ..x.. :y ..y.. :bearing 90 :range 0 :type :phaser}]))
-
-  (fact
-    "fire two torpedoes event"
-    (let [world (process-events
-                  [{:event :weapon-fire}]
-                  {:ship {:x ..x.. :y ..y.. :selected-weapon :torpedo
-                          :weapon-number-setting 2
-                          :target-bearing 90
-                          :weapon-spread-setting 10}})]
-      (:shots world) => [{:x ..x.. :y ..y.. :bearing 85 :range 0 :type :torpedo}
-                                 {:x ..x.. :y ..y.. :bearing 95 :range 0 :type :torpedo}])))
+    (fact
+      "fire two torpedoes event"
+      (let [ship (assoc ship :x ..x.. :y ..y.. :selected-weapon :torpedo
+                             :weapon-number-setting 2
+                             :target-bearing 90
+                             :weapon-spread-setting 10)
+            world (assoc world :ship ship)
+            new-world (process-events [{:event :weapon-fire}] world)]
+        (:shots new-world) => [{:x ..x.. :y ..y.. :bearing 85 :range 0 :type :torpedo}
+                           {:x ..x.. :y ..y.. :bearing 95 :range 0 :type :torpedo}]))))
 
 (facts
   "updating the world"

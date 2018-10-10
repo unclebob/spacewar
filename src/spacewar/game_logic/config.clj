@@ -20,16 +20,19 @@
 (def phaser-velocity 10) ;per ms
 (def phaser-proximity 1000)
 (def phaser-damage 80)
+(def phaser-power 1000)
 
 (def torpedo-range 100000)
 (def torpedo-velocity 5)
 (def torpedo-proximity 2000)
 (def torpedo-damage 100)
+(def torpedo-power 2000)
 
 (def kinetic-range 1000000)
 (def kinetic-velocity 6)
 (def kinetic-proximity 500)
 (def kinetic-damage 50)
+(def kinetic-power 200)
 
 (def number-of-stars 1000)
 (def number-of-klingons 100)
