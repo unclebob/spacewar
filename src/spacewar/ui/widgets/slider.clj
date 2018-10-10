@@ -27,7 +27,7 @@
   (q/text (str value) thumb-x thumb-y))
 
 (defn slider-thumb-val [state]
-  (let [{:keys [y min-val range max-val mouse-pos margin increment]} state
+  (let [{:keys [y min-val max-val mouse-pos margin range increment]} state
         [_ my] mouse-pos
         rel-my (- my margin y)
         m-pos (/ rel-my increment)
@@ -42,13 +42,30 @@
     (q/text (str min-val) thumb-x min-y)
     (q/text (str max-val) thumb-x max-y)))
 
+(defn- set-slider-state [state]
+  (let [{:keys [w h min-val max-val]} state
+        range (- max-val min-val)
+        margin 20
+        increment (/ (- h margin margin) range)
+        thumb-x (/ w 2)
+        max-y margin
+        min-y (+ margin (* increment range))
+        thumb-h 20]
+    (assoc state :range range
+                 :margin margin
+                 :increment increment
+                 :thumb-x thumb-x
+                 :max-y max-y
+                 :min-y min-y
+                 :thumb-h thumb-h)))
+
 (deftype slider [state]
   p/Drawable
   (get-state [_] state)
   (clone [_ clone-state] (slider. clone-state))
   (draw [_]
-    (let [{:keys [x y w max-val value thumb-color mouse-in left-down
-                  margin increment thumb-x thumb-h disabled]} state
+    (let [{:keys [x y w max-val increment value thumb-color mouse-in left-down
+                  margin thumb-x thumb-h disabled]} state
           relative-pos (- max-val value)                    ;top is max
           thumb-y (+ margin (* relative-pos increment))]
       (when (not disabled)
@@ -78,21 +95,7 @@
                                   :value m-val})))))))
 
   (setup [_]
-    (let [{:keys [w h min-val max-val]} state
-          range (- max-val min-val)
-          margin 20
-          increment (/ (- h margin margin) range)
-          thumb-x (/ w 2)
-          max-y margin
-          min-y (+ margin (* increment range))
-          thumb-h 20]
-      (slider. (assoc state :range range
-                            :margin margin
-                            :increment increment
-                            :thumb-x thumb-x
-                            :max-y max-y
-                            :min-y min-y
-                            :thumb-h thumb-h))))
+      (slider. (set-slider-state state)))
 
   (update-state [_ _]
     (let [{:keys [x y w h]} state
@@ -100,11 +103,13 @@
           mouse-pos [(q/mouse-x) (q/mouse-y)]
           mouse-in (inside-rect [x y w h] mouse-pos)
           left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
-          new-state (assoc state
+          state (set-slider-state state)
+          state (assoc state
                       :mouse-in mouse-in
                       :left-down left-down
                       :mouse-pos mouse-pos)
-          event (if (and (not left-down) last-left-down mouse-in)
+          button-released? (and (not left-down) last-left-down mouse-in)
+          event (if button-released?
                   (assoc (:left-up-event state) :value (slider-thumb-val state))
                   nil)]
-      (p/pack-update (slider. new-state) event))))
+      (p/pack-update (slider. state) event))))

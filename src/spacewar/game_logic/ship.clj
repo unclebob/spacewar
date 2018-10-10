@@ -184,17 +184,11 @@
 
 (defn- select-impulse [_ ship]
   (let [selected-engine (:selected-engine ship)]
-    (assoc ship :selected-engine
-                (if (= selected-engine :impulse)
-                  :none
-                  :impulse))))
+    (assoc ship :selected-engine (if (= selected-engine :impulse) :none :impulse))))
 
 (defn- select-warp [_ ship]
   (let [selected-engine (:selected-engine ship)]
-    (assoc ship :selected-engine
-                (if (= selected-engine :warp)
-                  :none
-                  :warp))))
+    (assoc ship :selected-engine (if (= selected-engine :warp) :none :warp))))
 
 (defn- select-front-view [_ ship]
   (assoc ship :selected-view :front-view))
@@ -206,13 +200,19 @@
   (assoc ship :selected-view :tact-view))
 
 (defn- select-phaser [_ {:keys [selected-weapon] :as ship}]
-  (assoc ship :selected-weapon (if (= selected-weapon :phaser) :none :phaser)))
+  (assoc ship
+    :weapon-number-setting 1
+    :selected-weapon (if (= selected-weapon :phaser) :none :phaser)))
 
 (defn- select-torpedo [_ {:keys [selected-weapon] :as ship}]
-  (assoc ship :selected-weapon (if (= selected-weapon :torpedo) :none :torpedo)))
+  (assoc ship
+    :weapon-number-setting 1
+    :selected-weapon (if (= selected-weapon :torpedo) :none :torpedo)))
 
 (defn- select-kinetic [_ {:keys [selected-weapon] :as ship}]
-  (assoc ship :selected-weapon (if (= selected-weapon :kinetic) :none :kinetic)))
+  (assoc ship
+    :weapon-number-setting 1
+    :selected-weapon (if (= selected-weapon :kinetic) :none :kinetic)))
 
 (defn- set-strat-scale [{:keys [value]} ship]
   (assoc ship :strat-scale value))
@@ -220,7 +220,8 @@
 (defn- dock-ship [_ ship]
   (assoc ship :antimatter ship-antimatter
               :kinetics ship-kinetics
-              :torpedos ship-torpedos))
+              :torpedos ship-torpedos
+              :velocity [0 0]))
 
 (defn process-events [events ship]
   (let [[_ ship] (->> [events ship]

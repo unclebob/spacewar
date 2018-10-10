@@ -1,6 +1,7 @@
 (ns spacewar.ui.control-panels.weapons-panel
   (:require [spacewar.ui.protocols :as p]
             [spacewar.ui.config :refer :all]
+            [spacewar.game-logic.config :refer :all]
             [spacewar.ui.widgets.lcars :refer :all]
             [spacewar.ui.widgets.button :refer :all]
             [spacewar.ui.widgets.direction-selector :refer :all]
@@ -143,11 +144,15 @@
           torpedo-button-color (button-color selected-weapon :torpedo)
           kinetic-button-color (button-color selected-weapon :kinetic)
           weapon-disabled (= selected-weapon :none)
+          allowed-number (selected-weapon max-shots-by-type)
 
           state (p/change-elements state [[:direction-selector :direction target-bearing]
                                           [:number-slider :value weapon-number-setting]
+                                          [:number-slider :max-val allowed-number]
+                                          [:number-slider :disabled weapon-disabled]
                                           [:spread-slider :value weapon-spread-setting]
-                                          [:spread-slider :disabled (< weapon-number-setting 2)]
+                                          [:spread-slider :disabled (or weapon-disabled
+                                                                        (< weapon-number-setting 2))]
                                           [:phaser :color phaser-button-color]
                                           [:torpedo :color torpedo-button-color]
                                           [:kinetic :color kinetic-button-color]
