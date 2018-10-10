@@ -8,6 +8,7 @@
             [spacewar.ui.widgets.engage :refer :all]
             [spacewar.geometry :refer :all]
             [spacewar.vector :as vector]
+            [spacewar.game-logic.ship :as ship]
             [quil.core :as q]))
 
 (deftype engine-panel [state]
@@ -78,6 +79,7 @@
                      :h button-h
                      :name "DOCK"
                      :color button-color
+                     :disabled true
                      :left-up-event {:event :select-dock}}))
 
           :direction-selector (p/setup
@@ -116,9 +118,8 @@
           :elements [:warp :impulse :dock :direction-selector :power-slider :engage]))))
 
   (update-state [_ world]
-    (let [ship (:ship world)
+    (let [{:keys [bases ship]} world
           {:keys [heading heading-setting velocity selected-engine engine-power-setting warp]} ship
-          warp (or warp 0)
           selected-engine (or selected-engine :none)
           warp-color (if (= selected-engine :warp)
                        engine-panel-selection-color
@@ -127,10 +128,12 @@
                           engine-panel-selection-color
                           engine-panel-button-color)
           engage-disabled (= selected-engine :none)
+          dockable (ship/dockable? ship bases)
 
           state (p/change-elements
                   state
-                  [[:direction-selector :pointer2 heading]
+                  [[:dock :disabled (not dockable)]
+                   [:direction-selector :pointer2 heading]
                    [:impulse :status (str (round (* 20 (vector/magnitude velocity))))]
                    [:impulse :color impulse-color]
                    [:warp :color warp-color]

@@ -12,22 +12,23 @@
     (button. clone-state))
 
   (draw [_]
-    (let [{:keys [x y w h name color mouse-in left-down status]} state]
-      (q/with-translation
-        [x y]
-        (q/stroke-weight 2)
-        (apply q/stroke (if mouse-in white color))
-        (apply q/fill (if left-down white color))
-        (q/rect-mode :corner)
-        (q/rect 0 0 w h h)
-        (q/text-align :right :bottom)
-        (q/text-font (:lcars (q/state :fonts)) 18)
-        (apply q/fill black)
-        (q/text name (+ w -10) (+ h))
-        (when status
-          (do (q/text-size 14)
-              (q/text-align :left :top)
-              (q/text status 10 10))))))
+    (let [{:keys [x y w h name color mouse-in left-down status disabled]} state]
+      (when (not disabled)
+        (q/with-translation
+          [x y]
+          (q/stroke-weight 2)
+          (apply q/stroke (if mouse-in white color))
+          (apply q/fill (if left-down white color))
+          (q/rect-mode :corner)
+          (q/rect 0 0 w h h)
+          (q/text-align :right :bottom)
+          (q/text-font (:lcars (q/state :fonts)) 18)
+          (apply q/fill black)
+          (q/text name (+ w -10) (+ h))
+          (when status
+            (do (q/text-size 14)
+                (q/text-align :left :top)
+                (q/text status 10 10)))))))
 
   (setup [this] this)
   (update-state [_ _]

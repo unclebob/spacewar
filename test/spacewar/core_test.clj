@@ -154,7 +154,7 @@
             world (update-world 1000 world)
             ship (:ship world)
             warp-charge (:warp-charge ship)]
-        warp-charge => 1000))
+        warp-charge => (roughly 1000)))
 
     (fact
       "warp field threshold moves ship"

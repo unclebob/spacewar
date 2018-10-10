@@ -14,6 +14,7 @@
 (def ship-shields 1000)
 (def ship-antimatter 100000)
 (def ship-shield-recharge-rate 0.01)
+(def ship-docking-distance 500)
 
 (def phaser-range 30000)
 (def phaser-velocity 10) ;per ms

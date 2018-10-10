@@ -102,3 +102,15 @@
         recharged-ship (charge-shields ms ship)]
     (:shields recharged-ship) => ship-shields
     (:antimatter recharged-ship) => 100))
+
+(fact
+  "Ship is not dockable if not within ship-docking-distance of a base"
+  (let [ship (mom/make-ship)
+        base (mom/set-pos {} [0 (inc ship-docking-distance)])]
+        (dockable? ship [base]) => false))
+
+(fact
+  "Ship is dockable if within ship-docking-distance of a base"
+  (let [ship (mom/make-ship)
+        base (mom/set-pos {} [0 (dec ship-docking-distance)])]
+        (dockable? ship [base]) => true))

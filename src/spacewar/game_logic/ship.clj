@@ -230,3 +230,9 @@
                       (handle-event :select-kinetic select-kinetic)
                       (handle-event :strat-scale set-strat-scale))]
     ship))
+
+(defn dockable? [ship bases]
+  (let [distances (map #(distance [(:x ship) (:y ship)]
+                                  [(:x %) (:y %)]) bases)
+        closest (apply min distances)]
+    (< closest ship-docking-distance)))
