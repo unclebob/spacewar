@@ -212,6 +212,9 @@
 (defn- set-strat-scale [{:keys [value]} ship]
   (assoc ship :strat-scale value))
 
+(defn- dock-ship [_ ship]
+  (assoc ship :antimatter ship-antimatter))
+
 (defn process-events [events ship]
   (let [[_ ship] (->> [events ship]
                       (handle-event :front-view select-front-view)
@@ -228,7 +231,8 @@
                       (handle-event :select-phaser select-phaser)
                       (handle-event :select-torpedo select-torpedo)
                       (handle-event :select-kinetic select-kinetic)
-                      (handle-event :strat-scale set-strat-scale))]
+                      (handle-event :strat-scale set-strat-scale)
+                      (handle-event :select-dock dock-ship))]
     ship))
 
 (defn dockable? [ship bases]
