@@ -8,8 +8,8 @@
             [quil.core :as q]
             [spacewar.vector :as vector]))
 
-(s/def ::x int?)
-(s/def ::y int?)
+(s/def ::x number?)
+(s/def ::y number?)
 (s/def ::shields number?)
 (s/def ::antimatter number?)
 
@@ -160,7 +160,9 @@
   (let [ship-pos [(:x ship) (:y ship)]
         klingon-pos [(:x klingon) (:y klingon)]
         dist (distance ship-pos klingon-pos)
-        degrees (angle-degrees klingon-pos ship-pos)
+        degrees (if (= ship-pos klingon-pos)
+                  0
+                  (angle-degrees klingon-pos ship-pos))
         radians (->radians degrees)
         thrust (from-angular klingon-thrust radians)]
     (if (< klingon-tactical-range dist)
