@@ -53,6 +53,8 @@
    :antimatter 0
    :kinetics 0
    :kinetic-charge 0
+   :velocity [0 0]
+   :thrust [0 0]
    })
 
 (defn make-world []

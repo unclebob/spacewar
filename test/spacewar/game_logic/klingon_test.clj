@@ -139,7 +139,60 @@
             offense => mom/valid-world?
             (count (:shots offense)) => 0
             (->> offense :klingons first :kinetic-charge) => klingon-kinetic-threshold
-            (->> offense :klingons first :kinetics) => 0))
+            (->> offense :klingons first :kinetics) => 0)))))
 
-        ))
-    ))
+  (fact
+    "klingon far away from ship does not thrust"
+    (let [ship (mom/set-pos ship [0 0])
+          klingon (mom/set-pos klingon [(inc klingon-tactical-range) 0])
+          world (assoc world :ship ship :klingons [klingon])
+          new-world (k/klingon-motion 1000 world)
+          new-klingon (->> new-world :klingons first)
+          thrust (:thrust new-klingon)]
+      thrust => [0 0])
+    )
+
+  (fact
+    "klingon within tactical range of ship thrusts towards ship"
+    (let [ship (mom/set-pos ship [0 0])
+          klingon (mom/set-pos klingon [(dec klingon-tactical-range) 0])
+          world (assoc world :ship ship :klingons [klingon])
+          new-world (k/klingon-motion 2 world)
+          new-klingon (->> new-world :klingons first)
+          thrust (:thrust new-klingon)]
+      (first thrust) => (roughly (* -1 klingon-thrust) 1e-5)
+      (second thrust) => (roughly 0 1e-10))
+    )
+
+  (fact
+    "thrusting klingon stops thrusting when out of range"
+    (let [ship (mom/set-pos ship [0 0])
+          klingon (mom/set-pos klingon [(inc klingon-tactical-range) 0])
+          klingon (assoc klingon :thrust [1 1])
+          world (assoc world :ship ship :klingons [klingon])
+          new-world (k/klingon-motion 2 world)
+          new-klingon (->> new-world :klingons first)
+          thrust (:thrust new-klingon)]
+      thrust => [0 0]))
+
+  (fact
+    "thrusting klingon increases velocity"
+    (let [klingon (mom/set-pos klingon [(dec klingon-tactical-range) 0])
+          world (assoc world :klingons [klingon])
+          new-world (k/klingon-motion 2 world)
+          velocity (->> new-world :klingons first :velocity)]
+      (first velocity) => (roughly (* -2 klingon-thrust))
+      (second velocity) => (roughly 0 1e-10)))
+
+  (fact
+    "klingons with velocity move"
+    (let [klingon (assoc klingon :velocity [1 1])
+          klingon (mom/set-pos klingon [1000 1000])
+          world (assoc world :klingons [klingon])
+          new-world (k/klingon-motion 2 world)
+          x (->> new-world :klingons first :x)
+          y (->> new-world :klingons first :y)]
+      x => (roughly 1002)
+      y => (roughly 1002)))
+
+  )

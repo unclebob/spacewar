@@ -4,8 +4,9 @@
             [spacewar.game-logic.explosions :as explosions]
             [spacewar.game-logic.shots :as shots]
             [spacewar.geometry :refer :all]
-            [spacewar.geometry :refer :all]
-            [quil.core :as q]))
+            [spacewar.vector :refer :all]
+            [quil.core :as q]
+            [spacewar.vector :as vector]))
 
 (s/def ::x int?)
 (s/def ::y int?)
@@ -18,8 +19,12 @@
 (s/def ::hit (s/keys :req-un [::weapon ::damage]))
 (s/def ::kinetics number?)
 (s/def ::kinetic-charge number?)
+(s/def ::velocity (s/tuple number? number?))
+(s/def ::thrust (s/tuple number? number?))
+
 (s/def ::klingon (s/keys :req-un [::x ::y ::shields ::antimatter
-                                  ::kinetics ::kinetic-charge]
+                                  ::kinetics ::kinetic-charge
+                                  ::velocity ::thrust]
                          :opt-un [::hit]))
 (s/def ::klingons (s/coll-of ::klingon))
 
@@ -29,7 +34,9 @@
    :shields klingon-shields
    :antimatter klingon-antimatter
    :kinetics klingon-kinetics
-   :kinetic-charge 0})
+   :kinetic-charge 0
+   :velocity [0 0]
+   :thrust [0 0]})
 
 (defn initialize []
   (repeatedly number-of-klingons make-random-klingon))
@@ -149,7 +156,39 @@
     (assoc world :klingons klingons
                  :shots (concat shots new-shots))))
 
+(defn- thrust-if-close [ship klingon]
+  (let [ship-pos [(:x ship) (:y ship)]
+        klingon-pos [(:x klingon) (:y klingon)]
+        dist (distance ship-pos klingon-pos)
+        degrees (angle-degrees klingon-pos ship-pos)
+        radians (->radians degrees)
+        thrust (from-angular klingon-thrust radians)]
+    (if (< klingon-tactical-range dist)
+      (assoc klingon :thrust [0 0])
+      (assoc klingon :thrust thrust))))
+
+(defn- accelerate-klingon [ms klingon]
+  (let [{:keys [thrust velocity]} klingon
+        acc (vector/scale ms thrust)
+        velocity (vector/add acc velocity)]
+    (assoc klingon :velocity velocity)))
+
+(defn- move-klingon [ms klingon]
+  (let [{:keys [x y velocity]} klingon
+        delta-v (vector/scale ms velocity)
+        pos (vector/add delta-v [x y])]
+    (assoc klingon :x (first pos) :y (second pos)))
+  )
+
+(defn klingon-motion [ms world]
+  (let [ship (:ship world)
+        klingons (map #(thrust-if-close ship %) (:klingons world))
+        klingons (map #(accelerate-klingon ms %) klingons)
+        klingons (map #(move-klingon ms %) klingons)]
+    (assoc world :klingons klingons)))
+
 (defn update-klingons [ms world]
   (let [world (klingon-defense ms world)
-        world (klingon-offense ms world)]
+        world (klingon-offense ms world)
+        world (klingon-motion ms world)]
     world))

@@ -50,10 +50,11 @@
 (def klingon-antimatter 1000)
 (def klingon-shield-recharge-rate 0.01)
 (def klingon-tactical-range 150000)
+(def klingon-thrust 0.0005)
 
 (def klingon-kinetic-range 1000000)
 (def klingon-kinetic-firing-distance 150000)
-(def klingon-kinetics 100)
+(def klingon-kinetics 500)
 (def klingon-kinetic-threshold 2000)
 (def klingon-kinetic-velocity 6.0)
 (def klingon-kinetic-proximity 1000)
