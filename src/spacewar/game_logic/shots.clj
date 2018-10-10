@@ -47,21 +47,47 @@
     :torpedo torpedo-power
     :kinetic kinetic-power))
 
+(defn- decrement-inventory [ship]
+  (let [{:keys [weapon-number-setting
+                selected-weapon
+                kinetics torpedos]} ship
+        kinetics (if (= selected-weapon :kinetic)
+                   (- kinetics weapon-number-setting)
+                   kinetics)
+        torpedos (if (= selected-weapon :torpedo)
+                   (- torpedos weapon-number-setting)
+                   torpedos)]
+    (assoc ship :kinetics kinetics :torpedos torpedos)))
+
+(defn- sufficient-inventory [ship]
+  (let [{:keys [weapon-number-setting
+                selected-weapon
+                kinetics torpedos]} ship]
+    (condp = selected-weapon
+      :torpedo (>= torpedos weapon-number-setting)
+      :kinetic (>= kinetics weapon-number-setting)
+      true)))
+
 (defn weapon-fire-handler [_ world]
   (let [{:keys [ship]} world
         {:keys [x y selected-weapon weapon-spread-setting
                 weapon-number-setting target-bearing
                 antimatter]} ship
         required-power (* weapon-number-setting (power-required selected-weapon))
-        antimatter (if (< required-power antimatter)
+        can-shoot? (and (< required-power antimatter)
+                        (sufficient-inventory ship))
+        antimatter (if can-shoot?
                      (- antimatter required-power)
                      antimatter)
-        shots (if (< required-power antimatter)
+        shots (if can-shoot?
                 (fire-weapon [x y]
-                           target-bearing
-                           weapon-number-setting
-                           weapon-spread-setting)
+                             target-bearing
+                             weapon-number-setting
+                             weapon-spread-setting)
                 [])
+        ship (if can-shoot?
+               (decrement-inventory ship)
+               ship)
         shots (map #(assoc % :type selected-weapon) shots)
         ship (assoc ship :antimatter antimatter)]
     (assoc world :shots (concat (:shots world) shots)
@@ -84,10 +110,10 @@
       (assoc shot :x sx :y sy :range range))))
 
 (def shot-velocity
-      {:phaser phaser-velocity
-       :torpedo torpedo-velocity
-       :kinetic kinetic-velocity
-       :klingon-kinetic klingon-kinetic-velocity})
+  {:phaser phaser-velocity
+   :torpedo torpedo-velocity
+   :kinetic kinetic-velocity
+   :klingon-kinetic klingon-kinetic-velocity})
 
 (defn- shot-distance [ms shot]
   (* ms ((:type shot) shot-velocity)))
@@ -102,11 +128,11 @@
 
 (defn update-shot-positions [ms world]
   (let [{:keys [shots]} world]
-        (->> shots
-             (map #(update-shot % (shot-distance ms %) (shot-range-limit %)))
-             (filter some?)
-             (doall)
-             (assoc world :shots))))
+    (->> shots
+         (map #(update-shot % (shot-distance ms %) (shot-range-limit %)))
+         (filter some?)
+         (doall)
+         (assoc world :shots))))
 
 (def hit-proximity
   {:phaser phaser-proximity
@@ -186,7 +212,7 @@
 
 (defn- hit-miss-ship [ship shot]
   (let [dist (distance [(:x ship) (:y ship)]
-                        [(:x shot) (:y shot)])
+                       [(:x shot) (:y shot)])
         proximity (foe-weapon-proximity (:type shot))]
     (if (<= dist proximity) :hit :miss)))
 

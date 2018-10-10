@@ -40,6 +40,8 @@
    :core-temp 0
    :dilithium 0
    :shields ship-shields
+   :kinetics ship-kinetics
+   :torpedos ship-torpedos
    :strat-scale 1
    })
 

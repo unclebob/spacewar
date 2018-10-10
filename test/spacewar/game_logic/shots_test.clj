@@ -329,4 +329,48 @@
     antimatter => 1)
   )
 
+(fact
+  "successful firing of kinetics decrements inventory"
+  (let [world (mom/make-world)
+        ship (assoc (mom/make-ship) :selected-weapon :kinetic
+                                    :weapon-number-setting 2)
+        world (assoc world :ship ship)
+        new-world (weapon-fire-handler {} world)
+        kinetics (->> new-world :ship :kinetics)]
+    kinetics => (- ship-kinetics 2)))
 
+(fact
+  "successful firing of torpedos decrements inventory"
+  (let [world (mom/make-world)
+        ship (assoc (mom/make-ship) :selected-weapon :torpedo
+                                    :weapon-number-setting 2)
+        world (assoc world :ship ship)
+        new-world (weapon-fire-handler {} world)
+        torpedos (->> new-world :ship :torpedos)]
+    torpedos => (- ship-torpedos 2)))
+
+(fact
+  "can't fire kinetic if not in inventory"
+  (let [world (mom/make-world)
+          ship (assoc (mom/make-ship) :selected-weapon :kinetic
+                                      :weapon-number-setting 2
+                                      :kinetics 1)
+          world (assoc world :ship ship)
+          new-world (weapon-fire-handler {} world)
+          shots (->> new-world :shots)
+          kinetics (->> new-world :ship :kinetics)]
+      (count shots) => 0
+      kinetics => 1))
+
+(fact
+  "can't fire torpedo if not in inventory"
+  (let [world (mom/make-world)
+          ship (assoc (mom/make-ship) :selected-weapon :torpedo
+                                      :weapon-number-setting 2
+                                      :torpedos 1)
+          world (assoc world :ship ship)
+          new-world (weapon-fire-handler {} world)
+          shots (->> new-world :shots)
+          torpedos (->> new-world :ship :torpedos)]
+      (count shots) => 0
+      torpedos => 1))

@@ -15,6 +15,8 @@
 (def ship-antimatter 100000)
 (def ship-shield-recharge-rate 0.01)
 (def ship-docking-distance 500)
+(def ship-kinetics 500)
+(def ship-torpedos 100)
 
 (def phaser-range 30000)
 (def phaser-velocity 10) ;per ms
@@ -26,7 +28,7 @@
 (def torpedo-velocity 5)
 (def torpedo-proximity 2000)
 (def torpedo-damage 100)
-(def torpedo-power 2000)
+(def torpedo-power 200)
 
 (def kinetic-range 1000000)
 (def kinetic-velocity 6)

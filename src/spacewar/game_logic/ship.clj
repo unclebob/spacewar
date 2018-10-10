@@ -25,6 +25,8 @@
 (s/def ::core-temp number?)
 (s/def ::dilithium number?)
 (s/def ::shields number?)
+(s/def ::kinetics number?)
+(s/def ::torpedos number?)
 (s/def ::strat-scale (s/and number? #(<= 1 % 10)))
 
 (s/def ::ship (s/keys :req-un [::x ::y ::warp ::warp-charge
@@ -36,7 +38,8 @@
                                ::weapon-spread-setting
                                ::heading-setting
                                ::antimatter ::core-temp
-                               ::dilithium ::shields ::strat-scale]))
+                               ::dilithium ::shields
+                               ::kinetics ::torpedos ::strat-scale]))
 
 (defn initialize []
   {:x (int (rand known-space-x))
@@ -58,6 +61,8 @@
    :core-temp 0
    :dilithium 100
    :shields ship-shields
+   :kinetics ship-kinetics
+   :torpedos ship-torpedos
    :strat-scale 1}
   )
 
@@ -213,7 +218,9 @@
   (assoc ship :strat-scale value))
 
 (defn- dock-ship [_ ship]
-  (assoc ship :antimatter ship-antimatter))
+  (assoc ship :antimatter ship-antimatter
+              :kinetics ship-kinetics
+              :torpedos ship-torpedos))
 
 (defn process-events [events ship]
   (let [[_ ship] (->> [events ship]

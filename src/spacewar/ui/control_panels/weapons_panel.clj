@@ -151,7 +151,9 @@
                                           [:phaser :color phaser-button-color]
                                           [:torpedo :color torpedo-button-color]
                                           [:kinetic :color kinetic-button-color]
-                                          [:fire :disabled weapon-disabled]])
+                                          [:fire :disabled weapon-disabled]
+                                          [:kinetic :status (str (:kinetics ship))]
+                                          [:torpedo :status (str (:torpedos ship))]])
           [state events] (p/update-elements state world)]
       (p/pack-update
         (weapons-panel. state)
