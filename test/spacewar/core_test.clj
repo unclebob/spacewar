@@ -4,7 +4,7 @@
             [spacewar.vector-test :as vt]
             [spacewar.game-logic.config :refer :all]
             [spacewar.game-logic.test-mother :as mom]))
-
+//Hi
 (tabular
   (fact
     "about view selection events"
