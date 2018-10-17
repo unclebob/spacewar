@@ -42,6 +42,12 @@
    :shields ship-shields
    :kinetics ship-kinetics
    :torpedos ship-torpedos
+   :life-support-damage 0
+   :hull-damage 0
+   :sensor-damage 0
+   :impulse-damage 0
+   :warp-damage 0
+   :weapons-damage 0
    :strat-scale 1
    })
 

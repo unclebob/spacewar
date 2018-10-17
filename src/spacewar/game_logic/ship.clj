@@ -27,7 +27,16 @@
 (s/def ::shields number?)
 (s/def ::kinetics number?)
 (s/def ::torpedos number?)
+(s/def ::percent (s/and number? #(<= 0 % 100)))
+(s/def ::life-support-damage ::percent)
+(s/def ::hull-damage ::percent)
+(s/def ::sensor-damage ::percent)
+(s/def ::impulse-damage ::percent)
+(s/def ::warp-damage ::percent)
+(s/def ::weapons-damage ::percent)
+
 (s/def ::strat-scale (s/and number? #(<= 1 % 10)))
+
 
 (s/def ::ship (s/keys :req-un [::x ::y ::warp ::warp-charge
                                ::impulse ::heading ::velocity
@@ -39,7 +48,11 @@
                                ::heading-setting
                                ::antimatter ::core-temp
                                ::dilithium ::shields
-                               ::kinetics ::torpedos ::strat-scale]))
+                               ::kinetics ::torpedos
+                               ::life-support-damage ::hull-damage
+                               ::sensor-damage ::impulse-damage
+                               ::warp-damage ::weapons-damage
+                               ::strat-scale]))
 
 (defn initialize []
   {:x (int (rand known-space-x))
