@@ -2,8 +2,12 @@
   (:require (spacewar.ui [protocols :as p]
                          [config :refer :all])
             [spacewar.ui.widgets.lcars :refer :all]
-            [spacewar.ui.widgets.lights :refer :all]))
+            [spacewar.ui.widgets.lights :refer :all]
+            [spacewar.ui.widgets.named-indicator :refer :all]
+            [quil.core :as q]))
 
+(defn- damage-level [damage]
+  (q/round (/ damage 25)))
 
 (deftype damage-panel [state]
   p/Drawable
@@ -15,7 +19,7 @@
     (let [{:keys [x y w]} state
           indicator-w 20
           indicator-h 15
-          indicator-gap 50
+          indicator-gap 10
           col1 (+ x stringer-width button-gap)
           col2 (+ x (/ w 2) button-gap (/ stringer-width 2))
           warp-y (+ y banner-width button-gap)
@@ -24,7 +28,7 @@
           hull-y warp-y
           sensor-y impulse-y
           weapons-y life-support-y
-          colors [[0 255 0] [255 255 0] [255 255 100] [255 0 0]]
+          colors [[0 255 0] [255 255 0] [255 255 100] [255 0 0] [0 0 0]]
           ]
       (damage-panel.
         (assoc state
@@ -91,7 +95,15 @@
           :elements [:warp :impulse :life-support :hull :sensors :weapons]))))
 
   (update-state [_ world]
-    (let [[state events] (p/update-elements state world)]
+    (let [ship (:ship world)
+          state (p/change-elements state [[:warp :level (damage-level (:warp-damage ship))]
+                                          [:impulse :level (damage-level (:impulse-damage ship))]
+                                          [:life-support :level (damage-level (:life-support-damage ship))]
+                                          [:hull :level (damage-level (:hull-damage ship))]
+                                          [:sensors :level (damage-level (:sensor-damage ship))]
+                                          [:weapons :level (damage-level (:weapons-damage ship))]
+                                          ])
+          [state events] (p/update-elements state world)]
       (p/pack-update
         (damage-panel. state)
         events))))

@@ -7,7 +7,8 @@
     [spacewar.util :refer :all]
     [clojure.set :as set]
     [spacewar.game-logic.explosions :as explosions]
-    [clojure.spec.alpha :as s]))
+    [clojure.spec.alpha :as s]
+    [quil.core :as q]))
 
 
 (s/def ::x number?)
@@ -216,6 +217,30 @@
         proximity (foe-weapon-proximity (:type shot))]
     (if (<= dist proximity) :hit :miss)))
 
+(defn calc-damage [shields damage]
+  (let [shield-threshold (/ ship-shields 2)]
+    (if (< shields shield-threshold)
+      (* damage (- 1 (/ shields shield-threshold)))
+      0)))
+
+(defn up-to-max-damage [system damage]
+  (min 100 (+ system damage)))
+
+(defn incur-damage [damage system systems]
+  (if (contains? systems system)
+    (update systems system up-to-max-damage damage)
+    systems))
+
+(def damage-keys [:life-support-damage
+                  :hull-damage
+                  :sensor-damage
+                  :impulse-damage
+                  :warp-damage
+                  :weapons-damage])
+
+(defn- select-damaged-system []
+  (nth damage-keys (q/round (rand 5))))
+
 (defn update-ship-hits [world]
   (let [ship (:ship world)
         shot-groups (group-by friend-or-foe (:shots world))
@@ -226,9 +251,12 @@
         misses (:miss hit-miss-groups)
         old-explosions (:explosions world)
         new-explosions (map explosions/shot->explosion hits)
-        damage (reduce + (map ship-hit-damage hits))
+        potential-damage (reduce + (map ship-hit-damage hits))
         shields (:shields ship)
-        ship (assoc ship :shields (- shields damage))]
+        damage (calc-damage shields potential-damage)
+        system (select-damaged-system)
+        ship (incur-damage damage system ship)
+        ship (assoc ship :shields (max 0 (- shields potential-damage)))]
     (assoc world :shots (concat friend-shots misses)
                  :ship ship
                  :explosions (concat old-explosions new-explosions)))

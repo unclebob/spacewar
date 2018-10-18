@@ -374,3 +374,23 @@
           torpedos (->> new-world :ship :torpedos)]
       (count shots) => 0
       torpedos => 1))
+
+(tabular
+  (fact
+    "calculate real damage to ship"
+    (calc-damage ?shields ?hit-strength) => ?real-damage)
+  ?shields ?hit-strength ?real-damage
+  ship-shields 100 0
+  (/ ship-shields 2) 100 0
+  (/ ship-shields 4) 100 50
+  0 100 100
+  )
+
+(fact
+  "damage can be incurred"
+  (incur-damage 100 :y {:x 5}) => {:x 5}
+  (incur-damage 100 :x {:x 0}) => {:x 100}
+  (incur-damage 50 :x {:x 20}) => {:x 70}
+  (incur-damage 50 :x {:x 80}) => {:x 100}
+  )
+
