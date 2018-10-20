@@ -168,7 +168,7 @@
         difference (- ship-shields shields)
         charge (min difference antimatter (* ms ship-shield-recharge-rate))
         ship (update ship :shields + charge)
-        ship (update ship :antimatter - charge)]
+        ship (update ship :antimatter - (* charge ship-shield-recharge-cost))]
     ship))
 
 (defn repair-capacity [ms ship]

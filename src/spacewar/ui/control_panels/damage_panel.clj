@@ -28,7 +28,7 @@
           hull-y warp-y
           sensor-y impulse-y
           weapons-y life-support-y
-          colors [[0 255 0] [255 255 0] [255 255 100] [255 0 0] [0 0 0]]
+          colors [[0 255 0] [255 255 0] [255 150 0] [255 0 0] [0 0 0]]
           ]
       (damage-panel.
         (assoc state
