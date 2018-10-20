@@ -26,6 +26,13 @@
         tactical-click-delta (vector/scale scale click-delta)]
     (vector/add tactical-click-delta [(:x ship) (:y ship)])))
 
+(defn- click->bearing [tactical-scan click]
+  (let [tactical-loc (click->tactical tactical-scan click)
+        ship (-> tactical-scan :world :ship)
+        ship-loc [(:x ship) (:y ship)]
+        bearing (angle-degrees ship-loc tactical-loc)
+        ] bearing))
+
 (defn- present-objects [state objects]
   (if (empty? objects)
     []
@@ -312,7 +319,7 @@
           left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
           state (assoc state :mouse-in mouse-in :left-down left-down)
           event (if (and (not left-down) last-left-down mouse-in)
-                  {:event :explosion-debug :position (click->tactical state [mx my])}
+                  {:event :weapon-direction :angle (click->bearing state [mx my])}
                   nil)]
       (p/pack-update (tactical-scan. (assoc state :world world)) event)))
 
