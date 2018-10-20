@@ -18,7 +18,8 @@
       (apply q/fill black)
       (q/rect x y w h 5)
       (q/clip x y w h)
-      (p/draw contents)
+      (when (not (:sensor-loss state))
+        (p/draw contents))
       (q/no-clip)))
 
   (setup [_] (let [{:keys [x y w h]} state
@@ -44,6 +45,8 @@
                   (assoc state :contents (selected-view state)
                                :last-view selected-view)
                   state)
+          sensor-damage (:sensor-damage ship)
+          state (assoc state :sensor-loss (> sensor-damage (rand 100)))
           [state events] (p/update-elements state world)]
       (p/pack-update
         (view-frame. state) events))))
