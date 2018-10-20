@@ -44,23 +44,8 @@
      :fonts {:lcars (q/create-font "Helvetica-Bold" 24)
              :lcars-small (q/create-font "Arial" 18)}}))
 
-(defn- add-explosion-debug [event world]
-  (let [[x y] (:position event)
-        explosions (:explosions world)
-        weapon (->> world :ship :selected-weapon)
-        ]
-    (assoc world :explosions (conj explosions (explosions/->explosion weapon {:x x :y y})))))
-
-(defn- process-debug-events [events world]
-  (let [[_ world] (->> [events world]
-                       (handle-event :explosion-debug add-explosion-debug)
-                       )]
-    world)
-  )
-
 (defn process-events [events world]
   (let [{:keys [ship]} world
-        world (process-debug-events events world)
         world (assoc world :ship (ship/process-events events ship))
         world (shots/process-events events world)]
     world))
