@@ -171,11 +171,34 @@
         ship (update ship :antimatter - charge)]
     ship))
 
+(defn repair-capacity [ms ship]
+  (let [{:keys [life-support-damage]} ship]
+    (* ms ship-repair-capacity (- 100 life-support-damage) 0.01)))
+
+(defn repair-ship [ms ship]
+  (loop [systems [:life-support-damage
+                  :hull-damage
+                  :warp-damage
+                  :weapons-damage
+                  :impulse-damage
+                  :sensor-damage]
+         capacity (repair-capacity ms ship)
+         ship ship]
+    (if (or (zero? capacity)
+            (empty? systems))
+      ship
+      (let [system (first systems)
+            repair (min capacity (system ship))
+            ship (update ship system - repair)]
+        (recur (rest systems) (- capacity repair) ship)))))
+
+
 (defn update-ship [ms ship]
   (let [ship (warp-ship ms ship)
         ship (impulse-ship ms ship)
         ship (rotate-ship ms ship)
-        ship (charge-shields ms ship)]
+        ship (charge-shields ms ship)
+        ship (repair-ship ms ship)]
     ship))
 
 (defn- set-heading-handler [{:keys [angle]} ship]

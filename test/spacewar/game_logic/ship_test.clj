@@ -107,10 +107,66 @@
   "Ship is not dockable if not within ship-docking-distance of a base"
   (let [ship (mom/make-ship)
         base (mom/set-pos {} [0 (inc ship-docking-distance)])]
-        (dockable? ship [base]) => false))
+    (dockable? ship [base]) => false))
 
 (fact
   "Ship is dockable if within ship-docking-distance of a base"
   (let [ship (mom/make-ship)
         base (mom/set-pos {} [0 (dec ship-docking-distance)])]
-        (dockable? ship [base]) => true))
+    (dockable? ship [base]) => true))
+
+(facts
+  "damage repair"
+  (let [ship (mom/make-ship)]
+    (fact
+      "repair capacity normal when undamaged"
+      (repair-capacity 10 ship) => (* 10 ship-repair-capacity))
+    (fact
+      "repair capacity proportional to life-support damage"
+      (let [ship (assoc ship :life-support-damage 50)]
+        (repair-capacity 10 ship) => (* 5 ship-repair-capacity)))
+    (fact
+      "life support damage is repaired"
+      (let [ship (assoc ship :life-support-damage 50)]
+        (:life-support-damage (repair-ship 1 ship)) => 40
+        (provided (repair-capacity anything anything) => 10)))
+    (fact
+      "life support damage is not over-repaired"
+      (let [ship (assoc ship :life-support-damage 50)]
+        (:life-support-damage (repair-ship 1 ship)) => 0
+        (provided (repair-capacity anything anything) => 60)))
+    (fact
+      "hull is repaired with remainder after life support"
+      (let [ship (assoc ship :life-support-damage 50
+                             :hull-damage 50)]
+        (select-keys
+          (repair-ship 1 ship)
+          [:life-support-damage
+           :hull-damage]) => {:life-support-damage 0
+                              :hull-damage 40}
+        (provided (repair-capacity anything anything) => 60)))
+    (fact
+      "all are repaired in order"
+      (let [ship (assoc ship :life-support-damage 10
+                             :hull-damage 10
+                             :warp-damage 10
+                             :weapons-damage 10
+                             :impulse-damage 10
+                             :sensor-damage 10)]
+        (select-keys
+          (repair-ship 1 ship)
+          [:life-support-damage
+           :hull-damage
+           :warp-damage
+           :weapons-damage
+           :impulse-damage
+           :sensor-damage]) => {:life-support-damage 0
+                                :hull-damage 0
+                                :warp-damage 0
+                                :weapons-damage 0
+                                :impulse-damage 0
+                                :sensor-damage 5}
+        (provided (repair-capacity anything anything) => 55))
+      )
+
+    ))

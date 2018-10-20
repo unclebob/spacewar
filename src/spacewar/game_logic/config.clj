@@ -17,6 +17,7 @@
 (def ship-docking-distance 500)
 (def ship-kinetics 500)
 (def ship-torpedos 100)
+(def ship-repair-capacity 0.01)
 (def max-shots-by-type {:none 0 :phaser 10 :torpedo 5 :kinetic 20})
 
 (def phaser-range 30000)
