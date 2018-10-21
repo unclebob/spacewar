@@ -73,6 +73,13 @@
    :shots []
    })
 
+(defn make-shot []
+  {:x 0
+   :y 0
+   :bearing 0
+   :range 0
+   :type :phaser})
+
 (defn set-pos [obj [x y]]
   (assoc obj :x x :y y))
 

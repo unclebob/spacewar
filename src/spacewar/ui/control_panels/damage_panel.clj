@@ -4,10 +4,15 @@
             [spacewar.ui.widgets.lcars :refer :all]
             [spacewar.ui.widgets.lights :refer :all]
             [spacewar.ui.widgets.named-indicator :refer :all]
-            [quil.core :as q]))
+            ))
 
 (defn- damage-level [damage]
-  (q/round (/ damage 25)))
+  (condp >= damage
+    0 0
+    33 1
+    66 2
+    99 3
+    4))
 
 (deftype damage-panel [state]
   p/Drawable

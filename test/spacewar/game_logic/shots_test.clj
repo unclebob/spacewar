@@ -352,28 +352,28 @@
 (fact
   "can't fire kinetic if not in inventory"
   (let [world (mom/make-world)
-          ship (assoc (mom/make-ship) :selected-weapon :kinetic
-                                      :weapon-number-setting 2
-                                      :kinetics 1)
-          world (assoc world :ship ship)
-          new-world (weapon-fire-handler {} world)
-          shots (->> new-world :shots)
-          kinetics (->> new-world :ship :kinetics)]
-      (count shots) => 0
-      kinetics => 1))
+        ship (assoc (mom/make-ship) :selected-weapon :kinetic
+                                    :weapon-number-setting 2
+                                    :kinetics 1)
+        world (assoc world :ship ship)
+        new-world (weapon-fire-handler {} world)
+        shots (->> new-world :shots)
+        kinetics (->> new-world :ship :kinetics)]
+    (count shots) => 0
+    kinetics => 1))
 
 (fact
   "can't fire torpedo if not in inventory"
   (let [world (mom/make-world)
-          ship (assoc (mom/make-ship) :selected-weapon :torpedo
-                                      :weapon-number-setting 2
-                                      :torpedos 1)
-          world (assoc world :ship ship)
-          new-world (weapon-fire-handler {} world)
-          shots (->> new-world :shots)
-          torpedos (->> new-world :ship :torpedos)]
-      (count shots) => 0
-      torpedos => 1))
+        ship (assoc (mom/make-ship) :selected-weapon :torpedo
+                                    :weapon-number-setting 2
+                                    :torpedos 1)
+        world (assoc world :ship ship)
+        new-world (weapon-fire-handler {} world)
+        shots (->> new-world :shots)
+        torpedos (->> new-world :ship :torpedos)]
+    (count shots) => 0
+    torpedos => 1))
 
 (tabular
   (fact
@@ -388,9 +388,44 @@
 
 (fact
   "damage can be incurred"
-  (incur-damage 100 :y {:x 5}) => {:x 5}
-  (incur-damage 100 :x {:x 0}) => {:x 100}
-  (incur-damage 50 :x {:x 20}) => {:x 70}
-  (incur-damage 50 :x {:x 80}) => {:x 100}
+  (incur-damage 100 :not-a-system {:system 5}) => {:system 5}
+  (incur-damage 100 :system {:system 0}) => {:system 100}
+  (incur-damage 50 :system {:system 20}) => {:system 70}
+  (incur-damage 50 :system {:system 80}) => {:system 100}
   )
+
+(facts
+  "weapons damage corrupts shots"
+  (let [shot1 (assoc (mom/make-shot) :bearing 90)
+        shot2 (assoc (mom/make-shot) :bearing 95)
+        shot3 (assoc (mom/make-shot) :bearing 100)
+        shots [shot1 shot2 shot3]
+        ]
+    (fact
+      "no corruption if weapons not damaged"
+      (corrupt-shots-by-damage 0 shots) => shots)
+
+    (fact
+      "no corruption if dice say no"
+      (corrupt-shots-by-damage 50 shots) => shots
+      (provided (weapon-failure-dice 3 50) => [false false false]
+                (weapon-bearing-deviation 3 50) => [0 0 0]))
+
+    (fact
+      "shots removed if dice say yes"
+      (corrupt-shots-by-damage 50 shots) => [shot1 shot3]
+      (provided (weapon-failure-dice 3 50) => [false true false]
+                (weapon-bearing-deviation 2 50) => [0 0]))
+    (fact
+      "bearing not corrupted if bearing dice are kind"
+      (corrupt-shots-by-damage 50 shots) => shots
+      (provided (weapon-failure-dice 3 50) => [false false false]
+                (weapon-bearing-deviation 3 50) => [0 0 0]))
+    (fact
+      "bearing corrupted by bearing dice"
+      (->> (corrupt-shots-by-damage 50 shots) first :bearing) => 101
+      (provided (weapon-failure-dice 3 50) => [true true false]
+                (weapon-bearing-deviation 1 50) => [1])
+      )
+    ))
 

@@ -13,6 +13,9 @@
 (fact "make-klingon"
       (make-klingon) => valid-klingon?)
 
+(fact "make-shot"
+      (make-shot) => valid-shot?)
+
 (fact "set-pos"
       (let [object (make-klingon)
             new-obj (set-pos object [1 2])]

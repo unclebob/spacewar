@@ -140,7 +140,7 @@
   (let [{:keys [antimatter velocity heading impulse x y]} ship
         power-required (* ms impulse-power impulse)
         power-used (min power-required antimatter)
-        actual-impulse (if (zero? power-used)
+        actual-impulse (if (zero? power-required)
                          0
                          (* impulse (/ power-used power-required)))
         antimatter (- antimatter power-used)

@@ -69,6 +69,25 @@
       :kinetic (>= kinetics weapon-number-setting)
       true)))
 
+(defn weapon-failure-dice [n damage]
+  (repeatedly n #(< (rand 100) damage)))
+
+(defn weapon-bearing-deviation [n damage]
+  (repeatedly n #(if (> (rand 100) damage)
+                   0
+                   (- 10 (rand 20)))))
+
+(defn corrupt-shots-by-damage [damage shots]
+  (let [shots-and-failure (partition
+                            2
+                            (interleave
+                              (weapon-failure-dice (count shots) damage)
+                              shots))
+        final-shots (map second (remove first shots-and-failure))]
+    (map #(update %1 :bearing + %2)
+         final-shots
+         (weapon-bearing-deviation (count final-shots) damage))))
+
 (defn weapon-fire-handler [_ world]
   (let [{:keys [ship]} world
         {:keys [x y selected-weapon weapon-spread-setting
@@ -90,6 +109,7 @@
                (decrement-inventory ship)
                ship)
         shots (map #(assoc % :type selected-weapon) shots)
+        shots (corrupt-shots-by-damage (:weapons-damage ship) shots)
         ship (assoc ship :antimatter antimatter)]
     (assoc world :shots (concat (:shots world) shots)
                  :ship ship)))
