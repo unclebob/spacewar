@@ -55,7 +55,7 @@
   {
    :x 0
    :y 0
-   :shields 0
+   :shields klingon-shields
    :antimatter 0
    :kinetics 0
    :kinetic-charge 0

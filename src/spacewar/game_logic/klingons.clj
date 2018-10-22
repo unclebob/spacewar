@@ -69,7 +69,7 @@
   (let [{:keys [antimatter shields]} klingon
         shield-deficit (- klingon-shields shields)
         max-charge (* ms klingon-shield-recharge-rate)
-        real-charge (min shield-deficit max-charge)
+        real-charge (min shield-deficit max-charge antimatter)
         antimatter (- antimatter real-charge)
         shields (+ shields real-charge)]
     (assoc klingon :antimatter antimatter
@@ -92,7 +92,9 @@
     (if (> klingon-kinetic-firing-distance
            (distance [(:x ship) (:y ship)]
                      [(:x klingon) (:y klingon)]))
-      (update klingon :kinetic-charge #(+ ms %))
+      (let [efficiency (/ (:shields klingon) klingon-shields)
+            charge-increment (* ms efficiency)]
+        (update klingon :kinetic-charge + charge-increment))
       klingon)))
 
 ; Firing solution from
@@ -164,7 +166,9 @@
                   0
                   (angle-degrees klingon-pos ship-pos))
         radians (->radians degrees)
-        thrust (from-angular klingon-thrust radians)]
+        efficiency (/ (:shields klingon) klingon-shields)
+        effective-thrust (* klingon-thrust efficiency)
+        thrust (from-angular effective-thrust radians)]
     (if (< klingon-tactical-range dist)
       (assoc klingon :thrust [0 0])
       (assoc klingon :thrust thrust))))
