@@ -125,6 +125,8 @@
           antimatter (- antimatter power-used)
           actual-warp (* warp (/ power-used power-required))
           warp-charge-increment (* ms actual-warp warp-charge-rate)
+          warp-efficiency (/ (- 100 (:warp-damage ship)) 100)
+          warp-charge-increment (* warp-charge-increment warp-efficiency)
           warp-charge (+ warp-charge-increment warp-charge)
           warp-trigger (> warp-charge warp-threshold)
           warp-charge (if warp-trigger 0 warp-charge)
@@ -143,6 +145,8 @@
         actual-impulse (if (zero? power-required)
                          0
                          (* impulse (/ power-used power-required)))
+        impulse-efficiency (/ (- 100 (:impulse-damage ship)) 100)
+        actual-impulse (* actual-impulse impulse-efficiency)
         antimatter (- antimatter power-used)
         drag (drag velocity)
         accelerated-v (apply-impulse ms velocity heading actual-impulse)
