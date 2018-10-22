@@ -165,6 +165,8 @@
         degrees (if (= ship-pos klingon-pos)
                   0
                   (angle-degrees klingon-pos ship-pos))
+        evasion 5
+        degrees (+ degrees evasion)
         radians (->radians degrees)
         efficiency (/ (:shields klingon) klingon-shields)
         effective-thrust (* klingon-thrust efficiency)
