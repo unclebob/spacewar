@@ -15,7 +15,7 @@
 (def ship-antimatter 100000)
 (def ship-shield-recharge-rate 0.01)
 (def ship-shield-recharge-cost 5)
-(def ship-docking-distance 1000)
+(def ship-docking-distance 2000)
 (def ship-kinetics 500)
 (def ship-torpedos 100)
 (def ship-repair-capacity 0.005)
@@ -55,7 +55,8 @@
 (def klingon-tactical-range 150000)
 (def klingon-evasion-range 50000)
 (def klingon-antimatter-runaway-threshold (* 0.1 klingon-antimatter))
-(def klingon-thrust 0.0002)
+(def klingon-thrust 0.002)
+(def klingon-drag 0.999)
 
 (def klingon-kinetic-range 1000000)
 (def klingon-kinetic-firing-distance 150000)

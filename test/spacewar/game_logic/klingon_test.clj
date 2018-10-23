@@ -257,13 +257,15 @@
 
   (fact
     "thrusting klingon increases velocity"
+    (prerequisite (k/calc-drag anything) => 1)
     (let [klingon (mom/set-pos klingon [(dec klingon-tactical-range) 0])
           klingon (assoc klingon :antimatter klingon-antimatter)
           world (assoc world :klingons [klingon])
           new-world (k/klingon-motion 2 world)
           velocity (->> new-world :klingons first :velocity)]
       (first velocity) => (roughly (* -2 klingon-thrust))
-      (second velocity) => (roughly 0 1e-10)))
+      (second velocity) => (roughly 0 1e-10)
+      ))
 
   (fact
     "klingons with velocity move"

@@ -183,9 +183,10 @@
   (loop [systems [:life-support-damage
                   :hull-damage
                   :warp-damage
+                  :sensor-damage
                   :weapons-damage
                   :impulse-damage
-                  :sensor-damage]
+                  ]
          capacity (repair-capacity ms ship)
          ship ship]
     (if (or (zero? capacity)

@@ -164,8 +164,8 @@
                                 :hull-damage 0
                                 :warp-damage 0
                                 :weapons-damage 0
-                                :impulse-damage 0
-                                :sensor-damage 5}
+                                :sensor-damage 0
+                                :impulse-damage 5}
         (provided (repair-capacity anything anything) => 55))
       )
 

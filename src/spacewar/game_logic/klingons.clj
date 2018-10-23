@@ -210,7 +210,8 @@
                          0))
         radians (->radians degrees)
         efficiency (/ (:shields klingon) klingon-shields)
-        effective-thrust (min (klingon :antimatter) (* klingon-thrust efficiency))
+        effective-thrust (min (klingon :antimatter)
+                              (* klingon-thrust efficiency))
         thrust (from-angular effective-thrust radians)]
     (if (< klingon-tactical-range dist)
       (assoc klingon :thrust [0 0])
@@ -229,11 +230,19 @@
     (assoc klingon :x (first pos) :y (second pos)))
   )
 
+(defn calc-drag [ms]
+  (Math/pow klingon-drag ms))
+
+(defn- drag-klingon [ms klingon]
+  (let [drag-factor (calc-drag ms)]
+    (update klingon :velocity #(vector/scale drag-factor %))))
+
 (defn klingon-motion [ms world]
   (let [ship (:ship world)
         klingons (map #(thrust-if-close ship %) (:klingons world))
         klingons (map #(accelerate-klingon ms %) klingons)
-        klingons (map #(move-klingon ms %) klingons)]
+        klingons (map #(move-klingon ms %) klingons)
+        klingons (map #(drag-klingon ms %) klingons)]
     (assoc world :klingons klingons)))
 
 (defn update-klingons [ms world]
