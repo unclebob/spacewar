@@ -134,5 +134,17 @@
                      :fragment-color-profile [{:until 100 :colors [grey white]}
                                               {:until 300 :colors [white yellow]}
                                               {:until 500 :colors [yellow red]}
-                                              {:until 800 :colors [red black]}]}})
+                                              {:until 800 :colors [red black]}]}
+   :klingon-phaser {:duration 1000
+               :explosion-profile [{:velocity 0.5 :until 100}
+                                   {:velocity -0.05 :until 1000}]
+               :explosion-color-profile [{:until 100 :colors [white white]}
+                                         {:until 500 :colors [white green]}
+                                         {:until 1000 :colors [green black]}]
+               :fragments 20
+               :fragment-velocity 0.5
+               :fragment-color-profile [{:until 100 :colors [white white]}
+                                        {:until 300 :colors [white green]}
+                                        {:until 500 :colors [green yellow]}
+                                        {:until 1000 :colors [yellow black]}]}})
 

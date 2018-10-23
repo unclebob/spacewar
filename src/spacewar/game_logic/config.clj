@@ -62,3 +62,10 @@
 (def klingon-kinetic-velocity 6.0)
 (def klingon-kinetic-proximity 1000)
 (def klingon-kinetic-damage 50)
+
+(def klingon-phaser-firing-distance 30000)
+(def klingon-phaser-threshold 1000)
+(def klingon-phaser-velocity 10)
+(def klingon-phaser-damage 100)
+(def klingon-phaser-proximity 1000)
+(def klingon-phaser-range 30000)

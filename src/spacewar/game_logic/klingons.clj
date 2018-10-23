@@ -99,13 +99,13 @@
 
 ; Firing solution from
 ;http://danikgames.com/blog/how-to-intersect-a-moving-target-in-2d/
-(defn- kinetic-firing-solution [klingon ship]
+(defn- firing-solution [klingon ship shot-velocity]
   (let [ax (:x klingon)
         ay (:y klingon)
         bx (:x ship)
         by (:y ship)
         [ux uy] (:velocity ship)
-        vmag klingon-kinetic-velocity
+        vmag shot-velocity
         abx (- bx ax)
         aby (- by ay)
         abmag (q/sqrt (+ (* abx abx) (* aby aby)))
@@ -133,15 +133,50 @@
     (<= klingon-kinetic-threshold
         (:weapon-charge klingon))))
 
+(defn- ready-to-fire-phaser? [klingon ship]
+  (let [ship-pos [(:x ship) (:y ship)]
+        klingon-pos [(:x klingon) (:y klingon)]
+        dist (distance ship-pos klingon-pos)]
+    (and
+      (< dist klingon-phaser-firing-distance)
+      (> (:antimatter klingon) 0)
+      (<= klingon-phaser-threshold
+          (:weapon-charge klingon)))))
+
+(defn- phaser-shot [klingon ship]
+  (shots/->shot
+    (:x klingon) (:y klingon)
+    (firing-solution klingon ship klingon-phaser-velocity)
+    :klingon-phaser))
+
+(defn- kinetic-shot [klingon ship]
+  (shots/->shot
+    (:x klingon) (:y klingon)
+    (firing-solution klingon ship klingon-kinetic-velocity)
+    :klingon-kinetic))
+
 (defn- fire-charged-weapons [klingons ship]
-  (filter some?
-          (for [klingon klingons]
-            (if (ready-to-fire-kinetic? klingon)
-              (shots/->shot (:x klingon)
-                            (:y klingon)
-                            (kinetic-firing-solution klingon ship)
-                            :klingon-kinetic)
-              nil))))
+  (loop [klingons klingons shots [] fired-klingons []]
+    (if (empty? klingons)
+      [fired-klingons shots]
+      (let [klingon (first klingons)]
+        (cond
+          (ready-to-fire-phaser? klingon ship)
+          (recur (rest klingons)
+                 (conj shots (phaser-shot klingon ship))
+                 (conj fired-klingons
+                       (update klingon :weapon-charge - klingon-phaser-threshold)))
+          (ready-to-fire-kinetic? klingon)
+          (recur (rest klingons)
+                 (conj shots
+                       (kinetic-shot klingon ship))
+                 (conj fired-klingons
+                       (-> klingon
+                           (update :weapon-charge - klingon-kinetic-threshold)
+                           (update :kinetics dec))))
+          :else
+          (recur (rest klingons) shots (conj fired-klingons klingon))
+          )))))
 
 (defn- discharge-fired-weapons [klingons]
   (for [klingon klingons]
@@ -153,8 +188,7 @@
 (defn klingon-offense [ms world]
   (let [{:keys [klingons ship shots]} world
         klingons (charge-weapons ms klingons ship)
-        new-shots (fire-charged-weapons klingons ship)
-        klingons (discharge-fired-weapons klingons)]
+        [klingons new-shots] (fire-charged-weapons klingons ship)]
     (assoc world :klingons klingons
                  :shots (concat shots new-shots))))
 
@@ -165,7 +199,7 @@
         degrees (if (= ship-pos klingon-pos)
                   0
                   (angle-degrees klingon-pos ship-pos))
-        degrees (+ degrees (if (< dist klingon-evasion-range) 90 0 ))
+        degrees (+ degrees (if (< dist klingon-evasion-range) 90 0))
         radians (->radians degrees)
         efficiency (/ (:shields klingon) klingon-shields)
         effective-thrust (* klingon-thrust efficiency)

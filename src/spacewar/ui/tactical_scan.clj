@@ -217,6 +217,19 @@
           (apply q/stroke beam-color)
           (q/line 0 0 sx sy))))))
 
+(defn- draw-klingon-phaser-shots [state]
+  (let [{:keys [w h world]} state
+        phaser-shots (filter #(= :klingon-phaser (:type %)) (:shots world))
+        presentable-phaser-shots (present-objects state phaser-shots)]
+    (doseq [{:keys [x y bearing]} presentable-phaser-shots]
+      (q/with-translation
+        [(+ x (/ w 2)) (+ y (/ h 2))]
+        (let [radians (->radians bearing)
+              [sx sy] (vector/from-angular phaser-length radians)]
+          (apply q/stroke green)
+          (q/stroke-weight 2)
+          (q/line 0 0 sx sy))))))
+
 (defn explosion-radius [age profile]
   (loop [profile profile radius 0 last-time 0]
     (let [{:keys [velocity until]} (first profile)]
@@ -290,7 +303,8 @@
   (draw-phaser-shots state)
   (draw-torpedo-shots state)
   (draw-kinetic-shots state)
-  (draw-klingon-kinetic-shots state))
+  (draw-klingon-kinetic-shots state)
+  (draw-klingon-phaser-shots state))
 
 (deftype tactical-scan [state]
   p/Drawable

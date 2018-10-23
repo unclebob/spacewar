@@ -128,6 +128,20 @@
             (->> offense :klingons first :kinetics) => 19))
 
         (fact
+          "in phaser rage, phaser charged, shot added, charge reset, count reduced."
+          (let [in-range (dec klingon-phaser-firing-distance)
+                klingon (mom/set-pos klingon [in-range 0])
+                klingon (assoc klingon :antimatter 100 :weapon-charge klingon-phaser-threshold)
+                world (mom/set-klingons world [klingon])
+                world (assoc world :shots [(shots/->shot 0 0 0 :phaser)])
+                offense (k/klingon-offense 0 world)]
+            offense => mom/valid-world?
+            (count (:shots offense)) => 2
+            (->> offense :shots second :type) => :klingon-phaser
+            (->> offense :shots second :bearing) => (roughly 180)
+            (->> offense :klingons first :weapon-charge) => 0))
+
+        (fact
           "in kinetic firing distance, all charged, but no more kinetics left."
           (let [in-range (dec klingon-kinetic-firing-distance)
                 klingon (mom/set-pos klingon [in-range 0])
