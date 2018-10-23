@@ -18,12 +18,12 @@
                       :phaser-ranges (s/coll-of number?)))
 (s/def ::hit (s/keys :req-un [::weapon ::damage]))
 (s/def ::kinetics number?)
-(s/def ::kinetic-charge number?)
+(s/def ::weapon-charge number?)
 (s/def ::velocity (s/tuple number? number?))
 (s/def ::thrust (s/tuple number? number?))
 
 (s/def ::klingon (s/keys :req-un [::x ::y ::shields ::antimatter
-                                  ::kinetics ::kinetic-charge
+                                  ::kinetics ::weapon-charge
                                   ::velocity ::thrust]
                          :opt-un [::hit]))
 (s/def ::klingons (s/coll-of ::klingon))
@@ -34,7 +34,7 @@
    :shields klingon-shields
    :antimatter klingon-antimatter
    :kinetics klingon-kinetics
-   :kinetic-charge 0
+   :weapon-charge 0
    :velocity [0 0]
    :thrust [0 0]})
 
@@ -94,7 +94,7 @@
                      [(:x klingon) (:y klingon)]))
       (let [efficiency (/ (:shields klingon) klingon-shields)
             charge-increment (* ms efficiency)]
-        (update klingon :kinetic-charge + charge-increment))
+        (update klingon :weapon-charge + charge-increment))
       klingon)))
 
 ; Firing solution from
@@ -131,7 +131,7 @@
   (and
     (> (:kinetics klingon) 0)
     (<= klingon-kinetic-threshold
-        (:kinetic-charge klingon))))
+        (:weapon-charge klingon))))
 
 (defn- fire-charged-weapons [klingons ship]
   (filter some?
@@ -146,7 +146,7 @@
 (defn- discharge-fired-weapons [klingons]
   (for [klingon klingons]
     (if (ready-to-fire-kinetic? klingon)
-      (assoc klingon :kinetic-charge 0
+      (assoc klingon :weapon-charge 0
                      :kinetics (dec (:kinetics klingon)))
       klingon)))
 
@@ -165,8 +165,7 @@
         degrees (if (= ship-pos klingon-pos)
                   0
                   (angle-degrees klingon-pos ship-pos))
-        evasion 5
-        degrees (+ degrees evasion)
+        degrees (+ degrees (if (< dist klingon-evasion-range) 90 0 ))
         radians (->radians degrees)
         efficiency (/ (:shields klingon) klingon-shields)
         effective-thrust (* klingon-thrust efficiency)

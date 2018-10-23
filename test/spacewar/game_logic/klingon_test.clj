@@ -109,13 +109,13 @@
                 world (-> world (mom/set-ship ship) (mom/set-klingons [klingon]))
                 offense (k/klingon-offense 20 world)]
             offense => mom/valid-world?
-            (->> offense :klingons first :kinetic-charge) => 20))
+            (->> offense :klingons first :weapon-charge) => 20))
 
         (fact
           "kinetic-fired, shot added, charge reset, count reduced."
           (let [in-range (dec klingon-kinetic-firing-distance)
                 klingon (mom/set-pos klingon [in-range 0])
-                klingon (assoc klingon :kinetic-charge klingon-kinetic-threshold
+                klingon (assoc klingon :weapon-charge klingon-kinetic-threshold
                                        :kinetics 20)
                 world (mom/set-klingons world [klingon])
                 world (assoc world :shots [(shots/->shot 0 0 0 :phaser)])
@@ -124,21 +124,21 @@
             (count (:shots offense)) => 2
             (->> offense :shots second :type) => :klingon-kinetic
             (->> offense :shots second :bearing) => (roughly 180)
-            (->> offense :klingons first :kinetic-charge) => 0
+            (->> offense :klingons first :weapon-charge) => 0
             (->> offense :klingons first :kinetics) => 19))
 
         (fact
           "in kinetic firing distance, all charged, but no more kinetics left."
           (let [in-range (dec klingon-kinetic-firing-distance)
                 klingon (mom/set-pos klingon [in-range 0])
-                klingon (assoc klingon :kinetic-charge klingon-kinetic-threshold
+                klingon (assoc klingon :weapon-charge klingon-kinetic-threshold
                                        :kinetics 0)
                 world (mom/set-klingons world [klingon])
                 world (assoc world :shots [])
                 offense (k/klingon-offense 0 world)]
             offense => mom/valid-world?
             (count (:shots offense)) => 0
-            (->> offense :klingons first :kinetic-charge) => klingon-kinetic-threshold
+            (->> offense :klingons first :weapon-charge) => klingon-kinetic-threshold
             (->> offense :klingons first :kinetics) => 0)))))
 
   (fact
@@ -162,6 +162,18 @@
           thrust (:thrust new-klingon)]
       (first thrust) => (roughly (* -1 klingon-thrust) 1e-5)
       (second thrust) => (roughly 0 1e-10))
+    )
+
+  (fact
+    "klingon within evasion range of ship thrusts orthogonal to ship"
+    (let [ship (mom/set-pos ship [0 0])
+          klingon (mom/set-pos klingon [(dec klingon-evasion-range) 0])
+          world (assoc world :ship ship :klingons [klingon])
+          new-world (k/klingon-motion 2 world)
+          new-klingon (->> new-world :klingons first)
+          thrust (:thrust new-klingon)]
+      (second thrust) => (roughly (* -1 klingon-thrust) 1e-5)
+      (first thrust) => (roughly 0 1e-10))
     )
 
   (fact
