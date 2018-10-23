@@ -49,10 +49,12 @@
 (def known-space-y 10000000)
 
 (def klingon-shields 200)
-(def klingon-antimatter 500)
+(def klingon-antimatter 50000)
 (def klingon-shield-recharge-rate 0.01)
+(def klingon-shield-recharge-cost 10)
 (def klingon-tactical-range 150000)
 (def klingon-evasion-range 50000)
+(def klingon-antimatter-runaway-threshold (* 0.1 klingon-antimatter))
 (def klingon-thrust 0.0002)
 
 (def klingon-kinetic-range 1000000)
@@ -62,6 +64,8 @@
 (def klingon-kinetic-velocity 6.0)
 (def klingon-kinetic-proximity 1000)
 (def klingon-kinetic-damage 50)
+(def klingon-kinetic-power 100)
+(def klingon-phaser-power 200)
 
 (def klingon-phaser-firing-distance 30000)
 (def klingon-phaser-threshold 1000)

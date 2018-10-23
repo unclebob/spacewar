@@ -35,7 +35,7 @@
    :antimatter klingon-antimatter
    :kinetics klingon-kinetics
    :weapon-charge 0
-   :velocity [0 0]
+   :velocity [(- 2 (rand 4)) (- 2 (rand 4))]
    :thrust [0 0]})
 
 (defn initialize []
@@ -69,8 +69,10 @@
   (let [{:keys [antimatter shields]} klingon
         shield-deficit (- klingon-shields shields)
         max-charge (* ms klingon-shield-recharge-rate)
-        real-charge (min shield-deficit max-charge antimatter)
-        antimatter (- antimatter real-charge)
+        real-charge (min shield-deficit
+                         max-charge
+                         (/ antimatter klingon-shield-recharge-cost))
+        antimatter (- antimatter (* klingon-shield-recharge-cost real-charge))
         shields (+ shields real-charge)]
     (assoc klingon :antimatter antimatter
                    :shields shields)))
@@ -129,6 +131,7 @@
 
 (defn- ready-to-fire-kinetic? [klingon]
   (and
+    (> (klingon :antimatter) klingon-kinetic-power)
     (> (:kinetics klingon) 0)
     (<= klingon-kinetic-threshold
         (:weapon-charge klingon))))
@@ -139,7 +142,7 @@
         dist (distance ship-pos klingon-pos)]
     (and
       (< dist klingon-phaser-firing-distance)
-      (> (:antimatter klingon) 0)
+      (> (:antimatter klingon) klingon-phaser-power)
       (<= klingon-phaser-threshold
           (:weapon-charge klingon)))))
 
@@ -155,6 +158,17 @@
     (firing-solution klingon ship klingon-kinetic-velocity)
     :klingon-kinetic))
 
+(defn- apply-phaser-costs [klingon]
+  (-> klingon
+      (update :weapon-charge - klingon-phaser-threshold)
+      (update :antimatter - klingon-phaser-power)))
+
+(defn- apply-kinetic-costs [klingon]
+  (-> klingon
+      (update :weapon-charge - klingon-kinetic-threshold)
+      (update :kinetics dec)
+      (update :antimatter - klingon-kinetic-power)))
+
 (defn- fire-charged-weapons [klingons ship]
   (loop [klingons klingons shots [] fired-klingons []]
     (if (empty? klingons)
@@ -164,26 +178,14 @@
           (ready-to-fire-phaser? klingon ship)
           (recur (rest klingons)
                  (conj shots (phaser-shot klingon ship))
-                 (conj fired-klingons
-                       (update klingon :weapon-charge - klingon-phaser-threshold)))
+                 (conj fired-klingons (apply-phaser-costs klingon)))
           (ready-to-fire-kinetic? klingon)
           (recur (rest klingons)
-                 (conj shots
-                       (kinetic-shot klingon ship))
-                 (conj fired-klingons
-                       (-> klingon
-                           (update :weapon-charge - klingon-kinetic-threshold)
-                           (update :kinetics dec))))
+                 (conj shots (kinetic-shot klingon ship))
+                 (conj fired-klingons (apply-kinetic-costs klingon)))
           :else
           (recur (rest klingons) shots (conj fired-klingons klingon))
           )))))
-
-(defn- discharge-fired-weapons [klingons]
-  (for [klingon klingons]
-    (if (ready-to-fire-kinetic? klingon)
-      (assoc klingon :weapon-charge 0
-                     :kinetics (dec (:kinetics klingon)))
-      klingon)))
 
 (defn klingon-offense [ms world]
   (let [{:keys [klingons ship shots]} world
@@ -199,10 +201,16 @@
         degrees (if (= ship-pos klingon-pos)
                   0
                   (angle-degrees klingon-pos ship-pos))
-        degrees (+ degrees (if (< dist klingon-evasion-range) 90 0))
+        degrees (+ degrees
+                   (cond (< dist klingon-evasion-range)
+                         90
+                         (< (klingon :antimatter) klingon-antimatter-runaway-threshold)
+                         180
+                         :else
+                         0))
         radians (->radians degrees)
         efficiency (/ (:shields klingon) klingon-shields)
-        effective-thrust (* klingon-thrust efficiency)
+        effective-thrust (min (klingon :antimatter) (* klingon-thrust efficiency))
         thrust (from-angular effective-thrust radians)]
     (if (< klingon-tactical-range dist)
       (assoc klingon :thrust [0 0])

@@ -85,7 +85,7 @@
       20 1000 klingon-shields 1000 klingon-shields
       20 1000
       (- klingon-shields 50)
-      (- ?am-in (* klingon-shield-recharge-rate ?ms))
+      (- ?am-in (* klingon-shield-recharge-rate klingon-shield-recharge-cost ?ms))
       (+ ?shields-in (* klingon-shield-recharge-rate ?ms))
       )
 
@@ -112,34 +112,73 @@
             (->> offense :klingons first :weapon-charge) => 20))
 
         (fact
-          "kinetic-fired, shot added, charge reset, count reduced."
+          "kinetic not fired fired if insufficient antimatter"
           (let [in-range (dec klingon-kinetic-firing-distance)
                 klingon (mom/set-pos klingon [in-range 0])
-                klingon (assoc klingon :weapon-charge klingon-kinetic-threshold
+                klingon (assoc klingon :antimatter (dec klingon-kinetic-power)
+                                       :weapon-charge klingon-kinetic-threshold
+                                       :kinetics 20)
+                world (mom/set-klingons world [klingon])
+                world (assoc world :shots [(shots/->shot 0 0 0 :phaser)])
+                offense (k/klingon-offense 0 world)]
+            offense => mom/valid-world?
+            (count (:shots offense)) => 1
+            (let [klingon (->> offense :klingons first)]
+              (klingon :weapon-charge) => klingon-kinetic-threshold
+              (klingon :kinetics) => 20
+              (klingon :antimatter) => (dec klingon-kinetic-power))))
+
+        (fact
+          "kinetic-fired, shot added, charge reset, count reduced, power used."
+          (let [in-range (dec klingon-kinetic-firing-distance)
+                klingon (mom/set-pos klingon [in-range 0])
+                klingon (assoc klingon :antimatter 1000
+                                       :weapon-charge klingon-kinetic-threshold
                                        :kinetics 20)
                 world (mom/set-klingons world [klingon])
                 world (assoc world :shots [(shots/->shot 0 0 0 :phaser)])
                 offense (k/klingon-offense 0 world)]
             offense => mom/valid-world?
             (count (:shots offense)) => 2
-            (->> offense :shots second :type) => :klingon-kinetic
-            (->> offense :shots second :bearing) => (roughly 180)
-            (->> offense :klingons first :weapon-charge) => 0
-            (->> offense :klingons first :kinetics) => 19))
+            (let [shot (->> offense :shots second)
+                  klingon (->> offense :klingons first)]
+              (shot :type) => :klingon-kinetic
+              (shot :bearing) => (roughly 180)
+              (klingon :weapon-charge) => 0
+              (klingon :kinetics) => 19
+              (klingon :antimatter) => (- 1000 klingon-kinetic-power))))
 
         (fact
-          "in phaser rage, phaser charged, shot added, charge reset, count reduced."
+          "phaser not fired if insufficient antimatter."
           (let [in-range (dec klingon-phaser-firing-distance)
                 klingon (mom/set-pos klingon [in-range 0])
-                klingon (assoc klingon :antimatter 100 :weapon-charge klingon-phaser-threshold)
+                klingon (assoc klingon :antimatter (dec klingon-phaser-power)
+                                       :weapon-charge klingon-phaser-threshold)
+                world (mom/set-klingons world [klingon])
+                world (assoc world :shots [(shots/->shot 0 0 0 :phaser)])
+                offense (k/klingon-offense 0 world)]
+            offense => mom/valid-world?
+            (count (:shots offense)) => 1
+            (let [klingon (->> offense :klingons first)]
+              (klingon :weapon-charge) => klingon-phaser-threshold
+              (klingon :antimatter) => (dec klingon-phaser-power))))
+
+        (fact
+          "in phaser rage, phaser charged, shot added, charge reset, count reduced, power used."
+          (let [in-range (dec klingon-phaser-firing-distance)
+                klingon (mom/set-pos klingon [in-range 0])
+                klingon (assoc klingon :antimatter 1000 :weapon-charge klingon-phaser-threshold)
                 world (mom/set-klingons world [klingon])
                 world (assoc world :shots [(shots/->shot 0 0 0 :phaser)])
                 offense (k/klingon-offense 0 world)]
             offense => mom/valid-world?
             (count (:shots offense)) => 2
-            (->> offense :shots second :type) => :klingon-phaser
-            (->> offense :shots second :bearing) => (roughly 180)
-            (->> offense :klingons first :weapon-charge) => 0))
+            (let [shot (->> offense :shots second)
+                  klingon (->> offense :klingons first)]
+              (shot :type) => :klingon-phaser
+              (shot :bearing) => (roughly 180)
+              (klingon :weapon-charge) => 0
+              (klingon :antimatter) => (- 1000 klingon-phaser-power))))
 
         (fact
           "in kinetic firing distance, all charged, but no more kinetics left."
@@ -152,8 +191,9 @@
                 offense (k/klingon-offense 0 world)]
             offense => mom/valid-world?
             (count (:shots offense)) => 0
-            (->> offense :klingons first :weapon-charge) => klingon-kinetic-threshold
-            (->> offense :klingons first :kinetics) => 0)))))
+            (let [klingon (->> offense :klingons first)]
+              (klingon :weapon-charge) => klingon-kinetic-threshold
+              (klingon :kinetics) => 0))))))
 
   (fact
     "klingon far away from ship does not thrust"
@@ -170,6 +210,7 @@
     "klingon within tactical range of ship thrusts towards ship"
     (let [ship (mom/set-pos ship [0 0])
           klingon (mom/set-pos klingon [(dec klingon-tactical-range) 0])
+          klingon (assoc klingon :antimatter klingon-antimatter)
           world (assoc world :ship ship :klingons [klingon])
           new-world (k/klingon-motion 2 world)
           new-klingon (->> new-world :klingons first)
@@ -191,6 +232,19 @@
     )
 
   (fact
+    "klingon in range but low on antimatter thrusts away from ship"
+    (let [ship (mom/set-pos ship [0 0])
+          klingon (mom/set-pos klingon [(dec klingon-tactical-range) 0])
+          klingon (assoc klingon :antimatter (dec klingon-antimatter-runaway-threshold))
+          world (assoc world :ship ship :klingons [klingon])
+          new-world (k/klingon-motion 2 world)
+          new-klingon (->> new-world :klingons first)
+          thrust (:thrust new-klingon)]
+      (first thrust) => (roughly (* klingon-thrust) 1e-5)
+      (second thrust) => (roughly 0 1e-10))
+    )
+
+  (fact
     "thrusting klingon stops thrusting when out of range"
     (let [ship (mom/set-pos ship [0 0])
           klingon (mom/set-pos klingon [(inc klingon-tactical-range) 0])
@@ -204,6 +258,7 @@
   (fact
     "thrusting klingon increases velocity"
     (let [klingon (mom/set-pos klingon [(dec klingon-tactical-range) 0])
+          klingon (assoc klingon :antimatter klingon-antimatter)
           world (assoc world :klingons [klingon])
           new-world (k/klingon-motion 2 world)
           velocity (->> new-world :klingons first :velocity)]
