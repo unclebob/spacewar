@@ -32,14 +32,14 @@
 
   (setup [this] this)
   (update-state [_ _]
-    (let [{:keys [x y w h]} state
+    (let [{:keys [x y w h disabled]} state
           last-left-down (:left-down state)
           mx (q/mouse-x)
           my (q/mouse-y)
           mouse-in (inside-rect [x y w h] [mx my])
           left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
           new-state (assoc state :mouse-in mouse-in :left-down left-down)
-          event (if (and (not left-down) last-left-down mouse-in)
+          event (if (and (not disabled) (not left-down) last-left-down mouse-in)
                   (:left-up-event state)
                   nil)]
       (p/pack-update (button. new-state) event))))
