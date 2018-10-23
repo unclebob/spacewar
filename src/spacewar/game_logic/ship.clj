@@ -268,7 +268,9 @@
   (assoc ship :antimatter ship-antimatter
               :kinetics ship-kinetics
               :torpedos ship-torpedos
-              :velocity [0 0]))
+              :velocity [0 0]
+              :warp 0
+              :impulse 0))
 
 (defn process-events [events ship]
   (let [[_ ship] (->> [events ship]

@@ -208,6 +208,7 @@
 
   (fact
     "klingon within tactical range of ship thrusts towards ship"
+    (prerequisite (k/evasion-angle anything) => 0)
     (let [ship (mom/set-pos ship [0 0])
           klingon (mom/set-pos klingon [(dec klingon-tactical-range) 0])
           klingon (assoc klingon :antimatter klingon-antimatter)
@@ -222,7 +223,7 @@
   (fact
     "klingon within evasion range of ship thrusts orthogonal to ship"
     (let [ship (mom/set-pos ship [0 0])
-          klingon (mom/set-pos klingon [(dec klingon-evasion-range) 0])
+          klingon (mom/set-pos klingon [(dec klingon-evasion-limit) 0])
           world (assoc world :ship ship :klingons [klingon])
           new-world (k/klingon-motion 2 world)
           new-klingon (->> new-world :klingons first)
@@ -257,7 +258,8 @@
 
   (fact
     "thrusting klingon increases velocity"
-    (prerequisite (k/calc-drag anything) => 1)
+    (prerequisites (k/calc-drag anything) => 1
+                   (k/evasion-angle anything) => 0)
     (let [klingon (mom/set-pos klingon [(dec klingon-tactical-range) 0])
           klingon (assoc klingon :antimatter klingon-antimatter)
           world (assoc world :klingons [klingon])

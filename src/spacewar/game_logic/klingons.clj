@@ -194,6 +194,11 @@
     (assoc world :klingons klingons
                  :shots (concat shots new-shots))))
 
+(defn evasion-angle [dist]
+  (let [base (- klingon-tactical-range klingon-evasion-limit)
+        actual (min base (max 0 (- klingon-tactical-range dist)))]
+    (* 90 (/ actual base))))
+
 (defn- thrust-if-close [ship klingon]
   (let [ship-pos [(:x ship) (:y ship)]
         klingon-pos [(:x klingon) (:y klingon)]
@@ -202,12 +207,12 @@
                   0
                   (angle-degrees klingon-pos ship-pos))
         degrees (+ degrees
-                   (cond (< dist klingon-evasion-range)
+                   (cond (< dist klingon-evasion-limit)
                          90
                          (< (klingon :antimatter) klingon-antimatter-runaway-threshold)
                          180
                          :else
-                         0))
+                         (evasion-angle dist)))
         radians (->radians degrees)
         efficiency (/ (:shields klingon) klingon-shields)
         effective-thrust (min (klingon :antimatter)
