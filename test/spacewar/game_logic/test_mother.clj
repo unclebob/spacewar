@@ -72,6 +72,7 @@
    :update-time 0
    :ms 0
    :shots []
+   :messages []
    })
 
 (defn make-shot []

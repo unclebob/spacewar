@@ -35,6 +35,8 @@
 (def slider-width 50)
 (def engage-width 100)
 
+(def message-height 30)
+
 (def phaser-length 30)
 (def kinetic-color [255 0 0])
 (def klingon-kinetic-color [255 200 0])

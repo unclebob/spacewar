@@ -3,6 +3,7 @@
             [quil.middleware :as m]
             [spacewar.game-logic.config :refer :all]
             [spacewar.ui.complex :as main-viewer]
+            [spacewar.ui.view-frame :as view-frame]
             [spacewar.ui.protocols :as p]
             [spacewar.game-logic.ship :as ship]
             [spacewar.game-logic.stars :as stars]
@@ -16,6 +17,10 @@
 (s/def ::update-time number?)
 (s/def ::shots ::shots/shots)
 (s/def ::ms int?)
+(s/def ::text string?)
+(s/def ::duration int?)
+(s/def ::message (s/keys :req-un [::text ::duration]))
+(s/def ::messages (s/coll-of ::message))
 
 (s/def ::world (s/keys :req-un [::explosions/explosions
                                 ::klingons/klingons
@@ -24,7 +29,8 @@
                                 ::bases/bases
                                 ::shots
                                 ::update-time
-                                ::ms]))
+                                ::ms
+                                ::messages]))
 
 (defn make-initial-world []
   {:stars (stars/initialize)
@@ -34,7 +40,11 @@
    :update-time (q/millis)
    :explosions []
    :shots []
-   :ms 0})
+   :ms 0
+   :messages [{:text "Welcome to Space War!"
+               :duration 5000}
+              {:text "Save the Federation!"
+               :duration 10000}]})
 
 (defn setup []
   (let [vmargin 30 hmargin 5]
@@ -50,7 +60,8 @@
                  :h (- (q/height) (* 2 vmargin))}))
      :world (make-initial-world)
      :fonts {:lcars (q/create-font "Helvetica-Bold" 24)
-             :lcars-small (q/create-font "Arial" 18)}}))
+             :lcars-small (q/create-font "Arial" 18)
+             :messages (q/create-font "Bank Gothic" 24)}}))
 
 (defn process-events [events world]
   (let [{:keys [ship]} world
@@ -65,7 +76,9 @@
         world (assoc world :ship (ship/update-ship ms ship))
         world (shots/update-shots ms world)
         world (explosions/update-explosions ms world)
-        world (klingons/update-klingons ms world)]
+        world (klingons/update-klingons ms world)
+        world (view-frame/update-messages ms world)
+        ]
     world))
 
 (defn update-state [context]

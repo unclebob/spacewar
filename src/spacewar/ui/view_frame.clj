@@ -7,6 +7,32 @@
             [spacewar.ui.front-view :refer :all]
             [spacewar.ui.protocols :as p]))
 
+(defn add-message [world message duration]
+  (let [messages (:messages world)
+        message {:text message :duration duration}
+        messages (conj messages message)]
+    (assoc world :messages messages)))
+
+(defn update-messages [ms world]
+  (let [messages (:messages world)
+        updates (map #(update % :duration - ms) messages)
+        updates (filter #(pos? (:duration %)) updates)]
+    (assoc world :messages updates)))
+
+(defn- draw-messages [state]
+  (let [{:keys [x y w h messages]} state
+        message-x (+ x (* 2 (/ w 3)))
+        lines (map :text messages)
+        text (clojure.string/join "\n" lines)]
+    (when (not (empty? messages))
+      (apply q/fill (conj green 180))
+      (q/text-font (:messages (q/state :fonts)) 24)
+      (q/text-align :left :bottom)
+      (q/with-translation
+        [message-x (+ y h)]
+        (q/text text 0 0)))))
+
+
 (deftype view-frame [state]
   p/Drawable
   (draw [_]
@@ -20,6 +46,7 @@
       (q/clip x y w h)
       (when (not (:sensor-loss state))
         (p/draw contents))
+      (draw-messages state)
       (q/no-clip)))
 
   (setup [_] (let [{:keys [x y w h]} state
@@ -46,7 +73,8 @@
                                :last-view selected-view)
                   state)
           sensor-damage (:sensor-damage ship)
-          state (assoc state :sensor-loss (> sensor-damage (rand 100)))
+          state (assoc state :sensor-loss (> sensor-damage (rand 100))
+                             :messages (:messages world))
           [state events] (p/update-elements state world)]
       (p/pack-update
         (view-frame. state) events))))
