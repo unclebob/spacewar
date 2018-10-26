@@ -22,7 +22,6 @@
 (defn update-elements [container-state world]
   {:pre [
          (s/valid? ::drawable-state container-state)
-         (s/valid? ::world world)
          ]
    :post [
           (s/valid? ::updated-elements-and-events %)

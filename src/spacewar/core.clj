@@ -15,6 +15,7 @@
 
 (s/def ::update-time number?)
 (s/def ::shots ::shots/shots)
+(s/def ::ms int?)
 
 (s/def ::world (s/keys :req-un [::explosions/explosions
                                 ::klingons/klingons
@@ -22,7 +23,18 @@
                                 ::stars/stars
                                 ::bases/bases
                                 ::shots
-                                ::update-time]))
+                                ::update-time
+                                ::ms]))
+
+(defn make-initial-world []
+  {:stars (stars/initialize)
+   :klingons (klingons/initialize)
+   :ship (ship/initialize)
+   :bases (bases/initialize)
+   :update-time (q/millis)
+   :explosions []
+   :shots []
+   :ms 0})
 
 (defn setup []
   (let [vmargin 30 hmargin 5]
@@ -36,11 +48,7 @@
                 {:x hmargin :y vmargin
                  :w (- (q/width) (* 2 hmargin))
                  :h (- (q/height) (* 2 vmargin))}))
-     :world {:stars (stars/initialize)
-             :klingons (klingons/initialize)
-             :ship (ship/initialize)
-             :bases (bases/initialize)
-             :update-time (q/millis)}
+     :world (make-initial-world)
      :fonts {:lcars (q/create-font "Helvetica-Bold" 24)
              :lcars-small (q/create-font "Arial" 18)}}))
 
@@ -51,6 +59,8 @@
     world))
 
 (defn update-world [ms world]
+  {:pre [(s/valid? ::world world)]
+   :post [(s/valid? ::world %)]}
   (let [{:keys [ship]} world
         world (assoc world :ship (ship/update-ship ms ship))
         world (shots/update-shots ms world)

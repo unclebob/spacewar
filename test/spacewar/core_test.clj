@@ -3,7 +3,15 @@
             [spacewar.core :refer :all]
             [spacewar.vector-test :as vt]
             [spacewar.game-logic.config :refer :all]
-            [spacewar.game-logic.test-mother :as mom]))
+            [spacewar.game-logic.test-mother :refer :all]
+            [spacewar.game-logic.test-mother :as mom]
+            [quil.core :as q]))
+
+(fact
+  "initial world is created correctly"
+  (make-initial-world) => valid-world?
+  (provided (q/millis) => 0)
+  )
 
 (tabular
   (fact
