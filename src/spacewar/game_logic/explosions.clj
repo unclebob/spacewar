@@ -8,7 +8,9 @@
 
 (s/def ::x number?)
 (s/def ::y number?)
-(s/def ::type #{:phaser :torpedo :kinetic :klingon})
+(s/def ::type #{:phaser :torpedo :kinetic
+                :klingon :klingon-kinetic
+                :klingon-phaser :ship})
 (s/def ::age number?)
 (s/def ::velocity number?)
 (s/def ::direction number?)

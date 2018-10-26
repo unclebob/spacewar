@@ -73,7 +73,9 @@
                                :last-view selected-view)
                   state)
           sensor-damage (:sensor-damage ship)
-          state (assoc state :sensor-loss (> sensor-damage (rand 100))
+          state (assoc state :sensor-loss (and
+                                            (> sensor-damage (rand 100))
+                                            (not (:destroyed ship)))
                              :messages (:messages world))
           [state events] (p/update-elements state world)]
       (p/pack-update

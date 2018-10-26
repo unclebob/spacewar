@@ -21,6 +21,7 @@
 (s/def ::duration int?)
 (s/def ::message (s/keys :req-un [::text ::duration]))
 (s/def ::messages (s/coll-of ::message))
+(s/def ::game-over boolean?)
 
 (s/def ::world (s/keys :req-un [::explosions/explosions
                                 ::klingons/klingons
@@ -30,7 +31,8 @@
                                 ::shots
                                 ::update-time
                                 ::ms
-                                ::messages]))
+                                ::messages
+                                ::game-over]))
 
 (defn make-initial-world []
   {:stars (stars/initialize)
@@ -44,7 +46,8 @@
    :messages [{:text "Welcome to Space War!"
                :duration 5000}
               {:text "Save the Federation!"
-               :duration 10000}]})
+               :duration 10000}]
+   :game-over false})
 
 (defn setup []
   (let [vmargin 30 hmargin 5]
@@ -69,11 +72,34 @@
         world (shots/process-events events world)]
     world))
 
+(defn- ship-explosion [ship]
+  (explosions/->explosion :ship ship))
+
+(defn- game-over [world]
+  (let [ship (:ship world)
+        destroyed (:destroyed ship)
+        game-over (:game-over world)
+        explosions (:explosions world)
+        messages (:messages world)
+        game-ending (and destroyed (not game-over))
+        game-over destroyed
+        explosions (if game-ending
+                     (conj explosions (ship-explosion ship))
+                     explosions)
+        messages (if game-ending
+                   (conj messages {:text "Game Over!" :duration 10000000})
+                   messages)]
+    (assoc world :game-over game-over
+                 :explosions explosions
+                 :messages messages)
+    ))
+
 (defn update-world [ms world]
   {:pre [(s/valid? ::world world)]
    :post [(s/valid? ::world %)]}
-  (let [{:keys [ship]} world
-        world (assoc world :ship (ship/update-ship ms ship))
+  (let [ship (ship/update-ship ms (:ship world))
+        world (assoc world :ship ship)
+        world (game-over world)
         world (shots/update-shots ms world)
         world (explosions/update-explosions ms world)
         world (klingons/update-klingons ms world)

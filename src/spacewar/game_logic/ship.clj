@@ -34,6 +34,7 @@
 (s/def ::impulse-damage ::percent)
 (s/def ::warp-damage ::percent)
 (s/def ::weapons-damage ::percent)
+(s/def ::destroyed boolean?)
 
 (s/def ::strat-scale (s/and number? #(<= 1 % 10)))
 
@@ -52,7 +53,8 @@
                                ::life-support-damage ::hull-damage
                                ::sensor-damage ::impulse-damage
                                ::warp-damage ::weapons-damage
-                               ::strat-scale]))
+                               ::strat-scale
+                               ::destroyed]))
 
 (defn initialize []
   {:x (int (rand known-space-x))
@@ -82,7 +84,8 @@
    :warp-damage 0
    :impulse-damage 0
    :weapons-damage 0
-   :strat-scale 1}
+   :strat-scale 1
+   :destroyed false}
   )
 
 (defn drag [[x y :as v]]
@@ -163,7 +166,7 @@
         rotation-step (if (< (abs total-rotation) (abs rotation-step))
                         total-rotation
                         rotation-step)
-        new-heading (+ heading rotation-step)]
+        new-heading (mod (+ heading rotation-step) 360)]
     (assoc ship :heading new-heading)))
 
 (defn charge-shields [ms ship]
@@ -197,14 +200,26 @@
             ship (update ship system - repair)]
         (recur (rest systems) (- capacity repair) ship)))))
 
+(defn update-destruction [ship]
+  (let [{:keys [life-support-damage
+                hull-damage]} ship
+        destroyed (or (>= life-support-damage 100)
+                      (>= hull-damage 100))]
+    (if destroyed
+      (assoc ship :destroyed true)
+      ship)))
+
 
 (defn update-ship [ms ship]
-  (let [ship (warp-ship ms ship)
-        ship (impulse-ship ms ship)
-        ship (rotate-ship ms ship)
-        ship (charge-shields ms ship)
-        ship (repair-ship ms ship)]
-    ship))
+  (let [ship (update-destruction ship)]
+    (if (:destroyed ship)
+      ship
+      (->> ship
+           (warp-ship ms)
+           (impulse-ship ms)
+           (rotate-ship ms)
+           (charge-shields ms)
+           (repair-ship ms)))))
 
 (defn- set-heading-handler [{:keys [angle]} ship]
   (assoc ship :heading-setting angle))

@@ -167,6 +167,28 @@
                                 :sensor-damage 0
                                 :impulse-damage 5}
         (provided (repair-capacity anything anything) => 55))
-      )
+      )))
+
+(facts
+  "Ship destroyed"
+  (let [ship (mom/make-ship)]
+    (fact
+      "ship destroyed if life support damage is 100%"
+      (let [ship (assoc ship :life-support-damage 100)
+            destroyed-ship (update-destruction ship)]
+        (:destroyed destroyed-ship) => true))
+
+    (fact
+          "ship destroyed if hull damage is 100%"
+          (let [ship (assoc ship :hull-damage 100)
+                destroyed-ship (update-destruction ship)]
+            (:destroyed destroyed-ship) => true))
+
+    (fact
+          "ship not destroyed if life support and hull damage is less than 100%"
+          (let [ship (assoc ship :life-support-damage 99
+                                 :hull-damage 99)
+                destroyed-ship (update-destruction ship)]
+            (:destroyed destroyed-ship) => false))
 
     ))

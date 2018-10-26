@@ -49,6 +49,7 @@
    :warp-damage 0
    :weapons-damage 0
    :strat-scale 1
+   :destroyed false
    })
 
 (defn make-klingon []
@@ -73,6 +74,7 @@
    :ms 0
    :shots []
    :messages []
+   :game-over false
    })
 
 (defn make-shot []
