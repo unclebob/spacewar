@@ -119,6 +119,9 @@
 (defn- warp-factor [warp]
   (* warp warp 0.5))
 
+(defn- calc-warp-charge [warp]
+  (Math/pow warp 1.3))
+
 (defn- warp-ship [ms ship]
   (if (zero? (:warp ship))
     ship
@@ -127,7 +130,7 @@
           power-used (min power-required antimatter)
           antimatter (- antimatter power-used)
           actual-warp (* warp (/ power-used power-required))
-          warp-charge-increment (* ms actual-warp warp-charge-rate)
+          warp-charge-increment (* ms (calc-warp-charge actual-warp) warp-charge-rate)
           warp-efficiency (/ (- 100 (:warp-damage ship)) 100)
           warp-charge-increment (* warp-charge-increment warp-efficiency)
           warp-charge (+ warp-charge-increment warp-charge)
