@@ -13,6 +13,8 @@
 (def warp-threshold 2000)
 (def ship-shields 1000)
 (def ship-antimatter 100000)
+(def ship-dilithium 1000)
+(def ship-dilithium-consumption 0.0001)
 (def ship-shield-recharge-rate 0.01)
 (def ship-shield-recharge-cost 5)
 (def ship-docking-distance 2000)

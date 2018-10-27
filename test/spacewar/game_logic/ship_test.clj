@@ -179,16 +179,43 @@
         (:destroyed destroyed-ship) => true))
 
     (fact
-          "ship destroyed if hull damage is 100%"
-          (let [ship (assoc ship :hull-damage 100)
-                destroyed-ship (update-destruction ship)]
-            (:destroyed destroyed-ship) => true))
+      "ship destroyed if hull damage is 100%"
+      (let [ship (assoc ship :hull-damage 100)
+            destroyed-ship (update-destruction ship)]
+        (:destroyed destroyed-ship) => true))
 
     (fact
-          "ship not destroyed if life support and hull damage is less than 100%"
-          (let [ship (assoc ship :life-support-damage 99
-                                 :hull-damage 99)
-                destroyed-ship (update-destruction ship)]
-            (:destroyed destroyed-ship) => false))
+      "ship not destroyed if life support and hull damage is less than 100%"
+      (let [ship (assoc ship :life-support-damage 99
+                             :hull-damage 99)
+            destroyed-ship (update-destruction ship)]
+        (:destroyed destroyed-ship) => false))))
 
+(facts
+  "dilithium"
+  (let [ship (mom/make-ship)]
+    (fact
+      "ship not under warp does not consumes dilithium"
+      (prerequisite
+        (calc-dilithium-consumed anything anything) => 1)
+      (let [ship (assoc ship :warp 0)
+            warped-ship (update-ship 1 ship)
+            dilithium (:dilithium warped-ship)]
+        dilithium => ship-dilithium))
+    (fact
+      "ship under warp consumes dilithium"
+      (prerequisite
+        (calc-dilithium-consumed anything anything) => 1)
+      (let [ship (assoc ship :warp 1)
+            warped-ship (update-ship 1 ship)
+            dilithium (:dilithium warped-ship)]
+        dilithium => (roughly (- ship-dilithium 1) 1e-10)))
+    (fact
+      "dilithium never goes negative."
+      (prerequisite
+        (calc-dilithium-consumed anything anything) => 2)
+      (let [ship (assoc ship :warp 1 :dilithium ship-dilithium-consumption)
+            warped-ship (update-ship 1 ship)
+            dilithium (:dilithium warped-ship)]
+        dilithium => (roughly 0 1e-10)))
     ))

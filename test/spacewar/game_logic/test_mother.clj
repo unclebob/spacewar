@@ -38,7 +38,7 @@
    :heading-setting 0
    :antimatter ship-antimatter
    :core-temp 0
-   :dilithium 0
+   :dilithium ship-dilithium
    :shields ship-shields
    :kinetics ship-kinetics
    :torpedos ship-torpedos

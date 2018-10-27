@@ -43,8 +43,8 @@
                           :w scale-w
                           :h scale-h
                           :min 0
-                          :max 100
-                          :value 50
+                          :max ship-dilithium
+                          :value ship-dilithium
                           :name "DILITHIUM"
                           :color color
                           :mercury-color mercury-color}))
@@ -79,7 +79,8 @@
                   state
                   [[:core-temp :value (:ms world)]
                    [:shields :value (->> world :ship :shields)]
-                   [:antimatter :value (->> world :ship :antimatter)]])
+                   [:antimatter :value (->> world :ship :antimatter)]
+                   [:dilithium :value (->> world :ship :dilithium)]])
           [state events] (p/update-elements state world)]
       (p/pack-update
         (status-panel. state)

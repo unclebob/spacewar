@@ -74,7 +74,7 @@
    :heading-setting 0
    :antimatter ship-antimatter
    :core-temp 0
-   :dilithium 100
+   :dilithium ship-dilithium
    :shields ship-shields
    :kinetics ship-kinetics
    :torpedos ship-torpedos
@@ -122,10 +122,21 @@
 (defn- calc-warp-charge [warp]
   (Math/pow warp 1.3))
 
+(defn calc-dilithium-consumed [warp ms]
+  (* warp ms ship-dilithium-consumption))
+
+(defn- consume-dilithium [dilithium warp ms]
+  (if (zero? warp)
+    dilithium
+    (max 0 (- dilithium (calc-dilithium-consumed warp ms)))))
+
 (defn- warp-ship [ms ship]
   (if (zero? (:warp ship))
     ship
-    (let [{:keys [x y warp warp-charge heading antimatter]} ship
+    (let [{:keys [x y warp warp-charge
+                  heading antimatter
+                  dilithium]} ship
+          dilithium (consume-dilithium dilithium warp ms)
           power-required (* ms (warp-factor warp) warp-power)
           power-used (min power-required antimatter)
           antimatter (- antimatter power-used)
@@ -142,7 +153,8 @@
                     (vector/add [x y] warp-vector)
                     [x y])]
       (assoc ship :x wx :y wy :warp-charge warp-charge
-                  :antimatter antimatter))))
+                  :antimatter antimatter
+                  :dilithium dilithium))))
 
 (defn- impulse-ship [ms ship]
   (let [{:keys [antimatter velocity heading impulse x y]} ship
