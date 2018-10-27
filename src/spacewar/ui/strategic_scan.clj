@@ -103,7 +103,8 @@
         (draw-background state)
         (draw-stars state)
         (draw-klingons state)
-        (draw-ship state)
+        (when (not (-> state :game-over))
+          (draw-ship state))
         (draw-bases state)
         (draw-sectors state))))
 
@@ -117,7 +118,8 @@
           range (* scale strategic-range)]
       (p/pack-update
         (strategic-scan.
-          (assoc state :stars (:stars world)
+          (assoc state :game-over (:game-over world)
+                       :stars (:stars world)
                        :klingons (:klingons world)
                        :ship ship
                        :bases (:bases world)

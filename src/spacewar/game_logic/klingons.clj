@@ -188,11 +188,13 @@
           )))))
 
 (defn klingon-offense [ms world]
-  (let [{:keys [klingons ship shots]} world
-        klingons (charge-weapons ms klingons ship)
-        [klingons new-shots] (fire-charged-weapons klingons ship)]
-    (assoc world :klingons klingons
-                 :shots (concat shots new-shots))))
+  (if (:game-over world)
+    world
+    (let [{:keys [klingons ship shots]} world
+          klingons (charge-weapons ms klingons ship)
+          [klingons new-shots] (fire-charged-weapons klingons ship)]
+      (assoc world :klingons klingons
+                   :shots (concat shots new-shots)))))
 
 (defn evasion-angle [dist]
   (let [base (- klingon-tactical-range klingon-evasion-limit)
@@ -251,7 +253,7 @@
     (assoc world :klingons klingons)))
 
 (defn update-klingons [ms world]
-  (let [world (klingon-defense ms world)
-        world (klingon-offense ms world)
-        world (klingon-motion ms world)]
-    world))
+  (->> world
+       (klingon-defense ms)
+       (klingon-offense ms)
+       (klingon-motion ms)))
