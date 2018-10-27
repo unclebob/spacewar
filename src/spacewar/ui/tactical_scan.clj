@@ -8,9 +8,31 @@
             [spacewar.vector :as v]
             [spacewar.vector :as vector]))
 
+(defn- background-color [world]
+  (let [time (:update-time world)
+        ship (:ship world)
+        game-over (:game-over world)
+        {:keys [shields antimatter
+                life-support-damage
+                hull-damage warp-damage
+                impulse-damage sensor-damage
+                weapons-damage]} ship
+        max-damage (max life-support-damage
+                        hull-damage
+                        warp-damage
+                        impulse-damage
+                        sensor-damage
+                        weapons-damage)]
+    (cond game-over black
+          (< (mod time 1000) 500) black
+          (> max-damage 0) dark-red
+          (< (/ antimatter ship-antimatter) 0.1) dark-red
+          (< (/ shields ship-shields) 0.6) dark-yellow
+          :else black)))
+
 (defn- draw-background [state]
   (let [{:keys [w h]} state]
-    (q/fill 0 0 0)
+    (apply q/fill (background-color (:world state)))
     (q/rect-mode :corner)
     (q/rect 0 0 w h)))
 
