@@ -37,7 +37,7 @@
         (recur (conj shots
                      {:x (first pos)
                       :y (second pos)
-                      :bearing bearing
+                      :bearing (mod bearing 360)
                       :range 0})
                (+ bearing bearing-inc)
                (dec number))))))
@@ -77,6 +77,11 @@
                    0
                    (- 10 (rand 20)))))
 
+(defn- corrupt-shot [shot deviation]
+  (let [bearing (:bearing shot)
+        deviated-bearing (mod (+ deviation bearing) 360)]
+    (assoc shot :bearing deviated-bearing)))
+
 (defn corrupt-shots-by-damage [damage shots]
   (let [shots-and-failure (partition
                             2
@@ -84,7 +89,7 @@
                               (weapon-failure-dice (count shots) damage)
                               shots))
         final-shots (map second (remove first shots-and-failure))]
-    (map #(update %1 :bearing + %2)
+    (map #(corrupt-shot %1 %2)
          final-shots
          (weapon-bearing-deviation (count final-shots) damage))))
 

@@ -94,9 +94,15 @@
                  :messages messages)
     ))
 
+(defn- valid-world? [world]
+  (let [valid (s/valid? ::world world)]
+    (when (not valid)
+      (println (s/explain-str ::world world)))
+    valid))
+
 (defn update-world [ms world]
-  {:pre [(s/valid? ::world world)]
-   :post [(s/valid? ::world %)]}
+  {:pre [(valid-world? world)]
+   :post [(valid-world? %)]}
   (let [ship (ship/update-ship ms (:ship world))
         world (assoc world :ship ship)
         world (game-over world)
