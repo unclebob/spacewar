@@ -21,7 +21,7 @@
       (q/ellipse-mode :center)
       (doseq [{:keys [x y class]} stars]
         (apply q/fill (class star-colors))
-        (q/ellipse (* (- x sx) pixel-width) (* (- y sy) pixel-width) 4 4)))))
+        (q/ellipse (* (- x sx) pixel-width) (* (- y sy) pixel-width) (class star-sizes) (class star-sizes))))))
 
 
 (defn- draw-klingons [state]

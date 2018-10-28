@@ -61,7 +61,7 @@
                  :f 4
                  :g 4
                  :k 3
-                 :m 2})
+                 :m 3})
 
 (def explosion-profiles
   {:phaser {:duration 1000

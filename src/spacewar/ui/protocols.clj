@@ -20,12 +20,12 @@
 (s/def ::game-state (s/keys :req-un [::world]))
 
 (defn update-elements [container-state world]
-  {:pre [
-         (s/valid? ::drawable-state container-state)
-         ]
-   :post [
-          (s/valid? ::updated-elements-and-events %)
-          ]}
+  ;{:pre [
+  ;       (s/valid? ::drawable-state container-state)
+  ;       ]
+  ; :post [
+  ;        (s/valid? ::updated-elements-and-events %)
+  ;        ]}
   (let [elements (:elements container-state)]
     (if (nil? elements)
       [container-state []]

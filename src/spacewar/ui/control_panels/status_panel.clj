@@ -77,7 +77,7 @@
   (update-state [_ world]
     (let [state (p/change-elements
                   state
-                  [[:core-temp :value (:ms world)]
+                  [[:core-temp :value (->> world :ship :core-temp)]
                    [:shields :value (->> world :ship :shields)]
                    [:antimatter :value (->> world :ship :antimatter)]
                    [:dilithium :value (->> world :ship :dilithium)]])

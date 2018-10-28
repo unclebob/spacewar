@@ -64,7 +64,8 @@
      :world (make-initial-world)
      :fonts {:lcars (q/create-font "Helvetica-Bold" 24)
              :lcars-small (q/create-font "Arial" 18)
-             :messages (q/create-font "Bank Gothic" 24)}}))
+             :messages (q/create-font "Bank Gothic" 24)}
+     :frame-times []}))
 
 (defn process-events [events world]
   (let [{:keys [ship]} world
@@ -101,8 +102,8 @@
     valid))
 
 (defn update-world [ms world]
-  {:pre [(valid-world? world)]
-   :post [(valid-world? %)]}
+  ;{:pre [(valid-world? world)]
+  ; :post [(valid-world? %)]}
   (let [ship (ship/update-ship ms (:ship world))
         world (assoc world :ship ship)
         world (game-over world)
@@ -113,12 +114,37 @@
         ]
     world))
 
+(defn add-frame-time [frame-time context]
+  (let [frame-times (->
+                      context
+                      :frame-times
+                      (conj frame-time))
+        frame-times (if (> (count frame-times) 10)
+                      (vec (rest frame-times))
+                      frame-times)]
+    (assoc context :frame-times frame-times))
+  )
+
+(defn frames-per-second [frame-times]
+  (if (empty? frame-times)
+    0
+    (let [sum (reduce + frame-times)
+          mean (/ sum (count frame-times))
+          fps (/ 1000 mean)]
+      fps)))
+
+
 (defn update-state [context]
   (let [world (:world context)
         time (q/millis)
         ms (- time (:update-time world))
+        context (add-frame-time ms context)
+        frame-times (:frame-times context)
+        fps (frames-per-second frame-times)
         complex (:state context)
-        world (assoc world :update-time time :ms ms)
+        world (assoc world :update-time time
+                           :ms ms
+                           :fps fps)
         [complex events] (p/update-state complex world)
         events (flatten events)
         world (process-events events world)

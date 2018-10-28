@@ -100,7 +100,15 @@
 (deftype complex [state]
   p/Drawable
   (draw [_]
-    (p/draw-elements state))
+    (p/draw-elements state)
+    (apply q/fill white)
+    (q/text-align :left :top)
+    (q/text-font (:lcars (q/state :fonts)) 18)
+    (let [{:keys [x y fps]} state
+          fps (or fps 0)
+          fps (format "FPS: %6.2f" (float fps))]
+      (q/text fps x y))
+    )
 
   (setup [_]
     (let [{:keys [x y h w]} state
@@ -227,7 +235,8 @@
       (complex. new-state)))
 
   (update-state [_ world]
-    (let [[state events] (p/update-elements state world)]
+    (let [state (assoc state :fps (:fps world))
+          [state events] (p/update-elements state world)]
       (p/pack-update
         (complex. state)
         events))))

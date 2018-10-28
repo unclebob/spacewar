@@ -181,7 +181,32 @@
             world (update-world 1000 world)
             ship (:ship world)
             pos [(:x ship) (:y ship)]]
-        pos => (vt/roughly-v [warp-leap 0])))
+        pos => (vt/roughly-v [warp-leap 0])))))
 
-    )
-  )
+(facts
+  "About frame rate"
+  (let [context {:frame-times []}]
+    (fact
+      "adding to empty frame time list"
+      (->> context (add-frame-time 10) :frame-times) => [10]
+      )
+
+    (fact
+      "can add two times to time list"
+      (let [context (reduce #(add-frame-time %2 %1) context [1 2])
+            frame-times (:frame-times context)]
+        frame-times => [1 2]))
+
+    (fact
+          "can only accumulates to 10"
+          (let [context (reduce #(add-frame-time %2 %1)
+                                context
+                                [1 2 3 4 5 6 7 8 9 10 11 12])
+                frame-times (:frame-times context)]
+            frame-times => [3 4 5 6 7 8 9 10 11 12]))
+
+    (fact
+      "frame-time averages"
+      (frames-per-second []) => 0
+      (frames-per-second [1000]) => 1
+      (frames-per-second [30 40 50 60]) => 1000/45)))
