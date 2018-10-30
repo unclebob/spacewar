@@ -35,7 +35,9 @@
                            :value ship-antimatter
                            :name "ANTIMATTER"
                            :color color
-                           :mercury-color mercury-color}))
+                           :mercury-colors [[(* 0.1 ship-antimatter) red]
+                                            [(* 0.25 ship-antimatter) orange]
+                                             [ship-antimatter mercury-color]]}))
           :dilithium (p/setup
                        (->h-scale
                          {:x scale-x
@@ -47,7 +49,9 @@
                           :value ship-dilithium
                           :name "DILITHIUM"
                           :color color
-                          :mercury-color mercury-color}))
+                          :mercury-colors [[(* 0.1) red]
+                                           [(* 0.2 ship-dilithium) orange]
+                                           [ship-dilithium mercury-color]]}))
           :core-temp (p/setup
                        (->h-scale
                          {:x scale-x
@@ -59,7 +63,9 @@
                           :value 50
                           :name "CORE TEMP"
                           :color color
-                          :mercury-color mercury-color}))
+                          :mercury-colors [[70 mercury-color]
+                                           [85 orange]
+                                           [100 red]]}))
           :shields (p/setup
                      (->h-scale
                        {:x scale-x
@@ -71,7 +77,9 @@
                         :value ship-shields
                         :name "SHIELDS"
                         :color color
-                        :mercury-color mercury-color}))
+                        :mercury-colors [[(* 0.1 ship-shields) red]
+                                         [(* 0.6 ship-shields) orange]
+                                         [ship-shields mercury-color]]}))
           :elements [:antimatter :dilithium :core-temp :shields]))))
 
   (update-state [_ world]

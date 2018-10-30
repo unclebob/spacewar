@@ -7,6 +7,7 @@
 (def light-grey [200 200 200])
 (def yellow [255 255 0])
 (def dark-yellow [100 100 0])
+(def orange [255 150 50])
 (def red [255 0 0])
 (def dark-red [100 0 0])
 (def dark-red [100 0 0])
@@ -36,8 +37,6 @@
 (def button-h 40)
 (def slider-width 50)
 (def engage-width 100)
-
-(def message-height 30)
 
 (def phaser-length 30)
 (def kinetic-color [255 0 0])

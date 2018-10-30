@@ -1,6 +1,8 @@
 (ns spacewar.ui.widgets-test
     (:require [midje.sweet :refer :all]
-              [spacewar.ui.widgets.direction-selector :refer :all]))
+              [spacewar.ui.widgets.direction-selector :refer :all]
+              [spacewar.ui.widgets.horizontal-scale :as scale]
+              [spacewar.ui.config :refer :all]))
 
 (facts
   "direction-selector"
@@ -14,3 +16,17 @@
   (fact
     "non-cardinal ticks length 5"
     (degree-tick 100 45) => [71 71 67 67]))
+
+(facts
+  "scale"
+  (tabular
+    (fact
+    "scale colors"
+    (scale/mercury-color ?value [[10 white] [20 yellow] [30 red]]) => ?color)
+    ?value ?color
+    0 white
+    10 white
+    11 yellow
+    20 yellow
+    30 red
+    100 red))
