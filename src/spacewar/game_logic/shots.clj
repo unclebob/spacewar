@@ -3,6 +3,7 @@
     [spacewar.geometry :refer :all]
     [spacewar.vector :as vector]
     [spacewar.game-logic.config :refer :all]
+    [spacewar.game-logic.ship :as the_ship]
     [spacewar.ui.config :refer :all]
     [spacewar.util :refer :all]
     [clojure.set :as set]
@@ -111,7 +112,9 @@
                              weapon-spread-setting)
                 [])
         ship (if can-shoot?
-               (decrement-inventory ship)
+               (->> ship
+                   (decrement-inventory)
+                   (the_ship/heat-core required-power))
                ship)
         shots (map #(assoc % :type selected-weapon) shots)
         shots (corrupt-shots-by-damage (:weapons-damage ship) shots)

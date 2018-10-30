@@ -88,6 +88,16 @@
    :destroyed false}
   )
 
+(defn heat-core [antimatter ship]
+  (let [heat (* antimatter antimatter-to-heat)]
+    (update ship :core-temp + heat)))
+
+(defn dissipate-core-heat [ms ship]
+  (let [dilithium (:dilithium ship)
+        efficiency (Math/sqrt (/ dilithium ship-dilithium))
+        dissipation-factor (- 1 (* efficiency dilithium-heat-dissipation))]
+    (update ship :core-temp * (Math/pow dissipation-factor ms))))
+
 (defn drag [[x y :as v]]
   (if (and (zero? x) (zero? y))
     [0 0]
@@ -151,7 +161,8 @@
           warp-vector (vector/from-angular warp-leap radians)
           [wx wy] (if warp-trigger
                     (vector/add [x y] warp-vector)
-                    [x y])]
+                    [x y])
+          ship (heat-core power-used ship)]
       (assoc ship :x wx :y wy :warp-charge warp-charge
                   :antimatter antimatter
                   :dilithium dilithium))))
@@ -169,7 +180,8 @@
         drag (drag velocity)
         accelerated-v (apply-impulse ms velocity heading actual-impulse)
         velocity (apply-drag drag accelerated-v)
-        [px py] (vector/add [x y] (vector/scale ms velocity))]
+        [px py] (vector/add [x y] (vector/scale ms velocity))
+        ship (heat-core power-used ship)]
     (assoc ship :x px :y py
                 :velocity velocity
                 :antimatter antimatter)))
@@ -190,7 +202,9 @@
         difference (- ship-shields shields)
         charge (min difference antimatter (* ms ship-shield-recharge-rate))
         ship (update ship :shields + charge)
-        ship (update ship :antimatter - (* charge ship-shield-recharge-cost))]
+        antimatter (* charge ship-shield-recharge-cost)
+        ship (update ship :antimatter - antimatter)
+        ship (heat-core antimatter ship)]
     ship))
 
 (defn repair-capacity [ms ship]
@@ -234,7 +248,8 @@
            (impulse-ship ms)
            (rotate-ship ms)
            (charge-shields ms)
-           (repair-ship ms)))))
+           (repair-ship ms)
+           (dissipate-core-heat ms)))))
 
 (defn- set-heading-handler [{:keys [angle]} ship]
   (assoc ship :heading-setting angle))

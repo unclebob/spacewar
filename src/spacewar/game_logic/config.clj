@@ -21,13 +21,16 @@
 (def ship-kinetics 500)
 (def ship-torpedos 100)
 (def ship-repair-capacity 0.005)
+(def antimatter-to-heat 0.01)
+(def dilithium-heat-dissipation 0.00005)
+
 (def max-shots-by-type {:none 0 :phaser 10 :torpedo 5 :kinetic 20})
 
-(def phaser-range 30000)
-(def phaser-velocity 10) ;per ms
+(def phaser-range 50000)
+(def phaser-velocity 20) ;per ms
 (def phaser-proximity 1000)
-(def phaser-damage 80)
-(def phaser-power 1000)
+(def phaser-damage 300)
+(def phaser-power 500)
 
 (def torpedo-range 100000)
 (def torpedo-velocity 5)
@@ -39,7 +42,7 @@
 (def kinetic-velocity 6)
 (def kinetic-proximity 500)
 (def kinetic-damage 50)
-(def kinetic-power 200)
+(def kinetic-power 20)
 
 (def number-of-stars 1000)
 (def number-of-klingons 100)

@@ -219,3 +219,35 @@
             dilithium (:dilithium warped-ship)]
         dilithium => (roughly 0 1e-10)))
     ))
+
+(facts
+  "core temperature"
+  (let [ship (mom/make-ship)]
+    (fact
+      "antimatter consumption heats core"
+      (let [hot-ship (heat-core 100 ship)]
+        (:core-temp hot-ship) => (* 100 antimatter-to-heat)))
+
+    (fact
+      "dissipate heat with full dilithium"
+      (let [hot-ship (assoc ship :core-temp 50)
+            cool-ship (dissipate-core-heat 1 hot-ship)]
+        (:core-temp cool-ship) => (* 50 (- 1 dilithium-heat-dissipation))))
+
+    (fact
+      "dissipate heat with no dilithium"
+      (let [hot-ship (assoc ship :core-temp 50
+                                 :dilithium 0)
+            cool-ship (dissipate-core-heat 1 hot-ship)]
+        (:core-temp cool-ship) => (roughly 50 1e-10)))
+
+    (fact
+          "dissipate heat with half dilithium"
+          (let [hot-ship (assoc ship :core-temp 50
+                                     :dilithium (/ ship-dilithium 2))
+                cool-ship (dissipate-core-heat 1 hot-ship)]
+            (:core-temp cool-ship) => (roughly (* 50
+                                                  (- 1 (* dilithium-heat-dissipation
+                                                          (/ (Math/sqrt 2) 2)))) 1e-10)))
+
+      ))
