@@ -231,9 +231,11 @@
 
 (defn update-destruction [ship]
   (let [{:keys [life-support-damage
-                hull-damage]} ship
+                hull-damage
+                core-temp]} ship
         destroyed (or (>= life-support-damage 100)
-                      (>= hull-damage 100))]
+                      (>= hull-damage 100)
+                      (>= core-temp 100))]
     (if destroyed
       (assoc ship :destroyed true)
       ship)))

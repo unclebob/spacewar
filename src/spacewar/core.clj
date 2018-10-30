@@ -101,18 +101,34 @@
       (println (s/explain-str ::world world)))
     valid))
 
+(defn- msg [world text]
+  (view-frame/add-message world text 5000))
+
+(defn- shield-message [world]
+  (let [ship (:ship world)
+        shields (:shields ship)]
+    (cond
+      (< shields (/ ship-shields 2)) (msg world "Taking Damage sir!")
+      (< shields ship-shields) (msg world "Shields Holding sir!")
+      :else world)))
+
+(defn- add-messages [world]
+  (let [message-time (> 1 (rand 200))]
+    (if message-time
+      (->> world (shield-message))
+      world)))
+
 (defn update-world [ms world]
   ;{:pre [(valid-world? world)]
   ; :post [(valid-world? %)]}
   (let [ship (ship/update-ship ms (:ship world))
-        world (assoc world :ship ship)
-        world (game-over world)
-        world (shots/update-shots ms world)
-        world (explosions/update-explosions ms world)
-        world (klingons/update-klingons ms world)
-        world (view-frame/update-messages ms world)
-        ]
-    world))
+        world (assoc world :ship ship)]
+    (->> world (game-over)
+         (shots/update-shots ms)
+         (explosions/update-explosions ms)
+         (klingons/update-klingons ms)
+         (view-frame/update-messages ms)
+         (add-messages))))
 
 (defn add-frame-time [frame-time context]
   (let [frame-times (->
