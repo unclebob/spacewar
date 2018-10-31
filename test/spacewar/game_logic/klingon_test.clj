@@ -91,6 +91,8 @@
 
     (facts
       "klingon-offense"
+      (prerequisite (k/delay-shooting?) => false)
+
       (let [ship (-> (mom/make-ship) (mom/set-pos [0 0]))
             klingon (mom/make-klingon)
             world world]
@@ -179,6 +181,50 @@
               (shot :bearing) => (roughly 180)
               (klingon :weapon-charge) => 0
               (klingon :antimatter) => (- 1000 klingon-phaser-power))))
+
+        (fact
+          "in torpedo rage, torpedo charged, ship-not-turning, shot added, charge reset, count reduced, power used."
+          (let [in-range (dec klingon-torpedo-firing-distance)
+                klingon (mom/set-pos klingon [in-range 0])
+                klingon (assoc klingon :antimatter 1000 :weapon-charge klingon-torpedo-threshold
+                                       :torpedos 1)
+                world (mom/set-klingons world [klingon])
+                world (assoc world :shots [])
+                offense (k/klingon-offense 0 world)]
+            offense => mom/valid-world?
+            (count (:shots offense)) => 1
+            (let [shot (->> offense :shots first)
+                  klingon (->> offense :klingons first)]
+              (shot :type) => :klingon-torpedo
+              (shot :bearing) => (roughly 180)
+              (klingon :weapon-charge) => 0
+              (klingon :antimatter) => (- 1000 klingon-torpedo-power))))
+
+        (fact
+          "in torpedo rage, torpedo charged, no-torpedos, ship-not-turning, shot not added.  No costs."
+          (let [in-range (dec klingon-torpedo-firing-distance)
+                klingon (mom/set-pos klingon [in-range 0])
+                klingon (assoc klingon :antimatter 1000 :weapon-charge klingon-torpedo-threshold
+                                       :torpedos 0)
+                world (mom/set-klingons world [klingon])
+                world (assoc world :shots [])
+                offense (k/klingon-offense 0 world)]
+            offense => mom/valid-world?
+            (count (:shots offense)) => 0))
+
+        (fact
+          "in torpedo rage, torpedo charged, ship turning, shot not added.  No costs."
+          (let [in-range (dec klingon-torpedo-firing-distance)
+                klingon (mom/set-pos klingon [in-range 0])
+                klingon (assoc klingon :antimatter 1000 :weapon-charge klingon-torpedo-threshold
+                                       :torpedos 1)
+                ship (assoc ship :heading 90 :heading-setting 0)
+                world (mom/set-klingons world [klingon])
+                world (assoc world :shots []
+                                   :ship ship)
+                offense (k/klingon-offense 0 world)]
+            offense => mom/valid-world?
+            (count (:shots offense)) => 0))
 
         (fact
           "in kinetic firing distance, all charged, but no more kinetics left."

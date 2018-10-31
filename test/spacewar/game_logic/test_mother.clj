@@ -59,6 +59,7 @@
    :shields klingon-shields
    :antimatter 0
    :kinetics 0
+   :torpedos 0
    :weapon-charge 0
    :velocity [0 0]
    :thrust [0 0]

@@ -18,12 +18,13 @@
                       :phaser-ranges (s/coll-of number?)))
 (s/def ::hit (s/keys :req-un [::weapon ::damage]))
 (s/def ::kinetics number?)
+(s/def ::torpedos number?)
 (s/def ::weapon-charge number?)
 (s/def ::velocity (s/tuple number? number?))
 (s/def ::thrust (s/tuple number? number?))
 
 (s/def ::klingon (s/keys :req-un [::x ::y ::shields ::antimatter
-                                  ::kinetics ::weapon-charge
+                                  ::kinetics ::torpedos ::weapon-charge
                                   ::velocity ::thrust]
                          :opt-un [::hit]))
 (s/def ::klingons (s/coll-of ::klingon))
@@ -34,6 +35,7 @@
    :shields klingon-shields
    :antimatter klingon-antimatter
    :kinetics klingon-kinetics
+   :torpedos klingon-torpedos
    :weapon-charge 0
    :velocity [(- 2 (rand 4)) (- 2 (rand 4))]
    :thrust [0 0]})
@@ -146,6 +148,24 @@
       (<= klingon-phaser-threshold
           (:weapon-charge klingon)))))
 
+(defn- turning? [ship]
+  (let [heading (:heading ship)
+        heading-setting (:heading-setting ship)
+        diff (q/abs (- heading heading-setting))]
+    (> diff 0.5)))
+
+(defn- ready-to-fire-torpedo? [klingon ship]
+  (let [ship-pos [(:x ship) (:y ship)]
+        klingon-pos [(:x klingon) (:y klingon)]
+        dist (distance ship-pos klingon-pos)]
+    (and
+      (not (turning? ship))
+      (> (:torpedos klingon) 0)
+      (< dist klingon-torpedo-firing-distance)
+      (> (:antimatter klingon) klingon-torpedo-power)
+      (<= klingon-torpedo-threshold
+          (:weapon-charge klingon)))))
+
 (defn- phaser-shot [klingon ship]
   (shots/->shot
     (:x klingon) (:y klingon)
@@ -158,6 +178,12 @@
     (firing-solution klingon ship klingon-kinetic-velocity)
     :klingon-kinetic))
 
+(defn- torpedo-shot [klingon ship]
+  (shots/->shot
+    (:x klingon) (:y klingon)
+    (firing-solution klingon ship klingon-torpedo-velocity)
+    :klingon-torpedo))
+
 (defn- apply-phaser-costs [klingon]
   (-> klingon
       (update :weapon-charge - klingon-phaser-threshold)
@@ -169,12 +195,24 @@
       (update :kinetics dec)
       (update :antimatter - klingon-kinetic-power)))
 
+(defn- apply-torpedo-costs [klingon]
+  (-> klingon
+      (update :weapon-charge - klingon-torpedo-threshold)
+      (update :torpedos dec)
+      (update :antimatter - klingon-torpedo-power))
+
+  )
+
 (defn- fire-charged-weapons [klingons ship]
   (loop [klingons klingons shots [] fired-klingons []]
     (if (empty? klingons)
       [fired-klingons shots]
       (let [klingon (first klingons)]
         (cond
+          (ready-to-fire-torpedo? klingon ship)
+          (recur (rest klingons)
+                 (conj shots (torpedo-shot klingon ship))
+                 (conj fired-klingons (apply-torpedo-costs klingon)))
           (ready-to-fire-phaser? klingon ship)
           (recur (rest klingons)
                  (conj shots (phaser-shot klingon ship))
@@ -187,12 +225,17 @@
           (recur (rest klingons) shots (conj fired-klingons klingon))
           )))))
 
+(defn delay-shooting? []
+  (> 95 (rand 100)))
+
 (defn klingon-offense [ms world]
   (if (:game-over world)
     world
     (let [{:keys [klingons ship shots]} world
           klingons (charge-weapons ms klingons ship)
-          [klingons new-shots] (fire-charged-weapons klingons ship)]
+          [klingons new-shots] (if (delay-shooting?)
+                                 [klingons []]
+                                 (fire-charged-weapons klingons ship))]
       (assoc world :klingons klingons
                    :shots (concat shots new-shots)))))
 

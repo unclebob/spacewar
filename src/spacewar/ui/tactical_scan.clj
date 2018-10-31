@@ -202,6 +202,19 @@
         (draw-torpedo-segment)
         (draw-torpedo-segment)))))
 
+(defn- draw-klingon-torpedo-shots [state]
+  (let [{:keys [w h world]} state
+        torpedo-shots (filter #(= :klingon-torpedo (:type %)) (:shots world))
+        presentable-torpedo-shots (present-objects state torpedo-shots)]
+    (doseq [{:keys [x y]} presentable-torpedo-shots]
+      (q/with-translation
+        [(+ x (/ w 2)) (+ y (/ h 2))]
+        (draw-torpedo-segment)
+        (draw-torpedo-segment)
+        (draw-torpedo-segment)
+        (apply q/fill green)
+        (q/ellipse 0 0 4 4)))))
+
 (defn- draw-kinetic-shots [state]
   (let [{:keys [w h world]} state
         kinetic-shots (filter #(= :kinetic (:type %)) (:shots world))
@@ -326,7 +339,8 @@
   (draw-torpedo-shots state)
   (draw-kinetic-shots state)
   (draw-klingon-kinetic-shots state)
-  (draw-klingon-phaser-shots state))
+  (draw-klingon-phaser-shots state)
+  (draw-klingon-torpedo-shots state))
 
 (deftype tactical-scan [state]
   p/Drawable

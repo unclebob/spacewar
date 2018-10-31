@@ -16,7 +16,7 @@
 (s/def ::y number?)
 (s/def ::bearing (s/and number? #(<= 0 % 360)))
 (s/def ::range number?)
-(s/def ::type #{:phaser :torpedo :kinetic :klingon-kinetic :klingon-phaser})
+(s/def ::type #{:phaser :torpedo :kinetic :klingon-kinetic :klingon-phaser :klingon-torpedo})
 (s/def ::shot (s/keys :req-un [::x ::y ::bearing ::range ::type]))
 (s/def ::shots (s/coll-of ::shot))
 
@@ -143,7 +143,8 @@
    :torpedo torpedo-velocity
    :kinetic kinetic-velocity
    :klingon-kinetic klingon-kinetic-velocity
-   :klingon-phaser klingon-phaser-velocity})
+   :klingon-phaser klingon-phaser-velocity
+   :klingon-torpedo klingon-torpedo-velocity})
 
 (defn- shot-distance [ms shot]
   (* ms ((:type shot) shot-velocity)))
@@ -154,7 +155,8 @@
     :torpedo torpedo-range
     :phaser phaser-range
     :klingon-kinetic klingon-kinetic-range
-    :klingon-phaser klingon-phaser-range))
+    :klingon-phaser klingon-phaser-range
+    :klingon-torpedo klingon-torpedo-range))
 
 
 (defn update-shot-positions [ms world]
@@ -229,19 +231,21 @@
   )
 
 (defn- friend-or-foe [shot]
-  (if (some? (#{:klingon-kinetic :klingon-phaser} (:type shot)))
+  (if (some? (#{:klingon-kinetic :klingon-phaser :klingon-torpedo} (:type shot)))
     :foe
     :friend))
 
 (defn- foe-weapon-proximity [type]
   (condp = type
     :klingon-kinetic klingon-kinetic-proximity
-    :klingon-phaser klingon-phaser-proximity))
+    :klingon-phaser klingon-phaser-proximity
+    :klingon-torpedo klingon-torpedo-proximity))
 
 (defn- ship-hit-damage [shot]
   (condp = (:type shot)
     :klingon-kinetic klingon-kinetic-damage
-    :klingon-phaser klingon-phaser-damage))
+    :klingon-phaser klingon-phaser-damage
+    :klingon-torpedo klingon-torpedo-damage))
 
 (defn- hit-miss-ship [ship shot]
   (let [dist (distance [(:x ship) (:y ship)]

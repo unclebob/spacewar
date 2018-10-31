@@ -139,34 +139,53 @@
                                               {:until 500 :colors [yellow red]}
                                               {:until 800 :colors [red black]}]}
    :klingon-phaser {:duration 1000
-               :explosion-profile [{:velocity 0.5 :until 100}
-                                   {:velocity -0.05 :until 1000}]
-               :explosion-color-profile [{:until 100 :colors [white white]}
-                                         {:until 500 :colors [white green]}
-                                         {:until 1000 :colors [green black]}]
-               :fragments 20
-               :fragment-velocity 0.5
-               :fragment-color-profile [{:until 100 :colors [white white]}
-                                        {:until 300 :colors [white green]}
-                                        {:until 500 :colors [green yellow]}
-                                        {:until 1000 :colors [yellow black]}]}
+                    :explosion-profile [{:velocity 0.5 :until 100}
+                                        {:velocity -0.05 :until 1000}]
+                    :explosion-color-profile [{:until 100 :colors [white white]}
+                                              {:until 500 :colors [white green]}
+                                              {:until 1000 :colors [green black]}]
+                    :fragments 20
+                    :fragment-velocity 0.5
+                    :fragment-color-profile [{:until 100 :colors [white white]}
+                                             {:until 300 :colors [white green]}
+                                             {:until 500 :colors [green yellow]}
+                                             {:until 1000 :colors [yellow black]}]}
+   :klingon-torpedo {:duration 2000
+                     :explosion-profile [{:velocity 0.8 :until 100}
+                                         {:velocity 0.6 :until 200}
+                                         {:velocity 0.4 :until 300}
+                                         {:velocity 0.2 :until 400}
+                                         {:velocity 0.1 :until 500}
+                                         {:velocity 0.0 :until 700}
+                                         {:velocity -0.05 :until 2000}]
+                     :explosion-color-profile [{:until 100 :colors [white white]}
+                                               {:until 400 :colors [white green]}
+                                               {:until 1500 :colors [green dark-red]}
+                                               {:until 2000 :colors [dark-red black]}]
+                     :fragments 50
+                     :fragment-velocity 0.2
+                     :fragment-color-profile [{:until 500 :colors [white white]}
+                                              {:until 800 :colors [white yellow]}
+                                              {:until 1200 :colors [yellow red]}
+                                              {:until 2000 :colors [red black]}]}
+
    :ship {:duration 8000
-                :explosion-profile [{:velocity 0.8 :until 100}
-                                    {:velocity 0.9 :until 200}
-                                    {:velocity 1 :until 400}
-                                    {:velocity 0.2 :until 600}
-                                    {:velocity 0.1 :until 600}
-                                    {:velocity -0.3 :until 800}
-                                    {:velocity 1 :until 1000}
-                                    {:velocity -0.01 :until 8000}]
-                :explosion-color-profile [{:until 100 :colors [white white]}
-                                          {:until 2000 :colors [white yellow]}
-                                          {:until 7000 :colors [yellow dark-red]}
-                                          {:until 8000 :colors [dark-red black]}]
-                :fragments 300
-                :fragment-velocity 0.2
-                :fragment-color-profile [{:until 500 :colors [white white]}
-                                         {:until 2000 :colors [white yellow]}
-                                         {:until 4000 :colors [yellow red]}
-                                         {:until 8000 :colors [red black]}]}})
+          :explosion-profile [{:velocity 0.8 :until 100}
+                              {:velocity 0.9 :until 200}
+                              {:velocity 1 :until 400}
+                              {:velocity 0.2 :until 600}
+                              {:velocity 0.1 :until 600}
+                              {:velocity -0.3 :until 800}
+                              {:velocity 1 :until 1000}
+                              {:velocity -0.01 :until 8000}]
+          :explosion-color-profile [{:until 100 :colors [white white]}
+                                    {:until 2000 :colors [white yellow]}
+                                    {:until 7000 :colors [yellow dark-red]}
+                                    {:until 8000 :colors [dark-red black]}]
+          :fragments 300
+          :fragment-velocity 0.2
+          :fragment-color-profile [{:until 500 :colors [white white]}
+                                   {:until 2000 :colors [white yellow]}
+                                   {:until 4000 :colors [yellow red]}
+                                   {:until 8000 :colors [red black]}]}})
 
