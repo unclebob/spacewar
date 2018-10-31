@@ -108,12 +108,14 @@
   (let [ship (:ship world)
         shields (:shields ship)]
     (cond
+      (< shields (/ ship-shields 5)) (msg world "Captain! Shields are buckling!")
       (< shields (/ ship-shields 2)) (msg world "Taking Damage sir!")
       (< shields ship-shields) (msg world "Shields Holding sir!")
       :else world)))
 
 (defn- add-messages [world]
-  (let [message-time (> 1 (rand 200))]
+  (let [message-time (and (not (->> world :ship :destroyed))
+                          (> 1 (rand 200)))]
     (if message-time
       (->> world (shield-message))
       world)))
