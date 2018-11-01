@@ -16,6 +16,8 @@
 
 (deftype damage-panel [state]
   p/Drawable
+  (get-state [_] state)
+
   (draw [_]
     (draw-lcars state)
     (p/draw-elements state))
@@ -33,10 +35,12 @@
           hull-y warp-y
           sensor-y impulse-y
           weapons-y life-support-y
+          height (+ banner-width button-gap indicator-h indicator-gap indicator-h indicator-gap indicator-h)
           colors [[0 255 0] [255 255 0] [255 150 0] [255 0 0] [0 0 0]]
           ]
       (damage-panel.
         (assoc state
+          :h height
           :warp (p/setup
                   (->named-indicator
                     {:x col1

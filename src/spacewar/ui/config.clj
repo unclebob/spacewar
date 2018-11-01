@@ -18,9 +18,9 @@
 (def velocity-vector-scale 20)
 (def base-color [0 50 255])
 
-(def scan-panel-color [150 150 255])
-(def scan-panel-button-color [100 100 255])
-(def scan-panel-selection-color [70 70 200])
+(def scan-panel-color [150 200 255])
+(def scan-panel-button-color [100 150 255])
+(def scan-panel-selection-color [70 100 200])
 (def engine-panel-color [150 255 150])
 (def engine-panel-button-color [80 255 80])
 (def engine-panel-selection-color [30 200 30])
@@ -28,6 +28,8 @@
 (def weapons-panel-button-color [255 150 50])
 (def weapons-panel-selection-color [200 100 30])
 (def damage-panel-color [255 100 100])
+(def deploy-panel-button-color [80 80 255])
+(def deploy-panel-color [120 120 255])
 (def status-panel-color [255 255 200])
 (def status-panel-mercury-color [240 240 0])
 

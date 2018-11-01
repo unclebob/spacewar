@@ -7,7 +7,8 @@
                                         [engine-panel :refer :all]
                                         [weapons-panel :refer :all]
                                         [damage-panel :refer :all]
-                                        [status-panel :refer :all])
+                                        [status-panel :refer :all]
+                                        [deploy-panel :refer :all])
             (spacewar.ui.widgets [lights :refer :all])))
 
 (defn draw-light-panel [state]
@@ -196,15 +197,28 @@
           damage-panel-x (+ x left-margin frame-width small-panel-gap)
           damage-panel-y scan-panel-y
           damage-panel-w (- right-margin (* 2 small-panel-gap))
-          damage-panel-h scan-panel-h
           damage-panel (p/setup
                          (->damage-panel {:x damage-panel-x
                                           :y damage-panel-y
                                           :w damage-panel-w
-                                          :h damage-panel-h
                                           :name "DAMAGE"
                                           :color damage-panel-color
                                           :inverted true}))
+          damage-panel-h (:h (p/get-state damage-panel))
+
+          deploy-panel-x damage-panel-x
+          deploy-panel-y (+ damage-panel-y damage-panel-h panel-gap)
+          deploy-panel-w damage-panel-w
+          deploy-panel (p/setup
+                           (->deploy-panel {:x deploy-panel-x
+                                            :y deploy-panel-y
+                                            :w deploy-panel-w
+                                            :name "DEPLOY"
+                                              :color deploy-panel-color
+                                            :button-color deploy-panel-button-color
+                                            :inverted true}))
+          deploy-panel-h (:h (p/get-state deploy-panel))
+
 
           status-panel-x (+ engine-panel-x engine-panel-w small-panel-gap)
           status-panel-y (+ bottom-lights-y bottom-lights-h panel-gap)
@@ -228,10 +242,12 @@
                                  :weapons-panel weapons-panel
                                  :damage-panel damage-panel
                                  :status-panel status-panel
+                                 :deploy-panel deploy-panel
                                  :elements [:frame :bottom-lights :left-lights
                                             :right-lights :scan-panel
                                             :engine-panel :weapons-panel
-                                            :damage-panel :status-panel])]
+                                            :damage-panel :status-panel
+                                            :deploy-panel])]
       (complex. new-state)))
 
   (update-state [_ world]
