@@ -5,19 +5,33 @@
             [spacewar.core :as core]
             [spacewar.game-logic.ship :as ship]
             [spacewar.game-logic.klingons :as klingons]
-            [spacewar.game-logic.shots :as shots]))
+            [spacewar.game-logic.shots :as shots]
+            [spacewar.game-logic.stars :as stars]))
 
-(def valid-world? (chatty-checker [world]
-  (nil? (spec/explain-data ::core/world world))))
+(def valid-world?
+  (chatty-checker
+    [world]
+    (nil? (spec/explain-data ::core/world world))))
 
-(def valid-ship? (chatty-checker [ship]
-  (nil? (spec/explain-data ::ship/ship ship))))
+(def valid-ship?
+  (chatty-checker
+    [ship]
+    (nil? (spec/explain-data ::ship/ship ship))))
 
-(def valid-klingon? (chatty-checker [klingon]
-  (nil? (spec/explain-data ::klingons/klingon klingon))))
+(def valid-klingon?
+  (chatty-checker
+    [klingon]
+    (nil? (spec/explain-data ::klingons/klingon klingon))))
 
-(def valid-shot? (chatty-checker [shot]
-  (nil? (spec/explain-data ::shots/shot shot))))
+(def valid-shot?
+  (chatty-checker
+    [shot]
+    (nil? (spec/explain-data ::shots/shot shot))))
+
+(def valid-star?
+  (chatty-checker
+    [star]
+    (nil? (spec/explain-data ::stars/star star))))
 
 (defn make-ship []
   {
@@ -84,6 +98,12 @@
    :bearing 0
    :range 0
    :type :phaser})
+
+(defn make-star
+  ([]
+   (make-star 0 0 :o))
+  ([x y class]
+   {:x x :y y :class class}))
 
 (defn set-pos [obj [x y]]
   (assoc obj :x x :y y))

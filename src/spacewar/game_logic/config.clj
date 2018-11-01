@@ -18,6 +18,7 @@
 (def ship-shield-recharge-rate 0.01)
 (def ship-shield-recharge-cost 5)
 (def ship-docking-distance 2000)
+(def ship-deploy-distance 5000)
 (def ship-kinetics 500)
 (def ship-torpedos 100)
 (def ship-repair-capacity 0.005)

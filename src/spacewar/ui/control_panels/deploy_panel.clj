@@ -3,7 +3,7 @@
                          [config :refer :all])
             [spacewar.ui.widgets.lcars :refer :all]
             [spacewar.ui.widgets.button :refer :all]
-            ))
+            [spacewar.game-logic.ship :as ship]))
 
 (deftype deploy-panel [state]
   p/Drawable
@@ -60,7 +60,15 @@
           :elements [:antimatter-factory :dilithium-factory :weapon-factory]))))
 
   (update-state [_ world]
-    (let [[state events] (p/update-elements state world)]
+    (let [{:keys [ship stars]} world
+          am-deployable (ship/deployable? :antimatter-factory ship stars)
+          dl-deployable (ship/deployable? :dilithium-factory ship stars)
+          wpn-deployable (ship/deployable? :weapon-factory ship stars)
+          state (p/change-elements
+                  state[[:antimatter-factory :disabled (not am-deployable)]
+                        [:dilithium-factory :disabled (not dl-deployable)]
+                        [:weapon-factory :disabled (not wpn-deployable)]])
+          [state events] (p/update-elements state world)]
       (p/pack-update
         (deploy-panel. state)
         events))))

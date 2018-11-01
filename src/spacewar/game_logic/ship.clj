@@ -344,3 +344,21 @@
                                   [(:x %) (:y %)]) bases)
         closest (apply min distances)]
     (< closest ship-docking-distance)))
+
+(defn deployment-classes [factory]
+  (condp = factory
+    :antimatter-factory #{:o :b :a}
+    :dilithium-factory #{:k :m}
+    :weapon-factory #{:f :g}))
+
+(defn deployable? [factory ship stars]
+  (let [{:keys [x y]} ship
+        deployment-classes-set (deployment-classes factory)
+        deployable-stars (filter #(deployment-classes-set (:class %)) stars)
+        distances (map #(distance [x y] [(:x %) (:y %)]) deployable-stars)
+        closest (if (empty? distances)
+                  nil
+                  (apply min distances))]
+    (if closest
+      (< closest ship-deploy-distance)
+      false)))

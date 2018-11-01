@@ -116,6 +116,65 @@
     (dockable? ship [base]) => true))
 
 (facts
+  "about deployment"
+  (let [ship (mom/make-ship)]
+    (fact
+      "no stars close, nothing deployable"
+      (deployable? :antimatter-factory ship []) => false
+      (deployable? :dilithium-factory ship []) => false
+      (deployable? :weapon-factory ship []) => false)
+
+    (fact
+      "near class O, antimatter-factory deployable"
+      (let [star (mom/make-star (dec ship-deploy-distance) 0 :o)]
+        (deployable? :antimatter-factory ship [star]) => true
+        (deployable? :dilithium-factory ship [star]) => false
+        (deployable? :weapon-factory ship [star]) => false
+        ))
+    (fact
+      "near class B, antimatter-factory deployable"
+      (let [star (mom/make-star (dec ship-deploy-distance) 0 :b)]
+        (deployable? :antimatter-factory ship [star]) => true
+        (deployable? :dilithium-factory ship [star]) => false
+        (deployable? :weapon-factory ship [star]) => false
+        ))
+    (fact
+      "near class A, antimatter-factory deployable"
+      (let [star (mom/make-star (dec ship-deploy-distance) 0 :a)]
+        (deployable? :antimatter-factory ship [star]) => true
+        (deployable? :dilithium-factory ship [star]) => false
+        (deployable? :weapon-factory ship [star]) => false
+        ))
+    (fact
+      "near class F, weapon-factory deployable"
+      (let [star (mom/make-star (dec ship-deploy-distance) 0 :f)]
+        (deployable? :antimatter-factory ship [star]) => false
+        (deployable? :dilithium-factory ship [star]) => false
+        (deployable? :weapon-factory ship [star]) => true
+        ))
+    (fact
+      "near class G, weapon-factory deployable"
+      (let [star (mom/make-star (dec ship-deploy-distance) 0 :g)]
+        (deployable? :antimatter-factory ship [star]) => false
+        (deployable? :dilithium-factory ship [star]) => false
+        (deployable? :weapon-factory ship [star]) => true
+        ))
+    (fact
+      "near class K, dilithium-factory deployable"
+      (let [star (mom/make-star (dec ship-deploy-distance) 0 :k)]
+        (deployable? :antimatter-factory ship [star]) => false
+        (deployable? :dilithium-factory ship [star]) => true
+        (deployable? :weapon-factory ship [star]) => false
+        ))
+    (fact
+      "near class M, dilithium-factory deployable"
+      (let [star (mom/make-star (dec ship-deploy-distance) 0 :m)]
+        (deployable? :antimatter-factory ship [star]) => false
+        (deployable? :dilithium-factory ship [star]) => true
+        (deployable? :weapon-factory ship [star]) => false
+        ))))
+
+(facts
   "damage repair"
   (let [ship (mom/make-ship)]
     (fact
@@ -242,12 +301,12 @@
         (:core-temp cool-ship) => (roughly 50 1e-10)))
 
     (fact
-          "dissipate heat with half dilithium"
-          (let [hot-ship (assoc ship :core-temp 50
-                                     :dilithium (/ ship-dilithium 2))
-                cool-ship (dissipate-core-heat 1 hot-ship)]
-            (:core-temp cool-ship) => (roughly (* 50
-                                                  (- 1 (* dilithium-heat-dissipation
-                                                          (/ (Math/sqrt 2) 2)))) 1e-10)))
+      "dissipate heat with half dilithium"
+      (let [hot-ship (assoc ship :core-temp 50
+                                 :dilithium (/ ship-dilithium 2))
+            cool-ship (dissipate-core-heat 1 hot-ship)]
+        (:core-temp cool-ship) => (roughly (* 50
+                                              (- 1 (* dilithium-heat-dissipation
+                                                      (/ (Math/sqrt 2) 2)))) 1e-10)))
 
-      ))
+    ))
