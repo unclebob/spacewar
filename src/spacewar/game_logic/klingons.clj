@@ -166,64 +166,61 @@
       (<= klingon-torpedo-threshold
           (:weapon-charge klingon)))))
 
-(defn- phaser-shot [klingon ship]
+(defn- weapon-velocity [weapon]
+  (condp = weapon
+    :klingon-kinetic klingon-kinetic-velocity
+    :klingon-phaser klingon-phaser-velocity
+    :klingon-torpedo klingon-torpedo-velocity))
+
+(defn- weapon-threshold [weapon]
+  (condp = weapon
+    :klingon-kinetic klingon-kinetic-threshold
+    :klingon-phaser klingon-phaser-threshold
+    :klingon-torpedo klingon-torpedo-threshold))
+
+(defn- weapon-power [weapon]
+  (condp = weapon
+    :klingon-kinetic klingon-kinetic-power
+    :klingon-phaser klingon-phaser-power
+    :klingon-torpedo klingon-torpedo-power))
+
+(defn- weapon-inventory [weapon]
+  (condp = weapon
+    :klingon-kinetic :kinetics
+    :klingon-phaser nil
+    :klingon-torpedo :torpedos))
+
+(defn- fire-shot [klingon ship weapon]
   (shots/->shot
     (:x klingon) (:y klingon)
-    (firing-solution klingon ship klingon-phaser-velocity)
-    :klingon-phaser))
-
-(defn- kinetic-shot [klingon ship]
-  (shots/->shot
-    (:x klingon) (:y klingon)
-    (firing-solution klingon ship klingon-kinetic-velocity)
-    :klingon-kinetic))
-
-(defn- torpedo-shot [klingon ship]
-  (shots/->shot
-    (:x klingon) (:y klingon)
-    (firing-solution klingon ship klingon-torpedo-velocity)
-    :klingon-torpedo))
-
-(defn- apply-phaser-costs [klingon]
-  (-> klingon
-      (update :weapon-charge - klingon-phaser-threshold)
-      (update :antimatter - klingon-phaser-power)))
-
-(defn- apply-kinetic-costs [klingon]
-  (-> klingon
-      (update :weapon-charge - klingon-kinetic-threshold)
-      (update :kinetics dec)
-      (update :antimatter - klingon-kinetic-power)))
-
-(defn- apply-torpedo-costs [klingon]
-  (-> klingon
-      (update :weapon-charge - klingon-torpedo-threshold)
-      (update :torpedos dec)
-      (update :antimatter - klingon-torpedo-power))
-
+    (firing-solution klingon ship (weapon-velocity weapon))
+    weapon)
   )
+
+(defn- apply-weapon-costs [klingon weapon]
+  (let [klingon (-> klingon
+                    (update :weapon-charge - (weapon-threshold weapon))
+                    (update :antimatter - (weapon-power weapon)))
+        inventory (weapon-inventory weapon)]
+    (if inventory
+      (update klingon inventory dec)
+      klingon)))
 
 (defn- fire-charged-weapons [klingons ship]
   (loop [klingons klingons shots [] fired-klingons []]
     (if (empty? klingons)
       [fired-klingons shots]
-      (let [klingon (first klingons)]
-        (cond
-          (ready-to-fire-torpedo? klingon ship)
+      (let [klingon (first klingons)
+            weapon (cond
+                     (ready-to-fire-torpedo? klingon ship) :klingon-torpedo
+                     (ready-to-fire-phaser? klingon ship) :klingon-phaser
+                     (ready-to-fire-kinetic? klingon) :klingon-kinetic
+                     :else nil)]
+        (if weapon
           (recur (rest klingons)
-                 (conj shots (torpedo-shot klingon ship))
-                 (conj fired-klingons (apply-torpedo-costs klingon)))
-          (ready-to-fire-phaser? klingon ship)
-          (recur (rest klingons)
-                 (conj shots (phaser-shot klingon ship))
-                 (conj fired-klingons (apply-phaser-costs klingon)))
-          (ready-to-fire-kinetic? klingon)
-          (recur (rest klingons)
-                 (conj shots (kinetic-shot klingon ship))
-                 (conj fired-klingons (apply-kinetic-costs klingon)))
-          :else
-          (recur (rest klingons) shots (conj fired-klingons klingon))
-          )))))
+                 (conj shots (fire-shot klingon ship weapon))
+                 (conj fired-klingons (apply-weapon-costs klingon weapon)))
+          (recur (rest klingons) shots (conj fired-klingons klingon)))))))
 
 (defn delay-shooting? []
   (> 95 (rand 100)))
