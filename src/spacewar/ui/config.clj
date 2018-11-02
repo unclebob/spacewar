@@ -18,8 +18,8 @@
 (def enterprise-vector-color [0 100 20])
 (def velocity-vector-scale 20)
 (def weapon-factory-color [0 50 255])
-(def antimatter-factory-color [255 50 0])
-(def dilithium-factory-color [255 255 50])
+(def antimatter-factory-color [255 100 0])
+(def dilithium-factory-color [250 200 0])
 
 (def scan-panel-color [150 200 255])
 (def scan-panel-button-color [100 150 255])

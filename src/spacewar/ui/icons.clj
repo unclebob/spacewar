@@ -5,21 +5,45 @@
             [spacewar.game-logic.config :refer :all]
             [spacewar.geometry :refer :all]))
 
-(defn- base-color [type]
-  (condp = type
-    :weapon-factory weapon-factory-color
-    :antimatter-factory antimatter-factory-color
-    :dilithium-factory dilithium-factory-color))
+(defmulti draw-base-icon identity)
 
-(defn draw-base-icon [type]
+(defmethod draw-base-icon :weapon-factory [_]
   (q/no-fill)
-  (apply q/stroke (base-color type))
+  (apply q/stroke weapon-factory-color)
   (q/stroke-weight 2)
   (q/ellipse-mode :center)
   (q/ellipse 0 0 12 12)
   (q/ellipse 0 0 20 20)
   (q/line 0 -6 0 6)
   (q/line -6 0 6 0))
+
+(defmethod draw-base-icon :antimatter-factory [_]
+  (q/no-fill)
+  (apply q/stroke antimatter-factory-color)
+  (q/stroke-weight 2)
+  (q/ellipse-mode :center)
+  (q/ellipse 0 0 12 12)
+  (q/line 0 -6 0 6)
+  (q/line -6 0 6 0)
+  (q/ellipse 0 -8 5 5)
+  (q/ellipse 0 8 5 5)
+  (q/ellipse -8 0 5 5)
+  (q/ellipse 8 0 5 5))
+
+
+(defmethod draw-base-icon :dilithium-factory [_]
+  (q/no-fill)
+  (apply q/stroke dilithium-factory-color)
+  (q/stroke-weight 2)
+  (q/ellipse-mode :center)
+  (q/quad 0 6 6 0 0 -6 -6 0)
+  (q/quad 0 10 10 0 0 -10 -10 0)
+  (q/line 0 -6 0 6)
+  (q/line -6 0 6 0)
+  (q/line 3 10 -3 10)
+  (q/line 3 -10 -3 -10)
+  (q/line 10 3 10 -3)
+  (q/line -10 3 -10 -3))
 
 (defn draw-klingon-icon []
   (apply q/fill black)
