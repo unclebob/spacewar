@@ -26,7 +26,8 @@ You have two modes of movement.  Warp, and Impulse.
  * The WARP engines move you in a sequence of leaps.  Each leap
  is the same size.  The more power you use the faster those leaps
  are made.  Be careful, the energy consumed is not linear.  Warp 10
- uses a _lot_ more antimatter than Warp 1.  
+ uses a _lot_ more antimatter than Warp 1.  And, remember, rapid energy
+ consumption increases the Core Temperature; especially if are low on Dilithium.
  
  * The Impulse engines are reaction thrust engines.  They consume antimatter and
  can propel you at speeds that are a significant fraction of C.  At those speeds
@@ -97,4 +98,11 @@ non-functional.
  As long as LIF is not black, these systems will be gradually repaired.
  So it is often a good idea to warp away from a bad situation and wait
  the repairs out.
+ 
+ ## Docking
+ To replenish your antimatter, and weapons, you'll need to dock at a base.
+ You do this by warping close and then using your impulse engines to approach
+ the base as closely as you can.  Put the ship on top of the base.  Watch for the 
+ _DOCK_ button to show up in the Engine Control Panel.  Hit that button
+ and you'll be refueled and restocked.
  
