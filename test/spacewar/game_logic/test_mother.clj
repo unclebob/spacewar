@@ -6,7 +6,8 @@
             [spacewar.game-logic.ship :as ship]
             [spacewar.game-logic.klingons :as klingons]
             [spacewar.game-logic.shots :as shots]
-            [spacewar.game-logic.stars :as stars]))
+            [spacewar.game-logic.stars :as stars]
+            [spacewar.game-logic.bases :as bases]))
 
 (def valid-world?
   (chatty-checker
@@ -32,6 +33,11 @@
   (chatty-checker
     [star]
     (nil? (spec/explain-data ::stars/star star))))
+
+(def valid-base?
+  (chatty-checker
+    [base]
+    (nil? (spec/explain-data ::bases/base base))))
 
 (defn make-ship []
   {
@@ -104,6 +110,21 @@
    (make-star 0 0 :o))
   ([x y class]
    {:x x :y y :class class}))
+
+(defn make-base
+  ([]
+   (make-base 0 0 :weapon-factory 0 0 0 0))
+  ([x y type antimatter dilithium & weapons]
+   (let [base {:x x
+               :y y
+               :age 0
+               :type type
+               :antimatter antimatter
+               :dilithium dilithium}]
+     (if (= type :weapon-factory)
+       (assoc base :kinetics (first weapons)
+                   :torpedos (second weapons))
+       base))))
 
 (defn set-pos [obj [x y]]
   (assoc obj :x x :y y))

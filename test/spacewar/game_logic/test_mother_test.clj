@@ -14,6 +14,13 @@
 (fact "make-shot"
       (make-shot) => valid-shot?)
 
+(fact "make-star"
+      (make-star) => valid-star?)
+
+(fact "make-base"
+      (make-base) => valid-base?
+      (make-base 1 1 :dilithium-factory 10 10) => valid-base?)
+
 (fact "set-pos"
       (let [object (make-klingon)
             new-obj (set-pos object [1 2])]
