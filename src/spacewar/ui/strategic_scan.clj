@@ -21,8 +21,10 @@
       (q/no-stroke)
       (q/ellipse-mode :center)
       (doseq [{:keys [x y class]} stars]
-        (apply q/fill (class star-colors))
-        (q/ellipse (* (- x sx) pixel-width) (* (- y sy) pixel-width) (class star-sizes) (class star-sizes))))))
+        (draw-star-icon
+          (* (- x sx) pixel-width)
+          (* (- y sy) pixel-width)
+          class)))))
 
 
 (defn- draw-klingons [state]
@@ -41,27 +43,13 @@
         velocity (or (->> state :ship :velocity) [0 0])
         [vx vy] (v/scale velocity-vector-scale velocity)
         radians (->radians heading)]
-    (apply q/stroke enterprise-vector-color)
-    (q/stroke-weight 2)
-    (q/line 0 0 vx vy)
-    (q/with-rotation
-      [radians]
-      (apply q/stroke enterprise-color)
-      (q/stroke-weight 2)
-      (q/ellipse-mode :center)
-      (apply q/fill black)
-      (q/line -9 -9 0 0)
-      (q/line -9 9 0 0)
-      (q/ellipse 0 0 9 9)
-      (q/line -5 9 -15 9)
-      (q/line -5 -9 -15 -9))))
+    (draw-ship-icon [vx vy] radians)))
 
 (defn- draw-bases [state]
   (let [{:keys [bases pixel-width ship]} state
         sx (:x ship)
         sy (:y ship)]
     (when bases
-      (prepare-to-draw-bases)
       (doseq [{:keys [x y]} bases]
         (q/with-translation
           [(* (- x sx) pixel-width)

@@ -78,8 +78,7 @@
     (q/with-translation
       [(/ w 2) (/ h 2)]
       (doseq [{:keys [x y class]} presentable-stars]
-        (apply q/fill (class star-colors))
-        (q/ellipse x y (class star-sizes) (class star-sizes))))))
+        (draw-star-icon x y class)))))
 
 (defn- draw-klingons [state]
   (let [{:keys [w h world]} state
@@ -125,26 +124,13 @@
         (q/fill 255 255 255 50)
         (q/ellipse-mode :center)
         (q/arc 0 0 tgt-radius tgt-radius start stop :pie))
-      (apply q/stroke enterprise-vector-color)
-      (q/stroke-weight 2)
-      (q/line 0 0 vx vy)
-      (q/with-rotation
-        [radians]
-        (apply q/stroke enterprise-color)
-        (q/stroke-weight 2)
-        (q/ellipse-mode :center)
-        (apply q/fill black)
-        (q/line -9 -9 0 0)
-        (q/line -9 9 0 0)
-        (q/ellipse 0 0 9 9)
-        (q/line -5 9 -15 9)
-        (q/line -5 -9 -15 -9)))))
+      (draw-ship-icon [vx vy] radians)
+      )))
 
 (defn- draw-bases [state]
   (let [{:keys [w h world]} state
         bases (:bases world)
         presentable-bases (present-objects state bases)]
-    (prepare-to-draw-bases)
     (doseq [{:keys [x y]} presentable-bases]
       (q/with-translation
         [(+ x (/ w 2)) (+ y (/ h 2))]
