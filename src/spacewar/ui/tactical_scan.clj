@@ -81,28 +81,6 @@
         (apply q/fill (class star-colors))
         (q/ellipse x y (class star-sizes) (class star-sizes))))))
 
-(defn- draw-klingon-icon []
-  (apply q/fill black)
-  (apply q/stroke klingon-color)
-  (q/stroke-weight 2)
-  (q/ellipse-mode :center)
-  (q/line 0 0 10 -6)
-  (q/line 10 -6 14 -3)
-  (q/line 0 0 -10 -6)
-  (q/line -10 -6 -14 -3)
-  (q/ellipse 0 0 6 6))
-
-(defn- draw-klingon-shields [shields]
-  (when (< shields klingon-shields)
-    (let [pct (/ shields klingon-shields)
-          flicker (< (rand 3) pct)
-          color [255 (* pct 255) 0 (if flicker (* pct 100) 100)]
-          radius (+ 35 (* pct 20))]
-      (apply q/fill color)
-      (q/ellipse-mode :center)
-      (q/no-stroke)
-      (q/ellipse 0 0 radius radius))))
-
 (defn- draw-klingons [state]
   (let [{:keys [w h world]} state
         klingons (:klingons world)
@@ -170,7 +148,7 @@
     (doseq [{:keys [x y]} presentable-bases]
       (q/with-translation
         [(+ x (/ w 2)) (+ y (/ h 2))]
-        (draw-base)))))
+        (draw-base-icon)))))
 
 (defn- phaser-intensity [range]
   (let [intensity (* 255 (- 1 (/ range phaser-range)))]

@@ -30,19 +30,11 @@
         sx (:x ship)
         sy (:y ship)]
     (when klingons
-      (apply q/fill black)
-      (apply q/stroke klingon-color)
-      (q/stroke-weight 2)
-      (q/ellipse-mode :center)
       (doseq [{:keys [x y]} klingons]
         (q/with-translation
           [(* (- x sx) pixel-width)
            (* (- y sy) pixel-width)]
-          (q/line 0 0 10 -6)
-          (q/line 10 -6 14 -3)
-          (q/line 0 0 -10 -6)
-          (q/line -10 -6 -14 -3)
-          (q/ellipse 0 0 6 6))))))
+          (draw-klingon-icon))))))
 
 (defn- draw-ship [state]
   (let [heading (or (->> state :ship :heading) 0)
@@ -74,7 +66,7 @@
         (q/with-translation
           [(* (- x sx) pixel-width)
            (* (- y sy) pixel-width)]
-          (draw-base))))))
+          (draw-base-icon))))))
 
 (defn- draw-sectors [state]
   (let [{:keys [pixel-width ship]} state
