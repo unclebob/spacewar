@@ -2,10 +2,10 @@
   (:require [quil.core :as q]
             [spacewar.util :refer :all]
             [spacewar.ui.config :refer :all]
+            [spacewar.ui.icons :refer :all]
             [spacewar.game-logic.config :refer :all]
             [spacewar.ui.protocols :as p]
             [spacewar.geometry :refer :all]
-            [spacewar.vector :as v]
             [spacewar.vector :as vector]))
 
 (defn- background-color [world]
@@ -134,7 +134,7 @@
         ship (->> state :world :ship)
         heading (or (:heading ship) 0)
         velocity (or (:velocity ship) [0 0])
-        [vx vy] (v/scale velocity-vector-scale velocity)
+        [vx vy] (vector/scale velocity-vector-scale velocity)
         radians (q/radians heading)
         [tgt-radius start stop] (target-arc ship)
         start (q/radians start)
@@ -166,17 +166,11 @@
   (let [{:keys [w h world]} state
         bases (:bases world)
         presentable-bases (present-objects state bases)]
-    (q/no-fill)
-    (apply q/stroke base-color)
-    (q/stroke-weight 2)
-    (q/ellipse-mode :center)
+    (prepare-to-draw-bases)
     (doseq [{:keys [x y]} presentable-bases]
       (q/with-translation
         [(+ x (/ w 2)) (+ y (/ h 2))]
-        (q/ellipse 0 0 12 12)
-        (q/ellipse 0 0 20 20)
-        (q/line 0 -6 0 6)
-        (q/line -6 0 6 0)))))
+        (draw-base)))))
 
 (defn- phaser-intensity [range]
   (let [intensity (* 255 (- 1 (/ range phaser-range)))]

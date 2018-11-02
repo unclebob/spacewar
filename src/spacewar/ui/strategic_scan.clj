@@ -2,6 +2,7 @@
   (:require [quil.core :as q]
             [spacewar.geometry :refer :all]
             [spacewar.ui.config :refer :all]
+            [spacewar.ui.icons :refer :all]
             [spacewar.game-logic.config :refer :all]
             [spacewar.ui.protocols :as p]
             [spacewar.vector :as v]))
@@ -68,18 +69,12 @@
         sx (:x ship)
         sy (:y ship)]
     (when bases
-      (q/no-fill)
-      (apply q/stroke base-color)
-      (q/stroke-weight 2)
-      (q/ellipse-mode :center)
+      (prepare-to-draw-bases)
       (doseq [{:keys [x y]} bases]
         (q/with-translation
           [(* (- x sx) pixel-width)
            (* (- y sy) pixel-width)]
-          (q/ellipse 0 0 12 12)
-          (q/ellipse 0 0 20 20)
-          (q/line 0 -6 0 6)
-          (q/line -6 0 6 0))))))
+          (draw-base))))))
 
 (defn- draw-sectors [state]
   (let [{:keys [pixel-width ship]} state
