@@ -3,17 +3,19 @@
             [spacewar.util :refer :all]
             [spacewar.ui.config :refer :all]
             [spacewar.game-logic.config :refer :all]
-            [spacewar.geometry :refer :all]
-            [spacewar.vector :as vector]))
+            [spacewar.geometry :refer :all]))
 
-(defn- prepare-to-draw-bases []
+(defn- base-color [type]
+  (condp = type
+    :weapon-factory weapon-factory-color
+    :antimatter-factory antimatter-factory-color
+    :dilithium-factory dilithium-factory-color))
+
+(defn draw-base-icon [type]
   (q/no-fill)
-  (apply q/stroke base-color)
+  (apply q/stroke (base-color type))
   (q/stroke-weight 2)
-  (q/ellipse-mode :center))
-
-(defn draw-base-icon []
-  (prepare-to-draw-bases)
+  (q/ellipse-mode :center)
   (q/ellipse 0 0 12 12)
   (q/ellipse 0 0 20 20)
   (q/line 0 -6 0 6)

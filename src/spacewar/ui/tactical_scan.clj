@@ -131,10 +131,10 @@
   (let [{:keys [w h world]} state
         bases (:bases world)
         presentable-bases (present-objects state bases)]
-    (doseq [{:keys [x y]} presentable-bases]
+    (doseq [{:keys [x y type]} presentable-bases]
       (q/with-translation
         [(+ x (/ w 2)) (+ y (/ h 2))]
-        (draw-base-icon)))))
+        (draw-base-icon type)))))
 
 (defn- phaser-intensity [range]
   (let [intensity (* 255 (- 1 (/ range phaser-range)))]
