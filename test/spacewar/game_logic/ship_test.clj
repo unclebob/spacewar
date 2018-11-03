@@ -252,13 +252,16 @@
 
 (facts
   "dilithium"
-  (let [ship (mom/make-ship)]
+  (let [world (mom/make-world)
+        ship (:ship world)]
     (fact
       "ship not under warp does not consumes dilithium"
       (prerequisite
         (calc-dilithium-consumed anything anything) => 1)
       (let [ship (assoc ship :warp 0)
-            warped-ship (update-ship 1 ship)
+            world (assoc world :ship ship)
+            world (update-ship 1 world)
+            warped-ship (:ship world)
             dilithium (:dilithium warped-ship)]
         dilithium => ship-dilithium))
     (fact
@@ -266,7 +269,9 @@
       (prerequisite
         (calc-dilithium-consumed anything anything) => 1)
       (let [ship (assoc ship :warp 1)
-            warped-ship (update-ship 1 ship)
+            world (assoc world :ship ship)
+            world (update-ship 1 world)
+            warped-ship (:ship world)
             dilithium (:dilithium warped-ship)]
         dilithium => (roughly (- ship-dilithium 1) 1e-10)))
     (fact
@@ -274,10 +279,13 @@
       (prerequisite
         (calc-dilithium-consumed anything anything) => 2)
       (let [ship (assoc ship :warp 1 :dilithium ship-dilithium-consumption)
-            warped-ship (update-ship 1 ship)
+            world (assoc world :ship ship)
+            world (update-ship 1 world)
+            warped-ship (:ship world)
             dilithium (:dilithium warped-ship)]
         dilithium => (roughly 0 1e-10)))
-    ))
+    )
+  )
 
 (facts
   "core temperature"

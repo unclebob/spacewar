@@ -50,11 +50,11 @@
         sx (:x ship)
         sy (:y ship)]
     (when bases
-      (doseq [{:keys [x y type]} bases]
+      (doseq [{:keys [x y] :as base} bases]
         (q/with-translation
           [(* (- x sx) pixel-width)
            (* (- y sy) pixel-width)]
-          (draw-base-icon type))))))
+          (draw-base-icon base))))))
 
 (defn- draw-sectors [state]
   (let [{:keys [pixel-width ship]} state

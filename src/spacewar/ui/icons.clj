@@ -5,9 +5,19 @@
             [spacewar.game-logic.config :refer :all]
             [spacewar.geometry :refer :all]))
 
-(defmulti draw-base-icon identity)
+(defn- age-angle [age]
+  (let [maturity (min 1 (/ age base-maturity-age))]
+    (* (- 1 maturity) 2 Math/PI)))
 
-(defmethod draw-base-icon :weapon-factory [_]
+(defn- draw-base-age [age]
+  (q/fill 0 0 0 150)
+  (q/no-stroke)
+  (q/ellipse-mode :center)
+  (q/arc 0 0 30 30 0 (age-angle age) :pie))
+
+(defmulti draw-base-icon :type)
+
+(defmethod draw-base-icon :weapon-factory [base]
   (q/no-fill)
   (apply q/stroke weapon-factory-color)
   (q/stroke-weight 2)
@@ -15,9 +25,10 @@
   (q/ellipse 0 0 12 12)
   (q/ellipse 0 0 20 20)
   (q/line 0 -6 0 6)
-  (q/line -6 0 6 0))
+  (q/line -6 0 6 0)
+  (draw-base-age (:age base)))
 
-(defmethod draw-base-icon :antimatter-factory [_]
+(defmethod draw-base-icon :antimatter-factory [base]
   (q/no-fill)
   (apply q/stroke antimatter-factory-color)
   (q/stroke-weight 2)
@@ -28,10 +39,11 @@
   (q/ellipse 0 -8 5 5)
   (q/ellipse 0 8 5 5)
   (q/ellipse -8 0 5 5)
-  (q/ellipse 8 0 5 5))
+  (q/ellipse 8 0 5 5)
+  (draw-base-age (:age base)))
 
 
-(defmethod draw-base-icon :dilithium-factory [_]
+(defmethod draw-base-icon :dilithium-factory [base]
   (q/no-fill)
   (apply q/stroke dilithium-factory-color)
   (q/stroke-weight 2)
@@ -43,7 +55,8 @@
   (q/line 3 10 -3 10)
   (q/line 3 -10 -3 -10)
   (q/line 10 3 10 -3)
-  (q/line -10 3 -10 -3))
+  (q/line -10 3 -10 -3)
+  (draw-base-age (:age base)))
 
 (defn draw-klingon-icon []
   (apply q/fill black)

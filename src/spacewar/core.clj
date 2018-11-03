@@ -76,9 +76,9 @@
 
 (defn- process-debug-events [events world]
   (let [[_ world] (->> [events world]
-                         (handle-event :debug-position-ship debug-position-ship-handler)
-                         )]
-      world))
+                       (handle-event :debug-position-ship debug-position-ship-handler)
+                       )]
+    world))
 
 (defn process-events [events world]
   (let [world (ship/process-events events world)
@@ -136,14 +136,14 @@
 (defn update-world [ms world]
   ;{:pre [(valid-world? world)]
   ; :post [(valid-world? %)]}
-  (let [ship (ship/update-ship ms (:ship world))
-        world (assoc world :ship ship)]
-    (->> world (game-over)
-         (shots/update-shots ms)
-         (explosions/update-explosions ms)
-         (klingons/update-klingons ms)
-         (view-frame/update-messages ms)
-         (add-messages))))
+  (->> world (game-over)
+       (ship/update-ship ms)
+       (shots/update-shots ms)
+       (explosions/update-explosions ms)
+       (klingons/update-klingons ms)
+       (bases/update-bases ms)
+       (view-frame/update-messages ms)
+       (add-messages)))
 
 (defn add-frame-time [frame-time context]
   (let [frame-times (->

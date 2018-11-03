@@ -242,17 +242,19 @@
       ship)))
 
 
-(defn update-ship [ms ship]
-  (let [ship (update-destruction ship)]
-    (if (:destroyed ship)
-      ship
-      (->> ship
-           (warp-ship ms)
-           (impulse-ship ms)
-           (rotate-ship ms)
-           (charge-shields ms)
-           (repair-ship ms)
-           (dissipate-core-heat ms)))))
+(defn update-ship [ms world]
+  (let [ship (:ship world)
+        ship (update-destruction ship)
+        ship (if (:destroyed ship)
+               ship
+               (->> ship
+                    (warp-ship ms)
+                    (impulse-ship ms)
+                    (rotate-ship ms)
+                    (charge-shields ms)
+                    (repair-ship ms)
+                    (dissipate-core-heat ms)))]
+    (assoc world :ship ship)))
 
 (defn- set-heading-handler [{:keys [angle]} ship]
   (assoc ship :heading-setting angle))

@@ -89,3 +89,5 @@
 (def klingon-torpedo-damage 150)
 (def klingon-torpedo-proximity 2000)
 (def klingon-torpedo-range 100000)
+
+(def base-maturity-age 60000)

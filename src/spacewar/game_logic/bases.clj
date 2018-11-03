@@ -36,3 +36,17 @@
 
 (defn initialize []
   (repeatedly number-of-bases make-random-base))
+
+(defn- age-base [ms base]
+  (let [age (:age base)
+        age (min base-maturity-age (+ age ms))]
+    (assoc base :age age)))
+
+(defn age-bases [ms bases]
+  (map #(age-base ms %) bases))
+
+(defn update-bases [ms world]
+  (let [bases (:bases world)
+        bases (->> bases
+                   (age-bases ms))]
+    (assoc world :bases bases)))
