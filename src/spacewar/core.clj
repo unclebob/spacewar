@@ -81,8 +81,7 @@
       world))
 
 (defn process-events [events world]
-  (let [{:keys [ship]} world
-        world (assoc world :ship (ship/process-events events ship))
+  (let [world (ship/process-events events world)
         world (process-debug-events events world)
         world (shots/process-events events world)]
     world))

@@ -19,15 +19,20 @@
   (nth [:antimatter-factory :weapon-factory :dilithium-factory]
        (rand-int 3)))
 
-(defn make-random-base []
-  {:x (int (rand known-space-x))
-   :y (int (rand known-space-y))
+(defn make-base [[x y] type]
+  {:x x
+   :y y
    :age 0
-   :type (random-base-type)
+   :type type
    :antimatter 0
    :dilithium 0
    :torpedos 0
    :kinetics 0})
+
+(defn make-random-base []
+  (let [x (int (rand known-space-x))
+        y (int (rand known-space-y))]
+    (make-base [x y] (random-base-type))))
 
 (defn initialize []
   (repeatedly number-of-bases make-random-base))

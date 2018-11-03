@@ -4,6 +4,7 @@
     [spacewar.vector :as vector]
     [spacewar.util :refer :all]
     [spacewar.game-logic.config :refer :all]
+    [spacewar.game-logic.bases :as bases]
     [clojure.spec.alpha :as s]))
 
 (s/def ::x number?)
@@ -319,8 +320,25 @@
               :warp 0
               :impulse 0))
 
-(defn process-events [events ship]
-  (let [[_ ship] (->> [events ship]
+(defn- deploy-base [type world]
+  (let [{:keys [x y]} (:ship world)
+        bases (:bases world)
+        base (bases/make-base [x y] type)
+        bases (conj bases base)]
+    (assoc world :bases bases)))
+
+(defn- deploy-antimatter-factory [_ world]
+  (deploy-base :antimatter-factory world))
+
+(defn- deploy-dilithium-factory [_ world]
+  (deploy-base :dilithium-factory world))
+
+(defn- deploy-weapon-factory [_ world]
+  (deploy-base :weapon-factory world))
+
+(defn process-events [events world]
+  (let [ship (:ship world)
+        [_ ship] (->> [events ship]
                       (handle-event :front-view select-front-view)
                       (handle-event :strategic-scan select-strat-view)
                       (handle-event :tactical-scan select-tact-view)
@@ -336,8 +354,14 @@
                       (handle-event :select-torpedo select-torpedo)
                       (handle-event :select-kinetic select-kinetic)
                       (handle-event :strat-scale set-strat-scale)
-                      (handle-event :select-dock dock-ship))]
-    ship))
+                      (handle-event :select-dock dock-ship)
+                      )
+        world (assoc world :ship ship)
+        [_ world] (->> [events world]
+                       (handle-event :antimatter-factory deploy-antimatter-factory)
+                       (handle-event :dilithium-factory deploy-dilithium-factory)
+                       (handle-event :weapon-factory deploy-weapon-factory))]
+    world))
 
 (defn dockable? [ship bases]
   (let [distances (map #(distance [(:x ship) (:y ship)]
