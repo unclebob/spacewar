@@ -39,7 +39,7 @@
 (defn- in-range [x y ship]
   (< (distance [x y] [(:x ship) (:y ship)]) (/ tactical-range 2)))
 
-(defn- click->tactical [tactical-scan click]
+(defn- click->pos [tactical-scan click]
   (let [{:keys [x y w h world]} tactical-scan
         ship (:ship world)
         center (vector/add [(/ w 2) (/ h 2)] [x y])
@@ -49,7 +49,7 @@
     (vector/add tactical-click-delta [(:x ship) (:y ship)])))
 
 (defn- click->bearing [tactical-scan click]
-  (let [tactical-loc (click->tactical tactical-scan click)
+  (let [tactical-loc (click->pos tactical-scan click)
         ship (-> tactical-scan :world :ship)
         ship-loc [(:x ship) (:y ship)]
         bearing (angle-degrees ship-loc tactical-loc)
@@ -327,8 +327,12 @@
           mouse-in (inside-rect [x y w h] [mx my])
           left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
           state (assoc state :mouse-in mouse-in :left-down left-down)
-          event (if (and (not left-down) last-left-down mouse-in)
-                  {:event :weapon-direction :angle (click->bearing state [mx my])}
+          left-up (and (not left-down) last-left-down mouse-in)
+          key (and (q/key-pressed?) (q/key-as-keyword))
+          event (if left-up
+                  (condp = key
+                    :p {:event :debug-position-ship :pos (click->pos state [mx my])}
+                    {:event :weapon-direction :angle (click->bearing state [mx my])})
                   nil)]
       (p/pack-update (tactical-scan. (assoc state :world world)) event)))
 

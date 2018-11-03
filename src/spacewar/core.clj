@@ -67,9 +67,23 @@
              :messages (q/create-font "Bank Gothic" 24)}
      :frame-times []}))
 
+(defn- debug-position-ship-handler [event world]
+  (println "debug-position-ship-handler" (:pos event))
+  (let [ship (:ship world)
+        [x y] (:pos event)
+        ship (assoc ship :x x :y y)]
+    (assoc world :ship ship)))
+
+(defn- process-debug-events [events world]
+  (let [[_ world] (->> [events world]
+                         (handle-event :debug-position-ship debug-position-ship-handler)
+                         )]
+      world))
+
 (defn process-events [events world]
   (let [{:keys [ship]} world
         world (assoc world :ship (ship/process-events events ship))
+        world (process-debug-events events world)
         world (shots/process-events events world)]
     world))
 

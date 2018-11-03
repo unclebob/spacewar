@@ -1,8 +1,8 @@
-# spacewar
+# Space War
 
 A Star Trek Game.
 
-The Borg have defeated; but the federation fleet has been destroyed.
+The Borg have been defeated; but the federation fleet has been destroyed.
 The enterprise is the only star ship left in service.  
 
 The Klingons are taking this opportunity to invade.  You must stop
@@ -45,8 +45,7 @@ You have three weapons.  Phasers, Torpedos, and Kinetics.
   
  * Torpedos are slow, but pack a significant punch.  
   
- * Kinetics are just cannon balls moving at relativistic velocity.
-  They do a small amount of damage but are cheap to shoot.
+ * Kinetics are just cannon balls moving at relativistic velocity.  They do a small amount of damage but are cheap to shoot.
   
 You can fire all of these weapons in a spread if you like.
 Choose the number of shots and the spread angle with the sliders.
@@ -105,4 +104,12 @@ non-functional.
  the base as closely as you can.  Put the ship on top of the base.  Watch for the 
  _DOCK_ button to show up in the Engine Control Panel.  Hit that button
  and you'll be refueled and restocked.
+ 
+ ## Bases (not yet completely implemented)
+ There are three kinds of bases.  Antimatter factories, Dilithium factories, and Weapon factories.
+  * Antimatter factories manufacture antimatter using the power from nearby O, B, or A
+  class stars. 
+  * Dilithium factories harvest dilithium from the atmospheres of nearby K or M class stars.
+  * Weapon factories manufacture Kinetics and Torpedos.  They require the elements found 
+  around the planets of F or G class stars.    
  

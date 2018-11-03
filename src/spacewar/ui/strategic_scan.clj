@@ -5,7 +5,7 @@
             [spacewar.ui.icons :refer :all]
             [spacewar.game-logic.config :refer :all]
             [spacewar.ui.protocols :as p]
-            [spacewar.vector :as v]))
+            [spacewar.vector :as vector]))
 
 (defn- draw-background [state]
   (let [{:keys [w h]} state]
@@ -41,7 +41,7 @@
 (defn- draw-ship [state]
   (let [heading (or (->> state :ship :heading) 0)
         velocity (or (->> state :ship :velocity) [0 0])
-        [vx vy] (v/scale velocity-vector-scale velocity)
+        [vx vy] (vector/scale velocity-vector-scale velocity)
         radians (->radians heading)]
     (draw-ship-icon [vx vy] radians)))
 
@@ -69,6 +69,14 @@
     (doseq [y (range 0 known-space-y strategic-range)]
       (q/line (x->frame 0) (y->frame y) (x->frame known-space-x) (y->frame y)))))
 
+(defn- click->pos [strategic-scan ship click]
+  (let [{:keys [x y w h pixel-width]} strategic-scan
+        center (vector/add [(/ w 2) (/ h 2)] [x y])
+        click-delta (vector/subtract click center)
+        scale (/ 1.0 pixel-width)
+        strategic-click-delta (vector/scale scale click-delta)]
+    (vector/add strategic-click-delta [(:x ship) (:y ship)])))
+
 (deftype strategic-scan [state]
   p/Drawable
   (draw [_]
@@ -88,9 +96,23 @@
       (assoc state :pixel-width (/ (:h state) strategic-range))))
 
   (update-state [_ world]
-    (let [ship (:ship world)
+    (let [{:keys [x y w h]} state
+          ship (:ship world)
           scale (:strat-scale ship)
-          range (* scale strategic-range)]
+          range (* scale strategic-range)
+          last-left-down (:left-down state)
+          mx (q/mouse-x)
+          my (q/mouse-y)
+          mouse-in (inside-rect [x y w h] [mx my])
+          left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
+          state (assoc state :mouse-in mouse-in :left-down left-down)
+          left-up (and (not left-down) last-left-down mouse-in)
+          key (and (q/key-pressed?) (q/key-as-keyword))
+          event (if left-up
+                  (condp = key
+                    :p {:event :debug-position-ship :pos (click->pos state ship [mx my])}
+                    nil)
+                  nil)]
       (p/pack-update
         (strategic-scan.
           (assoc state :game-over (:game-over world)
@@ -99,4 +121,5 @@
                        :ship ship
                        :bases (:bases world)
                        :pixel-width (/ (:h state) range)
-                       :sector-top-left [0 0]))))))
+                       :sector-top-left [0 0]))
+        event))))
