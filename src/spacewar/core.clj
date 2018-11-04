@@ -5,6 +5,7 @@
             [spacewar.ui.complex :as main-viewer]
             [spacewar.ui.view-frame :as view-frame]
             [spacewar.ui.protocols :as p]
+            [spacewar.game-logic.world :refer :all]
             [spacewar.game-logic.ship :as ship]
             [spacewar.game-logic.stars :as stars]
             [spacewar.game-logic.klingons :as klingons]
@@ -35,19 +36,22 @@
                                 ::game-over]))
 
 (defn make-initial-world []
-  {:stars (stars/initialize)
-   :klingons (klingons/initialize)
-   :ship (ship/initialize)
-   :bases (bases/initialize)
-   :update-time (q/millis)
-   :explosions []
-   :shots []
-   :ms 0
-   :messages [{:text "Welcome to Space War!"
-               :duration 5000}
-              {:text "Save the Federation!"
-               :duration 10000}]
-   :game-over false})
+  (let [ship (ship/initialize)]
+    {:stars (stars/initialize)
+     :klingons (klingons/initialize)
+     :ship ship
+     :bases [(bases/make-base
+              [(+ (:x ship) ship-docking-distance -1) (:y ship)]
+              :antimatter-factory)]
+     :update-time (q/millis)
+     :explosions []
+     :shots []
+     :ms 0
+     :messages [{:text "Welcome to Space War!"
+                 :duration 5000}
+                {:text "Save the Federation!"
+                 :duration 10000}]
+     :game-over false}))
 
 (defn setup []
   (let [vmargin 30 hmargin 5]
@@ -115,7 +119,7 @@
     valid))
 
 (defn- msg [world text]
-  (view-frame/add-message world text 5000))
+  (add-message world text 5000))
 
 (defn- shield-message [world]
   (let [ship (:ship world)

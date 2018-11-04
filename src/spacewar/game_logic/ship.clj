@@ -4,6 +4,7 @@
     [spacewar.vector :as vector]
     [spacewar.util :refer :all]
     [spacewar.game-logic.config :refer :all]
+    [spacewar.game-logic.world :refer :all]
     [spacewar.game-logic.bases :as bases]
     [clojure.spec.alpha :as s]))
 
@@ -314,20 +315,54 @@
 (defn- set-strat-scale [{:keys [value]} ship]
   (assoc ship :strat-scale value))
 
-(defn- dock-ship [_ ship]
-  (assoc ship :antimatter ship-antimatter
-              :kinetics ship-kinetics
-              :torpedos ship-torpedos
-              :velocity [0 0]
-              :warp 0
-              :impulse 0))
+(defn- in-range-of-base [ship base]
+  (< (distance [(:x base) (:y base)]
+               [(:x ship) (:y ship)])
+     ship-docking-distance))
+
+(defn- resupply-ship [ship base commodity maximum]
+  (let [need (- maximum (ship commodity))
+        supplied (int (min need (base commodity)))
+        ship (update ship commodity + supplied)
+        base (update base commodity - supplied)]
+    [ship base]))
+
+(defn- resupply-ship-from-bases [ship bases]
+  (loop [ship ship bases bases processed-bases []]
+    (if (empty? bases)
+      [ship processed-bases]
+      (let [base (first bases)
+            [ship base] (resupply-ship ship base :antimatter ship-antimatter)
+            [ship base] (resupply-ship ship base :dilithium ship-dilithium)
+            [ship base] (resupply-ship ship base :torpedos ship-torpedos)
+            [ship base] (resupply-ship ship base :kinetics ship-kinetics)]
+        (recur ship (rest bases) (conj processed-bases base))))))
+
+(defn dock-ship [_ world]
+  (let [ship (:ship world)
+        bases (:bases world)
+        grouped-bases (group-by #(in-range-of-base ship %) bases)
+        docked-bases (grouped-bases true)
+        distant-bases (grouped-bases false)
+        [ship docked-bases] (resupply-ship-from-bases ship docked-bases)
+        ship (assoc ship
+               :velocity [0 0]
+               :warp 0
+               :impulse 0)]
+    (assoc world :ship ship :bases (concat distant-bases docked-bases))))
 
 (defn- deploy-base [type world]
-  (let [{:keys [x y]} (:ship world)
-        bases (:bases world)
-        base (bases/make-base [x y] type)
-        bases (conj bases base)]
-    (assoc world :bases bases)))
+  (let [{:keys [x y antimatter dilithium] :as ship} (:ship world)]
+    (if (and (> antimatter base-deployment-antimatter)
+             (> dilithium base-deployment-dilithium))
+      (let [bases (:bases world)
+            base (bases/make-base [x y] type)
+            bases (conj bases base)
+            ship (-> ship
+                     (update :antimatter - base-deployment-antimatter)
+                     (update :dilithium - base-deployment-dilithium))]
+        (assoc world :bases bases :ship ship))
+      (add-message world "Insufficient resources sir." 2000))))
 
 (defn- deploy-antimatter-factory [_ world]
   (deploy-base :antimatter-factory world))
@@ -356,10 +391,10 @@
                       (handle-event :select-torpedo select-torpedo)
                       (handle-event :select-kinetic select-kinetic)
                       (handle-event :strat-scale set-strat-scale)
-                      (handle-event :select-dock dock-ship)
                       )
         world (assoc world :ship ship)
         [_ world] (->> [events world]
+                       (handle-event :select-dock dock-ship)
                        (handle-event :antimatter-factory deploy-antimatter-factory)
                        (handle-event :dilithium-factory deploy-dilithium-factory)
                        (handle-event :weapon-factory deploy-weapon-factory))]

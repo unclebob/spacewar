@@ -11,11 +11,11 @@
 (defn- random-class []
     (condp < (rand)
       0.95 :o
-      0.85 :b
-      0.7 :a
+      0.9 :b
+      0.8 :a
       0.6 :f
-      0.5 :g
-      0.4 :k
+      0.4 :g
+      0.2 :k
       :m))
 
 (defn make-random-star []

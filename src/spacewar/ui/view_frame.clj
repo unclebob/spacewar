@@ -2,16 +2,11 @@
   (:require [quil.core :as q]
             [spacewar.ui.config :refer :all]
             [spacewar.game-logic.config :refer :all]
+            [spacewar.game-logic.world :refer :all]
             [spacewar.ui.strategic-scan :refer :all]
             [spacewar.ui.tactical-scan :refer :all]
             [spacewar.ui.front-view :refer :all]
             [spacewar.ui.protocols :as p]))
-
-(defn add-message [world message duration]
-  (let [messages (:messages world)
-        message {:text message :duration duration}
-        messages (conj messages message)]
-    (assoc world :messages messages)))
 
 (defn update-messages [ms world]
   (let [messages (:messages world)

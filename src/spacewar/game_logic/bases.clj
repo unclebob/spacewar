@@ -45,8 +45,30 @@
 (defn age-bases [ms bases]
   (map #(age-base ms %) bases))
 
+(defn- manufacture [base ms commodity rate maximum]
+  (let [inventory (commodity base)
+        deficit (max 0 (- maximum inventory))
+        production (* ms rate)
+        increase (min deficit production)]
+    (update base commodity + increase)))
+
+(defn- update-base-manufacturing [ms base]
+  (if (>= (:age base) base-maturity-age)
+    (condp = (:type base)
+      :antimatter-factory (manufacture base ms :antimatter antimatter-factory-production-rate base-antimatter-maximum)
+      :dilithium-factory (manufacture base ms :dilithium dilithium-factory-production-rate base-dilithium-maximum)
+      :weapon-factory (-> base
+                          (manufacture ms :torpedos weapon-factory-torpedo-production-rate base-torpedos-maximum)
+                          (manufacture ms :kinetics weapon-factory-kinetic-production-rate base-kinetics-maximum)))
+    base))
+
+(defn update-bases-manufacturing [ms bases]
+  (map #(update-base-manufacturing ms %) bases)
+  )
+
 (defn update-bases [ms world]
   (let [bases (:bases world)
         bases (->> bases
-                   (age-bases ms))]
+                   (age-bases ms)
+                   (update-bases-manufacturing ms))]
     (assoc world :bases bases)))

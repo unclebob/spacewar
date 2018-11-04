@@ -1,5 +1,6 @@
 (ns spacewar.ui.view-frame-test
   (:require [midje.sweet :refer :all]
+            [spacewar.game-logic.world :refer :all]
             [spacewar.ui.view-frame :refer :all]
             [spacewar.game-logic.test-mother :as mom]))
 

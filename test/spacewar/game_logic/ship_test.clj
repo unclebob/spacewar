@@ -115,6 +115,86 @@
         base (mom/set-pos {} [0 (dec ship-docking-distance)])]
     (dockable? ship [base]) => true))
 
+(fact
+  "Docking replenishes fuel and weapons and subtracts from in-range base."
+  (let [world (mom/make-world)
+        ship (:ship world)
+        ship (assoc ship :kinetics 0 :torpedos 1 :antimatter 2 :dilithium 3)
+        base (mom/make-base 0 (dec ship-docking-distance) :weapon-factory
+                            ship-antimatter ship-dilithium
+                            ship-kinetics ship-torpedos)
+        bases [base]
+        world (assoc world :ship ship :bases bases)
+        world (dock-ship [] world)
+        {:keys [kinetics torpedos antimatter dilithium]} (:ship world)
+        base (first (:bases world))]
+    kinetics => ship-kinetics
+    torpedos => ship-torpedos
+    antimatter => ship-antimatter
+    dilithium => ship-dilithium
+    (:antimatter base) => 2
+    (:dilithium base) => 3
+    (:torpedos base) => 1
+    (:kinetics base) => 0))
+
+(fact
+  "Docking at undersupplied bases replenishes some fuel and weapons and subtracts from in-range base."
+  (let [world (mom/make-world)
+        ship (:ship world)
+        ship (assoc ship :kinetics 0 :torpedos 0 :antimatter 0 :dilithium 0)
+        base (mom/make-base)
+        base (assoc base :x 0 :y (dec ship-docking-distance)
+                         :type :weapon-factory
+                         :antimatter 1 :dilithium 2
+                         :kinetics 3 :torpedos 4)
+        bases [base]
+        world (assoc world :ship ship :bases bases)
+        world (dock-ship [] world)
+        {:keys [kinetics torpedos antimatter dilithium]} (:ship world)
+        base (first (:bases world))]
+    kinetics => 3
+    torpedos => 4
+    antimatter => 1
+    dilithium => 2
+    (:antimatter base) => 0
+    (:dilithium base) => 0
+    (:torpedos base) => 0
+    (:kinetics base) => 0))
+
+(fact
+  "Docking at several undersupplied bases replenishes some fuel and weapons and subtracts from in-range base."
+  (let [world (mom/make-world)
+        ship (:ship world)
+        ship (assoc ship :kinetics 0 :torpedos 0 :antimatter 0 :dilithium 0)
+        base1 (mom/make-base)
+        base2 (mom/make-base)
+        base1 (assoc base1 :x 0 :y (dec ship-docking-distance)
+                         :type :weapon-factory
+                         :antimatter 1 :dilithium 2
+                         :kinetics 3 :torpedos 4)
+        base2 (assoc base2 :x 0 :y (dec ship-docking-distance)
+                                 :type :weapon-factory
+                                 :antimatter 2 :dilithium 3
+                                 :kinetics 4 :torpedos 5)
+        bases [base1 base2]
+        world (assoc world :ship ship :bases bases)
+        world (dock-ship [] world)
+        {:keys [kinetics torpedos antimatter dilithium]} (:ship world)
+        base1 (first (:bases world))
+        base2 (second (:bases world))]
+    kinetics => 7
+    torpedos => 9
+    antimatter => 3
+    dilithium => 5
+    (:antimatter base1) => 0
+    (:dilithium base1) => 0
+    (:torpedos base1) => 0
+    (:kinetics base1) => 0
+    (:antimatter base2) => 0
+    (:dilithium base2) => 0
+    (:torpedos base2) => 0
+    (:kinetics base2) => 0))
+
 (facts
   "about deployment"
   (let [ship (mom/make-ship)]
