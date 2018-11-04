@@ -49,6 +49,9 @@ You have three weapons.  Phasers, Torpedos, and Kinetics.
   
 You can fire all of these weapons in a spread if you like.
 Choose the number of shots and the spread angle with the sliders.
+Aim by clicking on the screen where you want the center of your spread to hit, and
+remember to lead your target.
+
 Be careful, you can use your torpedoes up fast; and shooting phasers
 really heats up the core.
   
@@ -111,5 +114,14 @@ non-functional.
   class stars. 
   * Dilithium factories harvest dilithium from the atmospheres of nearby K or M class stars.
   * Weapon factories manufacture Kinetics and Torpedos.  They require the elements found 
-  around the planets of F or G class stars.    
+  around the planets of F or G class stars. 
+  
+  You can deploy a base by gradually approaching the appropriate kind of star.  When you
+  are in deployment range, the appropriate deploy button will appear in the Deploy panel.   
+  
+  Deploying a base uses up a _lot_ of antimatter and dilithium; so be careful.
+  
+  Bases do not start making products right away, there is a startup time.  During that time you
+  will see the base partially obscured.  Afterwards the bases start slowly manufacturing products. 
+   
  
