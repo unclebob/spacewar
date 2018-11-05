@@ -91,8 +91,8 @@
 (def klingon-torpedo-range 100000)
 
 (def base-maturity-age 60000)
-(def antimatter-factory-production-rate 0.1)
-(def dilithium-factory-production-rate 0.001)
+(def antimatter-factory-production-rate 0.01)
+(def dilithium-factory-production-rate 0.0001)
 (def weapon-factory-torpedo-production-rate 0.0001)
 (def weapon-factory-kinetic-production-rate 0.001)
 (def base-deployment-antimatter 30000)
