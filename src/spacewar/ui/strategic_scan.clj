@@ -5,7 +5,8 @@
             [spacewar.ui.icons :refer :all]
             [spacewar.game-logic.config :refer :all]
             [spacewar.ui.protocols :as p]
-            [spacewar.vector :as vector]))
+            [spacewar.vector :as vector]
+            [clojure.math.combinatorics :as combo]))
 
 (defn- draw-background [state]
   (let [{:keys [w h]} state]
@@ -56,6 +57,24 @@
            (* (- y sy) pixel-width)]
           (draw-base-icon base))))))
 
+(defn- draw-trade-routes [state]
+  (let [{:keys [bases pixel-width ship]} state
+        base-pairs (combo/combinations bases 2)
+        routes (filter #(< (distance [(:x (first %)) (:y (first %))]
+                                     [(:x (second %)) (:y (second %))])
+                           trade-route-limit)
+                       base-pairs)]
+    (apply q/stroke trade-route-color)
+    (q/stroke-weight 3)
+    (doseq [[base1 base2] routes]
+      (let [sx (:x ship)
+            sy (:y ship)
+            b1x (* (- (:x base1) sx) pixel-width)
+            b1y (* (- (:y base1) sy) pixel-width)
+            b2x (* (- (:x base2) sx) pixel-width)
+            b2y (* (- (:y base2) sy) pixel-width)]
+        (q/line b1x b1y b2x b2y)))))
+
 (defn- draw-sectors [state]
   (let [{:keys [pixel-width ship]} state
         sx (:x ship)
@@ -88,6 +107,7 @@
         (draw-klingons state)
         (when (not (-> state :game-over))
           (draw-ship state))
+        (draw-trade-routes state)
         (draw-bases state)
         (draw-sectors state))))
 

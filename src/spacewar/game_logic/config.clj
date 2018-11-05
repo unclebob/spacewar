@@ -101,3 +101,5 @@
 (def base-dilithium-maximum ship-dilithium)
 (def base-kinetics-maximum ship-kinetics)
 (def base-torpedos-maximum ship-torpedos)
+
+(def trade-route-limit strategic-range)

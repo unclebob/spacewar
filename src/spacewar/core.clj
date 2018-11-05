@@ -137,17 +137,35 @@
       (->> world (shield-message))
       world)))
 
+(defn- debug-resupply [world]
+  (let [ship (:ship world)
+        ship (assoc ship :antimatter ship-antimatter
+                         :dilithium ship-dilithium
+                         :torpedos ship-torpedos
+                         :kinetics ship-kinetics
+                         :shields ship-shields
+                         :core-temp 0)]
+    (assoc world :ship ship)))
+
+(defn- debug-keys [world]
+  (let [key (and (q/key-pressed?) (q/key-as-keyword))]
+    (condp = key
+          :r (debug-resupply world)
+          world)))
+
 (defn update-world [ms world]
   ;{:pre [(valid-world? world)]
   ; :post [(valid-world? %)]}
-  (->> world (game-over)
+  (->> world
+       (game-over)
        (ship/update-ship ms)
        (shots/update-shots ms)
        (explosions/update-explosions ms)
        (klingons/update-klingons ms)
        (bases/update-bases ms)
        (view-frame/update-messages ms)
-       (add-messages)))
+       (add-messages)
+       (debug-keys)))
 
 (defn add-frame-time [frame-time context]
   (let [frame-times (->
