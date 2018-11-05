@@ -15,6 +15,20 @@
   (q/ellipse-mode :center)
   (q/arc 0 0 30 30 0 (age-angle age) :pie))
 
+(defn- draw-base-contents [antimatter dilithium]
+  (let [antimatter-angle (* 2 Math/PI (/ antimatter base-antimatter-maximum))
+        dilithium-angle (* 2 Math/PI (/ dilithium base-dilithium-maximum))]
+    (apply q/stroke yellow)
+    (q/stroke-weight 2)
+    (q/no-fill)
+    (q/arc 0 0 30 30 0 dilithium-angle)
+    (apply q/stroke orange)
+    (q/arc 0 0 35 35 0 antimatter-angle)))
+
+(defn- draw-base-adornments [base]
+  (draw-base-age (:age base))
+  (draw-base-contents (:antimatter base) (:dilithium base)))
+
 (defmulti draw-base-icon :type)
 
 (defmethod draw-base-icon :weapon-factory [base]
@@ -26,7 +40,7 @@
   (q/ellipse 0 0 20 20)
   (q/line 0 -6 0 6)
   (q/line -6 0 6 0)
-  (draw-base-age (:age base)))
+  (draw-base-adornments base))
 
 (defmethod draw-base-icon :antimatter-factory [base]
   (q/no-fill)
@@ -40,7 +54,7 @@
   (q/ellipse 0 8 5 5)
   (q/ellipse -8 0 5 5)
   (q/ellipse 8 0 5 5)
-  (draw-base-age (:age base)))
+  (draw-base-adornments base))
 
 
 (defmethod draw-base-icon :dilithium-factory [base]
@@ -56,7 +70,7 @@
   (q/line 3 -10 -3 -10)
   (q/line 10 3 10 -3)
   (q/line -10 3 -10 -3)
-  (draw-base-age (:age base)))
+  (draw-base-adornments base))
 
 (defn draw-klingon-icon []
   (apply q/fill black)

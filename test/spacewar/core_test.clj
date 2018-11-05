@@ -142,46 +142,45 @@
             world (assoc world :ship ship)
             new-world (process-events [{:event :weapon-fire}] world)]
         (:shots new-world) => [{:x ..x.. :y ..y.. :bearing 85 :range 0 :type :torpedo}
-                           {:x ..x.. :y ..y.. :bearing 95 :range 0 :type :torpedo}]))))
+                               {:x ..x.. :y ..y.. :bearing 95 :range 0 :type :torpedo}]))))
 
 (facts
   "updating the world"
   (let [world (mom/make-world)
         ship (mom/make-ship)]
-    (fact
-      "rotate towards heading"
-      (let [ship (assoc ship :heading-setting 90
-                             :heading 70)
-            world (assoc world :ship ship)
-            world (update-world 1000 world)]
-        (->> world :ship :heading) => (roughly 80)))
+        (fact
+          "rotate towards heading"
+          (let [ship (assoc ship :heading-setting 90
+                                 :heading 70)
+                world (assoc world :ship ship)
+                world (update-world 1000 world)]
+            (->> world :ship :heading) => (roughly 80)))
+        (fact
+          "impulse moves ship"
+          (let [ship (assoc ship :impulse 1)
+                world (assoc world :ship ship)
+                world (update-world 1000 world)]
+            (->> world :ship :velocity first) => #(> % 0)
+            (->> world :ship :velocity second) => (roughly 0)))
 
-    (fact
-      "impulse moves ship"
-      (let [ship (assoc ship :impulse 1)
-            world (assoc world :ship ship)
-            world (update-world 1000 world)]
-        (->> world :ship :velocity first) => #(> % 0)
-        (->> world :ship :velocity second) => (roughly 0)))
+        (fact
+          "warp charges warp field"
+          (let [ship (assoc ship :warp 1)
+                world (assoc world :ship ship)
+                world (update-world 1000 world)
+                ship (:ship world)
+                warp-charge (:warp-charge ship)]
+            warp-charge => (roughly 1000)))
 
-    (fact
-      "warp charges warp field"
-      (let [ship (assoc ship :warp 1)
-            world (assoc world :ship ship)
-            world (update-world 1000 world)
-            ship (:ship world)
-            warp-charge (:warp-charge ship)]
-        warp-charge => (roughly 1000)))
-
-    (fact
-      "warp field threshold moves ship"
-      (let [ship (assoc ship :warp 1
-                             :warp-charge warp-threshold)
-            world (assoc world :ship ship)
-            world (update-world 1000 world)
-            ship (:ship world)
-            pos [(:x ship) (:y ship)]]
-        pos => (vt/roughly-v [warp-leap 0])))))
+        (fact
+          "warp field threshold moves ship"
+          (let [ship (assoc ship :warp 1
+                                 :warp-charge warp-threshold)
+                world (assoc world :ship ship)
+                world (update-world 1000 world)
+                ship (:ship world)
+                pos [(:x ship) (:y ship)]]
+            pos => (vt/roughly-v [warp-leap 0])))))
 
 (facts
   "About frame rate"
@@ -198,12 +197,12 @@
         frame-times => [1 2]))
 
     (fact
-          "can only accumulates to 10"
-          (let [context (reduce #(add-frame-time %2 %1)
-                                context
-                                [1 2 3 4 5 6 7 8 9 10 11 12])
-                frame-times (:frame-times context)]
-            frame-times => [3 4 5 6 7 8 9 10 11 12]))
+      "can only accumulates to 10"
+      (let [context (reduce #(add-frame-time %2 %1)
+                            context
+                            [1 2 3 4 5 6 7 8 9 10 11 12])
+            frame-times (:frame-times context)]
+        frame-times => [3 4 5 6 7 8 9 10 11 12]))
 
     (fact
       "frame-time averages"

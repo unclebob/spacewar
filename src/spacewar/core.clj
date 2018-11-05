@@ -165,7 +165,7 @@
        (bases/update-bases ms)
        (view-frame/update-messages ms)
        (add-messages)
-       (debug-keys)))
+       ))
 
 (defn add-frame-time [frame-time context]
   (let [frame-times (->
@@ -201,7 +201,8 @@
         [complex events] (p/update-state complex world)
         events (flatten events)
         world (process-events events world)
-        world (update-world ms world)]
+        world (update-world ms world)
+        world (debug-keys world)]
     (assoc context
       :state complex
       :world world)))
