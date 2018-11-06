@@ -242,7 +242,6 @@
       (assoc ship :destroyed true)
       ship)))
 
-
 (defn update-ship [ms world]
   (let [ship (:ship world)
         ship (update-destruction ship)
