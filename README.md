@@ -5,8 +5,19 @@ A Star Trek Game.
 The Borg have been defeated; but the federation fleet has been destroyed.
 The enterprise is the only star ship left in service.  
 
-The Klingons are taking this opportunity to invade.  You must stop
-the invasion.
+The Klingons in Federation space took a beating as well.  But the Borg didn't like the taste of
+Klingons in the "collective" so they simply left many crippled Klingon ships
+stranded in Federation space rather than assimilating them.  
+
+There are rumors that the Klingon fleet escaped total destruction and that the 
+remaining ships are regrouping in Klingon space in order to form an invasion fleet. 
+If so, it won't be long until they arrive in force.
+
+All Federation shipyards were obliterated.  No new ships can be ready in time.
+
+Your mission is to rebuild federation defenses by constructing a network of bases
+that you can use to supply yourself with antimatter, dilithium, and weapons.  Harvest
+what you can from the crippled Klingons.  Then, if the invasion fleet comes -- defeat it. 
 
 ### Sensors
 You have three views.  
@@ -123,5 +134,17 @@ non-functional.
   
   Bases do not start making products right away, there is a startup time.  During that time you
   will see the base partially obscured.  Afterwards the bases start slowly manufacturing products. 
+  
+  ## Klingons
+  
+  Some of the crippled Klingons are still pretty strong.  Be careful.  Others
+  are so weakened that they'll run from you and won't put up much of a fight.
+  
+  ## Dilithium Clouds
+  
+  When you destroy a Klingon vessel, their on-board dilithium will disperse amidst
+  the cloud of debris.  You can harvest this dilithium by easing yourself as close
+  as possible into the center of the cloud.  Dilithium, when exposed to the vacuum,
+  has a half-life of about a minute.  So hurry.
    
  
