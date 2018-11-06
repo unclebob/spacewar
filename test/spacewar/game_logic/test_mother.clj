@@ -91,6 +91,7 @@
    :klingons []
    :stars []
    :bases []
+   :clouds []
    :update-time 0
    :ms 0
    :shots []

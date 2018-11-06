@@ -91,15 +91,17 @@
 (def klingon-torpedo-range 100000)
 
 (def base-maturity-age 60000)
-(def antimatter-factory-production-rate 0.01)
+(def antimatter-factory-production-rate 0.05)
 (def dilithium-factory-production-rate 0.0001)
 (def weapon-factory-torpedo-production-rate 0.0001)
 (def weapon-factory-kinetic-production-rate 0.001)
 (def base-deployment-antimatter 30000)
-(def base-deployment-dilithium 500)
-(def base-antimatter-maximum ship-antimatter)
-(def base-dilithium-maximum ship-dilithium)
-(def base-kinetics-maximum ship-kinetics)
-(def base-torpedos-maximum ship-torpedos)
+(def base-deployment-dilithium 300)
+(def base-antimatter-maximum (* 1.5 ship-antimatter))
+(def base-dilithium-maximum (* 1.5 ship-dilithium))
+(def base-kinetics-maximum (* 1.5 ship-kinetics))
+(def base-torpedos-maximum (* 1.5 ship-torpedos))
 
 (def trade-route-limit strategic-range)
+
+(def cloud-decay-rate 0.9999)

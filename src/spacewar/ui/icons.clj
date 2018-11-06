@@ -113,3 +113,34 @@
 (defn draw-star-icon [x y class]
   (apply q/fill (class star-colors))
   (q/ellipse x y (class star-sizes) (class star-sizes)))
+
+(defn- draw-blob [jitter half-jitter diameter]
+  (q/ellipse (- half-jitter (rand jitter))
+             (- half-jitter (rand jitter))
+             diameter diameter)
+  )
+
+(defn- draw-spark [x y]
+  (apply q/fill yellow)
+  (q/ellipse x y 1 1))
+
+(defn- rand-sign []
+  (if (< 0.5 (rand 1)) 1 -1))
+
+(defn draw-cloud-icon [cloud]
+  (let [concentration (:concentration cloud)
+        jitter (/ concentration 5)
+        half-jitter (/ jitter 2)]
+    (apply q/fill (conj yellow 5))
+    (q/no-stroke)
+    (q/ellipse-mode :center)
+    (doseq [_ (range 10)]
+      (draw-blob jitter half-jitter (* concentration (- 0.5 (rand 1)))))
+    (doseq [_ (range 20)]
+      (let [r (rand (/ concentration 4))
+            x (+ 2 (rand r))
+            x-sqr (* x x)
+            y (Math/sqrt (- (* r r) x-sqr))
+            x (* (rand-sign) x)
+            y (* (rand-sign) y)]
+        (draw-spark x y)))))

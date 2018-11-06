@@ -12,6 +12,7 @@
             [spacewar.game-logic.bases :as bases]
             [spacewar.game-logic.shots :as shots]
             [spacewar.game-logic.explosions :as explosions]
+            [spacewar.game-logic.clouds :as clouds]
             [spacewar.util :refer :all]
             [clojure.spec.alpha :as s]))
 
@@ -29,6 +30,7 @@
                                 ::ship/ship
                                 ::stars/stars
                                 ::bases/bases
+                                ::clouds/clouds
                                 ::shots
                                 ::update-time
                                 ::ms
@@ -41,8 +43,9 @@
      :klingons (klingons/initialize)
      :ship ship
      :bases [(bases/make-base
-              [(+ (:x ship) ship-docking-distance -1) (:y ship)]
-              :antimatter-factory)]
+               [(+ (:x ship) ship-docking-distance -1) (:y ship)]
+               :antimatter-factory)]
+     :clouds []
      :update-time (q/millis)
      :explosions []
      :shots []
@@ -78,9 +81,18 @@
         ship (assoc ship :x x :y y)]
     (assoc world :ship ship)))
 
+(defn- debug-dilithium-cloud-handler [event world]
+  (println event)
+  (let [[x y] (:pos event)
+        clouds (:clouds world)
+        cloud (clouds/make-cloud x y 300)
+        clouds (conj clouds cloud)]
+    (assoc world :clouds clouds)))
+
 (defn- process-debug-events [events world]
   (let [[_ world] (->> [events world]
                        (handle-event :debug-position-ship debug-position-ship-handler)
+                       (handle-event :debug-dilithium-cloud debug-dilithium-cloud-handler)
                        )]
     world))
 
@@ -150,8 +162,8 @@
 (defn- debug-keys [world]
   (let [key (and (q/key-pressed?) (q/key-as-keyword))]
     (condp = key
-          :r (debug-resupply world)
-          world)))
+      :r (debug-resupply world)
+      world)))
 
 (defn update-world [ms world]
   ;{:pre [(valid-world? world)]
@@ -161,6 +173,7 @@
        (ship/update-ship ms)
        (shots/update-shots ms)
        (explosions/update-explosions ms)
+       (clouds/update-clouds ms)
        (klingons/update-klingons ms)
        (bases/update-bases ms)
        (view-frame/update-messages ms)
@@ -223,6 +236,6 @@
                :setup setup
                :update update-state
                :draw draw-state
-               :features [:keep-on-top]
+               ;:features [:keep-on-top]
                :middleware [m/fun-mode])
   args)

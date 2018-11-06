@@ -292,6 +292,15 @@
     (doseq [explosion presentable-explosions]
       (draw-explosion explosion state))))
 
+(defn- draw-clouds [state]
+  (let [{:keys [w h world]} state
+        clouds (present-objects state (:clouds world))]
+    (doseq [cloud clouds]
+      (let [{:keys [x y]} cloud]
+        (q/with-translation
+          [(+ x (/ w 2)) (+ y (/ h 2))]
+          (draw-cloud-icon cloud))))))
+
 (defn- draw-shots [state]
   (draw-phaser-shots state)
   (draw-torpedo-shots state)
@@ -314,6 +323,7 @@
           (draw-ship state))
         (draw-bases state)
         (draw-explosions state)
+        (draw-clouds state)
         )))
 
   (setup [_]
@@ -332,6 +342,7 @@
           event (if left-up
                   (condp = key
                     :p {:event :debug-position-ship :pos (click->pos state [mx my])}
+                    :c {:event :debug-dilithium-cloud :pos (click->pos state [mx my])}
                     {:event :weapon-direction :angle (click->bearing state [mx my])})
                   nil)]
       (p/pack-update (tactical-scan. (assoc state :world world)) event)))
