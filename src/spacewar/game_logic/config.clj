@@ -63,6 +63,7 @@
 (def klingon-antimatter-runaway-threshold (* 0.1 klingon-antimatter))
 (def klingon-thrust 0.002)
 (def klingon-drag 0.999)
+(def klingon-debris 300)
 
 (def klingon-kinetic-range 1000000)
 (def klingon-kinetic-firing-distance 150000)

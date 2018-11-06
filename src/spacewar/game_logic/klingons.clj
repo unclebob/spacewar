@@ -6,7 +6,8 @@
             [spacewar.geometry :refer :all]
             [spacewar.vector :refer :all]
             [quil.core :as q]
-            [spacewar.vector :as vector]))
+            [spacewar.vector :as vector]
+            [spacewar.game-logic.clouds :as clouds]))
 
 (s/def ::x number?)
 (s/def ::y number?)
@@ -82,6 +83,12 @@
 (defn- recharge-shields [ms klingons]
   (map #(recharge-shield ms %) klingons))
 
+(defn- klingon-debris-cloud [klingon]
+  (clouds/make-cloud (:x klingon) (:y klingon) (* (rand 1) klingon-debris)))
+
+(defn- klingon-debris-clouds [dead-klingons]
+  (map klingon-debris-cloud dead-klingons))
+
 (defn klingon-defense [ms world]
   (let [klingons (:klingons world)
         klingons (map hit-klingon klingons)
@@ -89,7 +96,8 @@
         klingons (filter #(<= 0 (:shields %)) klingons)
         klingons (recharge-shields ms klingons)]
     (assoc world :klingons klingons
-                 :explosions (concat (:explosions world) (klingon-destruction dead-klingons)))))
+                 :explosions (concat (:explosions world) (klingon-destruction dead-klingons))
+                 :clouds (concat (:clouds world) (klingon-debris-clouds dead-klingons)))))
 
 (defn- charge-weapons [ms klingons ship]
   (for [klingon klingons]
