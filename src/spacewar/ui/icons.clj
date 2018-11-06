@@ -131,7 +131,7 @@
   (let [concentration (:concentration cloud)
         jitter (/ concentration 5)
         half-jitter (/ jitter 2)]
-    (apply q/fill (conj yellow 5))
+    (apply q/fill (conj yellow 10))
     (q/no-stroke)
     (q/ellipse-mode :center)
     (doseq [_ (range 10)]

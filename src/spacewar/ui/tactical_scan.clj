@@ -338,11 +338,14 @@
           left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
           state (assoc state :mouse-in mouse-in :left-down left-down)
           left-up (and (not left-down) last-left-down mouse-in)
-          key (and (q/key-pressed?) (q/key-as-keyword))
+          pressed? (q/key-pressed?)
+          the-key (q/key-as-keyword)
+          key (and pressed? the-key)
           event (if left-up
                   (condp = key
                     :p {:event :debug-position-ship :pos (click->pos state [mx my])}
                     :c {:event :debug-dilithium-cloud :pos (click->pos state [mx my])}
+                    :r {:event :debug-resupply-ship}
                     {:event :weapon-direction :angle (click->bearing state [mx my])})
                   nil)]
       (p/pack-update (tactical-scan. (assoc state :world world)) event)))

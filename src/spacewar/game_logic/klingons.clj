@@ -34,9 +34,9 @@
   {:x (int (rand known-space-x))
    :y (int (rand known-space-y))
    :shields klingon-shields
-   :antimatter klingon-antimatter
-   :kinetics klingon-kinetics
-   :torpedos klingon-torpedos
+   :antimatter (rand klingon-antimatter)
+   :kinetics (rand klingon-kinetics)
+   :torpedos (rand klingon-torpedos)
    :weapon-charge 0
    :velocity [(- 2 (rand 4)) (- 2 (rand 4))]
    :thrust [0 0]})

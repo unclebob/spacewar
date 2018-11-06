@@ -105,6 +105,6 @@
 
 (def trade-route-limit strategic-range)
 
-(def cloud-decay-rate 0.99995)
-(def dilithium-harvest-range 2000)
+(def cloud-decay-rate 0.999988)
+(def dilithium-harvest-range 3000)
 (def dilithium-harvest-rate 0.05)

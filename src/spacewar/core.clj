@@ -89,10 +89,21 @@
         clouds (conj clouds cloud)]
     (assoc world :clouds clouds)))
 
+(defn- debug-resupply-ship [_ world]
+  (let [ship (:ship world)
+        ship (assoc ship :antimatter ship-antimatter
+                         :dilithium ship-dilithium
+                         :torpedos ship-torpedos
+                         :kinetics ship-kinetics
+                         :shields ship-shields
+                         :core-temp 0)]
+    (assoc world :ship ship)))
+
 (defn- process-debug-events [events world]
   (let [[_ world] (->> [events world]
                        (handle-event :debug-position-ship debug-position-ship-handler)
                        (handle-event :debug-dilithium-cloud debug-dilithium-cloud-handler)
+                       (handle-event :debug-resupply-ship debug-resupply-ship)
                        )]
     world))
 
@@ -149,22 +160,6 @@
       (->> world (shield-message))
       world)))
 
-(defn- debug-resupply [world]
-  (let [ship (:ship world)
-        ship (assoc ship :antimatter ship-antimatter
-                         :dilithium ship-dilithium
-                         :torpedos ship-torpedos
-                         :kinetics ship-kinetics
-                         :shields ship-shields
-                         :core-temp 0)]
-    (assoc world :ship ship)))
-
-(defn- debug-keys [world]
-  (let [key (and (q/key-pressed?) (q/key-as-keyword))]
-    (condp = key
-      :r (debug-resupply world)
-      world)))
-
 (defn update-world [ms world]
   ;{:pre [(valid-world? world)]
   ; :post [(valid-world? %)]}
@@ -214,8 +209,7 @@
         [complex events] (p/update-state complex world)
         events (flatten events)
         world (process-events events world)
-        world (update-world ms world)
-        world (debug-keys world)]
+        world (update-world ms world)]
     (assoc context
       :state complex
       :world world)))

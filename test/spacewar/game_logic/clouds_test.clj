@@ -15,7 +15,7 @@
         world (assoc world :clouds [cloud])
         world (update-clouds-age 2 world)
         cloud (first (:clouds world))]
-    (:concentration cloud) => (* 100 cloud-decay-rate cloud-decay-rate)))
+    (:concentration cloud) => (roughly (* 100 cloud-decay-rate cloud-decay-rate) 1e-8)))
 
 (fact
   "Clouds disappear when concentration goes below 1"
