@@ -91,6 +91,7 @@
    :klingons []
    :stars []
    :bases []
+   :transports []
    :clouds []
    :update-time 0
    :ms 0

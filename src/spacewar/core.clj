@@ -30,6 +30,7 @@
                                 ::ship/ship
                                 ::stars/stars
                                 ::bases/bases
+                                ::bases/transports
                                 ::clouds/clouds
                                 ::shots
                                 ::update-time
@@ -45,6 +46,7 @@
      :bases [(bases/make-base
                [(+ (:x ship) ship-docking-distance -1) (:y ship)]
                :antimatter-factory)]
+     :transports []
      :clouds []
      :update-time (q/millis)
      :explosions []

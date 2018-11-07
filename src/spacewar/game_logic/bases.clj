@@ -32,13 +32,26 @@
    :kinetics 0
    :transport-readiness 0})
 
+(s/def ::velocity (s/tuple number? number?))
+(s/def ::commodity #{:antimatter :dilithium})
+(s/def ::amount number?)
+(s/def ::destination (s/tuple number? number?))
+
+(s/def ::transport (s/keys :req-un [::x ::y ::velocity ::commodity ::amount ::destination]))
+(s/def ::transports (s/coll-of ::transport))
+
+(defn make-transport [commodity amount destination]
+  {:x 0
+   :y 0
+   :velocity [0 0]
+   :commodity commodity
+   :amount amount
+   :destination destination})
+
 (defn make-random-base []
   (let [x (int (rand known-space-x))
         y (int (rand known-space-y))]
     (make-base [x y] (random-base-type))))
-
-(defn initialize []
-  (repeatedly number-of-bases make-random-base))
 
 (defn- age-base [ms base]
   (let [age (:age base)
@@ -113,22 +126,29 @@
       :dilithium-factory dilithium-factory-dilithium-reserve
       :weapon-factory weapon-factory-dilithium-reserve))
 
-(defn should-transport-antimatter? [source dest]
+(defn- get-promised-commodity [commodity dest transports]
+  (let [transports (filter #(= commodity (:commodity %)) transports)
+        transports (filter #(= [(:x dest) (:y dest)] (:destination %)) transports)]
+    (reduce + (map :amount transports))))
+
+(defn should-transport-antimatter? [source dest transports]
   (let [source-type (:type source)
         dest-type (:type dest)
         source-antimatter (:antimatter source)
-        dest-antimatter (:antimatter dest)]
+        dest-antimatter (:antimatter dest)
+        promised-antimatter (get-promised-commodity :antimatter dest transports)]
     (and
-      (< dest-antimatter (sufficient-antimatter dest-type))
+      (< (+ promised-antimatter dest-antimatter) (sufficient-antimatter dest-type))
       (>= source-antimatter (+ antimatter-cargo-size (antimatter-reserve source-type))))))
 
-(defn should-transport-dilithium? [source dest]
+(defn should-transport-dilithium? [source dest transports]
   (let [source-type (:type source)
         dest-type (:type dest)
         source-dilithium (:dilithium source)
-        dest-dilithium (:dilithium dest)]
+        dest-dilithium (:dilithium dest)
+        promised-dilithium (get-promised-commodity :dilithium dest transports)]
     (and
-      (< dest-dilithium (sufficient-dilithium dest-type))
+      (< (+ promised-dilithium dest-dilithium) (sufficient-dilithium dest-type))
       (>= source-dilithium (+ dilithium-cargo-size (dilithium-reserve source-type))))))
 
 
