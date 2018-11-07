@@ -96,6 +96,7 @@
 (def dilithium-factory-production-rate 0.0001)
 (def weapon-factory-torpedo-production-rate 0.0001)
 (def weapon-factory-kinetic-production-rate 0.001)
+(def weapon-factory-antimatter-reserve 5000)
 (def base-deployment-antimatter 30000)
 (def base-deployment-dilithium 300)
 (def base-antimatter-maximum (* 1.5 ship-antimatter))
@@ -104,6 +105,8 @@
 (def base-torpedos-maximum (* 1.5 ship-torpedos))
 
 (def trade-route-limit strategic-range)
+(def transport-ready 60000)
+(def antimatter-cargo-size 10000)
 
 (def cloud-decay-rate 0.999988)
 (def dilithium-harvest-range 3000)

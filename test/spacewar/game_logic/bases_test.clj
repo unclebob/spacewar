@@ -77,3 +77,69 @@
     (:torpedos wpn-base) => base-torpedos-maximum
     (:kinetics wpn-base) => base-kinetics-maximum))
 
+(fact
+  "no transport route to bases that are out of range"
+  (let [wpn-base (mom/make-base 0 0 :weapon-factory 0 0)
+        dl-base (mom/make-base (inc trade-route-limit) 0 :dilithium-factory 0 0)
+        am-base (mom/make-base 0 (inc trade-route-limit) :antimatter-factory 0 0 0 0)
+        bases [am-base dl-base wpn-base]
+        transport-routes (find-transport-targets-for am-base bases)]
+    transport-routes => []))
+
+(fact
+  "find transport route to bases that are in range"
+  (let [wpn-base (mom/make-base 0 0 :weapon-factory 0 0)
+        dl-base (mom/make-base (dec trade-route-limit) 0 :dilithium-factory 0 0)
+        am-base (mom/make-base 0 (dec trade-route-limit) :antimatter-factory 0 0 0 0)
+        bases [am-base dl-base wpn-base]
+        transport-routes (find-transport-targets-for wpn-base bases)]
+    transport-routes => (just #{dl-base am-base})))
+
+(fact
+  "base cannot launch transport if transport is not ready"
+  (let [base (mom/make-base 0 0 :antimatter-factory 0 0)
+        base (assoc base :transport-readiness (dec transport-ready))]
+    (transport-ready? base) => false))
+
+(fact
+  "base can launch transport if transport is ready"
+  (let [base (mom/make-base 0 0 :antimatter-factory 0 0)
+        base (assoc base :transport-readiness transport-ready)]
+    (transport-ready? base) => true))
+
+(fact
+  "transport readiness increases with time"
+  (let [base (mom/make-base)
+        base (assoc base :transport-readiness 0)
+        world (assoc (mom/make-world) :bases [base])
+        {:keys [bases]} (update-bases 10 world)
+        base (first bases)]
+    (:transport-readiness base) => 10))
+
+(fact
+  "transport readiness does not increase beyond readiness"
+  (let [base (mom/make-base)
+        base (assoc base :transport-readiness transport-ready)
+        base (update-transport-readiness-for 10 base)]
+    (:transport-readiness base) => transport-ready))
+
+(fact
+  "should not transport antimatter from AM to WPN if AM has less than antimatter cargo limit"
+  (let [am-base (mom/make-base 0 0 :antimatter-factory (dec antimatter-cargo-size) 0)
+        wpn-base (mom/make-base 0 0 :weapon-factory 0 0)]
+    (should-transport-antimatter? am-base wpn-base) => false))
+
+(fact
+  "should not transport antimatter from AM to WPN if WPN has sufficient antimatter"
+  (let [am-base (mom/make-base 0 0 :antimatter-factory (inc antimatter-cargo-size) 0)
+        wpn-base (mom/make-base 0 0 :weapon-factory (inc weapon-factory-antimatter-reserve) 0)]
+    (should-transport-antimatter? am-base wpn-base) => false))
+
+(fact
+  "should transport antimatter from AM to WPN if WPN has insufficient antimatter and AM has more than cargo limit"
+  (let [am-base (mom/make-base 0 0 :antimatter-factory (inc antimatter-cargo-size) 0)
+        wpn-base (mom/make-base 0 0 :weapon-factory (dec weapon-factory-antimatter-reserve) 0)]
+    (should-transport-antimatter? am-base wpn-base) => true))
+
+
+

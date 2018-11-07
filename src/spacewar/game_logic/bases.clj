@@ -1,5 +1,6 @@
 (ns spacewar.game-logic.bases
   (:require [clojure.spec.alpha :as s]
+            [spacewar.geometry :refer :all]
             [spacewar.game-logic.config :refer :all]))
 
 (s/def ::x number?)
@@ -66,9 +67,45 @@
   (map #(update-base-manufacturing ms %) bases)
   )
 
-(defn update-bases [ms world]
+(defn update-transport-readiness-for [ms base]
+  (let [readiness (:transport-readiness base)
+        deficit (- transport-ready readiness)
+        adjustment (min deficit ms)]
+    (update base :transport-readiness + adjustment)))
+
+(defn- update-transport-readiness [ms bases]
+  (map #(update-transport-readiness-for ms %) bases))
+
+(defn- transportable-target? [source-base target-base]
+  (let [dist (distance [(:x source-base) (:y source-base)]
+                       [(:x target-base) (:y target-base)])]
+    (and (< dist trade-route-limit) (> dist 0))))
+
+(defn find-transport-targets-for [base bases]
+  (filter #(transportable-target? base %) bases))
+
+(defn transport-ready? [base]
+  (= (:transport-readiness base) transport-ready))
+
+(defn should-transport-antimatter? [source dest]
+  (let [source-type (:type source)
+        dest-type (:type dest)
+        source-antimatter (:antimatter source)
+        dest-antimatter (:antimatter dest)]
+    (or
+      (and (= source-type :antimatter-factory)
+           (= dest-type :weapon-factory)
+           (>= source-antimatter antimatter-cargo-size)
+           (< dest-antimatter weapon-factory-antimatter-reserve)))))
+
+
+  (defn update-bases [ms world]
   (let [bases (:bases world)
         bases (->> bases
                    (age-bases ms)
-                   (update-bases-manufacturing ms))]
+                   (update-bases-manufacturing ms)
+                   (update-transport-readiness ms))]
     (assoc world :bases bases)))
+
+
+
