@@ -121,7 +121,8 @@
                :age 0
                :type type
                :antimatter antimatter
-               :dilithium dilithium}]
+               :dilithium dilithium
+               :transport-readiness 0}]
      (if (= type :weapon-factory)
        (assoc base :kinetics (first weapons)
                    :torpedos (second weapons))

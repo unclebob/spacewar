@@ -11,8 +11,9 @@
 (s/def ::kinetics int?)
 (s/def ::torpedos int?)
 (s/def ::age number?)
+(s/def ::transport-readiness number?)
 
-(s/def ::base (s/keys :req-un [::x ::y ::type ::antimatter ::dilithium ::age]
+(s/def ::base (s/keys :req-un [::x ::y ::type ::antimatter ::dilithium ::age ::transport-readiness]
                       :opt-un [::kinetics ::torpedos]))
 (s/def ::bases (s/coll-of ::base))
 
@@ -28,7 +29,8 @@
    :antimatter 0
    :dilithium 0
    :torpedos 0
-   :kinetics 0})
+   :kinetics 0
+   :transport-readiness 0})
 
 (defn make-random-base []
   (let [x (int (rand known-space-x))
@@ -87,19 +89,50 @@
 (defn transport-ready? [base]
   (= (:transport-readiness base) transport-ready))
 
+(defn- sufficient-antimatter [type]
+  (condp = type
+    :antimatter-factory antimatter-factory-sufficient-antimatter
+    :dilithium-factory dilithium-factory-sufficient-antimatter
+    :weapon-factory weapon-factory-sufficient-antimatter))
+
+(defn- antimatter-reserve [type]
+  (condp = type
+      :antimatter-factory antimatter-factory-antimatter-reserve
+      :dilithium-factory dilithium-factory-antimatter-reserve
+      :weapon-factory weapon-factory-antimatter-reserve))
+
+(defn- sufficient-dilithium [type]
+  (condp = type
+    :antimatter-factory antimatter-factory-sufficient-dilithium
+    :dilithium-factory dilithium-factory-sufficient-dilithium
+    :weapon-factory weapon-factory-sufficient-dilithium))
+
+(defn- dilithium-reserve [type]
+  (condp = type
+      :antimatter-factory antimatter-factory-dilithium-reserve
+      :dilithium-factory dilithium-factory-dilithium-reserve
+      :weapon-factory weapon-factory-dilithium-reserve))
+
 (defn should-transport-antimatter? [source dest]
   (let [source-type (:type source)
         dest-type (:type dest)
         source-antimatter (:antimatter source)
         dest-antimatter (:antimatter dest)]
-    (or
-      (and (= source-type :antimatter-factory)
-           (= dest-type :weapon-factory)
-           (>= source-antimatter antimatter-cargo-size)
-           (< dest-antimatter weapon-factory-antimatter-reserve)))))
+    (and
+      (< dest-antimatter (sufficient-antimatter dest-type))
+      (>= source-antimatter (+ antimatter-cargo-size (antimatter-reserve source-type))))))
+
+(defn should-transport-dilithium? [source dest]
+  (let [source-type (:type source)
+        dest-type (:type dest)
+        source-dilithium (:dilithium source)
+        dest-dilithium (:dilithium dest)]
+    (and
+      (< dest-dilithium (sufficient-dilithium dest-type))
+      (>= source-dilithium (+ dilithium-cargo-size (dilithium-reserve source-type))))))
 
 
-  (defn update-bases [ms world]
+(defn update-bases [ms world]
   (let [bases (:bases world)
         bases (->> bases
                    (age-bases ms)

@@ -123,23 +123,77 @@
         base (update-transport-readiness-for 10 base)]
     (:transport-readiness base) => transport-ready))
 
-(fact
-  "should not transport antimatter from AM to WPN if AM has less than antimatter cargo limit"
-  (let [am-base (mom/make-base 0 0 :antimatter-factory (dec antimatter-cargo-size) 0)
-        wpn-base (mom/make-base 0 0 :weapon-factory 0 0)]
-    (should-transport-antimatter? am-base wpn-base) => false))
+(tabular
+  (facts
+  "Transport antimatter from source to destination "
+  (let [source (mom/make-base 0 0 ?source-type 0 0)
+        dest (mom/make-base 0 0 ?dest-type 0 0)]
 
-(fact
-  "should not transport antimatter from AM to WPN if WPN has sufficient antimatter"
-  (let [am-base (mom/make-base 0 0 :antimatter-factory (inc antimatter-cargo-size) 0)
-        wpn-base (mom/make-base 0 0 :weapon-factory (inc weapon-factory-antimatter-reserve) 0)]
-    (should-transport-antimatter? am-base wpn-base) => false))
+    (fact
+      "should not transport if destination has sufficient antimatter"
+      (let [source (assoc source :antimatter (inc (+ ?reserve antimatter-cargo-size)))
+            dest (assoc dest :antimatter (inc ?sufficient))]
+        (should-transport-antimatter? source dest) => false))
 
-(fact
-  "should transport antimatter from AM to WPN if WPN has insufficient antimatter and AM has more than cargo limit"
-  (let [am-base (mom/make-base 0 0 :antimatter-factory (inc antimatter-cargo-size) 0)
-        wpn-base (mom/make-base 0 0 :weapon-factory (dec weapon-factory-antimatter-reserve) 0)]
-    (should-transport-antimatter? am-base wpn-base) => true))
+    (fact
+      "should not transport if source antimatter would go below reserve"
+      (let [source (assoc source :antimatter (dec (+ ?reserve antimatter-cargo-size)))
+            dest (assoc dest :antimatter (dec ?sufficient))]
+        (should-transport-antimatter? source dest) => false))
 
+    (fact
+      "should transport if destination has insufficient antimatter and source will not go below reserve"
+      (let [source (assoc source :antimatter (inc (+ ?reserve antimatter-cargo-size)))
+            dest (assoc dest :antimatter (dec ?sufficient))]
+        (should-transport-antimatter? source dest) => true))))
+  ?source-type ?dest-type ?reserve ?sufficient
+  :antimatter-factory :antimatter-factory antimatter-factory-antimatter-reserve antimatter-factory-sufficient-antimatter
+  :antimatter-factory :weapon-factory     antimatter-factory-antimatter-reserve weapon-factory-sufficient-antimatter
+  :antimatter-factory :dilithium-factory  antimatter-factory-antimatter-reserve dilithium-factory-sufficient-antimatter
 
+  :dilithium-factory :antimatter-factory dilithium-factory-antimatter-reserve antimatter-factory-sufficient-antimatter
+  :dilithium-factory :weapon-factory     dilithium-factory-antimatter-reserve weapon-factory-sufficient-antimatter
+  :dilithium-factory :dilithium-factory  dilithium-factory-antimatter-reserve dilithium-factory-sufficient-antimatter
+
+  :weapon-factory :antimatter-factory weapon-factory-antimatter-reserve antimatter-factory-sufficient-antimatter
+  :weapon-factory :weapon-factory     weapon-factory-antimatter-reserve weapon-factory-sufficient-antimatter
+  :weapon-factory :dilithium-factory  weapon-factory-antimatter-reserve dilithium-factory-sufficient-antimatter
+  )
+
+(tabular
+  (facts
+  "Transport dilithium from source to destination "
+  (let [source (mom/make-base 0 0 ?source-type 0 0)
+        dest (mom/make-base 0 0 ?dest-type 0 0)]
+
+    (fact
+      "should not transport if destination has sufficient antimatter"
+      (let [source (assoc source :dilithium (inc (+ ?reserve dilithium-cargo-size)))
+            dest (assoc dest :dilithium (inc ?sufficient))]
+        (should-transport-dilithium? source dest) => false))
+
+    (fact
+      "should not transport if source antimatter would go below reserve"
+      (let [source (assoc source :dilithium (dec (+ ?reserve dilithium-cargo-size)))
+            dest (assoc dest :dilithium (dec ?sufficient))]
+        (should-transport-dilithium? source dest) => false))
+
+    (fact
+      "should transport if destination has insufficient antimatter and source will not go below reserve"
+      (let [source (assoc source :dilithium (inc (+ ?reserve dilithium-cargo-size)))
+            dest (assoc dest :dilithium (dec ?sufficient))]
+        (should-transport-dilithium? source dest) => true))))
+  ?source-type ?dest-type ?reserve ?sufficient
+  :antimatter-factory :antimatter-factory antimatter-factory-dilithium-reserve antimatter-factory-sufficient-dilithium
+  :antimatter-factory :weapon-factory     antimatter-factory-dilithium-reserve weapon-factory-sufficient-dilithium
+  :antimatter-factory :dilithium-factory  antimatter-factory-dilithium-reserve dilithium-factory-sufficient-dilithium
+
+  :dilithium-factory :antimatter-factory dilithium-factory-dilithium-reserve antimatter-factory-sufficient-dilithium
+  :dilithium-factory :weapon-factory     dilithium-factory-dilithium-reserve weapon-factory-sufficient-dilithium
+  :dilithium-factory :dilithium-factory  dilithium-factory-dilithium-reserve dilithium-factory-sufficient-dilithium
+
+  :weapon-factory :antimatter-factory weapon-factory-dilithium-reserve antimatter-factory-sufficient-dilithium
+  :weapon-factory :weapon-factory     weapon-factory-dilithium-reserve weapon-factory-sufficient-dilithium
+  :weapon-factory :dilithium-factory  weapon-factory-dilithium-reserve dilithium-factory-sufficient-dilithium
+  )
 

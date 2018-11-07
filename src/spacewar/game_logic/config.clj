@@ -91,22 +91,38 @@
 (def klingon-torpedo-proximity 2000)
 (def klingon-torpedo-range 100000)
 
+(def trade-route-limit strategic-range)
+(def transport-ready 60000)
+(def antimatter-cargo-size 10000)
+(def dilithium-cargo-size 100)
+
 (def base-maturity-age 60000)
+
 (def antimatter-factory-production-rate 0.05)
+(def antimatter-factory-sufficient-antimatter antimatter-cargo-size)
+(def antimatter-factory-antimatter-reserve 0)
+(def antimatter-factory-sufficient-dilithium dilithium-cargo-size)
+(def antimatter-factory-dilithium-reserve 0)
+
 (def dilithium-factory-production-rate 0.0001)
+(def dilithium-factory-sufficient-antimatter 1000)
+(def dilithium-factory-antimatter-reserve 1500)
+(def dilithium-factory-sufficient-dilithium dilithium-cargo-size)
+(def dilithium-factory-dilithium-reserve 0)
+
 (def weapon-factory-torpedo-production-rate 0.0001)
 (def weapon-factory-kinetic-production-rate 0.001)
-(def weapon-factory-antimatter-reserve 5000)
+(def weapon-factory-sufficient-antimatter 5000)
+(def weapon-factory-antimatter-reserve 1000)
+(def weapon-factory-sufficient-dilithium 1000)
+(def weapon-factory-dilithium-reserve 500)
+
 (def base-deployment-antimatter 30000)
 (def base-deployment-dilithium 300)
 (def base-antimatter-maximum (* 1.5 ship-antimatter))
 (def base-dilithium-maximum (* 1.5 ship-dilithium))
 (def base-kinetics-maximum (* 1.5 ship-kinetics))
 (def base-torpedos-maximum (* 1.5 ship-torpedos))
-
-(def trade-route-limit strategic-range)
-(def transport-ready 60000)
-(def antimatter-cargo-size 10000)
 
 (def cloud-decay-rate 0.999988)
 (def dilithium-harvest-range 3000)
