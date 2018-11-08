@@ -175,7 +175,7 @@
         transport (assoc transport :velocity velocity)]
     transport))
 
-(defn- launch-new-transports [[source dest] transports]
+(defn- select-potential-transports [[source dest] transports]
   (let [should-antimatter? (should-transport-antimatter? source dest transports)
         should-dilithium? (should-transport-dilithium? source dest transports)
         source-ready? (transport-ready? source)
@@ -196,26 +196,42 @@
   (and (= (:x base) (:x transport))
        (= (:y base) (:y transport))))
 
-(defn deduct-transported-cargo-from-bases [transports bases]
+(defn launch-transports-from-bases [transports bases]
   (loop [bases bases transports transports deducted-bases []]
     (if (empty? bases)
       deducted-bases
       (let [base (first bases)
             launched-from (filter #(transport-launched-from base %) transports)]
-            (if (empty? launched-from)
-              (recur (rest bases) transports (conj deducted-bases base))
-              (let [transport (first launched-from)
-                    base (update base (:commodity transport) - (:amount transport))]
-                (recur (rest bases) transports (conj deducted-bases base))))))))
+        (if (empty? launched-from)
+          (recur (rest bases) transports (conj deducted-bases base))
+          (let [transport (first launched-from)
+                base (update base (:commodity transport) - (:amount transport))
+                base (assoc base :transport-readiness 0)]
+            (recur (rest bases) transports (conj deducted-bases base))))))))
 
+(defn- distance-to-dest [base]
+  (distance [(:x base) (:y base)]
+            (:destination base)))
+
+(defn- select-best-transports [transports bases]
+  (loop [bases bases candidates transports selected []]
+    (if (empty? bases)
+      selected
+      (let [base (first bases)
+            transports-from (filter #(transport-launched-from base %) candidates)]
+        (if (empty? transports-from)
+          (recur (rest bases) candidates selected)
+          (let [nearest (first (sort-by distance-to-dest transports-from))]
+            (recur (rest bases) candidates (conj selected nearest))))))))
 
 (defn check-new-transports [world]
   (let [{:keys [bases transports]} world
         pairs (combo/combinations bases 2)
         pairs (concat pairs (map reverse pairs))
-        new-transports (flatten (map #(launch-new-transports % transports) pairs))
-        bases (deduct-transported-cargo-from-bases new-transports bases)
-        transports (concat transports new-transports)
+        candidate-transports (flatten (map #(select-potential-transports % transports) pairs))
+        selected-transports (select-best-transports candidate-transports bases)
+        bases (launch-transports-from-bases selected-transports bases)
+        transports (concat transports selected-transports)
         world (assoc world :transports transports
                            :bases bases)]
     world))
@@ -240,6 +256,37 @@
   (let [transports (:transports world)
         transports (map #(move-transport ms %) transports)]
     (assoc world :transports transports)))
+
+(defn- delivering? [transport]
+  (<= (distance [(:x transport) (:y transport)]
+                (:destination transport))
+      transport-delivery-range))
+
+(defn- transport-going-to [base transport]
+  (= (:destination transport)
+     [(:x base) (:y base)]))
+
+(defn- accepting-delivery? [transports base]
+  (let [delivery-transports (filter #(transport-going-to base %) transports)]
+    (not (empty? delivery-transports))))
+
+(defn receive-transports [world]
+  (let [transports (:transports world)
+        bases (:bases world)
+        grouped-transports (group-by delivering? transports)
+        delivering (grouped-transports true)
+        in-transit (grouped-transports false)
+        grouped-bases (group-by #(accepting-delivery? delivering %) bases)
+        _ (println grouped-bases)
+        accepting (grouped-bases true)
+        waiting (grouped-bases false)]
+        (loop [accepting accepting delivering delivering adjusted-bases []]
+          (if (empty? accepting)
+            (assoc world :transports in-transit :bases (concat waiting adjusted-bases))
+            (let [base (first accepting)
+                  transport (first (filter #(transport-going-to base %) delivering))
+                  base (update base (:commodity transport) + (:amount transport))]
+              (recur (rest accepting) delivering (conj adjusted-bases base)))))))
 
 (defn update-bases [ms world]
   (let [bases (:bases world)

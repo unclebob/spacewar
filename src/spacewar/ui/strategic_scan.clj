@@ -75,6 +75,26 @@
             b2y (* (- (:y base2) sy) pixel-width)]
         (q/line b1x b1y b2x b2y)))))
 
+(defn- transport-color [commodity]
+  (condp = commodity
+    :antimatter orange
+    :dilithium yellow))
+
+(defn- draw-transports [state]
+  (let [{:keys [transports pixel-width ship]} state]
+    (q/ellipse-mode :center)
+    (q/no-stroke)
+    (doseq [transport transports]
+      (let [sx (:x ship)
+            sy (:y ship)
+            tx (:x transport)
+            ty (:y transport)
+            x (* (- tx sx) pixel-width)
+            y (* (- ty sy) pixel-width)
+            color (transport-color (:commodity transport))]
+        (apply q/fill color)
+        (q/ellipse x y 10 10)))))
+
 (defn- draw-sectors [state]
   (let [{:keys [pixel-width ship]} state
         sx (:x ship)
@@ -108,6 +128,7 @@
         (when (not (-> state :game-over))
           (draw-ship state))
         (draw-transport-routes state)
+        (draw-transports state)
         (draw-bases state)
         (draw-sectors state))))
 
@@ -140,6 +161,7 @@
                        :klingons (:klingons world)
                        :ship ship
                        :bases (:bases world)
+                       :transports (:transports world)
                        :pixel-width (/ (:h state) range)
                        :sector-top-left [0 0]))
         event))))

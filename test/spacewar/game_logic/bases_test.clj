@@ -256,7 +256,8 @@
     (:amount transport) => dilithium-cargo-size
     (:destination transport) => [0 (dec transport-range)]
     (:velocity transport) => (vt/roughly-v [0 transport-velocity])
-    (:dilithium source) => dilithium-factory-dilithium-reserve))
+    (:dilithium source) => dilithium-factory-dilithium-reserve
+    (:transport-readiness source) => 0))
 
 (fact
   "Antimatter transport created when there is something to ship"
@@ -277,7 +278,31 @@
     (:amount transport) => antimatter-cargo-size
     (:destination transport) => [(dec transport-range) 0]
     (:velocity transport) => (vt/roughly-v [transport-velocity 0])
-    (:antimatter source) => antimatter-factory-antimatter-reserve))
+    (:antimatter source) => antimatter-factory-antimatter-reserve
+    (:transport-readiness source) => 0))
+
+(fact
+  "Only one transport launched for a source base to nearest dest."
+  (prerequisite (random-transport-velocity-magnitude) => transport-velocity)
+  (let [world (mom/make-world)
+        source (mom/make-base 0 0 :antimatter-factory (+ antimatter-cargo-size antimatter-factory-antimatter-reserve) 0)
+        wrong-dest (mom/make-base (dec transport-range) 0 :weapon-factory 0 0 0 0)
+        right-dest (mom/make-base (- transport-range 2) 0 :weapon-factory 0 0 0 0)
+        source (assoc source :transport-readiness transport-ready)
+        world (assoc world :bases [source wrong-dest right-dest])
+        world (check-new-transports world)
+        transports (:transports world)
+        transport (first transports)
+        [source _] (:bases world)]
+    (count transports) => 1
+    (:x transport) => 0
+    (:y transport) => 0
+    (:commodity transport) => :antimatter
+    (:amount transport) => antimatter-cargo-size
+    (:destination transport) => [(- transport-range 2) 0]
+    (:velocity transport) => (vt/roughly-v [transport-velocity 0])
+    (:antimatter source) => antimatter-factory-antimatter-reserve
+    (:transport-readiness source) => 0))
 
 (fact
   "transports move"
@@ -290,4 +315,28 @@
         transport (first transports)]
     (:x transport) => 20
     (:y transport) => 20))
+
+(fact
+  "transports that are not near destination are not received"
+  (let [world (mom/make-world)
+        dest (mom/make-base 0 0 :antimatter-factory 0 0)
+        transport (make-transport :antimatter 100 [0 (inc transport-delivery-range)])
+        world (assoc world :bases [dest] :transports [transport])
+        world (receive-transports world)
+        transports (:transports world)
+        [dest] (:bases world)]
+    (count transports) => 1
+    (:antimatter dest) => 0))
+
+(fact
+  "transports that are near destination are received"
+  (let [world (mom/make-world)
+        dest (mom/make-base 0 0 :antimatter-factory 0 0)
+        transport (make-transport :antimatter 100 [0 (dec transport-delivery-range)])
+        world (assoc world :bases [dest] :transports [transport])
+        world (receive-transports world)
+        transports (:transports world)
+        [dest] (:bases world)]
+    (count transports) => 0
+    (:antimatter dest) => 100))
 

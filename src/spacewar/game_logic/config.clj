@@ -47,7 +47,6 @@
 
 (def number-of-stars 1000)
 (def number-of-klingons 100)
-(def number-of-bases 15)
 (def tactical-range 200000)
 (def strategic-range 1000000)
 
@@ -97,16 +96,17 @@
 (def dilithium-cargo-size 100)
 (def transport-check-period 1000)
 (def transport-velocity 10)
+(def transport-delivery-range 2000)
 
 (def base-maturity-age 60000)
 
-(def antimatter-factory-production-rate 0.05)
+(def antimatter-factory-production-rate 1) ;.05
 (def antimatter-factory-sufficient-antimatter antimatter-cargo-size)
 (def antimatter-factory-antimatter-reserve 0)
 (def antimatter-factory-sufficient-dilithium dilithium-cargo-size)
 (def antimatter-factory-dilithium-reserve 0)
 
-(def dilithium-factory-production-rate 0.0001)
+(def dilithium-factory-production-rate 0.01) ;0.0001
 (def dilithium-factory-sufficient-antimatter 1000)
 (def dilithium-factory-antimatter-reserve 1500)
 (def dilithium-factory-sufficient-dilithium dilithium-cargo-size)
