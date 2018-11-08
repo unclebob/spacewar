@@ -16,8 +16,8 @@
   (q/arc 0 0 30 30 0 (age-angle age) :pie))
 
 (defn- draw-base-contents [antimatter dilithium]
-  (let [antimatter-angle (* 2 Math/PI (/ antimatter base-antimatter-maximum))
-        dilithium-angle (* 2 Math/PI (/ dilithium base-dilithium-maximum))]
+  (let [antimatter-angle (max 0.1 (* 2 Math/PI (/ antimatter base-antimatter-maximum)))
+        dilithium-angle (max 0.1 (* 2 Math/PI (/ dilithium base-dilithium-maximum)))]
     (apply q/stroke yellow)
     (q/stroke-weight 2)
     (q/no-fill)
@@ -25,9 +25,20 @@
     (apply q/stroke orange)
     (q/arc 0 0 35 35 0 antimatter-angle)))
 
+(defn- draw-base-counts [base]
+  (apply q/fill white)
+  (q/text-align :right :center)
+  (q/text-font (:lcars-small (q/state :fonts)) 12)
+  (q/text (str "T-" (int (:torpedos base))) -30 0 )
+  (q/text-align :left :center)
+  (q/text (str "K-" (int (:kinetics base))) 30 0)
+  )
+
 (defn- draw-base-adornments [base]
   (draw-base-age (:age base))
-  (draw-base-contents (:antimatter base) (:dilithium base)))
+  (draw-base-contents (:antimatter base) (:dilithium base))
+  (when (= (:type base) :weapon-factory)
+    (draw-base-counts base)))
 
 (defmulti draw-base-icon :type)
 

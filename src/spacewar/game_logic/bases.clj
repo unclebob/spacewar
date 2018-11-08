@@ -63,21 +63,58 @@
 (defn age-bases [ms bases]
   (map #(age-base ms %) bases))
 
-(defn- manufacture [base ms commodity rate maximum]
-  (let [inventory (commodity base)
+(def antimatter-production
+  {:rate antimatter-factory-production-rate
+   :maximum base-antimatter-maximum
+   :antimatter-cost 0
+   :dilithium-cost 0})
+
+(def dilithium-production
+  {:rate dilithium-factory-production-rate
+   :maximum base-dilithium-maximum
+   :antimatter-cost dilithium-factory-dilithium-antimatter-cost
+   :dilithium-cost 0})
+
+(def torpedo-production
+  {:rate weapon-factory-torpedo-production-rate
+   :maximum base-torpedos-maximum
+   :antimatter-cost weapon-factory-torpedo-antimatter-cost
+   :dilithium-cost weapon-factory-torpedo-dilithium-cost})
+
+(def kinetic-production
+  {:rate weapon-factory-kinetic-production-rate
+   :maximum base-kinetics-maximum
+   :antimatter-cost weapon-factory-kinetic-antimatter-cost
+   :dilithium-cost 0})
+
+(defn- manufacture [base ms commodity production]
+  (let [{:keys [rate maximum antimatter-cost dilithium-cost]} production
+        inventory (commodity base)
         deficit (max 0 (- maximum inventory))
         production (* ms rate)
-        increase (min deficit production)]
-    (update base commodity + increase)))
+        increase (min deficit production)
+        max-for-antimatter (if (zero? antimatter-cost)
+                             increase
+                             (/ (:antimatter base) antimatter-cost))
+        max-for-dilithium (if (zero? dilithium-cost)
+                            increase
+                            (/ (:dilithium base) dilithium-cost))
+        increase (min increase max-for-antimatter max-for-dilithium)
+        dilithium-decrease (* increase dilithium-cost)
+        antimatter-decrease (* increase antimatter-cost)]
+    (-> base
+        (update commodity + increase)
+        (update :antimatter - antimatter-decrease)
+        (update :dilithium - dilithium-decrease))))
 
 (defn- update-base-manufacturing [ms base]
   (if (>= (:age base) base-maturity-age)
     (condp = (:type base)
-      :antimatter-factory (manufacture base ms :antimatter antimatter-factory-production-rate base-antimatter-maximum)
-      :dilithium-factory (manufacture base ms :dilithium dilithium-factory-production-rate base-dilithium-maximum)
+      :antimatter-factory (manufacture base ms :antimatter antimatter-production)
+      :dilithium-factory (manufacture base ms :dilithium dilithium-production)
       :weapon-factory (-> base
-                          (manufacture ms :torpedos weapon-factory-torpedo-production-rate base-torpedos-maximum)
-                          (manufacture ms :kinetics weapon-factory-kinetic-production-rate base-kinetics-maximum)))
+                          (manufacture ms :torpedos torpedo-production)
+                          (manufacture ms :kinetics kinetic-production)))
     base))
 
 (defn update-bases-manufacturing [ms bases]
@@ -140,7 +177,7 @@
         dest-antimatter (:antimatter dest)
         promised-antimatter (get-promised-commodity :antimatter dest transports)]
     (and
-      (< (+ promised-antimatter dest-antimatter) (sufficient-antimatter dest-type))
+      (<= (+ promised-antimatter dest-antimatter) (sufficient-antimatter dest-type))
       (>= source-antimatter (+ antimatter-cargo-size (antimatter-reserve source-type))))))
 
 (defn should-transport-dilithium? [source dest transports]
@@ -277,7 +314,6 @@
         delivering (grouped-transports true)
         in-transit (grouped-transports false)
         grouped-bases (group-by #(accepting-delivery? delivering %) bases)
-        _ (println grouped-bases)
         accepting (grouped-bases true)
         waiting (grouped-bases false)]
         (loop [accepting accepting delivering delivering adjusted-bases []]
@@ -297,7 +333,8 @@
         world (assoc world :bases bases)
         world (->> world
                    (update-transports ms)
-                   (check-new-transport-time))]
+                   (check-new-transport-time)
+                   (receive-transports))]
     world))
 
 

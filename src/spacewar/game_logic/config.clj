@@ -14,7 +14,7 @@
 (def ship-shields 1000)
 (def ship-antimatter 100000)
 (def ship-dilithium 1000)
-(def ship-dilithium-consumption 0.0001)
+(def ship-dilithium-consumption 0.001)
 (def ship-shield-recharge-rate 0.01)
 (def ship-shield-recharge-cost 5)
 (def ship-docking-distance 2000)
@@ -91,7 +91,7 @@
 (def klingon-torpedo-range 100000)
 
 (def transport-range strategic-range)
-(def transport-ready 60000)
+(def transport-ready 10000)
 (def antimatter-cargo-size 10000)
 (def dilithium-cargo-size 100)
 (def transport-check-period 1000)
@@ -99,32 +99,37 @@
 (def transport-delivery-range 2000)
 
 (def base-maturity-age 60000)
-
-(def antimatter-factory-production-rate 1) ;.05
-(def antimatter-factory-sufficient-antimatter antimatter-cargo-size)
-(def antimatter-factory-antimatter-reserve 0)
-(def antimatter-factory-sufficient-dilithium dilithium-cargo-size)
-(def antimatter-factory-dilithium-reserve 0)
-
-(def dilithium-factory-production-rate 0.01) ;0.0001
-(def dilithium-factory-sufficient-antimatter 1000)
-(def dilithium-factory-antimatter-reserve 1500)
-(def dilithium-factory-sufficient-dilithium dilithium-cargo-size)
-(def dilithium-factory-dilithium-reserve 0)
-
-(def weapon-factory-torpedo-production-rate 0.0001)
-(def weapon-factory-kinetic-production-rate 0.001)
-(def weapon-factory-sufficient-antimatter 5000)
-(def weapon-factory-antimatter-reserve 1000)
-(def weapon-factory-sufficient-dilithium 1000)
-(def weapon-factory-dilithium-reserve 500)
-
 (def base-deployment-antimatter 30000)
 (def base-deployment-dilithium 300)
 (def base-antimatter-maximum (* 1.5 ship-antimatter))
 (def base-dilithium-maximum (* 1.5 ship-dilithium))
 (def base-kinetics-maximum (* 1.5 ship-kinetics))
 (def base-torpedos-maximum (* 1.5 ship-torpedos))
+
+(def antimatter-factory-production-rate 0.2) ;.05
+(def antimatter-factory-sufficient-antimatter antimatter-cargo-size)
+(def antimatter-factory-antimatter-reserve 0)
+(def antimatter-factory-sufficient-dilithium dilithium-cargo-size)
+(def antimatter-factory-dilithium-reserve 0)
+
+(def dilithium-factory-production-rate 0.002) ;0.0001
+(def dilithium-factory-dilithium-antimatter-cost 100)
+(def dilithium-factory-sufficient-antimatter antimatter-cargo-size)
+(def dilithium-factory-antimatter-reserve (* dilithium-factory-dilithium-antimatter-cost
+                                             dilithium-cargo-size))
+(def dilithium-factory-sufficient-dilithium (/ dilithium-cargo-size 10))
+(def dilithium-factory-dilithium-reserve 0)
+
+(def weapon-factory-torpedo-production-rate 0.0001)
+(def weapon-factory-kinetic-production-rate 0.001)
+(def weapon-factory-torpedo-antimatter-cost 1000)
+(def weapon-factory-kinetic-antimatter-cost 100)
+(def weapon-factory-torpedo-dilithium-cost 100)
+
+(def weapon-factory-sufficient-antimatter base-antimatter-maximum)
+(def weapon-factory-antimatter-reserve ship-antimatter)
+(def weapon-factory-sufficient-dilithium base-dilithium-maximum)
+(def weapon-factory-dilithium-reserve ship-dilithium)
 
 (def cloud-decay-rate 0.999988)
 (def dilithium-harvest-range 3000)

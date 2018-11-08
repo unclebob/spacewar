@@ -46,15 +46,25 @@
         am-base (assoc am-base :age (inc base-maturity-age)
                                :type :antimatter-factory)
         dl-base (assoc dl-base :age (inc base-maturity-age)
-                               :type :dilithium-factory)
+                               :type :dilithium-factory
+                               :antimatter base-antimatter-maximum)
         wpn-base (assoc wpn-base :age (inc base-maturity-age)
-                                 :type :weapon-factory)
+                                 :type :weapon-factory
+                                 :antimatter base-antimatter-maximum
+                                 :dilithium base-dilithium-maximum)
         bases [am-base dl-base wpn-base]
-        [am-base dl-base wpn-base] (update-bases-manufacturing 10 bases)]
-    (:antimatter am-base) => (* 10 antimatter-factory-production-rate)
-    (:dilithium dl-base) => (* 10 dilithium-factory-production-rate)
-    (:torpedos wpn-base) => (* 10 weapon-factory-torpedo-production-rate)
-    (:kinetics wpn-base) => (* 10 weapon-factory-kinetic-production-rate)))
+        ms 100000
+        [am-base dl-base wpn-base] (update-bases-manufacturing ms bases)]
+    (:antimatter am-base) => (* ms antimatter-factory-production-rate)
+    (:dilithium dl-base) => (* ms dilithium-factory-production-rate)
+    (:torpedos wpn-base) => (* ms weapon-factory-torpedo-production-rate)
+    (:kinetics wpn-base) => (* ms weapon-factory-kinetic-production-rate)
+    (:antimatter dl-base) => (- base-antimatter-maximum (* (:dilithium dl-base) dilithium-factory-dilithium-antimatter-cost))
+    (:antimatter wpn-base) => (- base-antimatter-maximum
+                                 (* (:torpedos wpn-base) weapon-factory-torpedo-antimatter-cost)
+                                 (* (:kinetics wpn-base) weapon-factory-kinetic-antimatter-cost))
+    (:dilithium wpn-base) => (- base-dilithium-maximum
+                                (* (:torpedos wpn-base) weapon-factory-torpedo-dilithium-cost))))
 
 (fact
   "Mature bases do not manufacture beyond maximums"
@@ -331,7 +341,7 @@
 (fact
   "transports that are near destination are received"
   (let [world (mom/make-world)
-        dest (mom/make-base 0 0 :antimatter-factory 0 0)
+        dest (mom/make-base 0 (dec transport-delivery-range) :antimatter-factory 0 0)
         transport (make-transport :antimatter 100 [0 (dec transport-delivery-range)])
         world (assoc world :bases [dest] :transports [transport])
         world (receive-transports world)
