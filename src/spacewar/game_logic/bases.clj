@@ -1,7 +1,9 @@
 (ns spacewar.game-logic.bases
   (:require [clojure.spec.alpha :as s]
             [spacewar.geometry :refer :all]
-            [spacewar.game-logic.config :refer :all]))
+            [spacewar.vector :as vector]
+            [spacewar.game-logic.config :refer :all]
+            [clojure.math.combinatorics :as combo]))
 
 (s/def ::x number?)
 (s/def ::y number?)
@@ -94,7 +96,7 @@
 (defn- transportable-target? [source-base target-base]
   (let [dist (distance [(:x source-base) (:y source-base)]
                        [(:x target-base) (:y target-base)])]
-    (and (< dist trade-route-limit) (> dist 0))))
+    (and (< dist transport-range) (> dist 0))))
 
 (defn find-transport-targets-for [base bases]
   (filter #(transportable-target? base %) bases))
@@ -110,9 +112,9 @@
 
 (defn- antimatter-reserve [type]
   (condp = type
-      :antimatter-factory antimatter-factory-antimatter-reserve
-      :dilithium-factory dilithium-factory-antimatter-reserve
-      :weapon-factory weapon-factory-antimatter-reserve))
+    :antimatter-factory antimatter-factory-antimatter-reserve
+    :dilithium-factory dilithium-factory-antimatter-reserve
+    :weapon-factory weapon-factory-antimatter-reserve))
 
 (defn- sufficient-dilithium [type]
   (condp = type
@@ -122,9 +124,9 @@
 
 (defn- dilithium-reserve [type]
   (condp = type
-      :antimatter-factory antimatter-factory-dilithium-reserve
-      :dilithium-factory dilithium-factory-dilithium-reserve
-      :weapon-factory weapon-factory-dilithium-reserve))
+    :antimatter-factory antimatter-factory-dilithium-reserve
+    :dilithium-factory dilithium-factory-dilithium-reserve
+    :weapon-factory weapon-factory-dilithium-reserve))
 
 (defn- get-promised-commodity [commodity dest transports]
   (let [transports (filter #(= commodity (:commodity %)) transports)
@@ -151,14 +153,105 @@
       (< (+ promised-dilithium dest-dilithium) (sufficient-dilithium dest-type))
       (>= source-dilithium (+ dilithium-cargo-size (dilithium-reserve source-type))))))
 
+(defn- cargo-size [commodity]
+  (condp = commodity
+    :dilithium dilithium-cargo-size
+    :antimatter antimatter-cargo-size))
+
+(defn random-transport-velocity-magnitude []
+  (* transport-velocity (+ 0.8 (rand 0.2))))
+
+(defn- launch-transport [commodity source dest]
+  (let [dest-pos [(:x dest) (:y dest)]
+        transport {:x (:x source)
+                   :y (:y source)
+                   :destination dest-pos
+                   :commodity commodity
+                   :amount (cargo-size commodity)}
+        angle (angle-degrees [(:x source) (:y source)] dest-pos)
+        radians (->radians angle)
+        v-magnitude (random-transport-velocity-magnitude)
+        velocity (vector/from-angular v-magnitude radians)
+        transport (assoc transport :velocity velocity)]
+    transport))
+
+(defn- launch-new-transports [[source dest] transports]
+  (let [should-antimatter? (should-transport-antimatter? source dest transports)
+        should-dilithium? (should-transport-dilithium? source dest transports)
+        source-ready? (transport-ready? source)
+        dist (distance [(:x source) (:y source)]
+                       [(:x dest) (:y dest)])
+        in-range? (<= dist transport-range)
+        new-transports []
+        new-transports (if (and in-range? source-ready? should-antimatter?)
+                         (conj new-transports (launch-transport :antimatter source dest))
+                         new-transports)
+        new-transports (if (and in-range? source-ready? should-dilithium?)
+                         (conj new-transports (launch-transport :dilithium source dest))
+                         new-transports)]
+    new-transports)
+  )
+
+(defn- transport-launched-from [base transport]
+  (and (= (:x base) (:x transport))
+       (= (:y base) (:y transport))))
+
+(defn deduct-transported-cargo-from-bases [transports bases]
+  (loop [bases bases transports transports deducted-bases []]
+    (if (empty? bases)
+      deducted-bases
+      (let [base (first bases)
+            launched-from (filter #(transport-launched-from base %) transports)]
+            (if (empty? launched-from)
+              (recur (rest bases) transports (conj deducted-bases base))
+              (let [transport (first launched-from)
+                    base (update base (:commodity transport) - (:amount transport))]
+                (recur (rest bases) transports (conj deducted-bases base))))))))
+
+
+(defn check-new-transports [world]
+  (let [{:keys [bases transports]} world
+        pairs (combo/combinations bases 2)
+        pairs (concat pairs (map reverse pairs))
+        new-transports (flatten (map #(launch-new-transports % transports) pairs))
+        bases (deduct-transported-cargo-from-bases new-transports bases)
+        transports (concat transports new-transports)
+        world (assoc world :transports transports
+                           :bases bases)]
+    world))
+
+(defn check-new-transport-time [world]
+  (let [{:keys [update-time transport-check-time]} world
+        check-time? (>= update-time (+ transport-check-time transport-check-period))
+        world (if check-time? (update world :transport-check-time + transport-check-period)
+                              world)
+        world (if check-time? (check-new-transports world)
+                              world)]
+    world))
+
+(defn- move-transport [ms transport]
+  (let [{:keys [x y velocity]} transport
+        displacement (vector/scale ms velocity)
+        [x y] (vector/add displacement [x y])
+        transport (assoc transport :x x :y y)]
+    transport))
+
+(defn update-transports [ms world]
+  (let [transports (:transports world)
+        transports (map #(move-transport ms %) transports)]
+    (assoc world :transports transports)))
 
 (defn update-bases [ms world]
   (let [bases (:bases world)
         bases (->> bases
                    (age-bases ms)
                    (update-bases-manufacturing ms)
-                   (update-transport-readiness ms))]
-    (assoc world :bases bases)))
+                   (update-transport-readiness ms))
+        world (assoc world :bases bases)
+        world (->> world
+                   (update-transports ms)
+                   (check-new-transport-time))]
+    world))
 
 
 

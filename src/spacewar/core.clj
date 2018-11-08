@@ -17,6 +17,7 @@
             [clojure.spec.alpha :as s]))
 
 (s/def ::update-time number?)
+(s/def ::transport-check-time number?)
 (s/def ::shots ::shots/shots)
 (s/def ::ms int?)
 (s/def ::text string?)
@@ -34,6 +35,7 @@
                                 ::clouds/clouds
                                 ::shots
                                 ::update-time
+                                ::transport-check-time
                                 ::ms
                                 ::messages
                                 ::game-over]))
@@ -49,6 +51,7 @@
      :transports []
      :clouds []
      :update-time (q/millis)
+     :transport-check-time (q/millis)
      :explosions []
      :shots []
      :ms 0

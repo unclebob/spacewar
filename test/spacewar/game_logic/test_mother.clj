@@ -94,6 +94,7 @@
    :transports []
    :clouds []
    :update-time 0
+   :transport-check-time 0
    :ms 0
    :shots []
    :messages []

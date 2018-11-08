@@ -51,7 +51,7 @@
 (def torpedo-target 700)
 (def kinetic-target 900)
 
-(def trade-route-color [0 255 100 64])
+(def transport-route-color [0 255 100 64])
 
 (def star-colors {:o [200 200 255]
                   :b [220 220 255]

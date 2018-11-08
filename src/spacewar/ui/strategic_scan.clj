@@ -57,14 +57,14 @@
            (* (- y sy) pixel-width)]
           (draw-base-icon base))))))
 
-(defn- draw-trade-routes [state]
+(defn- draw-transport-routes [state]
   (let [{:keys [bases pixel-width ship]} state
         base-pairs (combo/combinations bases 2)
-        routes (filter #(< (distance [(:x (first %)) (:y (first %))]
-                                     [(:x (second %)) (:y (second %))])
-                           trade-route-limit)
+        routes (filter #(<= (distance [(:x (first %)) (:y (first %))]
+                                      [(:x (second %)) (:y (second %))])
+                            transport-range)
                        base-pairs)]
-    (apply q/stroke trade-route-color)
+    (apply q/stroke transport-route-color)
     (q/stroke-weight 3)
     (doseq [[base1 base2] routes]
       (let [sx (:x ship)
@@ -107,7 +107,7 @@
         (draw-klingons state)
         (when (not (-> state :game-over))
           (draw-ship state))
-        (draw-trade-routes state)
+        (draw-transport-routes state)
         (draw-bases state)
         (draw-sectors state))))
 

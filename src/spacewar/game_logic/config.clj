@@ -91,10 +91,12 @@
 (def klingon-torpedo-proximity 2000)
 (def klingon-torpedo-range 100000)
 
-(def trade-route-limit strategic-range)
+(def transport-range strategic-range)
 (def transport-ready 60000)
 (def antimatter-cargo-size 10000)
 (def dilithium-cargo-size 100)
+(def transport-check-period 1000)
+(def transport-velocity 10)
 
 (def base-maturity-age 60000)
 

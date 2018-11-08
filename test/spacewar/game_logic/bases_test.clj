@@ -2,7 +2,8 @@
   (:require [midje.sweet :refer :all]
             [spacewar.game-logic.config :refer :all]
             [spacewar.game-logic.bases :refer :all]
-            [spacewar.game-logic.test-mother :as mom]))
+            [spacewar.game-logic.test-mother :as mom]
+            [spacewar.vector-test :as vt]))
 
 (fact
   "bases age"
@@ -80,8 +81,8 @@
 (fact
   "no transport route to bases that are out of range"
   (let [wpn-base (mom/make-base 0 0 :weapon-factory 0 0)
-        dl-base (mom/make-base (inc trade-route-limit) 0 :dilithium-factory 0 0)
-        am-base (mom/make-base 0 (inc trade-route-limit) :antimatter-factory 0 0 0 0)
+        dl-base (mom/make-base (inc transport-range) 0 :dilithium-factory 0 0)
+        am-base (mom/make-base 0 (inc transport-range) :antimatter-factory 0 0 0 0)
         bases [am-base dl-base wpn-base]
         transport-routes (find-transport-targets-for am-base bases)]
     transport-routes => []))
@@ -89,8 +90,8 @@
 (fact
   "find transport route to bases that are in range"
   (let [wpn-base (mom/make-base 0 0 :weapon-factory 0 0)
-        dl-base (mom/make-base (dec trade-route-limit) 0 :dilithium-factory 0 0)
-        am-base (mom/make-base 0 (dec trade-route-limit) :antimatter-factory 0 0 0 0)
+        dl-base (mom/make-base (dec transport-range) 0 :dilithium-factory 0 0)
+        am-base (mom/make-base 0 (dec transport-range) :antimatter-factory 0 0 0 0)
         bases [am-base dl-base wpn-base]
         transport-routes (find-transport-targets-for wpn-base bases)]
     transport-routes => (just #{dl-base am-base})))
@@ -213,4 +214,80 @@
   :weapon-factory :weapon-factory weapon-factory-dilithium-reserve weapon-factory-sufficient-dilithium
   :weapon-factory :dilithium-factory weapon-factory-dilithium-reserve dilithium-factory-sufficient-dilithium
   )
+
+(fact
+  "transport analysis is not done within the transport-check-period of the last"
+  (let [world (assoc (mom/make-world) :transport-check-time 0
+                                      :update-time (dec transport-check-period))]
+    (check-new-transport-time world) => world))
+
+(fact
+  "transport analysis is done once transport-check-period has passed"
+  (let [world (assoc (mom/make-world) :transport-check-time 0
+                                      :update-time (inc transport-check-period))]
+    (:transport-check-time (check-new-transport-time world)) => transport-check-period))
+
+(fact
+  "No dilithium transport created when there is nothing to ship"
+  (let [world (mom/make-world)
+        source (mom/make-base 0 0 :dilithium-factory 0 0)
+        dest (mom/make-base 0 (dec transport-range) :weapon-factory 0 0 0 0)
+        world (assoc world :bases [source dest])
+        world (check-new-transports world)
+        transports (:transports world)]
+    transports => []))
+
+(fact
+  "Dilithium transport created when there is something to ship"
+  (prerequisite (random-transport-velocity-magnitude) => transport-velocity)
+  (let [world (mom/make-world)
+        source (mom/make-base 0 0 :dilithium-factory 0 (+ dilithium-cargo-size dilithium-factory-dilithium-reserve))
+        source (assoc source :transport-readiness transport-ready)
+        dest (mom/make-base 0 (dec transport-range) :weapon-factory 0 0 0 0)
+        world (assoc world :bases [source dest])
+        world (check-new-transports world)
+        transports (:transports world)
+        transport (first transports)
+        [source _] (:bases world)]
+    (count transports) => 1
+    (:x transport) => 0
+    (:y transport) => 0
+    (:commodity transport) => :dilithium
+    (:amount transport) => dilithium-cargo-size
+    (:destination transport) => [0 (dec transport-range)]
+    (:velocity transport) => (vt/roughly-v [0 transport-velocity])
+    (:dilithium source) => dilithium-factory-dilithium-reserve))
+
+(fact
+  "Antimatter transport created when there is something to ship"
+  (prerequisite (random-transport-velocity-magnitude) => transport-velocity)
+  (let [world (mom/make-world)
+        source (mom/make-base 0 0 :antimatter-factory (+ antimatter-cargo-size antimatter-factory-antimatter-reserve) 0)
+        dest (mom/make-base (dec transport-range) 0 :weapon-factory 0 0 0 0)
+        source (assoc source :transport-readiness transport-ready)
+        world (assoc world :bases [source dest])
+        world (check-new-transports world)
+        transports (:transports world)
+        transport (first transports)
+        [source _] (:bases world)]
+    (count transports) => 1
+    (:x transport) => 0
+    (:y transport) => 0
+    (:commodity transport) => :antimatter
+    (:amount transport) => antimatter-cargo-size
+    (:destination transport) => [(dec transport-range) 0]
+    (:velocity transport) => (vt/roughly-v [transport-velocity 0])
+    (:antimatter source) => antimatter-factory-antimatter-reserve))
+
+(fact
+  "transports move"
+  (let [world (mom/make-world)
+        transport (make-transport :antimatter 100 [100 100])
+        transport (assoc transport :velocity [2 2])
+        world (assoc world :transports [transport])
+        world (update-transports 10 world)
+        transports (:transports world)
+        transport (first transports)]
+    (:x transport) => 20
+    (:y transport) => 20))
 
