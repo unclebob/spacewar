@@ -136,6 +136,15 @@
         [(+ x (/ w 2)) (+ y (/ h 2))]
         (draw-base-icon base)))))
 
+(defn- draw-transports [state]
+  (let [{:keys [w h world]} state
+        transports (:transports world)
+        presentable-transports (present-objects state transports)]
+    (doseq [{:keys [x y] :as transport} presentable-transports]
+      (q/with-translation
+        [(+ x (/ w 2)) (+ y (/ h 2))]
+        (draw-transport transport)))))
+
 (defn- phaser-intensity [range]
   (let [intensity (* 255 (- 1 (/ range phaser-range)))]
     [intensity intensity intensity]))
@@ -322,6 +331,7 @@
         (when (not (-> state :world :game-over))
           (draw-ship state))
         (draw-bases state)
+        (draw-transports state)
         (draw-explosions state)
         (draw-clouds state)
         )))
