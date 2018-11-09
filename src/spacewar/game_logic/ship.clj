@@ -400,10 +400,12 @@
     world))
 
 (defn dockable? [ship bases]
-  (let [distances (map #(distance [(:x ship) (:y ship)]
-                                  [(:x %) (:y %)]) bases)
-        closest (apply min distances)]
-    (< closest ship-docking-distance)))
+  (if (empty? bases)
+    false
+    (let [distances (map #(distance [(:x ship) (:y ship)]
+                                    [(:x %) (:y %)]) bases)
+          closest (apply min distances)]
+      (< closest ship-docking-distance))))
 
 (defn deployment-classes [factory]
   (condp = factory

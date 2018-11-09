@@ -119,13 +119,14 @@ non-functional.
  _DOCK_ button to show up in the Engine Control Panel.  Hit that button
  and you'll be refueled and restocked.
  
- ## Bases (not yet completely implemented)
+ ## Bases 
  There are three kinds of bases.  Antimatter factories, Dilithium factories, and Weapon factories.
   * Antimatter factories manufacture antimatter using the power from nearby O, B, or A
-  class stars. 
+  class stars (the big blue or white ones).
   * Dilithium factories harvest dilithium from the atmospheres of nearby K or M class stars.
+  (the little red or orange ones.)
   * Weapon factories manufacture Kinetics and Torpedos.  They require the elements found 
-  around the planets of F or G class stars. 
+  around the planets of F or G class stars (The medium sized yellow stars like our Sun).  
   
   You can deploy a base by gradually approaching the appropriate kind of star.  When you
   are in deployment range, the appropriate deploy button will appear in the Deploy panel.   
@@ -135,6 +136,23 @@ non-functional.
   Bases do not start making products right away, there is a startup time.  During that time you
   will see the base partially obscured.  Afterwards the bases start slowly manufacturing products. 
   
+  ## Transport routes
+  On the strategic display you will find green lines that connect some of the bases.
+  Cargo transport vessels follow these routes to supply the bases with the resources they need.
+  Yellow transports carry dilithium.  Orange transports carry antimatter.
+  
+  Factories prefer to transport goods along short routes.  Be careful how you lay
+  them out.  It is possible to deprive bases of resources by connecting them by long routes to
+  bases that have short routes to other bases.  
+  
+  ## Production
+  Weapon bases use antimatter to create kinetics.  This production is quite rapid.  Torpedoes require
+  substantial amounts of both antimatter and dilithium to create.  Make sure you have the weapon factories 
+  connected, either directly, or indirectly, to antimatter and dilithium factories.
+  
+  Dilithium factories require small amounts of antimatter to produce dilithium.  Dilithium
+  production is slow, so you will likely need many of these factories. 
+ 
   ## Klingons
   
   Some of the crippled Klingons are still pretty strong.  Be careful.  Others

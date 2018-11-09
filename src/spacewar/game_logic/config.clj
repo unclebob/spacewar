@@ -14,7 +14,7 @@
 (def ship-shields 1000)
 (def ship-antimatter 100000)
 (def ship-dilithium 1000)
-(def ship-dilithium-consumption 0.001)
+(def ship-dilithium-consumption 0.0005)
 (def ship-shield-recharge-rate 0.01)
 (def ship-shield-recharge-cost 5)
 (def ship-docking-distance 2000)
@@ -62,7 +62,7 @@
 (def klingon-antimatter-runaway-threshold (* 0.1 klingon-antimatter))
 (def klingon-thrust 0.002)
 (def klingon-drag 0.999)
-(def klingon-debris 300)
+(def klingon-debris 1000)
 
 (def klingon-kinetic-range 1000000)
 (def klingon-kinetic-firing-distance 150000)
@@ -106,13 +106,13 @@
 (def base-kinetics-maximum (* 1.5 ship-kinetics))
 (def base-torpedos-maximum (* 1.5 ship-torpedos))
 
-(def antimatter-factory-production-rate 0.2) ;.05
+(def antimatter-factory-production-rate 0.1) ;.05
 (def antimatter-factory-sufficient-antimatter antimatter-cargo-size)
 (def antimatter-factory-antimatter-reserve 0)
 (def antimatter-factory-sufficient-dilithium dilithium-cargo-size)
 (def antimatter-factory-dilithium-reserve 0)
 
-(def dilithium-factory-production-rate 0.002) ;0.0001
+(def dilithium-factory-production-rate 0.001) ;0.0001
 (def dilithium-factory-dilithium-antimatter-cost 100)
 (def dilithium-factory-sufficient-antimatter antimatter-cargo-size)
 (def dilithium-factory-antimatter-reserve (* dilithium-factory-dilithium-antimatter-cost

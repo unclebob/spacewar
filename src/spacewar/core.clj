@@ -45,9 +45,7 @@
     {:stars (stars/initialize)
      :klingons (klingons/initialize)
      :ship ship
-     :bases [(bases/make-base
-               [(+ (:x ship) ship-docking-distance -1) (:y ship)]
-               :antimatter-factory)]
+     :bases []
      :transports []
      :clouds []
      :update-time (q/millis)
@@ -90,7 +88,7 @@
   (println event)
   (let [[x y] (:pos event)
         clouds (:clouds world)
-        cloud (clouds/make-cloud x y 300)
+        cloud (clouds/make-cloud x y klingon-debris)
         clouds (conj clouds cloud)]
     (assoc world :clouds clouds)))
 

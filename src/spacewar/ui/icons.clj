@@ -5,6 +5,17 @@
             [spacewar.game-logic.config :refer :all]
             [spacewar.geometry :refer :all]))
 
+(defn- transport-color [commodity]
+  (condp = commodity
+    :antimatter orange
+    :dilithium yellow))
+
+(defn draw-transport [transport]
+  (q/ellipse-mode :center)
+  (q/no-stroke)
+  (apply q/fill (transport-color (:commodity transport)))
+  (q/ellipse 0 0 8 8))
+
 (defn- age-angle [age]
   (let [maturity (min 1 (/ age base-maturity-age))]
     (* (- 1 maturity) 2 Math/PI)))
@@ -29,7 +40,7 @@
   (apply q/fill white)
   (q/text-align :right :center)
   (q/text-font (:lcars-small (q/state :fonts)) 12)
-  (q/text (str "T-" (int (:torpedos base))) -30 0 )
+  (q/text (str "T-" (int (:torpedos base))) -30 0)
   (q/text-align :left :center)
   (q/text (str "K-" (int (:kinetics base))) 30 0)
   )
@@ -139,16 +150,16 @@
   (if (< 0.5 (rand 1)) 1 -1))
 
 (defn draw-cloud-icon [cloud]
-  (let [concentration (:concentration cloud)
-        jitter (/ concentration 5)
+  (let [diameter (* 0.3 (:concentration cloud))
+        jitter (/ diameter 5)
         half-jitter (/ jitter 2)]
     (apply q/fill (conj yellow 10))
     (q/no-stroke)
     (q/ellipse-mode :center)
     (doseq [_ (range 10)]
-      (draw-blob jitter half-jitter (* concentration (- 0.5 (rand 1)))))
+      (draw-blob jitter half-jitter (* diameter (- 0.5 (rand 1)))))
     (doseq [_ (range 20)]
-      (let [r (rand (/ concentration 4))
+      (let [r (rand (/ diameter 4))
             x (+ 2 (rand r))
             x-sqr (* x x)
             y (Math/sqrt (- (* r r) x-sqr))
