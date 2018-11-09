@@ -10,7 +10,7 @@
     :antimatter orange
     :dilithium yellow))
 
-(defn draw-transport [transport]
+(defn draw-transport-icon [transport]
   (q/ellipse-mode :center)
   (q/no-stroke)
   (apply q/fill (transport-color (:commodity transport)))
@@ -132,9 +132,12 @@
     (q/line -5 9 -15 9)
     (q/line -5 -9 -15 -9)))
 
-(defn draw-star-icon [x y class]
-  (apply q/fill (class star-colors))
-  (q/ellipse x y (class star-sizes) (class star-sizes)))
+(defn draw-star-icon [star]
+  (let [class (:class star)]
+    (q/no-stroke)
+    (q/ellipse-mode :center)
+    (apply q/fill (class star-colors))
+    (q/ellipse 0 0 (class star-sizes) (class star-sizes))))
 
 (defn- draw-blob [jitter half-jitter diameter]
   (q/ellipse (- half-jitter (rand jitter))

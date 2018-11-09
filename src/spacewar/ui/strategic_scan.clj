@@ -21,12 +21,11 @@
     (when stars
       (q/no-stroke)
       (q/ellipse-mode :center)
-      (doseq [{:keys [x y class]} stars]
-        (draw-star-icon
-          (* (- x sx) pixel-width)
-          (* (- y sy) pixel-width)
-          class)))))
-
+      (doseq [{:keys [x y] :as star} stars]
+        (q/with-translation
+          [(* (- x sx) pixel-width)
+           (* (- y sy) pixel-width)]
+          (draw-star-icon star))))))
 
 (defn- draw-klingons [state]
   (let [{:keys [klingons pixel-width ship]} state
@@ -86,7 +85,7 @@
             y (* (- ty sy) pixel-width)]
         (q/with-translation
           [x y]
-          (draw-transport transport))))))
+          (draw-transport-icon transport))))))
 
 (defn- draw-sectors [state]
   (let [{:keys [pixel-width ship]} state

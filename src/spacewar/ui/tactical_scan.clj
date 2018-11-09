@@ -69,28 +69,32 @@
                                            :y (* (:y %) scale))))]
       presentables)))
 
+(defn- draw-objects-in [state objects draw]
+  (let [{:keys [w h]} state
+        presentable-objects (present-objects state objects)]
+    (doseq [{:keys [x y] :as object} presentable-objects]
+      (q/with-translation
+        [(+ x (/ w 2)) (+ y (/ h 2))]
+        (draw object)))))
+
+(defn- draw-objects [state key draw]
+  (draw-objects-in state (-> state :world key) draw))
+
+(defn- draw-bases [state]
+  (draw-objects state :bases draw-base-icon))
+
+(defn- draw-transports [state]
+  (draw-objects state :transports draw-transport-icon))
+
 (defn- draw-stars [state]
-  (let [{:keys [w h world]} state
-        stars (:stars world)
-        presentable-stars (present-objects state stars)]
-    (q/no-stroke)
-    (q/ellipse-mode :center)
-    (q/with-translation
-      [(/ w 2) (/ h 2)]
-      (doseq [{:keys [x y class]} presentable-stars]
-        (draw-star-icon x y class)))))
+  (draw-objects state :stars draw-star-icon))
+
+(defn- draw-klingon-and-shield [klingon]
+  (draw-klingon-shields (:shields klingon))
+  (draw-klingon-icon))
 
 (defn- draw-klingons [state]
-  (let [{:keys [w h world]} state
-        klingons (:klingons world)
-        presentable-klingons (present-objects state klingons)]
-    (when klingons
-      (doseq [klingon presentable-klingons]
-        (let [{:keys [x y shields]} klingon]
-          (q/with-translation
-            [(+ x (/ w 2)) (+ y (/ h 2))]
-            (draw-klingon-shields shields)
-            (draw-klingon-icon)))))))
+  (draw-objects state :klingons draw-klingon-and-shield))
 
 (defn target-arc [ship]
   (let [{:keys [selected-weapon
@@ -127,28 +131,6 @@
       (draw-ship-icon [vx vy] radians)
       )))
 
-(defn- draw-bases [state]
-  (let [{:keys [w h world]} state
-        bases (:bases world)
-        presentable-bases (present-objects state bases)]
-    (doseq [{:keys [x y] :as base} presentable-bases]
-      (q/with-translation
-        [(+ x (/ w 2)) (+ y (/ h 2))]
-        (draw-base-icon base)))))
-
-(defn- draw-transports [state]
-  (let [{:keys [w h world]} state
-        transports (:transports world)
-        presentable-transports (present-objects state transports)]
-    (doseq [{:keys [x y] :as transport} presentable-transports]
-      (q/with-translation
-        [(+ x (/ w 2)) (+ y (/ h 2))]
-        (draw-transport transport)))))
-
-(defn- phaser-intensity [range]
-  (let [intensity (* 255 (- 1 (/ range phaser-range)))]
-    [intensity intensity intensity]))
-
 (defn- draw-torpedo-segment []
   (let [angle (rand 360)
         color (repeatedly 3 #(+ 128 (rand 127)))
@@ -158,79 +140,67 @@
     (apply q/stroke color)
     (q/line 0 0 tx ty)))
 
+(defn- draw-torpedo [color _]
+  (doseq [_ (range 3)]
+    (draw-torpedo-segment))
+  (apply q/fill color)
+  (q/ellipse-mode :center)
+  (q/ellipse 0 0 4 4))
+
 (defn- draw-torpedo-shots [state]
-  (let [{:keys [w h world]} state
-        torpedo-shots (filter #(= :torpedo (:type %)) (:shots world))
-        presentable-torpedo-shots (present-objects state torpedo-shots)]
-    (doseq [{:keys [x y]} presentable-torpedo-shots]
-      (q/with-translation
-        [(+ x (/ w 2)) (+ y (/ h 2))]
-        (draw-torpedo-segment)
-        (draw-torpedo-segment)
-        (draw-torpedo-segment)))))
+  (draw-objects-in state
+                   (filter #(= :torpedo (:type %)) (:shots (:world state)))
+                   (partial draw-torpedo white)))
 
 (defn- draw-klingon-torpedo-shots [state]
-  (let [{:keys [w h world]} state
-        torpedo-shots (filter #(= :klingon-torpedo (:type %)) (:shots world))
-        presentable-torpedo-shots (present-objects state torpedo-shots)]
-    (doseq [{:keys [x y]} presentable-torpedo-shots]
-      (q/with-translation
-        [(+ x (/ w 2)) (+ y (/ h 2))]
-        (draw-torpedo-segment)
-        (draw-torpedo-segment)
-        (draw-torpedo-segment)
-        (apply q/fill green)
-        (q/ellipse 0 0 4 4)))))
+  (draw-objects-in state
+                   (filter #(= :klingon-torpedo (:type %)) (:shots (:world state)))
+                   (partial draw-torpedo green)))
+
+(defn- draw-kinetic-shot [color _]
+  (q/ellipse-mode :center)
+  (q/no-stroke)
+  (apply q/fill color)
+  (q/ellipse 0 0 3 3))
 
 (defn- draw-kinetic-shots [state]
-  (let [{:keys [w h world]} state
-        kinetic-shots (filter #(= :kinetic (:type %)) (:shots world))
-        presentable-kinetic-shots (present-objects state kinetic-shots)]
-    (doseq [{:keys [x y]} presentable-kinetic-shots]
-      (q/with-translation
-        [(+ x (/ w 2)) (+ y (/ h 2))]
-        (q/ellipse-mode :center)
-        (q/no-stroke)
-        (apply q/fill kinetic-color)
-        (q/ellipse 0 0 3 3)))))
+  (draw-objects-in state
+                   (filter #(= :kinetic (:type %)) (:shots (:world state)))
+                   (partial draw-kinetic-shot kinetic-color)))
 
 (defn- draw-klingon-kinetic-shots [state]
-  (let [{:keys [w h world]} state
-        kinetic-shots (filter #(= :klingon-kinetic (:type %)) (:shots world))
-        presentable-kinetic-shots (present-objects state kinetic-shots)]
-    (doseq [{:keys [x y]} presentable-kinetic-shots]
-      (q/with-translation
-        [(+ x (/ w 2)) (+ y (/ h 2))]
-        (q/ellipse-mode :center)
-        (q/no-stroke)
-        (apply q/fill klingon-kinetic-color)
-        (q/ellipse 0 0 3 3)))))
+  (draw-objects-in state
+                   (filter #(= :klingon-kinetic (:type %)) (:shots (:world state)))
+                   (partial draw-kinetic-shot klingon-kinetic-color)))
+
+(defn- phaser-intensity [range]
+  (let [intensity (* 255 (- 1 (/ range phaser-range)))]
+    [intensity intensity intensity]))
+
+(defn- phaser-color [shot]
+  (phaser-intensity (:range shot)))
+
+(defn- klingon-phaser-color [_]
+  green)
+
+(defn- draw-phaser-shot [color-function shot]
+  (let [{:keys [bearing]} shot
+        radians (->radians bearing)
+        [sx sy] (vector/from-angular phaser-length radians)
+        beam-color (color-function shot)]
+    (apply q/stroke beam-color)
+    (q/stroke-weight 3)
+    (q/line 0 0 sx sy)))
 
 (defn- draw-phaser-shots [state]
-  (let [{:keys [w h world]} state
-        phaser-shots (filter #(= :phaser (:type %)) (:shots world))
-        presentable-phaser-shots (present-objects state phaser-shots)]
-    (doseq [{:keys [x y bearing range]} presentable-phaser-shots]
-      (q/with-translation
-        [(+ x (/ w 2)) (+ y (/ h 2))]
-        (let [radians (->radians bearing)
-              [sx sy] (vector/from-angular phaser-length radians)
-              beam-color (phaser-intensity range)]
-          (apply q/stroke beam-color)
-          (q/line 0 0 sx sy))))))
+  (draw-objects-in state
+                   (filter #(= :phaser (:type %)) (:shots (:world state)))
+                   (partial draw-phaser-shot phaser-color)))
 
 (defn- draw-klingon-phaser-shots [state]
-  (let [{:keys [w h world]} state
-        phaser-shots (filter #(= :klingon-phaser (:type %)) (:shots world))
-        presentable-phaser-shots (present-objects state phaser-shots)]
-    (doseq [{:keys [x y bearing]} presentable-phaser-shots]
-      (q/with-translation
-        [(+ x (/ w 2)) (+ y (/ h 2))]
-        (let [radians (->radians bearing)
-              [sx sy] (vector/from-angular phaser-length radians)]
-          (apply q/stroke green)
-          (q/stroke-weight 2)
-          (q/line 0 0 sx sy))))))
+  (draw-objects-in state
+                   (filter #(= :klingon-phaser (:type %)) (:shots (:world state)))
+                   (partial draw-phaser-shot klingon-phaser-color)))
 
 (defn explosion-radius [age profile]
   (loop [profile profile radius 0 last-time 0]
@@ -273,42 +243,29 @@
     (apply q/stroke fragment-color)
     (q/line hx hy tx ty)))
 
-(defn draw-explosion [explosion state]
-  (let [{:keys [w h]} state
-        {:keys [x y age type]} explosion
+(defn draw-explosion [state explosion]
+  (let [{:keys [age type]} explosion
         {:keys [explosion-profile
                 explosion-color-profile
                 fragment-color-profile]} (type explosion-profiles)]
-    (q/with-translation
-      [(+ x (/ w 2)) (+ y (/ h 2))]
-      (let [fragments (present-objects state (:fragments explosion))
-            radius (explosion-radius age explosion-profile)
-            explosion-color (age-color age explosion-color-profile)
-            fragment-color (age-color age fragment-color-profile)
-            ex (- (rand 6) 3)
-            ey (- (rand 6) 3)]
-        (apply q/fill explosion-color)
-        (q/ellipse-mode :center)
-        (q/no-stroke)
-        (q/ellipse ex ey radius radius)
-        (doseq [fragment fragments]
-          (draw-fragment fragment age fragment-color))))))
+    (let [fragments (present-objects state (:fragments explosion))
+          radius (explosion-radius age explosion-profile)
+          explosion-color (age-color age explosion-color-profile)
+          fragment-color (age-color age fragment-color-profile)
+          ex (- (rand 6) 3)
+          ey (- (rand 6) 3)]
+      (apply q/fill explosion-color)
+      (q/ellipse-mode :center)
+      (q/no-stroke)
+      (q/ellipse ex ey radius radius)
+      (doseq [fragment fragments]
+        (draw-fragment fragment age fragment-color)))))
 
 (defn- draw-explosions [state]
-  (let [{:keys [world]} state
-        explosions (:explosions world)
-        presentable-explosions (present-objects state explosions)]
-    (doseq [explosion presentable-explosions]
-      (draw-explosion explosion state))))
+  (draw-objects state :explosions (partial draw-explosion state)))
 
 (defn- draw-clouds [state]
-  (let [{:keys [w h world]} state
-        clouds (present-objects state (:clouds world))]
-    (doseq [cloud clouds]
-      (let [{:keys [x y]} cloud]
-        (q/with-translation
-          [(+ x (/ w 2)) (+ y (/ h 2))]
-          (draw-cloud-icon cloud))))))
+  (draw-objects state :clouds draw-cloud-icon))
 
 (defn- draw-shots [state]
   (draw-phaser-shots state)
