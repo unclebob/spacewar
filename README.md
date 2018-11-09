@@ -52,7 +52,7 @@ You have two modes of movement.  Warp, and Impulse.
 You have three weapons.  Phasers, Torpedos, and Kinetics.  
  * Phasers are powerful rays that move quickly and do a lot of damage.
   However, they are short range and lose effectiveness rapidly with distance.
-  If you want to use them, get close.
+  If you want to use them, get close.  They are great in a stern chase.
   
  * Torpedos are slow, but pack a significant punch.  
   
@@ -139,7 +139,7 @@ non-functional.
   ## Transport routes
   On the strategic display you will find green lines that connect some of the bases.
   Cargo transport vessels follow these routes to supply the bases with the resources they need.
-  Yellow transports carry dilithium.  Orange transports carry antimatter.
+  Yellow transports carry dilithium.  Orange transports carry antimatter.  They travel at just over Warp 1.
   
   Factories prefer to transport goods along short routes.  Be careful how you lay
   them out.  It is possible to deprive bases of resources by connecting them by long routes to
@@ -148,7 +148,8 @@ non-functional.
   ## Production
   Weapon bases use antimatter to create kinetics.  This production is quite rapid.  Torpedoes require
   substantial amounts of both antimatter and dilithium to create.  Make sure you have the weapon factories 
-  connected, either directly, or indirectly, to antimatter and dilithium factories.
+  connected, either directly, or indirectly, to antimatter and dilithium factories.  Take care, a weapon factory
+  can consume large amounts of dilithium. 
   
   Dilithium factories require small amounts of antimatter to produce dilithium.  Dilithium
   production is slow, so you will likely need many of these factories. 
@@ -162,7 +163,7 @@ non-functional.
   
   When you destroy a Klingon vessel, their on-board dilithium will disperse amidst
   the cloud of debris.  You can harvest this dilithium by easing yourself as close
-  as possible into the center of the cloud.  Dilithium, when exposed to the vacuum,
+  as possible into the _center_ of the cloud.  Dilithium, when exposed to the vacuum,
   has a half-life of about a minute.  So hurry.
    
  
