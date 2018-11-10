@@ -157,7 +157,9 @@ non-functional.
   ## Klingons
   
   Some of the crippled Klingons are still pretty strong.  Be careful.  Others
-  are so weakened that they'll run from you and won't put up much of a fight.
+  are so weakened that they'll run from you and won't put up much of a fight.  They can't detect
+  you at long range; but they can detect bases.  So once you place a base down, you
+  can expect visitors.  Perhaps _lots_ of visitors.  
   
   ## Dilithium Clouds
   
