@@ -178,6 +178,10 @@
        (add-messages)
        ))
 
+(defn update-world-per-second [world]
+  (->> world
+       (klingons/update-klingons-per-second)))
+
 (defn add-frame-time [frame-time context]
   (let [frame-times (->
                       context
@@ -201,7 +205,8 @@
 (defn update-state [context]
   (let [world (:world context)
         time (q/millis)
-        ms (- time (:update-time world))
+        last-update-time (:update-time world)
+        ms (- time last-update-time)
         context (add-frame-time ms context)
         frame-times (:frame-times context)
         fps (frames-per-second frame-times)
@@ -212,7 +217,11 @@
         [complex events] (p/update-state complex world)
         events (flatten events)
         world (process-events events world)
-        world (update-world ms world)]
+        world (update-world ms world)
+        new-second? (not= (int (/ time 1000)) (int (/ last-update-time 1000)))
+        world (if new-second?
+                (update-world-per-second world)
+                world)]
     (assoc context
       :state complex
       :world world)))

@@ -4,7 +4,9 @@
             [spacewar.game-logic.klingons :as k]
             [spacewar.game-logic.test-mother :as mom]
             [clojure.spec.alpha :as s]
-            [spacewar.game-logic.shots :as shots]))
+            [spacewar.game-logic.shots :as shots]
+            [spacewar.game-logic.bases :as bases]
+            [spacewar.vector-test :as vt]))
 
 (let [klingon (assoc (mom/make-klingon) :shields klingon-shields
                                         :antimatter 1000)
@@ -292,7 +294,7 @@
     )
 
   (fact
-    "thrusting klingon stops thrusting when out of range"
+    "klingon out of range of ship continues on course"
     (let [ship (mom/set-pos ship [0 0])
           klingon (mom/set-pos klingon [(inc klingon-tactical-range) 0])
           klingon (assoc klingon :thrust [1 1])
@@ -300,7 +302,7 @@
           new-world (k/klingon-motion 2 world)
           new-klingon (->> new-world :klingons first)
           thrust (:thrust new-klingon)]
-      thrust => [0 0]))
+      thrust => [1 1]))
 
   (fact
     "thrusting klingon increases velocity"
@@ -325,5 +327,32 @@
           y (->> new-world :klingons first :y)]
       x => (roughly 1002)
       y => (roughly 1002)))
+
+  (fact
+    "klingons far from ship don't thrust towards base if no bases"
+    (let [ship (assoc ship :x 1e7 :y 1e7)
+          world (assoc world :ship ship)
+          world (k/update-thrust-towards-nearest-base world)
+          klingon (-> world :klingons first)]
+      (:thrust klingon) => [0 0]))
+
+  (fact
+      "klingons near ship do not thrust towards nearest base"
+      (let [ship (assoc ship :x (dec klingon-tactical-range) :y 0)
+            base (bases/make-base [1000 0] :antimatter-factory)
+            world (assoc world :ship ship :bases [base])
+            world (k/update-thrust-towards-nearest-base world)
+            klingon (-> world :klingons first)]
+        (:thrust klingon) => [0 0]))
+
+  (fact
+    "klingons far from ship  thrust towards nearest base"
+    (let [ship (assoc ship :x 1e7 :y 1e7)
+          base1 (bases/make-base [0 2000] :antimatter-factory)
+          base2 (bases/make-base [1000 0] :antimatter-factory)
+          world (assoc world :ship ship :bases [base1 base2])
+          world (k/update-thrust-towards-nearest-base world)
+          klingon (-> world :klingons first)]
+      (:thrust klingon) => (vt/roughly-v [klingon-thrust 0])))
 
   )

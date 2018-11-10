@@ -1,5 +1,6 @@
 (ns spacewar.game-logic.klingons
   (:require [clojure.spec.alpha :as s]
+            [spacewar.util :refer :all]
             [spacewar.game-logic.config :refer :all]
             [spacewar.game-logic.explosions :as explosions]
             [spacewar.game-logic.shots :as shots]
@@ -269,7 +270,7 @@
                               (* klingon-thrust efficiency))
         thrust (from-angular effective-thrust radians)]
     (if (< klingon-tactical-range dist)
-      (assoc klingon :thrust [0 0])
+      klingon
       (assoc klingon :thrust thrust))))
 
 (defn- accelerate-klingon [ms klingon]
@@ -300,8 +301,31 @@
         klingons (map #(drag-klingon ms %) klingons)]
     (assoc world :klingons klingons)))
 
+(defn- thrust-to-nearest [klingon bases ship]
+  (if (< (distance (pos klingon) (pos ship))
+         klingon-tactical-range)
+    klingon
+    (let [distance-map (apply hash-map
+                              (flatten
+                                (map #(list (distance (pos klingon) (pos %)) %) bases)))
+          nearest-base (distance-map (apply min (keys distance-map)))
+          angle-to-base (angle-degrees (pos klingon) (pos nearest-base))
+          thrust (vector/from-angular klingon-thrust (->radians angle-to-base))]
+      (assoc klingon :thrust thrust))))
+
+(defn update-thrust-towards-nearest-base [world]
+  (let [{:keys [klingons bases ship]} world
+        klingons (if (empty? bases)
+                   klingons
+                   (map #(thrust-to-nearest % bases ship) klingons))]
+    (assoc world :klingons klingons)))
+
 (defn update-klingons [ms world]
   (->> world
        (klingon-defense ms)
        (klingon-offense ms)
        (klingon-motion ms)))
+
+(defn update-klingons-per-second [world]
+  (-> world
+      (update-thrust-towards-nearest-base)))
