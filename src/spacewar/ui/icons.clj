@@ -27,14 +27,16 @@
   (q/arc 0 0 30 30 0 (age-angle age) :pie))
 
 (defn- draw-base-contents [antimatter dilithium]
-  (let [antimatter-angle (max 0.1 (* 2 Math/PI (/ antimatter base-antimatter-maximum)))
-        dilithium-angle (max 0.1 (* 2 Math/PI (/ dilithium base-dilithium-maximum)))]
-    (apply q/stroke yellow)
-    (q/stroke-weight 2)
+  (let [antimatter-angle (* 2 Math/PI (/ antimatter base-antimatter-maximum))
+        dilithium-angle (* 2 Math/PI (/ dilithium base-dilithium-maximum))]
+    (q/stroke-weight 3)
     (q/no-fill)
-    (q/arc 0 0 30 30 0 dilithium-angle)
-    (apply q/stroke orange)
-    (q/arc 0 0 35 35 0 antimatter-angle)))
+    (when (> dilithium-angle 0.01)
+      (apply q/stroke yellow)
+      (q/arc 0 0 30 30 0 dilithium-angle))
+    (when (> antimatter-angle 0.01)
+      (apply q/stroke orange)
+      (q/arc 0 0 35 35 0 antimatter-angle))))
 
 (defn- draw-base-counts [base]
   (apply q/fill white)
