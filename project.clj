@@ -5,7 +5,8 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/test.check "0.10.0-alpha3"]
-                 [quil "2.7.1"]]
+                 [quil "2.7.1"]
+                 [org.clojure/math.combinatorics "0.1.4"]]
   :profiles {:dev {:dependencies [[midje "1.9.2"]]}
              ;; You can add dependencies that apply to `lein midje` below.
              ;; An example would be changing the logging destination for test runs.
