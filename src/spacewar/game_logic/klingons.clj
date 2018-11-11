@@ -42,6 +42,17 @@
    :velocity [(- 2 (rand 4)) (- 2 (rand 4))]
    :thrust [0 0]})
 
+(defn make-klingon [x y]
+  {:x x
+   :y y
+   :shields klingon-shields
+   :antimatter klingon-antimatter
+   :kinetics klingon-kinetics
+   :torpedos klingon-torpedos
+   :weapon-charge 0
+   :velocity [0 0]
+   :thrust [0 0]})
+
 (defn initialize []
   (repeatedly number-of-klingons make-random-klingon))
 
@@ -320,6 +331,35 @@
                    (map #(thrust-to-nearest % bases ship) klingons))]
     (assoc world :klingons klingons)))
 
+(defn- find-thefts [klingons bases]
+  (for [klingon klingons
+        base bases
+        :when (< (distance (pos klingon) (pos base))
+                 ship-docking-distance)]
+    [klingon base]))
+
+(defn- steal-antimatter [[thief victim]]
+  (let [amount-needed (- klingon-antimatter (:antimatter thief))
+        amount-available (:antimatter victim)
+        amount-stolen (min amount-needed amount-available)
+        thief (update thief :antimatter + amount-stolen)
+        victim (update victim :antimatter - amount-stolen)]
+    [thief victim]))
+
+(defn klingons-steal-antimatter [world]
+  (let [{:keys [klingons bases]} world
+        thefts (find-thefts klingons bases)
+        thieves (map first thefts)
+        victims (map second thefts)
+        innocents (vec (clojure.set/difference (set klingons) (set thieves)))
+        unmolested (vec (clojure.set/difference (set bases) (set victims)))
+        thefts (map steal-antimatter thefts)
+        thieves (map first thefts)
+        victims (map second thefts)
+        klingons (concat (set thieves) innocents)
+        bases (concat (set victims) unmolested)]
+    (assoc world :klingons klingons :bases bases)))
+
 (defn update-klingons [ms world]
   (->> world
        (klingon-defense ms)
@@ -328,4 +368,5 @@
 
 (defn update-klingons-per-second [world]
   (-> world
-      (update-thrust-towards-nearest-base)))
+      (update-thrust-towards-nearest-base)
+      (klingons-steal-antimatter)))

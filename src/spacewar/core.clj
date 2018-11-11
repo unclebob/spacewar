@@ -102,11 +102,21 @@
                          :core-temp 0)]
     (assoc world :ship ship)))
 
+(defn- debug-add-klingon [event world]
+  (println event)
+  (let [[x y] (:pos event)
+        klingons (:klingons world)
+        klingon (klingons/make-klingon x y)
+        klingon (update klingon :antimatter / 2)
+        klingons (conj klingons klingon)]
+    (assoc world :klingons klingons)))
+
 (defn- process-debug-events [events world]
   (let [[_ world] (->> [events world]
                        (handle-event :debug-position-ship debug-position-ship-handler)
                        (handle-event :debug-dilithium-cloud debug-dilithium-cloud-handler)
                        (handle-event :debug-resupply-ship debug-resupply-ship)
+                       (handle-event :debug-add-klingon debug-add-klingon)
                        )]
     world))
 

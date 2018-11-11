@@ -1,5 +1,6 @@
 (ns spacewar.game-logic.bases
   (:require [clojure.spec.alpha :as s]
+            [spacewar.util :refer :all]
             [spacewar.geometry :refer :all]
             [spacewar.vector :as vector]
             [spacewar.game-logic.config :refer :all]
@@ -261,12 +262,21 @@
           (let [nearest (first (sort-by distance-to-dest transports-from))]
             (recur (rest bases) candidates (conj selected nearest))))))))
 
+(defn- blockaded-transport? [transport klingons]
+  (let [blockading-klingons (filter #(< (distance (pos transport) (pos %)) ship-docking-distance) klingons)
+        blockaded? (not (empty? blockading-klingons))]
+    blockaded?))
+
+(defn- remove-blockaded-transports [transports klingons]
+  (remove #(blockaded-transport? % klingons) transports))
+
 (defn check-new-transports [world]
-  (let [{:keys [bases transports]} world
+  (let [{:keys [bases transports klingons]} world
         pairs (combo/combinations bases 2)
         pairs (concat pairs (map reverse pairs))
         candidate-transports (flatten (map #(select-potential-transports % transports) pairs))
         selected-transports (select-best-transports candidate-transports bases)
+        selected-transports (remove-blockaded-transports selected-transports klingons)
         bases (launch-transports-from-bases selected-transports bases)
         transports (concat transports selected-transports)
         world (assoc world :transports transports

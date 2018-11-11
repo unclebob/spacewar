@@ -144,6 +144,7 @@
           event (if left-up
                   (condp = key
                     :p {:event :debug-position-ship :pos (click->pos state ship [mx my])}
+                    :k {:event :debug-add-klingon :pos (click->pos state ship [mx my])}
                     nil)
                   nil)]
       (p/pack-update

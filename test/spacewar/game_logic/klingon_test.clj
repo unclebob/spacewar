@@ -355,4 +355,16 @@
           klingon (-> world :klingons first)]
       (:thrust klingon) => (vt/roughly-v [klingon-thrust 0])))
 
+  (fact
+    "klingon within docking distance of base steals antimatter"
+    (let [base (mom/make-base (:x klingon) (+ (:y klingon) (dec ship-docking-distance))
+                              :antimatter-factory 100 100)
+          klingon (assoc klingon :antimatter 0)
+          world (assoc world :klingons [klingon] :bases [base])
+          world (k/klingons-steal-antimatter world)
+          base (-> world :bases first)
+          klingon (-> world :klingons first)]
+      (:antimatter base) => 0
+      (:antimatter klingon) => 100))
+
   )

@@ -161,6 +161,15 @@ non-functional.
   you at long range; but they can detect bases.  So once you place a base down, you
   can expect visitors.  Perhaps _lots_ of visitors.  
   
+  ## Blockades
+  
+  Eventually, unless you stop them, the Klingons will invade your bases and take them over. 
+  Blockaded bases will not ship any materials to other bases.  Materials manufactured by, or
+  shipped to a blockaded base will be acquired by the occupying Klingons.
+  
+  Beware, more than one Klingon can occupy a base.  If you challenge a base with three or four
+  Klingons occupying it; be prepared for a pitched battle.  
+  
   ## Dilithium Clouds
   
   When you destroy a Klingon vessel, their on-board dilithium will disperse amidst

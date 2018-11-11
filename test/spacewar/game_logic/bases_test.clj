@@ -248,6 +248,18 @@
     transports => []))
 
 (fact
+  "No transport created when there is a klingon nearby"
+  (let [world (mom/make-world)
+        source (mom/make-base 0 0 :dilithium-factory 0 (+ dilithium-cargo-size dilithium-factory-dilithium-reserve))
+        source (assoc source :transport-readiness transport-ready)
+        dest (mom/make-base 0 (dec transport-range) :weapon-factory 0 0 0 0)
+        klingon (assoc (mom/make-klingon) :x (:x source) :y (+ (:y source) (dec ship-docking-distance)))
+        world (assoc world :bases [source dest] :klingons [klingon])
+        world (check-new-transports world)
+        transports (:transports world)]
+    transports => []))
+
+(fact
   "Dilithium transport created when there is something to ship"
   (prerequisite (random-transport-velocity-magnitude) => transport-velocity)
   (let [world (mom/make-world)
