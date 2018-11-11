@@ -6,7 +6,8 @@
             [spacewar.vector :as vector]
             [midje.experimental :refer [for-all]]
             [clojure.spec.alpha :as s]
-            [spacewar.game-logic.test-mother :as mom]))
+            [spacewar.game-logic.test-mother :as mom]
+            [spacewar.game-logic.bases :as bases]))
 
 (facts
   "ship"
@@ -169,13 +170,13 @@
         base1 (mom/make-base)
         base2 (mom/make-base)
         base1 (assoc base1 :x 0 :y (dec ship-docking-distance)
-                         :type :weapon-factory
-                         :antimatter 1 :dilithium 2
-                         :kinetics 3 :torpedos 4)
+                           :type :weapon-factory
+                           :antimatter 1 :dilithium 2
+                           :kinetics 3 :torpedos 4)
         base2 (assoc base2 :x 0 :y (dec ship-docking-distance)
-                                 :type :weapon-factory
-                                 :antimatter 2 :dilithium 3
-                                 :kinetics 4 :torpedos 5)
+                           :type :weapon-factory
+                           :antimatter 2 :dilithium 3
+                           :kinetics 4 :torpedos 5)
         bases [base1 base2]
         world (assoc world :ship ship :bases bases)
         world (dock-ship [] world)
@@ -396,5 +397,73 @@
         (:core-temp cool-ship) => (roughly (* 50
                                               (- 1 (* dilithium-heat-dissipation
                                                       (/ (Math/sqrt 2) 2)))) 1e-10)))
-
     ))
+
+(fact
+  "cannot deploy base if ship not near star"
+  (let [world (mom/make-world)
+        ship (:ship world)
+        star (mom/make-star (inc ship-deploy-distance) 0 :o)
+        world (assoc world :stars [star])
+        world (deploy-base :antimatter-factory world)
+        bases (:bases world)
+        new-ship (:ship world)]
+    (count bases) => 0
+    new-ship => ship
+    (-> world :messages count) => 1))
+
+(fact
+  "cannot deploy base if insufficient antimatter"
+  (let [world (mom/make-world)
+        ship (:ship world)
+        ship (assoc ship :antimatter (dec base-deployment-antimatter))
+        star (mom/make-star (dec ship-deploy-distance) 0 :o)
+        world (assoc world :ship ship :stars [star])
+        world (deploy-base :antimatter-factory world)
+        bases (:bases world)
+        new-ship (:ship world)]
+    (count bases) => 0
+    new-ship => ship
+    (-> world :messages count) => 1))
+
+(fact
+  "cannot deploy base if insufficient dilithium"
+  (let [world (mom/make-world)
+        ship (:ship world)
+        ship (assoc ship :dilithium (dec base-deployment-dilithium))
+        star (mom/make-star (dec ship-deploy-distance) 0 :o)
+        world (assoc world :ship ship :stars [star])
+        world (deploy-base :antimatter-factory world)
+        bases (:bases world)
+        new-ship (:ship world)]
+    (count bases) => 0
+    new-ship => ship
+    (-> world :messages count) => 1))
+
+(fact
+  "cannot deploy base if another base is already deployed at that star"
+  (let [world (mom/make-world)
+        ship (:ship world)
+        star (mom/make-star (dec ship-deploy-distance) 0 :o)
+        base (mom/make-base (:x star) (+ (:y star) (dec ship-deploy-distance)) :antimatter-factory 0 0)
+        world (assoc world :stars [star] :bases [base])
+        world (deploy-base :antimatter-factory world)
+        bases (:bases world)
+        new-ship (:ship world)]
+    (count bases) => 1
+    new-ship => ship
+    (-> world :messages count) => 1))
+
+(fact
+  "can deploy base if ship near star"
+  (let [world (mom/make-world)
+        star (mom/make-star (dec ship-deploy-distance) 0 :o)
+        world (assoc world :stars [star])
+        world (deploy-base :antimatter-factory world)
+        bases (:bases world)
+        ship (:ship world)]
+    (count bases) => 1
+    (first bases) => (bases/make-base [0 0] :antimatter-factory)
+    (:antimatter ship) => (- ship-antimatter base-deployment-antimatter)
+    (:dilithium ship) => (- ship-dilithium base-deployment-dilithium)))
+

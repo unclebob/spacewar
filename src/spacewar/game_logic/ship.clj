@@ -350,18 +350,47 @@
                :impulse 0)]
     (assoc world :ship ship :bases (concat distant-bases docked-bases))))
 
-(defn- deploy-base [type world]
-  (let [{:keys [x y antimatter dilithium] :as ship} (:ship world)]
-    (if (and (> antimatter base-deployment-antimatter)
-             (> dilithium base-deployment-dilithium))
-      (let [bases (:bases world)
-            base (bases/make-base [x y] type)
-            bases (conj bases base)
-            ship (-> ship
-                     (update :antimatter - base-deployment-antimatter)
-                     (update :dilithium - base-deployment-dilithium))]
-        (assoc world :bases bases :ship ship))
-      (add-message world "Insufficient resources sir." 2000))))
+(defn deployment-classes [factory]
+  (condp = factory
+    :antimatter-factory #{:o :b :a}
+    :dilithium-factory #{:k :m}
+    :weapon-factory #{:f :g}))
+
+(defn- find-deployable-star [type ship stars]
+  (let [stars-in-range (filter #(< (distance (pos ship) (pos %))
+                                   ship-deploy-distance)
+                               stars)
+        deployable-classes (deployment-classes type)]
+    (first (filter #(deployable-classes (:class %)) stars-in-range))))
+
+(defn- base-already-deployed? [star bases]
+  (let [bases-in-range (filter #(< (distance (pos star) (pos %))
+                                   ship-deploy-distance)
+                               bases)]
+    (not (empty? bases-in-range))))
+
+(defn- sufficient-resources-for-deployment? [ship]
+  (let [{:keys [antimatter dilithium]} ship]
+    (and (> antimatter base-deployment-antimatter)
+         (> dilithium base-deployment-dilithium))))
+
+(defn deploy-base [type world]
+  (let [{:keys [ship stars bases]} world
+        deployable-star (find-deployable-star type ship stars)]
+    (if (not deployable-star)
+      (add-message world "No star nearby sir." 2000)
+      (if (base-already-deployed? deployable-star bases)
+        (add-message world "Base already deployed, sir." 2000)
+        (if (not (sufficient-resources-for-deployment? ship))
+          (add-message world "Insufficient resources sir." 2000)
+          (let [{:keys [x y]} ship
+                bases (:bases world)
+                base (bases/make-base [x y] type)
+                bases (conj bases base)
+                ship (-> ship
+                         (update :antimatter - base-deployment-antimatter)
+                         (update :dilithium - base-deployment-dilithium))]
+            (assoc world :bases bases :ship ship)))))))
 
 (defn- deploy-antimatter-factory [_ world]
   (deploy-base :antimatter-factory world))
@@ -406,12 +435,6 @@
                                     [(:x %) (:y %)]) bases)
           closest (apply min distances)]
       (< closest ship-docking-distance))))
-
-(defn deployment-classes [factory]
-  (condp = factory
-    :antimatter-factory #{:o :b :a}
-    :dilithium-factory #{:k :m}
-    :weapon-factory #{:f :g}))
 
 (defn deployable? [factory ship stars]
   (let [{:keys [x y]} ship
