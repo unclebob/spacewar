@@ -106,13 +106,13 @@
 (def base-kinetics-maximum (* 1.5 ship-kinetics))
 (def base-torpedos-maximum (* 1.5 ship-torpedos))
 
-(def antimatter-factory-production-rate 0.1) ;.05
+(def antimatter-factory-production-rate 0.1)
 (def antimatter-factory-sufficient-antimatter antimatter-cargo-size)
 (def antimatter-factory-antimatter-reserve 0)
 (def antimatter-factory-sufficient-dilithium dilithium-cargo-size)
 (def antimatter-factory-dilithium-reserve 0)
 
-(def dilithium-factory-production-rate 0.001) ;0.0001
+(def dilithium-factory-production-rate 0.001)
 (def dilithium-factory-dilithium-antimatter-cost 100)
 (def dilithium-factory-sufficient-antimatter antimatter-cargo-size)
 (def dilithium-factory-antimatter-reserve (* dilithium-factory-dilithium-antimatter-cost

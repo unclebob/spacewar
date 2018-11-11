@@ -14,7 +14,7 @@
   (q/ellipse-mode :center)
   (q/no-stroke)
   (apply q/fill (transport-color (:commodity transport)))
-  (q/ellipse 0 0 8 8))
+  (q/triangle 0 -8 -6 6 6 6))
 
 (defn- age-angle [age]
   (let [maturity (min 1 (/ age base-maturity-age))]
