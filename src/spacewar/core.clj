@@ -41,23 +41,22 @@
                                 ::game-over]))
 
 (defn make-initial-world []
-  (let [ship (ship/initialize)]
-    {:stars (stars/initialize)
-     :klingons (klingons/initialize)
-     :ship ship
-     :bases []
-     :transports []
-     :clouds []
-     :update-time (q/millis)
-     :transport-check-time (q/millis)
-     :explosions []
-     :shots []
-     :ms 0
-     :messages [{:text "Welcome to Space War!"
-                 :duration 5000}
-                {:text "Save the Federation!"
-                 :duration 10000}]
-     :game-over false}))
+  {:stars (stars/initialize)
+   :klingons (klingons/initialize)
+   :ship (ship/initialize)
+   :bases []
+   :transports []
+   :clouds []
+   :update-time (q/millis)
+   :transport-check-time (q/millis)
+   :explosions []
+   :shots []
+   :ms 0
+   :messages [{:text "Welcome to Space War!"
+               :duration 5000}
+              {:text "Save the Federation!"
+               :duration 10000}]
+   :game-over false})
 
 (defn setup []
   (let [vmargin 30 hmargin 5]
