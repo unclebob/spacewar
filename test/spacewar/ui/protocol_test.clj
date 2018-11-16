@@ -65,3 +65,22 @@
                     :elements [:element1 :element2]}
       events => []))
   )
+
+(deftype test-drawable [state]
+  Drawable
+  (draw [_])
+  (setup [this] this)
+  (update-state [this _] this)
+  (get-state [_] state)
+  (clone [_ clone-state] (test-drawable. clone-state))
+  )
+
+(fact
+  "change elements"
+  (let [element1 (test-drawable. {:attr1 0})
+        element2 (test-drawable. {:attr2 0})
+        container {:element1 element1 :element2 element2}
+        changed (change-elements container [[:element1 :attr1 1]
+                                            [:element2 :attr2 2]])]
+    (-> changed :element1 get-state :attr1) => 1
+    (-> changed :element2 get-state :attr2) => 2))
