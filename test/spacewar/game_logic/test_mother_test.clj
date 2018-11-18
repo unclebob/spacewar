@@ -21,6 +21,11 @@
       (make-base) => valid-base?
       (make-base 1 1 :dilithium-factory 10 10) => valid-base?)
 
+(fact "make-romulan"
+      (make-romulan) => valid-romulan?
+      (make-romulan 99 99) => valid-romulan?
+      )
+
 (fact "set-pos"
       (let [object (make-klingon)
             new-obj (set-pos object [1 2])]

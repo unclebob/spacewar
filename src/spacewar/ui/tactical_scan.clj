@@ -96,6 +96,9 @@
 (defn- draw-klingons [state]
   (draw-objects state :klingons draw-klingon-and-shield))
 
+(defn- draw-romulans [state]
+  (draw-objects state :romulans draw-romulan))
+
 (defn target-arc [ship]
   (let [{:keys [selected-weapon
                 target-bearing
@@ -291,6 +294,7 @@
         (draw-transports state)
         (draw-explosions state)
         (draw-clouds state)
+        (draw-romulans state)
         )))
 
   (setup [_]
@@ -313,6 +317,8 @@
                     :p {:event :debug-position-ship :pos (click->pos state [mx my])}
                     :c {:event :debug-dilithium-cloud :pos (click->pos state [mx my])}
                     :r {:event :debug-resupply-ship}
+                    :k {:event :debug-add-klingon :pos (click->pos state [mx my])}
+                    :R {:event :debug-add-romulan :pos (click->pos state [mx my])}
                     {:event :weapon-direction :angle (click->bearing state [mx my])})
                   nil)]
       (p/pack-update (tactical-scan. (assoc state :world world)) event)))

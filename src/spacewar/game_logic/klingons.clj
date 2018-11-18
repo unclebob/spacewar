@@ -5,7 +5,6 @@
             [spacewar.game-logic.explosions :as explosions]
             [spacewar.game-logic.shots :as shots]
             [spacewar.geometry :refer :all]
-            [spacewar.vector :refer :all]
             [quil.core :as q]
             [spacewar.vector :as vector]
             [spacewar.game-logic.clouds :as clouds]))
@@ -279,7 +278,7 @@
         efficiency (/ (:shields klingon) klingon-shields)
         effective-thrust (min (klingon :antimatter)
                               (* klingon-thrust efficiency))
-        thrust (from-angular effective-thrust radians)]
+        thrust (vector/from-angular effective-thrust radians)]
     (if (< klingon-tactical-range dist)
       klingon
       (assoc klingon :thrust thrust))))

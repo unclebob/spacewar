@@ -7,7 +7,8 @@
             [spacewar.game-logic.klingons :as klingons]
             [spacewar.game-logic.shots :as shots]
             [spacewar.game-logic.stars :as stars]
-            [spacewar.game-logic.bases :as bases]))
+            [spacewar.game-logic.bases :as bases]
+            [spacewar.game-logic.romulans :as romulans]))
 
 (def valid-world?
   (chatty-checker
@@ -38,6 +39,11 @@
   (chatty-checker
     [base]
     (nil? (spec/explain-data ::bases/base base))))
+
+(def valid-romulan?
+  (chatty-checker
+    [romulan]
+    (nil? (spec/explain-data ::romulans/romulan romulan))))
 
 (defn make-ship []
   {
@@ -93,6 +99,7 @@
    :bases []
    :transports []
    :clouds []
+   :romulans []
    :update-time 0
    :transport-check-time 0
    :ms 0
@@ -129,6 +136,15 @@
        (assoc base :kinetics (first weapons)
                    :torpedos (second weapons))
        base))))
+
+(defn make-romulan
+  ([]
+   (make-romulan 0 0))
+  ([x y]
+   {:x x
+    :y y
+    :age 0
+    :state :invisible}))
 
 (defn set-pos [obj [x y]]
   (assoc obj :x x :y y))

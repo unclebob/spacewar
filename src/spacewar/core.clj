@@ -13,6 +13,7 @@
             [spacewar.game-logic.shots :as shots]
             [spacewar.game-logic.explosions :as explosions]
             [spacewar.game-logic.clouds :as clouds]
+            [spacewar.game-logic.romulans :as romulans]
             [spacewar.util :refer :all]
             [clojure.spec.alpha :as s]))
 
@@ -33,6 +34,7 @@
                                 ::bases/bases
                                 ::bases/transports
                                 ::clouds/clouds
+                                ::romulans/romulans
                                 ::shots
                                 ::update-time
                                 ::transport-check-time
@@ -48,6 +50,7 @@
      :bases []
      :transports []
      :clouds []
+     :romulans []
      :update-time (q/millis)
      :transport-check-time (q/millis)
      :explosions []
@@ -111,12 +114,21 @@
         klingons (conj klingons klingon)]
     (assoc world :klingons klingons)))
 
+(defn- debug-add-romulan [event world]
+  (println event)
+  (let [[x y] (:pos event)
+        romulans (:romulans world)
+        romulan (romulans/make-romulan x y)
+        romulans (conj romulans romulan)]
+    (assoc world :romulans romulans)))
+
 (defn- process-debug-events [events world]
   (let [[_ world] (->> [events world]
                        (handle-event :debug-position-ship debug-position-ship-handler)
                        (handle-event :debug-dilithium-cloud debug-dilithium-cloud-handler)
                        (handle-event :debug-resupply-ship debug-resupply-ship)
                        (handle-event :debug-add-klingon debug-add-klingon)
+                       (handle-event :debug-add-romulan debug-add-romulan)
                        )]
     world))
 
@@ -184,6 +196,7 @@
        (clouds/update-clouds ms)
        (klingons/update-klingons ms)
        (bases/update-bases ms)
+       (romulans/update-romulans ms)
        (view-frame/update-messages ms)
        (add-messages)
        ))

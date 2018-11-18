@@ -53,6 +53,56 @@
   (when (= (:type base) :weapon-factory)
     (draw-base-counts base)))
 
+(defn draw-romulan-icon [romulan]
+  (q/line -3 -6 3 -6)
+  (q/line 3 -6 6 -3)
+  (q/line 6 -3 6 3)
+  (q/line 6 3 3 9)
+  (q/line 3 9 -3 9)
+  (q/line -3 9 -6 3)
+  (q/line -6 3 -6 -3)
+  (q/line -6 -3 -3 -6)
+  (q/line 6 -3 12 -9)
+  (q/line 12 -9 12 -6)
+  (q/line 12 -6 6 3)
+  (q/line -6 -3 -12 -9)
+  (q/line -12 -9 -12 -6)
+  (q/line -12 -6 -6 3)
+  (q/line -12 -12 -12 3)
+  (q/line 12 -12 12 3)
+
+  )
+
+(defmulti draw-romulan :state)
+
+(defmethod draw-romulan :invisible [romulan]
+  (q/stroke 5 5 5)
+  (draw-romulan-icon romulan)
+  )
+
+(defmethod draw-romulan :appearing [romulan]
+  (apply q/stroke white)
+  (draw-romulan-icon romulan)
+  )
+
+(defmethod draw-romulan :visible [romulan]
+  (apply q/stroke orange)
+  (draw-romulan-icon romulan)
+  )
+
+(defmethod draw-romulan :firing [romulan]
+  (apply q/stroke red)
+  (draw-romulan-icon romulan)
+  )
+
+(defmethod draw-romulan :fading [romulan]
+  (apply q/stroke white)
+  (draw-romulan-icon romulan)
+  )
+
+(defmethod draw-romulan :disappeared [romulan]
+  )
+
 (defmulti draw-base-icon :type)
 
 (defmethod draw-base-icon :weapon-factory [base]
