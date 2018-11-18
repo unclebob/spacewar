@@ -76,27 +76,30 @@
 (defmulti draw-romulan :state)
 
 (defmethod draw-romulan :invisible [romulan]
-  (q/stroke 5 5 5)
-  (draw-romulan-icon romulan)
+  (q/no-stroke)
+  (q/fill 255 255 255 (min 15 (* 15 (/ (:age romulan) romulan-invisible-time))))
+  (q/ellipse 0 0 30 30)
   )
 
 (defmethod draw-romulan :appearing [romulan]
-  (apply q/stroke white)
+  (apply q/stroke (conj white (min 255 (* 255 (/ (:age romulan) romulan-appearing-time)))))
   (draw-romulan-icon romulan)
   )
 
 (defmethod draw-romulan :visible [romulan]
-  (apply q/stroke orange)
+  (apply q/stroke (color-shift white orange (min 1 (/ (:age romulan) romulan-visible-time))))
   (draw-romulan-icon romulan)
   )
 
 (defmethod draw-romulan :firing [romulan]
-  (apply q/stroke red)
+  (apply q/stroke (color-shift orange red (min 1 (/ (:age romulan) romulan-firing-time))))
+  (doseq [_ (range 10)]
+    (q/line 0 0 (- 30 (rand 60)) (- 30 (rand 60))))
   (draw-romulan-icon romulan)
   )
 
 (defmethod draw-romulan :fading [romulan]
-  (apply q/stroke white)
+  (apply q/stroke (color-shift red black (min 1 (/ (:age romulan) romulan-fading-time))))
   (draw-romulan-icon romulan)
   )
 

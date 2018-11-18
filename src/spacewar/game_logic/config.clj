@@ -93,7 +93,7 @@
 (def romulan-invisible-time 1000)
 (def romulan-appearing-time 2000)
 (def romulan-visible-time 1000)
-(def romulan-firing-time 1000)
+(def romulan-firing-time 2000)
 (def romulan-fading-time 2000)
 
 (def transport-range strategic-range)

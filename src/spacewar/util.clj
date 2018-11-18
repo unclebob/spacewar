@@ -27,5 +27,10 @@
 (defn color-add [[r1 g1 b1] [r2 g2 b2]]
   [(+ r1 r2) (+ g1 g2) (+ b1 b2)])
 
+(defn color-shift [color1 color2 factor]
+  (let [diff (color-diff color2 color1)
+        delta (color-scale diff factor)]
+    (color-add color1 delta)))
+
 (defn pos [object]
   [(:x object) (:y object)])
