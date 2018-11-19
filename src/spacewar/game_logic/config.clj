@@ -95,6 +95,8 @@
 (def romulan-visible-time 1000)
 (def romulan-firing-time 2000)
 (def romulan-fading-time 2000)
+(def romulan-appear-odds-per-second 0.1)
+(def romulan-appear-distance 40000)
 
 (def transport-range strategic-range)
 (def transport-ready 10000)

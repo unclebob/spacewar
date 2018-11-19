@@ -1,11 +1,7 @@
 (ns spacewar.game-logic.romulans
   (:require [clojure.spec.alpha :as s]
-            [spacewar.util :as util]
             [spacewar.game-logic.config :as gc]
-            [spacewar.game-logic.explosions :as explosions]
-            [spacewar.game-logic.shots :as shots]
             [spacewar.geometry :as geo]
-            [quil.core :as q]
             [spacewar.vector :as vector]))
 
 (s/def ::x number?)
@@ -64,5 +60,22 @@
        (update-romulans-age ms)
        (update-romulans-state ms)
        (remove-disappeared-romulans)))
+
+(defn- add-occasional-romulan [world]
+  (if (< (rand 1) gc/romulan-appear-odds-per-second)
+    (let [{:keys [romulans ship]} world
+          {:keys [x y]} ship
+          dist (* gc/romulan-appear-distance (- 1.5 (rand 1)))
+          angle (rand 360)
+          pos (vector/from-angular dist (geo/->radians angle))
+          [rx ry] (vector/add [x y] pos)
+          romulans (conj romulans (make-romulan rx ry))]
+      (assoc world :romulans romulans))
+    world))
+
+
+(defn update-romulans-per-second [world]
+  (-> world
+      (add-occasional-romulan)))
 
 

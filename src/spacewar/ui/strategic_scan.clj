@@ -38,6 +38,17 @@
            (* (- y sy) pixel-width)]
           (draw-klingon-icon))))))
 
+(defn- draw-romulans [state]
+  (let [{:keys [romulans pixel-width ship]} state
+          sx (:x ship)
+          sy (:y ship)]
+      (when romulans
+        (doseq [{:keys [x y]} romulans]
+          (q/with-translation
+            [(* (- x sx) pixel-width)
+             (* (- y sy) pixel-width)]
+            (draw-strategic-romulan))))) )
+
 (defn- draw-ship [state]
   (let [heading (or (->> state :ship :heading) 0)
         velocity (or (->> state :ship :velocity) [0 0])
@@ -122,6 +133,7 @@
         (draw-transport-routes state)
         (draw-transports state)
         (draw-bases state)
+        (draw-romulans state)
         (draw-sectors state))))
 
   (setup [_]
@@ -153,6 +165,7 @@
           (assoc state :game-over (:game-over world)
                        :stars (:stars world)
                        :klingons (:klingons world)
+                       :romulans (:romulans world)
                        :ship ship
                        :bases (:bases world)
                        :transports (:transports world)

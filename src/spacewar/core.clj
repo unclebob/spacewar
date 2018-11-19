@@ -1,11 +1,11 @@
 (ns spacewar.core
   (:require [quil.core :as q]
             [quil.middleware :as m]
-            [spacewar.game-logic.config :refer :all]
             [spacewar.ui.complex :as main-viewer]
             [spacewar.ui.view-frame :as view-frame]
             [spacewar.ui.protocols :as p]
-            [spacewar.game-logic.world :refer :all]
+            [spacewar.game-logic.config :as gc]
+            [spacewar.game-logic.world :as world]
             [spacewar.game-logic.ship :as ship]
             [spacewar.game-logic.stars :as stars]
             [spacewar.game-logic.klingons :as klingons]
@@ -14,7 +14,7 @@
             [spacewar.game-logic.explosions :as explosions]
             [spacewar.game-logic.clouds :as clouds]
             [spacewar.game-logic.romulans :as romulans]
-            [spacewar.util :refer :all]
+            [spacewar.util :as util]
             [clojure.spec.alpha :as s]))
 
 (s/def ::update-time number?)
@@ -64,7 +64,7 @@
 
 (defn setup []
   (let [vmargin 30 hmargin 5]
-    (q/frame-rate frame-rate)
+    (q/frame-rate gc/frame-rate)
     (q/color-mode :rgb)
     (q/background 200 200 200)
     (q/ellipse-mode :corner)
@@ -91,17 +91,17 @@
   (println event)
   (let [[x y] (:pos event)
         clouds (:clouds world)
-        cloud (clouds/make-cloud x y klingon-debris)
+        cloud (clouds/make-cloud x y gc/klingon-debris)
         clouds (conj clouds cloud)]
     (assoc world :clouds clouds)))
 
 (defn- debug-resupply-ship [_ world]
   (let [ship (:ship world)
-        ship (assoc ship :antimatter ship-antimatter
-                         :dilithium ship-dilithium
-                         :torpedos ship-torpedos
-                         :kinetics ship-kinetics
-                         :shields ship-shields
+        ship (assoc ship :antimatter gc/ship-antimatter
+                         :dilithium gc/ship-dilithium
+                         :torpedos gc/ship-torpedos
+                         :kinetics gc/ship-kinetics
+                         :shields gc/ship-shields
                          :core-temp 0)]
     (assoc world :ship ship)))
 
@@ -124,11 +124,11 @@
 
 (defn- process-debug-events [events world]
   (let [[_ world] (->> [events world]
-                       (handle-event :debug-position-ship debug-position-ship-handler)
-                       (handle-event :debug-dilithium-cloud debug-dilithium-cloud-handler)
-                       (handle-event :debug-resupply-ship debug-resupply-ship)
-                       (handle-event :debug-add-klingon debug-add-klingon)
-                       (handle-event :debug-add-romulan debug-add-romulan)
+                       (util/handle-event :debug-position-ship debug-position-ship-handler)
+                       (util/handle-event :debug-dilithium-cloud debug-dilithium-cloud-handler)
+                       (util/handle-event :debug-resupply-ship debug-resupply-ship)
+                       (util/handle-event :debug-add-klingon debug-add-klingon)
+                       (util/handle-event :debug-add-romulan debug-add-romulan)
                        )]
     world))
 
@@ -167,15 +167,15 @@
     valid))
 
 (defn- msg [world text]
-  (add-message world text 5000))
+  (world/add-message world text 5000))
 
 (defn- shield-message [world]
   (let [ship (:ship world)
         shields (:shields ship)]
     (cond
-      (< shields (/ ship-shields 5)) (msg world "Captain! Shields are buckling!")
-      (< shields (/ ship-shields 2)) (msg world "Taking Damage sir!")
-      (< shields ship-shields) (msg world "Shields Holding sir!")
+      (< shields (/ gc/ship-shields 5)) (msg world "Captain! Shields are buckling!")
+      (< shields (/ gc/ship-shields 2)) (msg world "Taking Damage sir!")
+      (< shields gc/ship-shields) (msg world "Shields Holding sir!")
       :else world)))
 
 (defn- add-messages [world]
@@ -203,7 +203,8 @@
 
 (defn update-world-per-second [world]
   (->> world
-       (klingons/update-klingons-per-second)))
+       (klingons/update-klingons-per-second)
+       (romulans/update-romulans-per-second)))
 
 (defn add-frame-time [frame-time context]
   (let [frame-times (->
@@ -265,6 +266,5 @@
                :setup setup
                :update update-state
                :draw draw-state
-               ;:features [:keep-on-top]
                :middleware [m/fun-mode])
   args)

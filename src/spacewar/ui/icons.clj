@@ -53,7 +53,8 @@
   (when (= (:type base) :weapon-factory)
     (draw-base-counts base)))
 
-(defn draw-romulan-icon [romulan]
+(defn draw-romulan-icon []
+  (q/stroke-weight 2)
   (q/line -3 -6 3 -6)
   (q/line 3 -6 6 -3)
   (q/line 6 -3 6 3)
@@ -83,28 +84,32 @@
 
 (defmethod draw-romulan :appearing [romulan]
   (apply q/stroke (conj white (min 255 (* 255 (/ (:age romulan) romulan-appearing-time)))))
-  (draw-romulan-icon romulan)
+  (draw-romulan-icon)
   )
 
 (defmethod draw-romulan :visible [romulan]
   (apply q/stroke (color-shift white orange (min 1 (/ (:age romulan) romulan-visible-time))))
-  (draw-romulan-icon romulan)
+  (draw-romulan-icon)
   )
 
 (defmethod draw-romulan :firing [romulan]
   (apply q/stroke (color-shift orange red (min 1 (/ (:age romulan) romulan-firing-time))))
   (doseq [_ (range 10)]
     (q/line 0 0 (- 30 (rand 60)) (- 30 (rand 60))))
-  (draw-romulan-icon romulan)
+  (draw-romulan-icon)
   )
 
 (defmethod draw-romulan :fading [romulan]
   (apply q/stroke (color-shift red black (min 1 (/ (:age romulan) romulan-fading-time))))
-  (draw-romulan-icon romulan)
+  (draw-romulan-icon)
   )
 
-(defmethod draw-romulan :disappeared [romulan]
+(defmethod draw-romulan :disappeared [_]
   )
+
+(defn draw-strategic-romulan []
+  (apply q/stroke orange)
+  (draw-romulan-icon))
 
 (defmulti draw-base-icon :type)
 
