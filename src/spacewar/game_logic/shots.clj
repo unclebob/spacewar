@@ -113,8 +113,8 @@
                 [])
         ship (if can-shoot?
                (->> ship
-                   (decrement-inventory)
-                   (the_ship/heat-core required-power))
+                    (decrement-inventory)
+                    (the_ship/heat-core required-power))
                ship)
         shots (map #(assoc % :type selected-weapon) shots)
         shots (corrupt-shots-by-damage (:weapons-damage ship) shots)
@@ -205,7 +205,7 @@
         hit-by (type hit-processors)]
     (hit-by hits target)))
 
-(defn update-hits [world target-tag]
+(defn update-hits [target-tag world]
   (let [shots (:shots world)
         relevant-shots (filter #(#{:kinetic :torpedo :phaser} (:type %)) shots)
         targets (target-tag world)
@@ -225,10 +225,6 @@
     (assoc world target-tag (doall (concat targets hit-targets))
                  :shots (doall (concat shots))
                  :explosions (doall explosions))))
-
-(defn update-klingon-hits [world]
-  world (update-hits world :klingons)
-  )
 
 (defn- friend-or-foe [shot]
   (if (some? (#{:klingon-kinetic :klingon-phaser :klingon-torpedo} (:type shot)))
@@ -299,10 +295,10 @@
   )
 
 (defn update-shots [ms world]
-  (let [world (update-shot-positions ms world)
-        world (update-klingon-hits world)
-        world (update-ship-hits world)
-        ]
-    world))
+  (->> world
+       (update-shot-positions ms)
+       (update-hits :klingons)
+       (update-hits :romulans)
+       (update-ship-hits)))
 
 

@@ -1,10 +1,7 @@
 (ns spacewar.game-logic.romulans-test
   (:require [midje.sweet :refer :all]
-            [spacewar.game-logic.config :as gc]
             [spacewar.game-logic.romulans :as r]
-            [spacewar.game-logic.test-mother :as mom]
-            [clojure.spec.alpha :as s]
-            [spacewar.vector-test :as vt]))
+            [spacewar.game-logic.test-mother :as mom]))
 
 (fact
   "can make romulan"
@@ -51,11 +48,20 @@
         romulans => [romulan2]))
 
     (fact
+      "hit romulans are deleted"
+      (let [romulan (assoc (mom/make-romulan) :hit :some-hit)
+            world (assoc world :romulans [romulan])
+            world (r/destroy-hit-romulans world)
+            romulans (:romulans world)]
+        romulans => empty?))
+
+    (fact
       "update-romulans calls all intermediaries"
       (r/update-romulans ms world) => world
       (provided (r/update-romulans-age ms world) => world
                 (r/update-romulans-state ms world) => world
                 (r/remove-disappeared-romulans world) => world
+                (r/destroy-hit-romulans world) => world
                 )))
 
   )

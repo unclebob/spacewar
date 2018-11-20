@@ -4,6 +4,7 @@
             [spacewar.game-logic.config :refer :all]
             [spacewar.game-logic.explosions :as explosions]
             [spacewar.game-logic.shots :as shots]
+            [spacewar.game-logic.hit :as hit]
             [spacewar.geometry :refer :all]
             [quil.core :as q]
             [spacewar.vector :as vector]
@@ -14,10 +15,6 @@
 (s/def ::shields number?)
 (s/def ::antimatter number?)
 
-(s/def ::weapon #{:phaser :torpedo :kinetic})
-(s/def ::damage (s/or :damage-amount number?
-                      :phaser-ranges (s/coll-of number?)))
-(s/def ::hit (s/keys :req-un [::weapon ::damage]))
 (s/def ::kinetics number?)
 (s/def ::torpedos number?)
 (s/def ::weapon-charge number?)
@@ -27,7 +24,7 @@
 (s/def ::klingon (s/keys :req-un [::x ::y ::shields ::antimatter
                                   ::kinetics ::torpedos ::weapon-charge
                                   ::velocity ::thrust]
-                         :opt-un [::hit]))
+                         :opt-un [::hit/hit]))
 (s/def ::klingons (s/coll-of ::klingon))
 
 (defn make-random-klingon []

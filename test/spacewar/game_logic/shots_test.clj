@@ -91,7 +91,7 @@
       "no shots"
       (let [world {:shots []
                    ?enemy [{:x 0 :y 0}]}
-            world (update-hits world ?enemy )
+            world (update-hits ?enemy world)
             enemies (?enemy world)
             shots (:shots world)]
         shots => []
@@ -101,7 +101,7 @@
         "shot out of range"
         (let [world {:shots [{:x (inc ?proximity) :y 0 :bearing 0 :range ..range.. :type ?weapon}]
                      ?enemy [{:x 0 :y 0}]}
-              world (update-hits world ?enemy)
+              world (update-hits ?enemy world)
               enemies (?enemy world)
               shots (:shots world)]
           shots => [{:x (inc ?proximity) :y 0 :bearing 0 :range ..range.. :type ?weapon}]
@@ -112,7 +112,7 @@
       (let [world {:shots [{:x (dec ?proximity) :y 0 :bearing 0 :range ..range.. :type ?weapon}]
                    ?enemy [{:x 0 :y 0}]
                    :explosions [:before]}
-            world (update-hits world ?enemy)
+            world (update-hits ?enemy world)
             enemies (?enemy world)
             shots (:shots world)
             explosions (:explosions world)]
@@ -129,7 +129,7 @@
                            {:x (dec ?proximity) :y 0 :bearing 0 :range ..range.. :type ?weapon}]
                    ?enemy [{:x 0 :y 0}]
                    :explosions [:before]}
-            world (update-hits world ?enemy)
+            world (update-hits ?enemy world)
             enemies (?enemy world)
             shots (:shots world)
             explosions (:explosions world)]
@@ -146,7 +146,7 @@
                            {:x (dec ?proximity) :y 0 :bearing 1 :range ..range.. :type ?weapon}]
                    ?enemy [{:x 0 :y 0}]
                    :explosions [:before]}
-            world (update-hits world ?enemy)
+            world (update-hits ?enemy world)
             enemies (?enemy world)
             shots (:shots world)
             explosions (:explosions world)]
@@ -161,7 +161,11 @@
   ?enemy ?proximity ?weapon ?damage
   :klingons phaser-proximity :phaser nil
   :klingons torpedo-proximity :torpedo torpedo-damage
-  :klingons kinetic-proximity :kinetic kinetic-damage)
+  :klingons kinetic-proximity :kinetic kinetic-damage
+  :romulans phaser-proximity :phaser nil
+  :romulans torpedo-proximity :torpedo torpedo-damage
+  :romulans kinetic-proximity :kinetic kinetic-damage
+  )
 
 (tabular
   (facts
@@ -193,7 +197,7 @@
       (let [world {:shots [{:x (dec ?proximity) :y 0 :bearing 0 :range ..range.. :type ?weapon}]
                    :klingons [{:x 0 :y 0}]
                    :explosions []}
-            world (update-klingon-hits world)
+            world (update-hits :klingons world)
             klingons (:klingons world)
             shots (:shots world)
             explosions (:explosions world)]

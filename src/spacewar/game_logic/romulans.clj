@@ -55,11 +55,18 @@
         romulans (doall (remove #(= :disappeared (:state %)) romulans))]
     (assoc world :romulans romulans)))
 
+(defn destroy-hit-romulans [world]
+  (let [romulans (:romulans world)
+        hit-romulans (filter :hit romulans)
+        romulans (remove :hit romulans)]
+    (assoc world :romulans romulans)))
+
 (defn update-romulans [ms world]
   (->> world
        (update-romulans-age ms)
        (update-romulans-state ms)
-       (remove-disappeared-romulans)))
+       (remove-disappeared-romulans)
+       (destroy-hit-romulans)))
 
 (defn- add-occasional-romulan [world]
   (if (< (rand 1) gc/romulan-appear-odds-per-second)
