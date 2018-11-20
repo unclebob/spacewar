@@ -84,228 +84,131 @@
                                  {:bearing 5 :range 0 :x 0 :y 0}]
   )
 
-(facts
-  "about phasers hitting klingons"
-  (fact
-    "no shots"
-    (let [world {:shots []
-                 :klingons [{:x 0 :y 0}]}
-          world (update-klingon-hits world)
-          klingons (:klingons world)
-          shots (:shots world)]
-      shots => []
-      klingons => [{:x 0 :y 0}]))
+(tabular
+  (facts
+    "about shots hitting enemies"
+    (fact
+      "no shots"
+      (let [world {:shots []
+                   ?enemy [{:x 0 :y 0}]}
+            world (update-hits world ?enemy )
+            enemies (?enemy world)
+            shots (:shots world)]
+        shots => []
+        enemies => [{:x 0 :y 0}]))
 
-  (fact
-    "shot out of range"
-    (let [world {:shots [{:x (inc phaser-proximity) :y 0 :bearing 0 :range ..range.. :type :phaser}]
-                 :klingons [{:x 0 :y 0}]}
-          world (update-klingon-hits world)
-          klingons (:klingons world)
-          shots (:shots world)]
-      shots => [{:x (inc phaser-proximity) :y 0 :bearing 0 :range ..range.. :type :phaser}]
-      klingons => [{:x 0 :y 0}]))
+      (fact
+        "shot out of range"
+        (let [world {:shots [{:x (inc ?proximity) :y 0 :bearing 0 :range ..range.. :type ?weapon}]
+                     ?enemy [{:x 0 :y 0}]}
+              world (update-hits world ?enemy)
+              enemies (?enemy world)
+              shots (:shots world)]
+          shots => [{:x (inc ?proximity) :y 0 :bearing 0 :range ..range.. :type ?weapon}]
+          enemies => [{:x 0 :y 0}]))
 
-  (fact
-    "phaser shots hit klingon"
-    (let [world {:shots [{:x (dec phaser-proximity) :y 0 :bearing 0 :range ..range.. :type :phaser}]
-                 :klingons [{:x 0 :y 0}] :explosions [:before]}
-          world (update-klingon-hits world)
-          klingons (:klingons world)
-          shots (:shots world)
-          explosions (:explosions world)]
-      shots => []
-      klingons => [{:x 0 :y 0 :hit {:weapon :phaser :damage [..range..]}}]
-      (first explosions) => :before
-      (dissoc (second explosions) :fragments) => {:x (dec phaser-proximity) :y 0 :type :phaser :age 0}))
+    (fact
+      "one shot hits enemy"
+      (let [world {:shots [{:x (dec ?proximity) :y 0 :bearing 0 :range ..range.. :type ?weapon}]
+                   ?enemy [{:x 0 :y 0}]
+                   :explosions [:before]}
+            world (update-hits world ?enemy)
+            enemies (?enemy world)
+            shots (:shots world)
+            explosions (:explosions world)]
+        shots => []
+        enemies => [{:x 0 :y 0 :hit {:weapon ?weapon :damage (if (= ?weapon :phaser)
+                                                                [..range..]
+                                                                ?damage)}}]
+        (first explosions) => :before
+        (dissoc (second explosions) :fragments) => {:x (dec ?proximity) :y 0 :type ?weapon :age 0}))
 
-  (fact
-    "Two phaser shots, one hits klingon"
-    (let [world {:shots [{:x (inc phaser-proximity) :y 0 :bearing 0 :range ..range.. :type :phaser}
-                         {:x (dec phaser-proximity) :y 0 :bearing 0 :range ..range.. :type :phaser}]
-                 :klingons [{:x 0 :y 0}]
-                 :explosions [:before]}
-          world (update-klingon-hits world)
-          klingons (:klingons world)
-          shots (:shots world)
-          explosions (:explosions world)]
-      shots => [{:x (inc phaser-proximity) :y 0 :bearing 0 :range ..range.. :type :phaser}]
-      klingons => [{:x 0 :y 0 :hit {:weapon :phaser :damage [..range..]}}]
-      (first explosions) => :before
-      (dissoc (second explosions) :fragments) => {:x (dec phaser-proximity) :y 0 :type :phaser :age 0}))
+    (fact
+      "Two shots, one hits enemy"
+      (let [world {:shots [{:x (inc ?proximity) :y 0 :bearing 0 :range ..range.. :type ?weapon}
+                           {:x (dec ?proximity) :y 0 :bearing 0 :range ..range.. :type ?weapon}]
+                   ?enemy [{:x 0 :y 0}]
+                   :explosions [:before]}
+            world (update-hits world ?enemy)
+            enemies (?enemy world)
+            shots (:shots world)
+            explosions (:explosions world)]
+        shots => [{:x (inc ?proximity) :y 0 :bearing 0 :range ..range.. :type ?weapon}]
+        enemies => [{:x 0 :y 0 :hit {:weapon ?weapon :damage (if (= ?weapon :phaser)
+                                                                [..range..]
+                                                                ?damage)}}]
+        (first explosions) => :before
+        (dissoc (second explosions) :fragments) => {:x (dec ?proximity) :y 0 :type ?weapon :age 0}))
 
-  (fact
-    "Two phaser shots, both hit klingon"
-    (let [world {:shots [{:x (dec phaser-proximity) :y 0 :bearing 0 :range ..range.. :type :phaser}
-                         {:x (dec phaser-proximity) :y 0 :bearing 1 :range ..range.. :type :phaser}]
-                 :klingons [{:x 0 :y 0}]
-                 :explosions [:before]}
-          world (update-klingon-hits world)
-          klingons (:klingons world)
-          shots (:shots world)
-          explosions (:explosions world)]
-      shots => []
-      klingons => [{:x 0 :y 0 :hit {:weapon :phaser :damage [..range.. ..range..]}}]
-      (nth explosions 0) => :before
-      (dissoc (nth explosions 1) :fragments) => {:x (dec phaser-proximity) :y 0 :type :phaser :age 0}
-      (dissoc (nth explosions 2) :fragments) => {:x (dec phaser-proximity) :y 0 :type :phaser :age 0}))
+    (fact
+      "Two shots, both hit enemy"
+      (let [world {:shots [{:x (dec ?proximity) :y 0 :bearing 0 :range ..range.. :type ?weapon}
+                           {:x (dec ?proximity) :y 0 :bearing 1 :range ..range.. :type ?weapon}]
+                   ?enemy [{:x 0 :y 0}]
+                   :explosions [:before]}
+            world (update-hits world ?enemy)
+            enemies (?enemy world)
+            shots (:shots world)
+            explosions (:explosions world)]
+        shots => []
+        enemies => [{:x 0 :y 0 :hit {:weapon ?weapon :damage (if (= ?weapon :phaser)
+                                                                [..range.. ..range..]
+                                                                (* 2 ?damage))}}]
+        (nth explosions 0) => :before
+        (dissoc (nth explosions 1) :fragments) => {:x (dec ?proximity) :y 0 :type ?weapon :age 0}
+        (dissoc (nth explosions 2) :fragments) => {:x (dec ?proximity) :y 0 :type ?weapon :age 0}))
+    )
+  ?enemy ?proximity ?weapon ?damage
+  :klingons phaser-proximity :phaser nil
+  :klingons torpedo-proximity :torpedo torpedo-damage
+  :klingons kinetic-proximity :kinetic kinetic-damage)
+
+(tabular
+  (facts
+    "about klingon shots"
+    (fact
+      "klingon shot misses ship"
+      (let [ship (mom/make-ship)
+            shot (->shot 0 (inc ?proximity)
+                         180 ?weapon)
+            world (assoc (mom/make-world) :shots [shot] :ship ship)
+            new-world (update-ship-hits world)]
+        (->> new-world :explosions) => []
+        (->> new-world :ship :shields) => ship-shields
+        (count (->> new-world :shots)) => 1))
+
+    (fact
+      "klingon shot hits ship"
+      (let [ship (mom/make-ship)
+            shot (->shot 0 (dec ?proximity)
+                         180 ?weapon)
+            world (assoc (mom/make-world) :shots [shot] :ship ship)
+            new-world (update-ship-hits world)]
+        (count (->> new-world :explosions)) => 1
+        (->> new-world :ship :shields) => (- ship-shields ?damage)
+        (count (->> new-world :shots)) => 0))
+
+    (fact
+      "klingon shot does not hit klingon"
+      (let [world {:shots [{:x (dec ?proximity) :y 0 :bearing 0 :range ..range.. :type ?weapon}]
+                   :klingons [{:x 0 :y 0}]
+                   :explosions []}
+            world (update-klingon-hits world)
+            klingons (:klingons world)
+            shots (:shots world)
+            explosions (:explosions world)]
+        (count shots) => 1
+        klingons => [{:x 0 :y 0}]
+        explosions => empty?)))
+  ?proximity ?weapon ?damage
+  klingon-kinetic-proximity :klingon-kinetic klingon-kinetic-damage
+  klingon-torpedo-proximity :klingon-torpedo klingon-torpedo-damage
+  klingon-phaser-proximity :klingon-phaser klingon-phaser-damage
   )
-
-(facts
-  "about Torpedos hitting klingons"
-  (fact
-    "no torpedo"
-    (let [world {:shots []
-                 :klingons [{:x 0 :y 0}]}
-          world (update-klingon-hits world)
-          klingons (:klingons world)
-          shots (:shots world)]
-      shots => []
-      klingons => [{:x 0 :y 0}]))
-
-  (fact
-    "Torpedo out of range"
-    (let [world {:shots [{:x (inc torpedo-proximity) :y 0 :bearing 0 :range ..range.. :type :torpedo}]
-                 :klingons [{:x 0 :y 0}]}
-          world (update-klingon-hits world)
-          klingons (:klingons world)
-          shots (:shots world)]
-      shots => [{:x (inc torpedo-proximity) :y 0 :bearing 0 :range ..range.. :type :torpedo}]
-      klingons => [{:x 0 :y 0}]))
-
-  (fact
-    "Torpedo hits klingon"
-    (let [world {:shots [{:x (dec torpedo-proximity) :y 0 :bearing 0 :range ..range.. :type :torpedo}]
-                 :klingons [{:x 0 :y 0}]
-                 :explosions [:before]}
-          world (update-klingon-hits world)
-          klingons (:klingons world)
-          shots (:shots world)
-          explosions (:explosions world)]
-      shots => []
-      klingons => [{:x 0 :y 0 :hit {:weapon :torpedo :damage torpedo-damage}}]
-      (first explosions) => :before
-      (dissoc (second explosions) :fragments) => {:x (dec torpedo-proximity) :y 0 :type :torpedo :age 0}))
-
-  (fact
-    "Two torpedoes, one hits klingon"
-    (let [world {:shots [{:x (inc torpedo-proximity) :y 0 :bearing 0 :range ..range.. :type :torpedo}
-                         {:x (dec torpedo-proximity) :y 0 :bearing 0 :range ..range.. :type :torpedo}]
-                 :klingons [{:x 0 :y 0}]}
-          world (update-klingon-hits world)
-          klingons (:klingons world)
-          shots (:shots world)]
-      shots => [{:x (inc torpedo-proximity) :y 0 :bearing 0 :range ..range.. :type :torpedo}]
-      klingons => [{:x 0 :y 0 :hit {:weapon :torpedo :damage torpedo-damage}}]))
-
-  (fact
-    "Two torpedoes, both hit klingon"
-    (let [world {:shots [{:x (dec torpedo-proximity) :y 0 :bearing 0 :range ..range.. :type :torpedo}
-                         {:x (dec torpedo-proximity) :y 0 :bearing 0 :range ..range.. :type :torpedo}]
-                 :klingons [{:x 0 :y 0}]}
-          world (update-klingon-hits world)
-          klingons (:klingons world)
-          shots (:shots world)]
-      shots => []
-      klingons => [{:x 0 :y 0 :hit {:weapon :torpedo :damage (* 2 torpedo-damage)}}]))
-  )
-
-(facts
-  "about kinetics hitting klingons"
-  (fact
-    "no kinetic"
-    (let [world {:shots []
-                 :klingons [{:x 0 :y 0}]}
-          world (update-klingon-hits world)
-          klingons (:klingons world)
-          shots (:shots world)]
-      shots => []
-      klingons => [{:x 0 :y 0}]))
-
-  (fact
-    "Kinetic out of range"
-    (let [world {:shots [{:x (inc kinetic-proximity) :y 0 :bearing 0 :range ..range.. :type :kinetic}]
-                 :klingons [{:x 0 :y 0}]}
-          world (update-klingon-hits world)
-          klingons (:klingons world)
-          shots (:shots world)]
-      shots => [{:x (inc kinetic-proximity) :y 0 :bearing 0 :range ..range.. :type :kinetic}]
-      klingons => [{:x 0 :y 0}]))
-
-  (fact
-    "Kinetic hits klingon"
-    (let [world {:shots [{:x (dec kinetic-proximity) :y 0 :bearing 0 :range ..range.. :type :kinetic}]
-                 :klingons [{:x 0 :y 0}]
-                 :explosions []}
-          world (update-klingon-hits world)
-          klingons (:klingons world)
-          shots (:shots world)
-          explosions (:explosions world)]
-      shots => []
-      klingons => [{:x 0 :y 0 :hit {:weapon :kinetic :damage kinetic-damage}}]
-      (dissoc (first explosions) :fragments) => {:x (dec kinetic-proximity) :y 0 :type :kinetic :age 0}))
-
-  (fact
-    "Two kinetics, one hits klingon"
-    (let [world {:shots [{:x (inc kinetic-proximity) :y 0 :bearing 0 :range ..range.. :type :kinetic}
-                         {:x (dec kinetic-proximity) :y 0 :bearing 0 :range ..range.. :type :kinetic}]
-                 :klingons [{:x 0 :y 0}]}
-          world (update-klingon-hits world)
-          klingons (:klingons world)
-          shots (:shots world)]
-      shots => [{:x (inc kinetic-proximity) :y 0 :bearing 0 :range ..range.. :type :kinetic}]
-      klingons => [{:x 0 :y 0 :hit {:weapon :kinetic :damage kinetic-damage}}]))
-
-  (fact
-    "Two kinetics, both hit klingon"
-    (let [world {:shots [{:x (dec kinetic-proximity) :y 0 :bearing 0 :range ..range.. :type :kinetic}
-                         {:x (dec kinetic-proximity) :y 0 :bearing 0 :range ..range.. :type :kinetic}]
-                 :klingons [{:x 0 :y 0}]}
-          world (update-klingon-hits world)
-          klingons (:klingons world)
-          shots (:shots world)]
-      shots => []
-      klingons => [{:x 0 :y 0 :hit {:weapon :kinetic :damage (* 2 kinetic-damage)}}]))
-  )
-
-(fact
-  "klingon shot does not hit klingon"
-  (let [world {:shots [{:x (dec kinetic-proximity) :y 0 :bearing 0 :range ..range.. :type :klingon-kinetic}]
-               :klingons [{:x 0 :y 0}]
-               :explosions []}
-        world (update-klingon-hits world)
-        klingons (:klingons world)
-        shots (:shots world)
-        explosions (:explosions world)]
-    (count shots) => 1
-    klingons => [{:x 0 :y 0}]
-    explosions => empty?))
 
 (fact
   "shot constructor"
   (->shot 0 0 180 :kinetic) => mom/valid-shot?)
-
-(fact
-  "klingon-kinetic misses ship"
-  (let [ship (mom/make-ship)
-        shot (->shot 0 (inc klingon-kinetic-proximity)
-                     180 :klingon-kinetic)
-        world (assoc (mom/make-world) :shots [shot] :ship ship)
-        new-world (update-ship-hits world)]
-    (->> new-world :explosions) => []
-    (->> new-world :ship :shields) => ship-shields
-    (count (->> new-world :shots)) => 1))
-
-(fact
-  "klingon-kinetic hits ship"
-  (let [ship (mom/make-ship)
-        shot (->shot 0 (dec klingon-kinetic-proximity)
-                     180 :klingon-kinetic)
-        world (assoc (mom/make-world) :shots [shot] :ship ship)
-        new-world (update-ship-hits world)]
-    (count (->> new-world :explosions)) => 1
-    (->> new-world :ship :shields) => (- ship-shields klingon-kinetic-damage)
-    (count (->> new-world :shots)) => 0))
 
 (fact
   "Weapons use power"

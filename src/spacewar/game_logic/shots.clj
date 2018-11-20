@@ -205,7 +205,7 @@
         hit-by (type hit-processors)]
     (hit-by hits target)))
 
-(defn- update-hits [world target-tag]
+(defn update-hits [world target-tag]
   (let [shots (:shots world)
         relevant-shots (filter #(#{:kinetic :torpedo :phaser} (:type %)) shots)
         targets (target-tag world)
