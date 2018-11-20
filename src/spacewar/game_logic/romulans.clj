@@ -1,6 +1,7 @@
 (ns spacewar.game-logic.romulans
   (:require [clojure.spec.alpha :as s]
             [spacewar.game-logic.config :as gc]
+            [spacewar.game-logic.explosions :as explosions]
             [spacewar.geometry :as geo]
             [spacewar.vector :as vector]))
 
@@ -55,11 +56,16 @@
         romulans (doall (remove #(= :disappeared (:state %)) romulans))]
     (assoc world :romulans romulans)))
 
+(defn- explode-romulan [romulan]
+  (explosions/->explosion :romulan romulan)
+  )
+
 (defn destroy-hit-romulans [world]
-  (let [romulans (:romulans world)
+  (let [{:keys [romulans explosions]} world
         hit-romulans (filter :hit romulans)
+        explosions (concat explosions (map explode-romulan hit-romulans))
         romulans (remove :hit romulans)]
-    (assoc world :romulans romulans)))
+    (assoc world :romulans romulans :explosions explosions)))
 
 (defn update-romulans [ms world]
   (->> world
