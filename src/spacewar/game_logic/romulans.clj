@@ -2,21 +2,25 @@
   (:require [clojure.spec.alpha :as s]
             [spacewar.game-logic.config :as gc]
             [spacewar.game-logic.explosions :as explosions]
+            [spacewar.game-logic.shots :as shots]
             [spacewar.geometry :as geo]
-            [spacewar.vector :as vector]))
+            [spacewar.vector :as vector]
+            [spacewar.util :as util]))
 
 (s/def ::x number?)
 (s/def ::y number?)
 (s/def ::age number?)
 (s/def ::state #{:invisible :appearing :visible :firing :fading :disappeared})
+(s/def ::fire-weapon boolean?)
 
-(s/def ::romulan (s/keys :reg-un [::x ::y ::age ::state]))
+(s/def ::romulan (s/keys :reg-un [::x ::y ::age ::state ::fire-weapon]))
 (s/def ::romulans (s/coll-of ::romulan))
 
 (defn make-romulan [x y]
   {:x x :y y
    :age 0
-   :state :invisible})
+   :state :invisible
+   :fire-weapon false})
 
 (defn update-romulans-age [ms world]
   (let [romulans (:romulans world)
@@ -43,7 +47,7 @@
                        :visible :firing
                        :firing :fading
                        :fading :disappeared)]
-      (assoc romulan :state next-state :age 0))
+      (assoc romulan :state next-state :age 0 :fire-weapon (= next-state :fading)))
     romulan))
 
 (defn update-romulans-state [ms world]
@@ -67,10 +71,24 @@
         romulans (remove :hit romulans)]
     (assoc world :romulans romulans :explosions explosions)))
 
+(defn- romulan-shots [ship romulan]
+  (if (:fire-weapon romulan)
+    (let [bearing (geo/angle-degrees (util/pos romulan) (util/pos ship))]
+      (shots/->shot (:x romulan) (:y romulan) bearing :romulan-blast))
+    nil))
+
+(defn fire-romulan-weapons [world]
+  (let [{:keys [shots romulans ship]} world
+        new-shots (filter some? (map #(romulan-shots ship %) romulans))
+        romulans (map #(assoc % :fire-weapon false) romulans)]
+    (assoc world :romulans romulans :shots (concat shots new-shots)))
+  )
+
 (defn update-romulans [ms world]
   (->> world
        (update-romulans-age ms)
        (update-romulans-state ms)
+       (fire-romulan-weapons)
        (remove-disappeared-romulans)
        (destroy-hit-romulans)))
 

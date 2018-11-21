@@ -97,6 +97,9 @@
 (def romulan-fading-time 2000)
 (def romulan-appear-odds-per-second 0.001)
 (def romulan-appear-distance 40000)
+(def romulan-blast-velocity 60)
+(def romulan-blast-range 1000000)
+(def romulan-blast-proximity 2000)
 
 (def transport-range strategic-range)
 (def transport-ready 10000)

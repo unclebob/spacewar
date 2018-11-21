@@ -144,7 +144,8 @@
    {:x x
     :y y
     :age 0
-    :state :invisible}))
+    :state :invisible
+    :fire-weapon false}))
 
 (defn set-pos [obj [x y]]
   (assoc obj :x x :y y))

@@ -229,3 +229,11 @@
             x (* (rand-sign) x)
             y (* (rand-sign) y)]
         (draw-spark x y)))))
+
+(defn draw-romulan-shot [shot]
+  (apply q/stroke orange)
+  (q/stroke-weight 5)
+  (q/ellipse-mode :center)
+  (q/no-fill)
+  (q/ellipse 0 0 20 20)
+  )

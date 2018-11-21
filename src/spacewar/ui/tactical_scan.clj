@@ -160,6 +160,11 @@
                    (filter #(= :klingon-torpedo (:type %)) (:shots (:world state)))
                    (partial draw-torpedo green)))
 
+(defn- draw-romulan-blast-shots [state]
+  (draw-objects-in state
+                   (filter #(= :romulan-blast (:type %)) (:shots (:world state)))
+                   draw-romulan-shot))
+
 (defn- draw-kinetic-shot [color _]
   (q/ellipse-mode :center)
   (q/no-stroke)
@@ -276,7 +281,8 @@
   (draw-kinetic-shots state)
   (draw-klingon-kinetic-shots state)
   (draw-klingon-phaser-shots state)
-  (draw-klingon-torpedo-shots state))
+  (draw-klingon-torpedo-shots state)
+  (draw-romulan-blast-shots state))
 
 (deftype tactical-scan [state]
   p/Drawable

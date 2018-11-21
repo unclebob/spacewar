@@ -16,7 +16,7 @@
 (s/def ::y number?)
 (s/def ::bearing (s/and number? #(<= 0 % 360)))
 (s/def ::range number?)
-(s/def ::type #{:phaser :torpedo :kinetic :klingon-kinetic :klingon-phaser :klingon-torpedo})
+(s/def ::type #{:phaser :torpedo :kinetic :klingon-kinetic :klingon-phaser :klingon-torpedo :romulan-blast})
 (s/def ::shot (s/keys :req-un [::x ::y ::bearing ::range ::type]))
 (s/def ::shots (s/coll-of ::shot))
 
@@ -144,7 +144,8 @@
    :kinetic kinetic-velocity
    :klingon-kinetic klingon-kinetic-velocity
    :klingon-phaser klingon-phaser-velocity
-   :klingon-torpedo klingon-torpedo-velocity})
+   :klingon-torpedo klingon-torpedo-velocity
+   :romulan-blast romulan-blast-velocity})
 
 (defn- shot-distance [ms shot]
   (* ms ((:type shot) shot-velocity)))
@@ -156,7 +157,8 @@
     :phaser phaser-range
     :klingon-kinetic klingon-kinetic-range
     :klingon-phaser klingon-phaser-range
-    :klingon-torpedo klingon-torpedo-range))
+    :klingon-torpedo klingon-torpedo-range
+    :romulan-blast romulan-blast-range))
 
 
 (defn update-shot-positions [ms world]
@@ -235,7 +237,8 @@
   (condp = type
     :klingon-kinetic klingon-kinetic-proximity
     :klingon-phaser klingon-phaser-proximity
-    :klingon-torpedo klingon-torpedo-proximity))
+    :klingon-torpedo klingon-torpedo-proximity
+    :romulan-blast romulan-blast-proximity))
 
 (defn- ship-hit-damage [shot]
   (condp = (:type shot)

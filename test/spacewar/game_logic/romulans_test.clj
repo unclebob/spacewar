@@ -29,14 +29,40 @@
             world (r/update-romulans-state ms world)
             romulan (first (:romulans world))]
         (:state romulan) => ?next-state
-        (:age romulan) => 0))
-        ?current-state ?next-state
-        :invisible :appearing
-        :appearing :visible
-        :visible :firing
-        :firing :fading
-        :fading :disappeared
+        (:age romulan) => 0
+        (:fire-weapon romulan) => ?fire-weapon))
+        ?current-state ?next-state ?fire-weapon
+        :invisible :appearing false
+        :appearing :visible false
+        :visible :firing false
+        :firing :fading true
+        :fading :disappeared false
         )
+
+    (fact
+      "romulan does not create shot when firing-weapon is false"
+      (let [romulan (assoc romulan :fire-weapon false)
+            world (assoc world :romulans [romulan])
+            world (r/fire-romulan-weapons world)
+            romulan (first (:romulans world))
+            shots (:shots world)]
+        (:fire-weapon romulan) => false
+        (count shots) => 0))
+
+    (fact
+      "romulan creates shot when firing-weapon is true"
+      (let [ship (assoc (mom/make-ship) :x 0 :y 0)
+            romulan (assoc romulan :fire-weapon true :x 100 :y 0)
+            world (assoc world :romulans [romulan] :ship ship)
+            world (r/fire-romulan-weapons world)
+            romulan (first (:romulans world))
+            shots (:shots world)]
+        (:fire-weapon romulan) => false
+        (count shots) => 1
+        (:type (first shots)) => :romulan-blast
+        (:x (first shots)) => (:x romulan)
+        (:y (first shots)) => (:y romulan)
+        (:bearing (first shots)) => (roughly 180)))
 
     (fact
       "disappeared romulans are deleted"
@@ -62,6 +88,7 @@
                 (r/update-romulans-state ms world) => world
                 (r/remove-disappeared-romulans world) => world
                 (r/destroy-hit-romulans world) => world
+                (r/fire-romulan-weapons world) => world
                 )))
 
   )
