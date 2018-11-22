@@ -99,7 +99,7 @@
 (def romulan-appear-distance 40000)
 (def romulan-blast-velocity 60)
 (def romulan-blast-range 1000000)
-(def romulan-blast-damage ship-shields)
+(def romulan-blast-damage (* 1.5 ship-shields))
 
 (def transport-range strategic-range)
 (def transport-ready 10000)

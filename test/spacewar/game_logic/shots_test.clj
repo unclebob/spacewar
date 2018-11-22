@@ -238,7 +238,7 @@
               explosions (:explosions world)]
           (count shots) => 0
           (count explosions) => 1
-          (:shields ship) => (- ship-shields (romulan-blast-damage-by 11000)))
+          (:shields ship) => (partial > ship-shields))
         )
   )
 
@@ -324,8 +324,8 @@
     (calc-damage ?shields ?hit-strength) => ?real-damage)
   ?shields ?hit-strength ?real-damage
   ship-shields 100 0
-  (/ ship-shields 2) 100 0
-  (/ ship-shields 4) 100 50
+  (/ ship-shields 2) 100 55
+  (/ ship-shields 4) 100 80
   0 100 100
   )
 

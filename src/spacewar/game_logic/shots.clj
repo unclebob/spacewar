@@ -271,10 +271,13 @@
     (if (hits-ship? shot ship dist proximity) :hit :miss)))
 
 (defn calc-damage [shields damage]
-  (let [shield-threshold (/ ship-shields 2)]
-    (if (< shields shield-threshold)
-      (* damage (- 1 (/ shields shield-threshold)))
-      0)))
+  (let [shield-threshold (/ ship-shields 2)
+        damage-absorbed (max 0 (- shields shield-threshold))
+        residual-damage (max 0 (- damage damage-absorbed))
+        remaining-shields (max 0 (- shields damage))
+        avg-shields (/ (+ shields remaining-shields) 2)]
+    (* (- 1 (/ avg-shields ship-shields)) residual-damage)
+    ))
 
 (defn up-to-max-damage [system damage]
   (min 100 (+ system damage)))
