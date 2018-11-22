@@ -163,7 +163,7 @@
 (defn- draw-romulan-blast-shots [state]
   (draw-objects-in state
                    (filter #(= :romulan-blast (:type %)) (:shots (:world state)))
-                   draw-romulan-shot))
+                   (partial draw-romulan-shot (/ (:w state) tactical-range))))
 
 (defn- draw-kinetic-shot [color _]
   (q/ellipse-mode :center)

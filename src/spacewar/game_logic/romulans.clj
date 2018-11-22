@@ -73,8 +73,9 @@
 
 (defn- romulan-shots [ship romulan]
   (if (:fire-weapon romulan)
-    (let [bearing (geo/angle-degrees (util/pos romulan) (util/pos ship))]
-      (shots/->shot (:x romulan) (:y romulan) bearing :romulan-blast))
+    (let [bearing (geo/angle-degrees (util/pos romulan) (util/pos ship))
+          shot (shots/->shot (:x romulan) (:y romulan) bearing :romulan-blast)]
+      (assoc shot :origin (util/pos romulan)))
     nil))
 
 (defn fire-romulan-weapons [world]

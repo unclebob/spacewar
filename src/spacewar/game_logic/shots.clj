@@ -17,7 +17,9 @@
 (s/def ::bearing (s/and number? #(<= 0 % 360)))
 (s/def ::range number?)
 (s/def ::type #{:phaser :torpedo :kinetic :klingon-kinetic :klingon-phaser :klingon-torpedo :romulan-blast})
-(s/def ::shot (s/keys :req-un [::x ::y ::bearing ::range ::type]))
+(s/def ::origin (s/tuple [number? number?]))
+(s/def ::shot (s/keys :req-un [::x ::y ::bearing ::range ::type]
+                      :opt-un [::origin]))
 (s/def ::shots (s/coll-of ::shot))
 
 (defn ->shot [x y bearing type]

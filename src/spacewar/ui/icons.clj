@@ -3,7 +3,8 @@
             [spacewar.util :refer :all]
             [spacewar.ui.config :refer :all]
             [spacewar.game-logic.config :refer :all]
-            [spacewar.geometry :refer :all]))
+            [spacewar.geometry :refer :all]
+            [spacewar.vector :as vector]))
 
 (defn- transport-color [commodity]
   (condp = commodity
@@ -230,10 +231,25 @@
             y (* (rand-sign) y)]
         (draw-spark x y)))))
 
-(defn draw-romulan-shot [shot]
-  (apply q/stroke orange)
-  (q/stroke-weight 5)
-  (q/ellipse-mode :center)
-  (q/no-fill)
-  (q/ellipse 0 0 20 20)
+(defn- romulan-blast-visual-intensity [range]
+  (let [factor (* 255 (- 1.0 (/ range romulan-blast-range)))]
+    factor))
+
+(defn- romulan-blast-weight []
+  (- 10 (rand 8)))
+
+(defn draw-romulan-shot [scale shot]
+  (let [{:keys [range bearing]} shot
+        scaled-range (* range scale)
+        radians (->radians bearing)
+        radians-to-origin (+ radians Math/PI)
+        shot-center (vector/from-angular scaled-range radians-to-origin)
+        shot-x (first shot-center)
+        shot-y (second shot-center)
+        half-pi (/ Math/PI 2)]
+    (apply q/stroke (conj orange (romulan-blast-visual-intensity range)))
+    (q/stroke-weight (romulan-blast-weight))
+    (q/ellipse-mode :radius)
+    (q/no-fill)
+    (q/arc shot-x shot-y scaled-range scaled-range (- radians half-pi) (+ radians half-pi)))
   )
