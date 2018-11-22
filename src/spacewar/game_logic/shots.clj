@@ -17,9 +17,7 @@
 (s/def ::bearing (s/and number? #(<= 0 % 360)))
 (s/def ::range number?)
 (s/def ::type #{:phaser :torpedo :kinetic :klingon-kinetic :klingon-phaser :klingon-torpedo :romulan-blast})
-(s/def ::origin (s/tuple [number? number?]))
-(s/def ::shot (s/keys :req-un [::x ::y ::bearing ::range ::type]
-                      :opt-un [::origin]))
+(s/def ::shot (s/keys :req-un [::x ::y ::bearing ::range ::type]))
 (s/def ::shots (s/coll-of ::shot))
 
 (defn ->shot [x y bearing type]
@@ -231,7 +229,7 @@
                  :explosions (doall explosions))))
 
 (defn- friend-or-foe [shot]
-  (if (some? (#{:klingon-kinetic :klingon-phaser :klingon-torpedo} (:type shot)))
+  (if (some? (#{:klingon-kinetic :klingon-phaser :klingon-torpedo :romulan-blast} (:type shot)))
     :foe
     :friend))
 
@@ -240,19 +238,37 @@
     :klingon-kinetic klingon-kinetic-proximity
     :klingon-phaser klingon-phaser-proximity
     :klingon-torpedo klingon-torpedo-proximity
-    :romulan-blast romulan-blast-proximity))
+    :romulan-blast nil))
+
+(defn romulan-blast-damage-by [range]
+  (let [factor (- 1 (/ range romulan-blast-range))]
+    (* factor romulan-blast-damage)))
 
 (defn- ship-hit-damage [shot]
   (condp = (:type shot)
     :klingon-kinetic klingon-kinetic-damage
     :klingon-phaser klingon-phaser-damage
-    :klingon-torpedo klingon-torpedo-damage))
+    :klingon-torpedo klingon-torpedo-damage
+    :romulan-blast (romulan-blast-damage-by (:range shot))))
+
+(defn- klingon-blast-hits-ship? [shot ship]
+  (let [{:keys [bearing range]} shot
+        angle-to-origin (+ bearing 180)
+        radians-to-origin (->radians angle-to-origin)
+        origin (vector/add (pos shot) (vector/from-angular range radians-to-origin))
+        dist-origin-ship (distance origin (pos ship))]
+    (> range dist-origin-ship)))
+
+(defn- hits-ship? [shot ship dist proximity]
+  (condp = (:type shot)
+        :romulan-blast (klingon-blast-hits-ship? shot ship)
+        (<= dist proximity)))
 
 (defn- hit-miss-ship [ship shot]
   (let [dist (distance [(:x ship) (:y ship)]
                        [(:x shot) (:y shot)])
         proximity (foe-weapon-proximity (:type shot))]
-    (if (<= dist proximity) :hit :miss)))
+    (if (hits-ship? shot ship dist proximity) :hit :miss)))
 
 (defn calc-damage [shields damage]
   (let [shield-threshold (/ ship-shields 2)]

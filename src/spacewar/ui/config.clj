@@ -133,24 +133,24 @@
                                       {:until 2000 :colors [yellow red]}
                                       {:until 4000 :colors [red black]}]}
    :romulan {:duration 4000
-                :explosion-profile [{:velocity 0.8 :until 100}
-                                    {:velocity 0.9 :until 200}
-                                    {:velocity 1 :until 400}
-                                    {:velocity 0.2 :until 600}
-                                    {:velocity 0.1 :until 600}
-                                    {:velocity -0.3 :until 800}
-                                    {:velocity 1 :until 1000}
-                                    {:velocity -0.05 :until 4000}]
-                :explosion-color-profile [{:until 100 :colors [white white]}
-                                          {:until 700 :colors [white orange]}
-                                          {:until 2500 :colors [orange dark-red]}
-                                          {:until 4000 :colors [dark-red black]}]
-                :fragments 100
-                :fragment-velocity 0.2
-                :fragment-color-profile [{:until 500 :colors [white white]}
-                                         {:until 800 :colors [white orange]}
-                                         {:until 2000 :colors [yellow red]}
-                                         {:until 4000 :colors [red black]}]}
+             :explosion-profile [{:velocity 0.8 :until 100}
+                                 {:velocity 0.9 :until 200}
+                                 {:velocity 1 :until 400}
+                                 {:velocity 0.2 :until 600}
+                                 {:velocity 0.1 :until 600}
+                                 {:velocity -0.3 :until 800}
+                                 {:velocity 1 :until 1000}
+                                 {:velocity -0.05 :until 4000}]
+             :explosion-color-profile [{:until 100 :colors [white white]}
+                                       {:until 700 :colors [white orange]}
+                                       {:until 2500 :colors [orange dark-red]}
+                                       {:until 4000 :colors [dark-red black]}]
+             :fragments 100
+             :fragment-velocity 0.2
+             :fragment-color-profile [{:until 500 :colors [white white]}
+                                      {:until 800 :colors [white orange]}
+                                      {:until 2000 :colors [yellow red]}
+                                      {:until 4000 :colors [red black]}]}
 
    :klingon-kinetic {:duration 800
                      :explosion-profile [{:velocity 0.5 :until 50}
@@ -195,6 +195,26 @@
                                               {:until 800 :colors [white yellow]}
                                               {:until 1200 :colors [yellow red]}
                                               {:until 2000 :colors [red black]}]}
+   :romulan-blast {:duration 4000
+                   :explosion-profile [{:velocity 0.8 :until 100}
+                                       {:velocity 0.9 :until 200}
+                                       {:velocity 1 :until 400}
+                                       {:velocity 0.2 :until 600}
+                                       {:velocity 0.1 :until 600}
+                                       {:velocity -0.3 :until 800}
+                                       {:velocity 1 :until 1000}
+                                       {:velocity -0.05 :until 4000}]
+                   :explosion-color-profile [{:until 100 :colors [white white]}
+                                             {:until 700 :colors [white blue]}
+                                             {:until 2500 :colors [blue orange]}
+                                             {:until 2500 :colors [orange dark-red]}
+                                             {:until 4000 :colors [dark-red black]}]
+                   :fragments 100
+                   :fragment-velocity 0.2
+                   :fragment-color-profile [{:until 500 :colors [white white]}
+                                            {:until 800 :colors [white orange]}
+                                            {:until 2000 :colors [yellow red]}
+                                            {:until 4000 :colors [red black]}]}
 
    :ship {:duration 8000
           :explosion-profile [{:velocity 0.8 :until 100}

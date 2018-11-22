@@ -97,15 +97,15 @@
         shots => []
         enemies => [{:x 0 :y 0}]))
 
-      (fact
-        "shot out of range"
-        (let [world {:shots [{:x (inc ?proximity) :y 0 :bearing 0 :range ..range.. :type ?weapon}]
-                     ?enemy [{:x 0 :y 0}]}
-              world (update-hits ?enemy world)
-              enemies (?enemy world)
-              shots (:shots world)]
-          shots => [{:x (inc ?proximity) :y 0 :bearing 0 :range ..range.. :type ?weapon}]
-          enemies => [{:x 0 :y 0}]))
+    (fact
+      "shot out of range"
+      (let [world {:shots [{:x (inc ?proximity) :y 0 :bearing 0 :range ..range.. :type ?weapon}]
+                   ?enemy [{:x 0 :y 0}]}
+            world (update-hits ?enemy world)
+            enemies (?enemy world)
+            shots (:shots world)]
+        shots => [{:x (inc ?proximity) :y 0 :bearing 0 :range ..range.. :type ?weapon}]
+        enemies => [{:x 0 :y 0}]))
 
     (fact
       "one shot hits enemy"
@@ -118,8 +118,8 @@
             explosions (:explosions world)]
         shots => []
         enemies => [{:x 0 :y 0 :hit {:weapon ?weapon :damage (if (= ?weapon :phaser)
-                                                                [..range..]
-                                                                ?damage)}}]
+                                                               [..range..]
+                                                               ?damage)}}]
         (first explosions) => :before
         (dissoc (second explosions) :fragments) => {:x (dec ?proximity) :y 0 :type ?weapon :age 0}))
 
@@ -135,8 +135,8 @@
             explosions (:explosions world)]
         shots => [{:x (inc ?proximity) :y 0 :bearing 0 :range ..range.. :type ?weapon}]
         enemies => [{:x 0 :y 0 :hit {:weapon ?weapon :damage (if (= ?weapon :phaser)
-                                                                [..range..]
-                                                                ?damage)}}]
+                                                               [..range..]
+                                                               ?damage)}}]
         (first explosions) => :before
         (dissoc (second explosions) :fragments) => {:x (dec ?proximity) :y 0 :type ?weapon :age 0}))
 
@@ -152,8 +152,8 @@
             explosions (:explosions world)]
         shots => []
         enemies => [{:x 0 :y 0 :hit {:weapon ?weapon :damage (if (= ?weapon :phaser)
-                                                                [..range.. ..range..]
-                                                                (* 2 ?damage))}}]
+                                                               [..range.. ..range..]
+                                                               (* 2 ?damage))}}]
         (nth explosions 0) => :before
         (dissoc (nth explosions 1) :fragments) => {:x (dec ?proximity) :y 0 :type ?weapon :age 0}
         (dissoc (nth explosions 2) :fragments) => {:x (dec ?proximity) :y 0 :type ?weapon :age 0}))
@@ -203,11 +203,43 @@
             explosions (:explosions world)]
         (count shots) => 1
         klingons => [{:x 0 :y 0}]
-        explosions => empty?)))
+        explosions => empty?))
+    )
   ?proximity ?weapon ?damage
   klingon-kinetic-proximity :klingon-kinetic klingon-kinetic-damage
   klingon-torpedo-proximity :klingon-torpedo klingon-torpedo-damage
   klingon-phaser-proximity :klingon-phaser klingon-phaser-damage
+  )
+
+(facts
+  "romulan-blast"
+  (fact
+    "hasn't hit ship yet"
+    (let [
+          world (mom/make-world)
+          ship (assoc (:ship world) :shields ship-shields :x 10000)
+          blast (assoc (mom/make-shot) :type :romulan-blast :bearing 0 :x 5000 :y 0 :range 5000)
+          world (assoc world :shots [blast] :ship ship)
+          world (update-ship-hits world)
+          ship (:ship world)
+          shots (:shots world)]
+      (count shots) => 1
+      (:shields ship) => ship-shields))
+
+  (fact "hits ship"
+        (let [
+              world (mom/make-world)
+              ship (assoc (:ship world) :shields ship-shields :y 10000)
+              blast (assoc (mom/make-shot) :type :romulan-blast :bearing 0 :x 11000 :y 0 :range 11000)
+              world (assoc world :shots [blast] :ship ship)
+              world (update-ship-hits world)
+              ship (:ship world)
+              shots (:shots world)
+              explosions (:explosions world)]
+          (count shots) => 0
+          (count explosions) => 1
+          (:shields ship) => (- ship-shields (romulan-blast-damage-by 11000)))
+        )
   )
 
 (fact

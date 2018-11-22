@@ -1,8 +1,7 @@
 (ns spacewar.game-logic.romulans-test
   (:require [midje.sweet :refer :all]
             [spacewar.game-logic.romulans :as r]
-            [spacewar.game-logic.test-mother :as mom]
-            [spacewar.util :as util]))
+            [spacewar.game-logic.test-mother :as mom]))
 
 (fact
   "can make romulan"
@@ -63,7 +62,6 @@
         (:type (first shots)) => :romulan-blast
         (:x (first shots)) => (:x romulan)
         (:y (first shots)) => (:y romulan)
-        (:origin (first shots)) => (util/pos romulan)
         (:bearing (first shots)) => (roughly 180)))
 
     (fact
