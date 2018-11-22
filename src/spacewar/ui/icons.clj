@@ -4,7 +4,8 @@
             [spacewar.ui.config :refer :all]
             [spacewar.game-logic.config :refer :all]
             [spacewar.geometry :refer :all]
-            [spacewar.vector :as vector]))
+            [spacewar.vector :as vector]
+            [spacewar.util :as util]))
 
 (defn- transport-color [commodity]
   (condp = commodity
@@ -238,6 +239,9 @@
 (defn- romulan-blast-weight []
   (- 10 (rand 8)))
 
+(defn- romulan-blast-color []
+  [255 (rand 255) (rand 50)])
+
 (defn draw-romulan-shot [scale shot]
   (let [{:keys [range bearing]} shot
         scaled-range (* range scale)
@@ -247,7 +251,7 @@
         shot-x (first shot-center)
         shot-y (second shot-center)
         half-pi (/ Math/PI 2)]
-    (apply q/stroke (conj orange (romulan-blast-visual-intensity range)))
+    (apply q/stroke (conj (romulan-blast-color) (romulan-blast-visual-intensity range)))
     (q/stroke-weight (romulan-blast-weight))
     (q/ellipse-mode :radius)
     (q/no-fill)
