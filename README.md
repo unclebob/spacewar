@@ -185,10 +185,9 @@ non-functional.
   cloaked while energizing or firing their weapon.  During that very brief period
   they are quite vulnerable.  A single shot will kill them.  
   
-  A hit from their weapon will completely drain your shields, do significant damage
-  to your systems, and has a one in three
-  chance of killing you outright.  When they appear, you have two options:  Fight, or run. If you choose to fight,
+  A hit at short range from their weapon will completely drain your shields, do significant damage
+  to your systems, and has a one in three chance of killing you outright.  When they appear, you have two options:  Fight, or run. If you choose to fight,
   make sure you hit them before they fire their weapon.  If you choose to run,
-  run fast. 
+  run fast and far; the weapon loses potency with distance. 
    
  
