@@ -176,5 +176,19 @@ non-functional.
   the cloud of debris.  You can harvest this dilithium by easing yourself as close
   as possible into the _center_ of the cloud.  Dilithium, when exposed to the vacuum,
   has a half-life of about a minute.  So hurry.
+  
+  ## Romulans
+  
+  Romulans are marauders.  Their ships are cloaked and quite difficult to detect.
+  They are quite deadly, due to an omni-directional energy weapon that does
+  tremendous damage and moves at roughly Warp 7.  Fortunately they cannot remain
+  cloaked while energizing or firing their weapon.  During that very brief period
+  they are quite vulnerable.  A single shot will kill them.  
+  
+  A hit from their weapon will completely drain your shields, do significant damage
+  to your systems, and has a one in three
+  chance of killing you outright.  When they appear, you have two options:  Fight, or run. If you choose to fight,
+  make sure you hit them before they fire their weapon.  If you choose to run,
+  run fast. 
    
  
