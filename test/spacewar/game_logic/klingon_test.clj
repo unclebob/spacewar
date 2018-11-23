@@ -28,26 +28,30 @@
     (fact
       "no hit"
       (let [new-world (k/update-klingons 20 world)
-            new-klingon (->> new-world :klingons first)]
+            klingon (->> new-world :klingons first)]
         new-world => mom/valid-world?
-        (:shields new-klingon) => klingon-shields
-        (:hit new-klingon) => nil?
+        (:shields klingon) => klingon-shields
+        (:hit klingon) => nil?
+        (:battle-state-age klingon) => 20
         (:explosions new-world) => []
         ))
 
-
     (fact
       "simple kinetic hit"
-      (let [klingon (assoc klingon :hit {:weapon :kinetic :damage 20})
+      (let [klingon (assoc klingon :hit {:weapon :kinetic :damage 20}
+                                   :antimatter klingon-antimatter
+                                   :battle-state :advancing
+                                   :battle-state-age 1)
             world (assoc world :klingons [klingon])
             new-world (k/update-klingons 0 world)
             klingons (:klingons new-world)
-            explosions (:explosions new-world)]
+            explosions (:explosions new-world)
+            klingon (first klingons)]
         (count klingons) => 1
-        (:hit (first klingons)) => nil
-        (:shields (first klingons)) => (roughly 180)
+        (:hit klingon) => nil
+        (:shields klingon) => (roughly 180)
+        (:battle-state-age klingon) => (partial < klingon-battle-state-transition-age)
         explosions => []))
-
 
     (fact
       "klingon destroyed"
@@ -103,7 +107,7 @@
           (let [out-of-range [(inc klingon-kinetic-firing-distance) 0]
                 klingon (mom/set-pos klingon out-of-range)
                 world (-> world (mom/set-ship ship) (mom/set-klingons [klingon]))
-                offense (k/klingon-offense 20 world)]
+                offense (k/update-klingon-offense 20 world)]
             offense => world))
 
         (fact
@@ -111,7 +115,7 @@
           (let [in-range (dec klingon-kinetic-firing-distance)
                 klingon (mom/set-pos klingon [in-range 0])
                 world (-> world (mom/set-ship ship) (mom/set-klingons [klingon]))
-                offense (k/klingon-offense 20 world)]
+                offense (k/update-klingon-offense 20 world)]
             offense => mom/valid-world?
             (->> offense :klingons first :weapon-charge) => 20))
 
@@ -124,7 +128,7 @@
                                        :kinetics 20)
                 world (mom/set-klingons world [klingon])
                 world (assoc world :shots [(shots/->shot 0 0 0 :phaser)])
-                offense (k/klingon-offense 0 world)]
+                offense (k/update-klingon-offense 0 world)]
             offense => mom/valid-world?
             (count (:shots offense)) => 1
             (let [klingon (->> offense :klingons first)]
@@ -141,7 +145,7 @@
                                        :kinetics 20)
                 world (mom/set-klingons world [klingon])
                 world (assoc world :shots [(shots/->shot 0 0 0 :phaser)])
-                offense (k/klingon-offense 0 world)]
+                offense (k/update-klingon-offense 0 world)]
             offense => mom/valid-world?
             (count (:shots offense)) => 2
             (let [shot (->> offense :shots second)
@@ -160,7 +164,7 @@
                                        :weapon-charge klingon-phaser-threshold)
                 world (mom/set-klingons world [klingon])
                 world (assoc world :shots [(shots/->shot 0 0 0 :phaser)])
-                offense (k/klingon-offense 0 world)]
+                offense (k/update-klingon-offense 0 world)]
             offense => mom/valid-world?
             (count (:shots offense)) => 1
             (let [klingon (->> offense :klingons first)]
@@ -174,7 +178,7 @@
                 klingon (assoc klingon :antimatter 1000 :weapon-charge klingon-phaser-threshold)
                 world (mom/set-klingons world [klingon])
                 world (assoc world :shots [(shots/->shot 0 0 0 :phaser)])
-                offense (k/klingon-offense 0 world)]
+                offense (k/update-klingon-offense 0 world)]
             offense => mom/valid-world?
             (count (:shots offense)) => 2
             (let [shot (->> offense :shots second)
@@ -192,7 +196,7 @@
                                        :torpedos 1)
                 world (mom/set-klingons world [klingon])
                 world (assoc world :shots [])
-                offense (k/klingon-offense 0 world)]
+                offense (k/update-klingon-offense 0 world)]
             offense => mom/valid-world?
             (count (:shots offense)) => 1
             (let [shot (->> offense :shots first)
@@ -210,7 +214,7 @@
                                        :torpedos 0)
                 world (mom/set-klingons world [klingon])
                 world (assoc world :shots [])
-                offense (k/klingon-offense 0 world)]
+                offense (k/update-klingon-offense 0 world)]
             offense => mom/valid-world?
             (count (:shots offense)) => 0))
 
@@ -224,7 +228,7 @@
                 world (mom/set-klingons world [klingon])
                 world (assoc world :shots []
                                    :ship ship)
-                offense (k/klingon-offense 0 world)]
+                offense (k/update-klingon-offense 0 world)]
             offense => mom/valid-world?
             (count (:shots offense)) => 0))
 
@@ -236,7 +240,7 @@
                                        :kinetics 0)
                 world (mom/set-klingons world [klingon])
                 world (assoc world :shots [])
-                offense (k/klingon-offense 0 world)]
+                offense (k/update-klingon-offense 0 world)]
             offense => mom/valid-world?
             (count (:shots offense)) => 0
             (let [klingon (->> offense :klingons first)]
@@ -248,20 +252,19 @@
     (let [ship (mom/set-pos ship [0 0])
           klingon (mom/set-pos klingon [(inc klingon-tactical-range) 0])
           world (assoc world :ship ship :klingons [klingon])
-          new-world (k/klingon-motion 1000 world)
+          new-world (k/update-klingon-motion 1000 world)
           new-klingon (->> new-world :klingons first)
           thrust (:thrust new-klingon)]
       thrust => [0 0])
     )
 
   (fact
-    "klingon within tactical range of ship thrusts towards ship"
-    (prerequisite (k/evasion-angle anything) => 0)
+    "klingon in :advancing state thrusts towards ship"
     (let [ship (mom/set-pos ship [0 0])
           klingon (mom/set-pos klingon [(dec klingon-tactical-range) 0])
-          klingon (assoc klingon :antimatter klingon-antimatter)
+          klingon (assoc klingon :antimatter klingon-antimatter :battle-state :advancing)
           world (assoc world :ship ship :klingons [klingon])
-          new-world (k/klingon-motion 2 world)
+          new-world (k/update-klingon-motion 2 world)
           new-klingon (->> new-world :klingons first)
           thrust (:thrust new-klingon)]
       (first thrust) => (roughly (* -1 klingon-thrust) 1e-5)
@@ -269,11 +272,12 @@
     )
 
   (fact
-    "klingon within evasion range of ship thrusts orthogonal to ship"
+    "klingon in :flank-left state thrusts left orthogonal to ship"
     (let [ship (mom/set-pos ship [0 0])
           klingon (mom/set-pos klingon [(dec klingon-evasion-limit) 0])
+          klingon (assoc klingon :battle-state :flank-left)
           world (assoc world :ship ship :klingons [klingon])
-          new-world (k/klingon-motion 2 world)
+          new-world (k/update-klingon-motion 2 world)
           new-klingon (->> new-world :klingons first)
           thrust (:thrust new-klingon)]
       (second thrust) => (roughly (* -1 klingon-thrust) 1e-5)
@@ -281,12 +285,25 @@
     )
 
   (fact
-    "klingon in range but low on antimatter thrusts away from ship"
+      "klingon in :flank-right state thrusts right orthogonal to ship"
+      (let [ship (mom/set-pos ship [0 0])
+            klingon (mom/set-pos klingon [(dec klingon-evasion-limit) 0])
+            klingon (assoc klingon :battle-state :flank-right)
+            world (assoc world :ship ship :klingons [klingon])
+            new-world (k/update-klingon-motion 2 world)
+            new-klingon (->> new-world :klingons first)
+            thrust (:thrust new-klingon)]
+        (second thrust) => (roughly klingon-thrust 1e-5)
+        (first thrust) => (roughly 0 1e-10))
+      )
+
+  (fact
+    "klingon in :retreating state thrusts away from ship"
     (let [ship (mom/set-pos ship [0 0])
           klingon (mom/set-pos klingon [(dec klingon-tactical-range) 0])
-          klingon (assoc klingon :antimatter (dec klingon-antimatter-runaway-threshold))
+          klingon (assoc klingon :battle-state :retreating )
           world (assoc world :ship ship :klingons [klingon])
-          new-world (k/klingon-motion 2 world)
+          new-world (k/update-klingon-motion 2 world)
           new-klingon (->> new-world :klingons first)
           thrust (:thrust new-klingon)]
       (first thrust) => (roughly (* klingon-thrust) 1e-5)
@@ -299,19 +316,18 @@
           klingon (mom/set-pos klingon [(inc klingon-tactical-range) 0])
           klingon (assoc klingon :thrust [1 1])
           world (assoc world :ship ship :klingons [klingon])
-          new-world (k/klingon-motion 2 world)
+          new-world (k/update-klingon-motion 2 world)
           new-klingon (->> new-world :klingons first)
           thrust (:thrust new-klingon)]
       thrust => [1 1]))
 
   (fact
     "thrusting klingon increases velocity"
-    (prerequisites (k/calc-drag anything) => 1
-                   (k/evasion-angle anything) => 0)
+    (prerequisites (k/calc-drag anything) => 1)
     (let [klingon (mom/set-pos klingon [(dec klingon-tactical-range) 0])
           klingon (assoc klingon :antimatter klingon-antimatter)
           world (assoc world :klingons [klingon])
-          new-world (k/klingon-motion 2 world)
+          new-world (k/update-klingon-motion 2 world)
           velocity (->> new-world :klingons first :velocity)]
       (first velocity) => (roughly (* -2 klingon-thrust))
       (second velocity) => (roughly 0 1e-10)
@@ -322,7 +338,7 @@
     (let [klingon (assoc klingon :velocity [1 1])
           klingon (mom/set-pos klingon [1000 1000])
           world (assoc world :klingons [klingon])
-          new-world (k/klingon-motion 2 world)
+          new-world (k/update-klingon-motion 2 world)
           x (->> new-world :klingons first :x)
           y (->> new-world :klingons first :y)]
       x => (roughly 1002)
@@ -337,16 +353,7 @@
       (:thrust klingon) => [0 0]))
 
   (fact
-      "klingons near ship do not thrust towards nearest base"
-      (let [ship (assoc ship :x (dec klingon-tactical-range) :y 0)
-            base (bases/make-base [1000 0] :antimatter-factory)
-            world (assoc world :ship ship :bases [base])
-            world (k/update-thrust-towards-nearest-base world)
-            klingon (-> world :klingons first)]
-        (:thrust klingon) => [0 0]))
-
-  (fact
-    "klingons far from ship  thrust towards nearest base"
+    "klingons far from ship thrust towards nearest base"
     (let [ship (assoc ship :x 1e7 :y 1e7)
           base1 (bases/make-base [0 2000] :antimatter-factory)
           base2 (bases/make-base [1000 0] :antimatter-factory)
@@ -354,6 +361,30 @@
           world (k/update-thrust-towards-nearest-base world)
           klingon (-> world :klingons first)]
       (:thrust klingon) => (vt/roughly-v [klingon-thrust 0])))
+
+
+  (def old-state (inc klingon-battle-state-transition-age))
+  (def battle-state? (partial contains? #{:advancing :retreating :flank-left :flank-right}))
+  (def run-away (dec klingon-antimatter-runaway-threshold))
+  (tabular
+    (fact
+    "klingon battle-state as function of distance, age, and antimatter"
+    (let [ship (assoc ship :x ?distance)
+          klingon (assoc klingon :battle-state ?start-state
+                                 :battle-state-age ?age
+                                 :antimatter ?antimatter)
+          world (assoc world :ship ship :klingons [klingon])
+          world (k/update-klingons-state 10 world)
+          klingon (-> world :klingons first)]
+      (:battle-state klingon) => ?end-state
+      (:battle-state-age klingon) => ?new-age))
+    ?antimatter ?distance ?start-state ?age ?end-state ?new-age
+    klingon-antimatter (inc klingon-tactical-range) :advancing 0 :no-battle 10
+    klingon-antimatter (dec klingon-tactical-range) :no-battle 0 :advancing 10
+    klingon-antimatter (dec klingon-evasion-limit) :no-battle old-state battle-state? 0
+    klingon-antimatter (dec klingon-evasion-limit) :no-battle 0 :no-battle 10
+    run-away (dec klingon-tactical-range) :advancing 0 :retreating 10
+    )
 
   (fact
     "klingon within docking distance of base steals antimatter"
@@ -366,5 +397,14 @@
           klingon (-> world :klingons first)]
       (:antimatter base) => 0
       (:antimatter klingon) => 100))
+
+  (fact
+    "update-klingons calls all the necessary functions"
+    (let [ms 10]
+      (k/update-klingons ms world) => world
+      (provided (k/update-klingon-defense ms world) => world
+                (k/update-klingon-offense ms world) => world
+                (k/update-klingon-motion ms world) => world
+                (k/update-klingons-state ms world) => world)))
 
   )

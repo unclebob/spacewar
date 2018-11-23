@@ -89,6 +89,8 @@
    :weapon-charge 0
    :velocity [0 0]
    :thrust [0 0]
+   :battle-state-age 0
+   :battle-state :no-battle
    })
 
 (defn make-world []

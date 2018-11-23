@@ -59,6 +59,7 @@
 (def klingon-shield-recharge-cost 10)
 (def klingon-tactical-range 150000)
 (def klingon-evasion-limit 50000)
+(def klingon-battle-state-transition-age 10000)
 (def klingon-antimatter-runaway-threshold (* 0.1 klingon-antimatter))
 (def klingon-thrust 0.002)
 (def klingon-drag 0.999)

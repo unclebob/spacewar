@@ -20,10 +20,12 @@
 (s/def ::weapon-charge number?)
 (s/def ::velocity (s/tuple number? number?))
 (s/def ::thrust (s/tuple number? number?))
+(s/def ::battle-state-age number?)
+(s/def ::battle-state #{:no-battle :flank-right :flank-left :retreating :advancing})
 
 (s/def ::klingon (s/keys :req-un [::x ::y ::shields ::antimatter
                                   ::kinetics ::torpedos ::weapon-charge
-                                  ::velocity ::thrust]
+                                  ::velocity ::thrust ::battle-state-age ::battle-state]
                          :opt-un [::hit/hit]))
 (s/def ::klingons (s/coll-of ::klingon))
 
@@ -36,7 +38,9 @@
    :torpedos (rand klingon-torpedos)
    :weapon-charge 0
    :velocity [(- 2 (rand 4)) (- 2 (rand 4))]
-   :thrust [0 0]})
+   :thrust [0 0]
+   :battle-state-age 0
+   :battle-state :no-battle})
 
 (defn make-klingon [x y]
   {:x x
@@ -47,7 +51,9 @@
    :torpedos klingon-torpedos
    :weapon-charge 0
    :velocity [0 0]
-   :thrust [0 0]})
+   :thrust [0 0]
+   :battle-state-age 0
+   :battle-state :no-battle})
 
 (defn initialize []
   (repeatedly number-of-klingons make-random-klingon))
@@ -65,11 +71,13 @@
     :phaser (damage-by-phasers hit)))
 
 (defn hit-klingon [klingon]
-  (let [hit (:hit klingon)
-        shields (:shields klingon)
+  (let [{:keys [shields hit battle-state-age]} klingon
         klingon (dissoc klingon :hit)
-        shields (if (some? hit) (- shields (hit-damage hit)) shields)]
-    (assoc klingon :shields shields)))
+        shields (if (some? hit) (- shields (hit-damage hit)) shields)
+        battle-state-age (if (some? hit)
+                           (inc klingon-battle-state-transition-age)
+                           battle-state-age)]
+    (assoc klingon :shields shields :battle-state-age battle-state-age)))
 
 (defn- klingon-destruction [klingons]
   (if (empty? klingons)
@@ -97,7 +105,7 @@
 (defn- klingon-debris-clouds [dead-klingons]
   (map klingon-debris-cloud dead-klingons))
 
-(defn klingon-defense [ms world]
+(defn update-klingon-defense [ms world]
   (let [klingons (:klingons world)
         klingons (map hit-klingon klingons)
         dead-klingons (filter #(> 0 (:shields %)) klingons)
@@ -241,7 +249,7 @@
 (defn delay-shooting? []
   (> 95 (rand 100)))
 
-(defn klingon-offense [ms world]
+(defn update-klingon-offense [ms world]
   (if (:game-over world)
     world
     (let [{:keys [klingons ship shots]} world
@@ -252,25 +260,21 @@
       (assoc world :klingons klingons
                    :shots (concat shots new-shots)))))
 
-(defn evasion-angle [dist]
-  (let [base (- klingon-tactical-range klingon-evasion-limit)
-        actual (min base (max 0 (- klingon-tactical-range dist)))]
-    (* 90 (/ actual base))))
-
-(defn- thrust-if-close [ship klingon]
-  (let [ship-pos [(:x ship) (:y ship)]
-        klingon-pos [(:x klingon) (:y klingon)]
+(defn- thrust-if-battle [ship klingon]
+  (let [battle-state (:battle-state klingon)
+        ship-pos (pos ship)
+        klingon-pos (pos klingon)
         dist (distance ship-pos klingon-pos)
         degrees (if (= ship-pos klingon-pos)
                   0
                   (angle-degrees klingon-pos ship-pos))
         degrees (+ degrees
-                   (cond (< dist klingon-evasion-limit)
-                         90
-                         (< (klingon :antimatter) klingon-antimatter-runaway-threshold)
-                         180
-                         :else
-                         (evasion-angle dist)))
+                   (condp = battle-state
+                     :flank-left 90
+                     :flank-right -90
+                     :advancing 0
+                     :retreating 180
+                     :no-battle 0))
         radians (->radians degrees)
         efficiency (/ (:shields klingon) klingon-shields)
         effective-thrust (min (klingon :antimatter)
@@ -300,31 +304,30 @@
   (let [drag-factor (calc-drag ms)]
     (update klingon :velocity #(vector/scale drag-factor %))))
 
-(defn klingon-motion [ms world]
+(defn update-klingon-motion [ms world]
   (let [ship (:ship world)
-        klingons (map #(thrust-if-close ship %) (:klingons world))
+        klingons (map #(thrust-if-battle ship %) (:klingons world))
         klingons (map #(accelerate-klingon ms %) klingons)
         klingons (map #(move-klingon ms %) klingons)
         klingons (map #(drag-klingon ms %) klingons)]
     (assoc world :klingons klingons)))
 
-(defn- thrust-to-nearest [klingon bases ship]
-  (if (< (distance (pos klingon) (pos ship))
-         klingon-tactical-range)
-    klingon
+(defn- thrust-to-nearest [klingon bases]
+  (if (= (:battle-state klingon) :no-battle)
     (let [distance-map (apply hash-map
                               (flatten
                                 (map #(list (distance (pos klingon) (pos %)) %) bases)))
           nearest-base (distance-map (apply min (keys distance-map)))
           angle-to-base (angle-degrees (pos klingon) (pos nearest-base))
           thrust (vector/from-angular klingon-thrust (->radians angle-to-base))]
-      (assoc klingon :thrust thrust))))
+      (assoc klingon :thrust thrust))
+    klingon))
 
 (defn update-thrust-towards-nearest-base [world]
-  (let [{:keys [klingons bases ship]} world
+  (let [{:keys [klingons bases]} world
         klingons (if (empty? bases)
                    klingons
-                   (map #(thrust-to-nearest % bases ship) klingons))]
+                   (map #(thrust-to-nearest % bases) klingons))]
     (assoc world :klingons klingons)))
 
 (defn- find-thefts [klingons bases]
@@ -356,11 +359,45 @@
         bases (concat (set victims) unmolested)]
     (assoc world :klingons klingons :bases bases)))
 
+(defn- random-evasion-state [klingon]
+  (let [{:keys [battle-state-age battle-state]} klingon
+        evasions [:advancing :retreating :flank-right :flank-left]
+        selection (round (rand (dec (count evasions))))]
+    (if (>= battle-state-age klingon-battle-state-transition-age)
+      (nth evasions selection)
+      battle-state)))
+
+(defn- update-klingon-state [ms ship klingon]
+  (let [{:keys [antimatter battle-state-age battle-state]} klingon
+        dist (distance (pos klingon) (pos ship))
+        new-battle-state (condp <= dist
+                           klingon-tactical-range :no-battle
+                           klingon-evasion-limit :advancing
+                           (dec klingon-evasion-limit) (random-evasion-state klingon)
+                           battle-state)
+        new-battle-state (if (and
+                               (<= antimatter klingon-antimatter-runaway-threshold)
+                               (<= dist klingon-tactical-range))
+                           :retreating
+                           new-battle-state)
+        age (if (>= battle-state-age klingon-battle-state-transition-age)
+              0
+              (+ battle-state-age ms))]
+    (assoc klingon :battle-state new-battle-state
+                   :battle-state-age age)))
+
+(defn update-klingons-state [ms world]
+  (let [{:keys [ship klingons]} world
+        klingons (map #(update-klingon-state ms ship %) klingons)]
+    (assoc world :klingons klingons)))
+
 (defn update-klingons [ms world]
   (->> world
-       (klingon-defense ms)
-       (klingon-offense ms)
-       (klingon-motion ms)))
+       (update-klingons-state ms)
+       (update-klingon-defense ms)
+       (update-klingon-offense ms)
+       (update-klingon-motion ms)
+       ))
 
 (defn update-klingons-per-second [world]
   (-> world
