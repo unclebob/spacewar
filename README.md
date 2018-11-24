@@ -170,6 +170,16 @@ non-functional.
   Beware, more than one Klingon can occupy a base.  If you challenge a base with three or four
   Klingons occupying it; be prepared for a pitched battle.  
   
+  ## Klingon Battle Strategy
+  
+  Once your ship is in range of a Klingon's detectors, it will head towards you to do battle.  
+  The Klingon strategy is to confuse and delude you.  They accomplish this by continuously
+  changing tactics.  Stay alert to their movements in the heat of battle; and don't let them
+  get too close.  At short range their phasers are devastating. 
+  
+  When a Klingon is critically low on resources, there is a good chance it will run away.  This
+  is a good time to attack them.  Be careful though, the retreat may be a ruse.
+  
   ## Dilithium Clouds
   
   When you destroy a Klingon vessel, their on-board dilithium will disperse amidst
