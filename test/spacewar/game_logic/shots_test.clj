@@ -338,7 +338,7 @@
   )
 
 (facts
-  "weapons damage corrupts shots"
+  "Shot corruption"
   (let [shot1 (assoc (mom/make-shot) :bearing 90)
         shot2 (assoc (mom/make-shot) :bearing 95)
         shot3 (assoc (mom/make-shot) :bearing 100)
@@ -376,5 +376,21 @@
       (provided (weapon-failure-dice 3 50) => [true true false]
                 (weapon-bearing-deviation 1 50) => [261])
       )
+
+    (fact
+      "no warp corruption if not warping"
+      (warp-corruption 0 shots) => shots)
+
+    (fact
+      (prerequisite (warp-bearing-deviation) => 10)
+      "warp speed corrupts bearing"
+      (let [shots (warp-corruption 1 shots)
+            s0 (nth shots 0)
+            s1 (nth shots 1)
+            s2 (nth shots 2)]
+        (:bearing s0) => 100
+        (:bearing s1) => 105
+        (:bearing s2) => 110))
     ))
+
 

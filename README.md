@@ -67,6 +67,8 @@ Be careful, you can use your torpedoes up fast; and shooting phasers
 really heats up the core.
   
 All weapons consume antimatter.  
+
+Weapons are not very accurate when fired from within a warp field.
   
 ## Status
 There are four things you need to watch at all times.

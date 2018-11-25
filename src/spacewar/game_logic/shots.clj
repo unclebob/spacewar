@@ -94,6 +94,20 @@
          final-shots
          (weapon-bearing-deviation (count final-shots) damage))))
 
+(defn warp-bearing-deviation []
+  (- 40 (rand 80)))
+
+(defn- corrupt-shot-bearing [shot]
+  (let [bearing (:bearing shot)
+        deviation (warp-bearing-deviation)
+        bearing (mod (+ bearing deviation) 360)]
+    (assoc shot :bearing bearing)))
+
+(defn warp-corruption [warp shots]
+  (if (zero? warp)
+    shots
+    (map corrupt-shot-bearing shots)))
+
 (defn weapon-fire-handler [_ world]
   (let [{:keys [ship]} world
         {:keys [x y selected-weapon weapon-spread-setting
@@ -118,6 +132,7 @@
                ship)
         shots (map #(assoc % :type selected-weapon) shots)
         shots (corrupt-shots-by-damage (:weapons-damage ship) shots)
+        shots (warp-corruption (:warp ship) shots )
         ship (assoc ship :antimatter antimatter)]
     (assoc world :shots (concat (:shots world) shots)
                  :ship ship)))
