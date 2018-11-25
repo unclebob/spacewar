@@ -6,7 +6,7 @@
   Drawable
   (draw [_])
   (setup [this] this)
-  (update-state [_ _] [(assoc state :updated true)
+  (update-state [_ _] [(mock-drawable. (assoc state :updated true))
                        [{:event :e :state state}]])
   (get-state [_] state))
 
@@ -14,7 +14,7 @@
   Drawable
   (draw [_])
   (setup [this] this)
-  (update-state [_ _] [(assoc state :updated true) []])
+  (update-state [_ _] [(mock-drawable-no-events. (assoc state :updated true)) []])
   (get-state [_] state))
 
 (facts
@@ -29,10 +29,9 @@
     "one element"
     (let [mock (->mock-drawable {:y 1})
           state {:x 1 :element mock :elements [:element]}
-          [new-state events] (update-elements state {})]
-      new-state => {:x 1
-                    :element {:y 1 :updated true}
-                    :elements [:element]}
+          [new-state events] (update-elements state {})
+          element (:element new-state)]
+      (get-state element) => {:y 1 :updated true}
       events => [{:event :e :state {:y 1}}]))
   (fact
     "two elements"
@@ -42,11 +41,11 @@
                  :element1 mock1
                  :element2 mock2
                  :elements [:element1 :element2]}
-          [new-state events] (update-elements state {})]
-      new-state => {:x 1
-                    :element1 {:y 1 :updated true}
-                    :element2 {:y 2 :updated true}
-                    :elements [:element1 :element2]}
+          [new-state events] (update-elements state {})
+          element1 (:element1 new-state)
+          element2 (:element2 new-state)]
+      (get-state element1) => {:y 1 :updated true}
+      (get-state element2) => {:y 2 :updated true}
       events => [{:event :e :state {:y 1}}
                  {:event :e :state {:y 2}}]))
 
@@ -58,11 +57,11 @@
                  :element1 mock1
                  :element2 mock2
                  :elements [:element1 :element2]}
-          [new-state events] (update-elements state {})]
-      new-state => {:x 1
-                    :element1 {:y 1 :updated true}
-                    :element2 {:y 2 :updated true}
-                    :elements [:element1 :element2]}
+          [new-state events] (update-elements state {})
+          element1 (:element1 new-state)
+          element2 (:element2 new-state)]
+      (get-state element1) => {:y 1 :updated true}
+      (get-state element2) => {:y 2 :updated true}
       events => []))
   )
 
