@@ -102,7 +102,13 @@
                          :torpedos gc/ship-torpedos
                          :kinetics gc/ship-kinetics
                          :shields gc/ship-shields
-                         :core-temp 0)]
+                         :core-temp 0
+                         :hull-damage 0
+                         :weapons-damage 0
+                         :life-support-damage 0
+                         :warp-damage 0
+                         :impulse-damage 0
+                         :sensor-damage 0)]
     (assoc world :ship ship)))
 
 (defn- debug-add-klingon [event world]

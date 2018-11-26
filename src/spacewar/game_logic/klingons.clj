@@ -272,8 +272,8 @@
                    (condp = battle-state
                      :flank-left 90
                      :flank-right -90
-                     :advancing 0
-                     :retreating 180
+                     :advancing 10
+                     :retreating 190
                      :no-battle 0))
         radians (->radians degrees)
         efficiency (/ (:shields klingon) klingon-shields)
@@ -359,22 +359,23 @@
         bases (concat (set victims) unmolested)]
     (assoc world :klingons klingons :bases bases)))
 
-(defn- random-evasion-state [klingon]
-  (let [{:keys [battle-state-age battle-state]} klingon
-        evasions [:advancing :retreating :flank-right :flank-left]
-        selection (round (rand (dec (count evasions))))]
+(defn random-battle-state []
+  (let [selected-index (rand-int (count klingon-battle-states))]
+    (nth klingon-battle-states selected-index)))
+
+(defn change-expired-battle-state [klingon]
+  (let [{:keys [battle-state-age battle-state]} klingon]
     (if (>= battle-state-age klingon-battle-state-transition-age)
-      (nth evasions selection)
+      (random-battle-state)
       battle-state)))
 
 (defn- update-klingon-state [ms ship klingon]
-  (let [{:keys [antimatter battle-state-age battle-state]} klingon
+  (let [{:keys [antimatter battle-state-age]} klingon
         dist (distance (pos klingon) (pos ship))
         new-battle-state (condp <= dist
                            klingon-tactical-range :no-battle
                            klingon-evasion-limit :advancing
-                           (dec klingon-evasion-limit) (random-evasion-state klingon)
-                           battle-state)
+                           (change-expired-battle-state klingon))
         new-battle-state (if (and
                                (<= antimatter klingon-antimatter-runaway-threshold)
                                (<= dist klingon-tactical-range))

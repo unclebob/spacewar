@@ -352,12 +352,13 @@
       (:thrust klingon) => (vt/roughly-v [klingon-thrust 0])))
 
 
-  (def old-state (inc klingon-battle-state-transition-age))
+  (def expired-age (inc klingon-battle-state-transition-age))
   (def battle-state? (partial contains? #{:advancing :retreating :flank-left :flank-right}))
   (def run-away (dec klingon-antimatter-runaway-threshold))
   (tabular
     (fact
       "klingon battle-state as function of distance, age, and antimatter"
+      (prerequisite (k/random-battle-state) => :flank-right)
       (let [ship (assoc ship :x ?distance)
             klingon (assoc klingon :battle-state ?start-state
                                    :battle-state-age ?age
@@ -370,7 +371,7 @@
     ?antimatter ?distance ?start-state ?age ?end-state ?new-age
     klingon-antimatter (inc klingon-tactical-range) :advancing 0 :no-battle 10
     klingon-antimatter (dec klingon-tactical-range) :no-battle 0 :advancing 10
-    klingon-antimatter (dec klingon-evasion-limit) :no-battle old-state battle-state? 0
+    klingon-antimatter (/ klingon-evasion-limit 2) :no-battle expired-age :flank-right 0
     klingon-antimatter (dec klingon-evasion-limit) :no-battle 0 :no-battle 10
     run-away (dec klingon-tactical-range) :advancing 0 :retreating 10
     )
