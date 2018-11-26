@@ -1,9 +1,10 @@
 (ns spacewar.game-logic.bases
   (:require [clojure.spec.alpha :as s]
-            [spacewar.util :refer :all]
-            [spacewar.geometry :refer :all]
+            [spacewar.util :as util]
+            [spacewar.geometry :as geo]
             [spacewar.vector :as vector]
-            [spacewar.game-logic.config :refer :all]
+            ;[spacewar.game-logic.config :refer :all]
+            [spacewar.game-logic.config :as glc]
             [clojure.math.combinatorics :as combo]))
 
 (s/def ::x number?)
@@ -52,40 +53,40 @@
    :destination destination})
 
 (defn make-random-base []
-  (let [x (int (rand known-space-x))
-        y (int (rand known-space-y))]
+  (let [x (int (rand glc/known-space-x))
+        y (int (rand glc/known-space-y))]
     (make-base [x y] (random-base-type))))
 
 (defn- age-base [ms base]
   (let [age (:age base)
-        age (min base-maturity-age (+ age ms))]
+        age (min glc/base-maturity-age (+ age ms))]
     (assoc base :age age)))
 
 (defn age-bases [ms bases]
   (map #(age-base ms %) bases))
 
 (def antimatter-production
-  {:rate antimatter-factory-production-rate
-   :maximum base-antimatter-maximum
+  {:rate glc/antimatter-factory-production-rate
+   :maximum glc/base-antimatter-maximum
    :antimatter-cost 0
    :dilithium-cost 0})
 
 (def dilithium-production
-  {:rate dilithium-factory-production-rate
-   :maximum base-dilithium-maximum
-   :antimatter-cost dilithium-factory-dilithium-antimatter-cost
+  {:rate glc/dilithium-factory-production-rate
+   :maximum glc/base-dilithium-maximum
+   :antimatter-cost glc/dilithium-factory-dilithium-antimatter-cost
    :dilithium-cost 0})
 
 (def torpedo-production
-  {:rate weapon-factory-torpedo-production-rate
-   :maximum base-torpedos-maximum
-   :antimatter-cost weapon-factory-torpedo-antimatter-cost
-   :dilithium-cost weapon-factory-torpedo-dilithium-cost})
+  {:rate glc/weapon-factory-torpedo-production-rate
+   :maximum glc/base-torpedos-maximum
+   :antimatter-cost glc/weapon-factory-torpedo-antimatter-cost
+   :dilithium-cost glc/weapon-factory-torpedo-dilithium-cost})
 
 (def kinetic-production
-  {:rate weapon-factory-kinetic-production-rate
-   :maximum base-kinetics-maximum
-   :antimatter-cost weapon-factory-kinetic-antimatter-cost
+  {:rate glc/weapon-factory-kinetic-production-rate
+   :maximum glc/base-kinetics-maximum
+   :antimatter-cost glc/weapon-factory-kinetic-antimatter-cost
    :dilithium-cost 0})
 
 (defn- manufacture [base ms commodity production]
@@ -109,7 +110,7 @@
         (update :dilithium - dilithium-decrease))))
 
 (defn- update-base-manufacturing [ms base]
-  (if (>= (:age base) base-maturity-age)
+  (if (>= (:age base) glc/base-maturity-age)
     (condp = (:type base)
       :antimatter-factory (manufacture base ms :antimatter antimatter-production)
       :dilithium-factory (manufacture base ms :dilithium dilithium-production)
@@ -124,7 +125,7 @@
 
 (defn update-transport-readiness-for [ms base]
   (let [readiness (:transport-readiness base)
-        deficit (- transport-ready readiness)
+        deficit (- glc/transport-ready readiness)
         adjustment (min deficit ms)]
     (update base :transport-readiness + adjustment)))
 
@@ -132,39 +133,39 @@
   (map #(update-transport-readiness-for ms %) bases))
 
 (defn- transportable-target? [source-base target-base]
-  (let [dist (distance [(:x source-base) (:y source-base)]
-                       [(:x target-base) (:y target-base)])]
-    (and (< dist transport-range) (> dist 0))))
+  (let [dist (geo/distance (util/pos source-base)
+                           (util/pos target-base))]
+    (and (< dist glc/transport-range) (> dist 0))))
 
 (defn find-transport-targets-for [base bases]
   (filter #(transportable-target? base %) bases))
 
 (defn transport-ready? [base]
-  (= (:transport-readiness base) transport-ready))
+  (= (:transport-readiness base) glc/transport-ready))
 
 (defn- sufficient-antimatter [type]
   (condp = type
-    :antimatter-factory antimatter-factory-sufficient-antimatter
-    :dilithium-factory dilithium-factory-sufficient-antimatter
-    :weapon-factory weapon-factory-sufficient-antimatter))
+    :antimatter-factory glc/antimatter-factory-sufficient-antimatter
+    :dilithium-factory glc/dilithium-factory-sufficient-antimatter
+    :weapon-factory glc/weapon-factory-sufficient-antimatter))
 
 (defn- antimatter-reserve [type]
   (condp = type
-    :antimatter-factory antimatter-factory-antimatter-reserve
-    :dilithium-factory dilithium-factory-antimatter-reserve
-    :weapon-factory weapon-factory-antimatter-reserve))
+    :antimatter-factory glc/antimatter-factory-antimatter-reserve
+    :dilithium-factory glc/dilithium-factory-antimatter-reserve
+    :weapon-factory glc/weapon-factory-antimatter-reserve))
 
 (defn- sufficient-dilithium [type]
   (condp = type
-    :antimatter-factory antimatter-factory-sufficient-dilithium
-    :dilithium-factory dilithium-factory-sufficient-dilithium
-    :weapon-factory weapon-factory-sufficient-dilithium))
+    :antimatter-factory glc/antimatter-factory-sufficient-dilithium
+    :dilithium-factory glc/dilithium-factory-sufficient-dilithium
+    :weapon-factory glc/weapon-factory-sufficient-dilithium))
 
 (defn- dilithium-reserve [type]
   (condp = type
-    :antimatter-factory antimatter-factory-dilithium-reserve
-    :dilithium-factory dilithium-factory-dilithium-reserve
-    :weapon-factory weapon-factory-dilithium-reserve))
+    :antimatter-factory glc/antimatter-factory-dilithium-reserve
+    :dilithium-factory glc/dilithium-factory-dilithium-reserve
+    :weapon-factory glc/weapon-factory-dilithium-reserve))
 
 (defn- get-promised-commodity [commodity dest transports]
   (let [transports (filter #(= commodity (:commodity %)) transports)
@@ -179,7 +180,7 @@
         promised-antimatter (get-promised-commodity :antimatter dest transports)]
     (and
       (<= (+ promised-antimatter dest-antimatter) (sufficient-antimatter dest-type))
-      (>= source-antimatter (+ antimatter-cargo-size (antimatter-reserve source-type))))))
+      (>= source-antimatter (+ glc/antimatter-cargo-size (antimatter-reserve source-type))))))
 
 (defn should-transport-dilithium? [source dest transports]
   (let [source-type (:type source)
@@ -189,15 +190,15 @@
         promised-dilithium (get-promised-commodity :dilithium dest transports)]
     (and
       (< (+ promised-dilithium dest-dilithium) (sufficient-dilithium dest-type))
-      (>= source-dilithium (+ dilithium-cargo-size (dilithium-reserve source-type))))))
+      (>= source-dilithium (+ glc/dilithium-cargo-size (dilithium-reserve source-type))))))
 
 (defn- cargo-size [commodity]
   (condp = commodity
-    :dilithium dilithium-cargo-size
-    :antimatter antimatter-cargo-size))
+    :dilithium glc/dilithium-cargo-size
+    :antimatter glc/antimatter-cargo-size))
 
 (defn random-transport-velocity-magnitude []
-  (* transport-velocity (+ 0.8 (rand 0.2))))
+  (* glc/transport-velocity (+ 0.8 (rand 0.2))))
 
 (defn- launch-transport [commodity source dest]
   (let [dest-pos [(:x dest) (:y dest)]
@@ -206,8 +207,8 @@
                    :destination dest-pos
                    :commodity commodity
                    :amount (cargo-size commodity)}
-        angle (angle-degrees [(:x source) (:y source)] dest-pos)
-        radians (->radians angle)
+        angle (geo/angle-degrees (util/pos source) dest-pos)
+        radians (geo/->radians angle)
         v-magnitude (random-transport-velocity-magnitude)
         velocity (vector/from-angular v-magnitude radians)
         transport (assoc transport :velocity velocity)]
@@ -217,9 +218,8 @@
   (let [should-antimatter? (should-transport-antimatter? source dest transports)
         should-dilithium? (should-transport-dilithium? source dest transports)
         source-ready? (transport-ready? source)
-        dist (distance [(:x source) (:y source)]
-                       [(:x dest) (:y dest)])
-        in-range? (<= dist transport-range)
+        dist (geo/distance (util/pos source) (util/pos dest))
+        in-range? (<= dist glc/transport-range)
         new-transports []
         new-transports (if (and in-range? source-ready? should-antimatter?)
                          (conj new-transports (launch-transport :antimatter source dest))
@@ -248,8 +248,7 @@
             (recur (rest bases) transports (conj deducted-bases base))))))))
 
 (defn- distance-to-dest [base]
-  (distance [(:x base) (:y base)]
-            (:destination base)))
+  (geo/distance (util/pos base) (:destination base)))
 
 (defn- select-best-transports [transports bases]
   (loop [bases bases candidates transports selected []]
@@ -263,7 +262,10 @@
             (recur (rest bases) candidates (conj selected nearest))))))))
 
 (defn- blockaded-transport? [transport klingons]
-  (let [blockading-klingons (filter #(< (distance (pos transport) (pos %)) ship-docking-distance) klingons)
+  (let [blockading-klingons (filter #(< (geo/distance (util/pos transport)
+                                                      (util/pos %))
+                                        glc/ship-docking-distance)
+                                    klingons)
         blockaded? (not (empty? blockading-klingons))]
     blockaded?))
 
@@ -285,8 +287,8 @@
 
 (defn check-new-transport-time [world]
   (let [{:keys [update-time transport-check-time]} world
-        check-time? (>= update-time (+ transport-check-time transport-check-period))
-        world (if check-time? (update world :transport-check-time + transport-check-period)
+        check-time? (>= update-time (+ transport-check-time glc/transport-check-period))
+        world (if check-time? (update world :transport-check-time + glc/transport-check-period)
                               world)
         world (if check-time? (check-new-transports world)
                               world)]
@@ -305,13 +307,12 @@
     (assoc world :transports transports)))
 
 (defn- delivering? [transport]
-  (<= (distance [(:x transport) (:y transport)]
+  (<= (geo/distance (util/pos transport)
                 (:destination transport))
-      transport-delivery-range))
+      glc/transport-delivery-range))
 
 (defn- transport-going-to [base transport]
-  (= (:destination transport)
-     [(:x base) (:y base)]))
+  (= (:destination transport) (util/pos base)))
 
 (defn- accepting-delivery? [transports base]
   (let [delivery-transports (filter #(transport-going-to base %) transports)]
@@ -326,13 +327,13 @@
         grouped-bases (group-by #(accepting-delivery? delivering %) bases)
         accepting (grouped-bases true)
         waiting (grouped-bases false)]
-        (loop [accepting accepting delivering delivering adjusted-bases []]
-          (if (empty? accepting)
-            (assoc world :transports in-transit :bases (concat waiting adjusted-bases))
-            (let [base (first accepting)
-                  transport (first (filter #(transport-going-to base %) delivering))
-                  base (update base (:commodity transport) + (:amount transport))]
-              (recur (rest accepting) delivering (conj adjusted-bases base)))))))
+    (loop [accepting accepting delivering delivering adjusted-bases []]
+      (if (empty? accepting)
+        (assoc world :transports in-transit :bases (concat waiting adjusted-bases))
+        (let [base (first accepting)
+              transport (first (filter #(transport-going-to base %) delivering))
+              base (update base (:commodity transport) + (:amount transport))]
+          (recur (rest accepting) delivering (conj adjusted-bases base)))))))
 
 (defn update-bases [ms world]
   (let [bases (:bases world)

@@ -28,7 +28,7 @@
 (def max-shots-by-type {:none 0 :phaser 10 :torpedo 5 :kinetic 20})
 
 (def phaser-range 50000)
-(def phaser-velocity 20) ;per ms
+(def phaser-velocity 40) ;per ms
 (def phaser-proximity 1000)
 (def phaser-damage 300)
 (def phaser-power 500)
