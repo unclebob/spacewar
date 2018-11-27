@@ -1,7 +1,7 @@
 (ns spacewar.game-logic.clouds
   (:require [clojure.spec.alpha :as s]
-            [spacewar.geometry :refer :all]
-            [spacewar.game-logic.config :refer :all]))
+            [spacewar.geometry :as geo]
+            [spacewar.game-logic.config :as glc]))
 
 (s/def ::x number?)
 (s/def ::y number?)
@@ -27,9 +27,9 @@
 (defn harvest-dilithium [ms ship cloud]
   (let [ship-pos [(:x ship) (:y ship)]
         cloud-pos [(:x cloud) (:y cloud)]]
-    (if (< (distance ship-pos cloud-pos) dilithium-harvest-range)
-      (let [max-harvest (* ms dilithium-harvest-rate)
-            need (- ship-dilithium (:dilithium ship))
+    (if (< (geo/distance ship-pos cloud-pos) glc/dilithium-harvest-range)
+      (let [max-harvest (* ms glc/dilithium-harvest-rate)
+            need (- glc/ship-dilithium (:dilithium ship))
             cloud-content (:concentration cloud)
             harvest (min max-harvest cloud-content need)
             ship (update ship :dilithium + harvest)
@@ -47,7 +47,7 @@
 
 (defn update-clouds-age [ms world]
   (let [clouds (:clouds world)
-        decay (Math/pow cloud-decay-rate ms)
+        decay (Math/pow glc/cloud-decay-rate ms)
         clouds (map #(update % :concentration * decay) clouds)
         clouds (filter #(> (:concentration %) 1) clouds)
         clouds (doall clouds)]
