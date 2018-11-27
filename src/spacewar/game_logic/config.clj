@@ -4,11 +4,11 @@
 
 (def spectral-classes [:o :b :a :f :g :k :m])
 (def drag-factor 0.005)
-(def rotation-rate 0.01) ; degrees per millisecond.
-(def impulse-thrust 0.0001) ; per millisecond per power.
+(def rotation-rate 0.01)                                    ; degrees per millisecond.
+(def impulse-thrust 0.0001)                                 ; per millisecond per power.
 (def impulse-power 0.01)
 (def warp-power 0.01)
-(def warp-leap 10000) ;spacial coordinates.
+(def warp-leap 10000)                                       ;spacial coordinates.
 (def warp-charge-rate 1)
 (def warp-threshold 2000)
 (def ship-shields 1000)
@@ -28,7 +28,7 @@
 (def max-shots-by-type {:none 0 :phaser 10 :torpedo 5 :kinetic 20})
 
 (def phaser-range 50000)
-(def phaser-velocity 40) ;per ms
+(def phaser-velocity 40)                                    ;per ms
 (def phaser-proximity 1000)
 (def phaser-damage 300)
 (def phaser-power 500)
@@ -62,8 +62,15 @@
 (def klingon-battle-state-transition-age 20000)
 (def klingon-battle-states [:advancing
                             :retreating
-                            :flank-left :flank-left :flank-left
-                            :flank-right :flank-right :flank-right])
+                            :flank-left
+                            :flank-right])
+
+(def klingon-evasion-trajectories {:flank-left 90
+                                   :flank-right 270
+                                   :advancing 30
+                                   :retreating 210
+                                   :no-battle 0})
+
 (def klingon-antimatter-runaway-threshold (* 0.1 klingon-antimatter))
 (def klingon-thrust 0.002)
 (def klingon-drag 0.999)
@@ -114,7 +121,7 @@
 (def transport-velocity 10)
 (def transport-delivery-range 2000)
 
-(def base-maturity-age 60000);60000
+(def base-maturity-age 60000)                               ;60000
 (def base-deployment-antimatter 30000)
 (def base-deployment-dilithium 300)
 (def base-antimatter-maximum (* 1.5 ship-antimatter))
@@ -122,13 +129,13 @@
 (def base-kinetics-maximum (* 1.5 ship-kinetics))
 (def base-torpedos-maximum (* 1.5 ship-torpedos))
 
-(def antimatter-factory-production-rate 0.1);0.1
+(def antimatter-factory-production-rate 0.1)                ;0.1
 (def antimatter-factory-sufficient-antimatter antimatter-cargo-size)
 (def antimatter-factory-antimatter-reserve 0)
 (def antimatter-factory-sufficient-dilithium dilithium-cargo-size)
 (def antimatter-factory-dilithium-reserve 0)
 
-(def dilithium-factory-production-rate 0.001);0.001
+(def dilithium-factory-production-rate 0.001)               ;0.001
 (def dilithium-factory-dilithium-antimatter-cost 100)
 (def dilithium-factory-sufficient-antimatter antimatter-cargo-size)
 (def dilithium-factory-antimatter-reserve (* dilithium-factory-dilithium-antimatter-cost

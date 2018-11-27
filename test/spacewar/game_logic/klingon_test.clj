@@ -6,7 +6,8 @@
             [clojure.spec.alpha :as s]
             [spacewar.game-logic.shots :as shots]
             [spacewar.game-logic.bases :as bases]
-            [spacewar.vector-test :as vt]))
+            [spacewar.vector-test :as vt]
+            [spacewar.geometry :as geo]))
 
 (let [klingon (assoc (mom/make-klingon) :shields klingon-shields
                                         :antimatter 1000)
@@ -247,56 +248,24 @@
               (klingon :weapon-charge) => klingon-kinetic-threshold
               (klingon :kinetics) => 0))))))
 
-  (fact
-    "klingon in :advancing state thrusts towards ship"
-    (let [ship (mom/set-pos ship [0 0])
-          klingon (mom/set-pos klingon [(dec klingon-tactical-range) 0])
-          klingon (assoc klingon :antimatter klingon-antimatter :battle-state :advancing)
-          world (assoc world :ship ship :klingons [klingon])
-          new-world (k/update-klingon-motion 2 world)
-          new-klingon (->> new-world :klingons first)
-          thrust (:thrust new-klingon)]
-      (first thrust) => (roughly (* -1 klingon-thrust) 1e-5)
-      (second thrust) => (roughly 0 1e-10))
-    )
-
-  (fact
-    "klingon in :flank-left state thrusts left orthogonal to ship"
-    (let [ship (mom/set-pos ship [0 0])
-          klingon (mom/set-pos klingon [(dec klingon-evasion-limit) 0])
-          klingon (assoc klingon :battle-state :flank-left)
-          world (assoc world :ship ship :klingons [klingon])
-          new-world (k/update-klingon-motion 2 world)
-          new-klingon (->> new-world :klingons first)
-          thrust (:thrust new-klingon)]
-      (second thrust) => (roughly (* -1 klingon-thrust) 1e-5)
-      (first thrust) => (roughly 0 1e-10))
-    )
-
-  (fact
-    "klingon in :flank-right state thrusts right orthogonal to ship"
-    (let [ship (mom/set-pos ship [0 0])
-          klingon (mom/set-pos klingon [(dec klingon-evasion-limit) 0])
-          klingon (assoc klingon :battle-state :flank-right)
-          world (assoc world :ship ship :klingons [klingon])
-          new-world (k/update-klingon-motion 2 world)
-          new-klingon (->> new-world :klingons first)
-          thrust (:thrust new-klingon)]
-      (second thrust) => (roughly klingon-thrust 1e-5)
-      (first thrust) => (roughly 0 1e-10))
-    )
-
-  (fact
-    "klingon in :retreating state thrusts away from ship"
-    (let [ship (mom/set-pos ship [0 0])
-          klingon (mom/set-pos klingon [(dec klingon-tactical-range) 0])
-          klingon (assoc klingon :battle-state :retreating)
-          world (assoc world :ship ship :klingons [klingon])
-          new-world (k/update-klingon-motion 2 world)
-          new-klingon (->> new-world :klingons first)
-          thrust (:thrust new-klingon)]
-      (first thrust) => (roughly (* klingon-thrust) 1e-5)
-      (second thrust) => (roughly 0 1e-10))
+  (tabular
+    (fact
+      "klingon in a battle state thrusts appropriately relative to ship"
+      (let [ship-pos [0 0]
+            ship (mom/set-pos ship ship-pos)
+            klingon (mom/set-pos klingon [(dec klingon-tactical-range) 0])
+            klingon (assoc klingon :antimatter klingon-antimatter :battle-state ?battle-state)
+            world (assoc world :ship ship :klingons [klingon])
+            new-world (k/update-klingon-motion 2 world)
+            new-klingon (->> new-world :klingons first)
+            thrust (:thrust new-klingon)
+            thrust-angle (geo/angle-degrees thrust ship-pos)]
+        thrust-angle => (roughly (klingon-evasion-trajectories ?battle-state) 1e-5)))
+    ?battle-state
+    :advancing
+    :retreating
+    :flank-right
+    :flank-left
     )
 
   (fact

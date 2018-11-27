@@ -268,13 +268,7 @@
         degrees (if (= ship-pos klingon-pos)
                   0
                   (angle-degrees klingon-pos ship-pos))
-        degrees (+ degrees
-                   (condp = battle-state
-                     :flank-left 90
-                     :flank-right -90
-                     :advancing 10
-                     :retreating 190
-                     :no-battle 0))
+        degrees (+ degrees (battle-state klingon-evasion-trajectories))
         radians (->radians degrees)
         efficiency (/ (:shields klingon) klingon-shields)
         effective-thrust (min (klingon :antimatter)
