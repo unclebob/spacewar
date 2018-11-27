@@ -1,9 +1,6 @@
 (ns spacewar.game-logic.explosions
   (:require
-    [spacewar.geometry :refer :all]
-    [spacewar.game-logic.config :refer :all]
-    [spacewar.ui.config :refer :all]
-    [spacewar.util :refer :all]
+    [spacewar.ui.config :as uic]
     [clojure.spec.alpha :as s]))
 
 (s/def ::x number?)
@@ -27,7 +24,7 @@
 
 (defn- active-explosion [explosion]
   (let [{:keys [age type]} explosion
-        profile (type explosion-profiles)
+        profile (type uic/explosion-profiles)
         duration (:duration profile)]
     (> duration age)))
 
@@ -39,7 +36,7 @@
 
 (defn ->explosion [explosion-type {:keys [x y] :as object}]
   (let [
-        profile (explosion-type explosion-profiles)]
+        profile (explosion-type uic/explosion-profiles)]
     {:x x :y y
      :age 0 :type explosion-type
      :fragments (make-fragments (:fragments profile) object (:fragment-velocity profile))})
