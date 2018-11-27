@@ -1,11 +1,11 @@
 (ns spacewar.game-logic.klingons
   (:require [clojure.spec.alpha :as s]
-            [spacewar.util :refer :all]
-            [spacewar.game-logic.config :refer :all]
+            [spacewar.util :as util]
+            [spacewar.game-logic.config :as glc]
             [spacewar.game-logic.explosions :as explosions]
             [spacewar.game-logic.shots :as shots]
             [spacewar.game-logic.hit :as hit]
-            [spacewar.geometry :refer :all]
+            [spacewar.geometry :as geo]
             [quil.core :as q]
             [spacewar.vector :as vector]
             [spacewar.game-logic.clouds :as clouds]))
@@ -30,12 +30,12 @@
 (s/def ::klingons (s/coll-of ::klingon))
 
 (defn make-random-klingon []
-  {:x (int (rand known-space-x))
-   :y (int (rand known-space-y))
-   :shields klingon-shields
-   :antimatter (rand klingon-antimatter)
-   :kinetics (rand klingon-kinetics)
-   :torpedos (rand klingon-torpedos)
+  {:x (int (rand glc/known-space-x))
+   :y (int (rand glc/known-space-y))
+   :shields glc/klingon-shields
+   :antimatter (rand glc/klingon-antimatter)
+   :kinetics (rand glc/klingon-kinetics)
+   :torpedos (rand glc/klingon-torpedos)
    :weapon-charge 0
    :velocity [(- 2 (rand 4)) (- 2 (rand 4))]
    :thrust [0 0]
@@ -45,10 +45,10 @@
 (defn make-klingon [x y]
   {:x x
    :y y
-   :shields klingon-shields
-   :antimatter klingon-antimatter
-   :kinetics klingon-kinetics
-   :torpedos klingon-torpedos
+   :shields glc/klingon-shields
+   :antimatter glc/klingon-antimatter
+   :kinetics glc/klingon-kinetics
+   :torpedos glc/klingon-torpedos
    :weapon-charge 0
    :velocity [0 0]
    :thrust [0 0]
@@ -56,12 +56,12 @@
    :battle-state :no-battle})
 
 (defn initialize []
-  (repeatedly number-of-klingons make-random-klingon))
+  (repeatedly glc/number-of-klingons make-random-klingon))
 
 (defn damage-by-phasers [hit]
   (let [ranges (:damage hit)]
     (reduce +
-            (map #(* phaser-damage (- 1 (/ % phaser-range)))
+            (map #(* glc/phaser-damage (- 1 (/ % glc/phaser-range)))
                  ranges))))
 
 (defn- hit-damage [hit]
@@ -75,7 +75,7 @@
         klingon (dissoc klingon :hit)
         shields (if (some? hit) (- shields (hit-damage hit)) shields)
         battle-state-age (if (some? hit)
-                           (inc klingon-battle-state-transition-age)
+                           (inc glc/klingon-battle-state-transition-age)
                            battle-state-age)]
     (assoc klingon :shields shields :battle-state-age battle-state-age)))
 
@@ -86,12 +86,12 @@
 
 (defn recharge-shield [ms klingon]
   (let [{:keys [antimatter shields]} klingon
-        shield-deficit (- klingon-shields shields)
-        max-charge (* ms klingon-shield-recharge-rate)
+        shield-deficit (- glc/klingon-shields shields)
+        max-charge (* ms glc/klingon-shield-recharge-rate)
         real-charge (min shield-deficit
                          max-charge
-                         (/ antimatter klingon-shield-recharge-cost))
-        antimatter (- antimatter (* klingon-shield-recharge-cost real-charge))
+                         (/ antimatter glc/klingon-shield-recharge-cost))
+        antimatter (- antimatter (* glc/klingon-shield-recharge-cost real-charge))
         shields (+ shields real-charge)]
     (assoc klingon :antimatter antimatter
                    :shields shields)))
@@ -100,7 +100,7 @@
   (map #(recharge-shield ms %) klingons))
 
 (defn- klingon-debris-cloud [klingon]
-  (clouds/make-cloud (:x klingon) (:y klingon) (* (rand 1) klingon-debris)))
+  (clouds/make-cloud (:x klingon) (:y klingon) (* (rand 1) glc/klingon-debris)))
 
 (defn- klingon-debris-clouds [dead-klingons]
   (map klingon-debris-cloud dead-klingons))
@@ -117,10 +117,10 @@
 
 (defn- charge-weapons [ms klingons ship]
   (for [klingon klingons]
-    (if (> klingon-kinetic-firing-distance
-           (distance [(:x ship) (:y ship)]
+    (if (> glc/klingon-kinetic-firing-distance
+           (geo/distance [(:x ship) (:y ship)]
                      [(:x klingon) (:y klingon)]))
-      (let [efficiency (/ (:shields klingon) klingon-shields)
+      (let [efficiency (/ (:shields klingon) glc/klingon-shields)
             charge-increment (* ms efficiency)]
         (update klingon :weapon-charge + charge-increment))
       klingon)))
@@ -152,24 +152,24 @@
         vjy (* aby vjmag)
         vx (+ vjx vix)
         vy (+ vjy viy)]
-    (angle-degrees [0 0]
+    (geo/angle-degrees [0 0]
                    [vx vy])))
 
 (defn- ready-to-fire-kinetic? [klingon]
   (and
-    (> (klingon :antimatter) klingon-kinetic-power)
+    (> (klingon :antimatter) glc/klingon-kinetic-power)
     (> (:kinetics klingon) 0)
-    (<= klingon-kinetic-threshold
+    (<= glc/klingon-kinetic-threshold
         (:weapon-charge klingon))))
 
 (defn- ready-to-fire-phaser? [klingon ship]
   (let [ship-pos [(:x ship) (:y ship)]
         klingon-pos [(:x klingon) (:y klingon)]
-        dist (distance ship-pos klingon-pos)]
+        dist (geo/distance ship-pos klingon-pos)]
     (and
-      (< dist klingon-phaser-firing-distance)
-      (> (:antimatter klingon) klingon-phaser-power)
-      (<= klingon-phaser-threshold
+      (< dist glc/klingon-phaser-firing-distance)
+      (> (:antimatter klingon) glc/klingon-phaser-power)
+      (<= glc/klingon-phaser-threshold
           (:weapon-charge klingon)))))
 
 (defn- turning? [ship]
@@ -181,32 +181,32 @@
 (defn- ready-to-fire-torpedo? [klingon ship]
   (let [ship-pos [(:x ship) (:y ship)]
         klingon-pos [(:x klingon) (:y klingon)]
-        dist (distance ship-pos klingon-pos)]
+        dist (geo/distance ship-pos klingon-pos)]
     (and
       (not (turning? ship))
       (> (:torpedos klingon) 0)
-      (< dist klingon-torpedo-firing-distance)
-      (> (:antimatter klingon) klingon-torpedo-power)
-      (<= klingon-torpedo-threshold
+      (< dist glc/klingon-torpedo-firing-distance)
+      (> (:antimatter klingon) glc/klingon-torpedo-power)
+      (<= glc/klingon-torpedo-threshold
           (:weapon-charge klingon)))))
 
 (defn- weapon-velocity [weapon]
   (condp = weapon
-    :klingon-kinetic klingon-kinetic-velocity
-    :klingon-phaser klingon-phaser-velocity
-    :klingon-torpedo klingon-torpedo-velocity))
+    :klingon-kinetic glc/klingon-kinetic-velocity
+    :klingon-phaser glc/klingon-phaser-velocity
+    :klingon-torpedo glc/klingon-torpedo-velocity))
 
 (defn- weapon-threshold [weapon]
   (condp = weapon
-    :klingon-kinetic klingon-kinetic-threshold
-    :klingon-phaser klingon-phaser-threshold
-    :klingon-torpedo klingon-torpedo-threshold))
+    :klingon-kinetic glc/klingon-kinetic-threshold
+    :klingon-phaser glc/klingon-phaser-threshold
+    :klingon-torpedo glc/klingon-torpedo-threshold))
 
 (defn- weapon-power [weapon]
   (condp = weapon
-    :klingon-kinetic klingon-kinetic-power
-    :klingon-phaser klingon-phaser-power
-    :klingon-torpedo klingon-torpedo-power))
+    :klingon-kinetic glc/klingon-kinetic-power
+    :klingon-phaser glc/klingon-phaser-power
+    :klingon-torpedo glc/klingon-torpedo-power))
 
 (defn- weapon-inventory [weapon]
   (condp = weapon
@@ -262,19 +262,19 @@
 
 (defn- thrust-if-battle [ship klingon]
   (let [battle-state (:battle-state klingon)
-        ship-pos (pos ship)
-        klingon-pos (pos klingon)
-        dist (distance ship-pos klingon-pos)
+        ship-pos (util/pos ship)
+        klingon-pos (util/pos klingon)
+        dist (geo/distance ship-pos klingon-pos)
         degrees (if (= ship-pos klingon-pos)
                   0
-                  (angle-degrees klingon-pos ship-pos))
-        degrees (+ degrees (battle-state klingon-evasion-trajectories))
-        radians (->radians degrees)
-        efficiency (/ (:shields klingon) klingon-shields)
+                  (geo/angle-degrees klingon-pos ship-pos))
+        degrees (+ degrees (battle-state glc/klingon-evasion-trajectories))
+        radians (geo/->radians degrees)
+        efficiency (/ (:shields klingon) glc/klingon-shields)
         effective-thrust (min (klingon :antimatter)
-                              (* klingon-thrust efficiency))
+                              (* glc/klingon-thrust efficiency))
         thrust (vector/from-angular effective-thrust radians)]
-    (if (< klingon-tactical-range dist)
+    (if (< glc/klingon-tactical-range dist)
       klingon
       (assoc klingon :thrust thrust))))
 
@@ -292,7 +292,7 @@
   )
 
 (defn calc-drag [ms]
-  (Math/pow klingon-drag ms))
+  (Math/pow glc/klingon-drag ms))
 
 (defn- drag-klingon [ms klingon]
   (let [drag-factor (calc-drag ms)]
@@ -310,10 +310,10 @@
   (if (= (:battle-state klingon) :no-battle)
     (let [distance-map (apply hash-map
                               (flatten
-                                (map #(list (distance (pos klingon) (pos %)) %) bases)))
+                                (map #(list (geo/distance (util/pos klingon) (util/pos %)) %) bases)))
           nearest-base (distance-map (apply min (keys distance-map)))
-          angle-to-base (angle-degrees (pos klingon) (pos nearest-base))
-          thrust (vector/from-angular klingon-thrust (->radians angle-to-base))]
+          angle-to-base (geo/angle-degrees (util/pos klingon) (util/pos nearest-base))
+          thrust (vector/from-angular glc/klingon-thrust (geo/->radians angle-to-base))]
       (assoc klingon :thrust thrust))
     klingon))
 
@@ -327,12 +327,12 @@
 (defn- find-thefts [klingons bases]
   (for [klingon klingons
         base bases
-        :when (< (distance (pos klingon) (pos base))
-                 ship-docking-distance)]
+        :when (< (geo/distance (util/pos klingon) (util/pos base))
+                 glc/ship-docking-distance)]
     [klingon base]))
 
 (defn- steal-antimatter [[thief victim]]
-  (let [amount-needed (- klingon-antimatter (:antimatter thief))
+  (let [amount-needed (- glc/klingon-antimatter (:antimatter thief))
         amount-available (:antimatter victim)
         amount-stolen (min amount-needed amount-available)
         thief (update thief :antimatter + amount-stolen)
@@ -354,28 +354,28 @@
     (assoc world :klingons klingons :bases bases)))
 
 (defn random-battle-state []
-  (let [selected-index (rand-int (count klingon-battle-states))]
-    (nth klingon-battle-states selected-index)))
+  (let [selected-index (rand-int (count glc/klingon-battle-states))]
+    (nth glc/klingon-battle-states selected-index)))
 
 (defn change-expired-battle-state [klingon]
   (let [{:keys [battle-state-age battle-state]} klingon]
-    (if (>= battle-state-age klingon-battle-state-transition-age)
+    (if (>= battle-state-age glc/klingon-battle-state-transition-age)
       (random-battle-state)
       battle-state)))
 
 (defn- update-klingon-state [ms ship klingon]
   (let [{:keys [antimatter battle-state-age]} klingon
-        dist (distance (pos klingon) (pos ship))
+        dist (geo/distance (util/pos klingon) (util/pos ship))
         new-battle-state (condp <= dist
-                           klingon-tactical-range :no-battle
-                           klingon-evasion-limit :advancing
+                           glc/klingon-tactical-range :no-battle
+                           glc/klingon-evasion-limit :advancing
                            (change-expired-battle-state klingon))
         new-battle-state (if (and
-                               (<= antimatter klingon-antimatter-runaway-threshold)
-                               (<= dist klingon-tactical-range))
+                               (<= antimatter glc/klingon-antimatter-runaway-threshold)
+                               (<= dist glc/klingon-tactical-range))
                            :retreating
                            new-battle-state)
-        age (if (>= battle-state-age klingon-battle-state-transition-age)
+        age (if (>= battle-state-age glc/klingon-battle-state-transition-age)
               0
               (+ battle-state-age ms))]
     (assoc klingon :battle-state new-battle-state
