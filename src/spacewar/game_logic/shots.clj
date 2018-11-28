@@ -1,11 +1,10 @@
 (ns spacewar.game-logic.shots
   (:require
-    [spacewar.geometry :refer :all]
+    [spacewar.geometry :as geo]
     [spacewar.vector :as vector]
-    [spacewar.game-logic.config :refer :all]
-    [spacewar.game-logic.ship :as the_ship]
-    [spacewar.ui.config :refer :all]
-    [spacewar.util :refer :all]
+    [spacewar.game-logic.config :as glc]
+    [spacewar.game-logic.ship :as ship]
+    [spacewar.util :as util :refer [handle-event]]
     [clojure.set :as set]
     [spacewar.game-logic.explosions :as explosions]
     [clojure.spec.alpha :as s]
@@ -45,9 +44,9 @@
 
 (defn- power-required [weapon]
   (condp = weapon
-    :phaser phaser-power
-    :torpedo torpedo-power
-    :kinetic kinetic-power))
+    :phaser glc/phaser-power
+    :torpedo glc/torpedo-power
+    :kinetic glc/kinetic-power))
 
 (defn- decrement-inventory [ship]
   (let [{:keys [weapon-number-setting
@@ -128,7 +127,7 @@
         ship (if can-shoot?
                (->> ship
                     (decrement-inventory)
-                    (the_ship/heat-core required-power))
+                    (ship/heat-core required-power))
                ship)
         shots (map #(assoc % :type selected-weapon) shots)
         shots (corrupt-shots-by-damage (:weapons-damage ship) shots)
@@ -145,7 +144,7 @@
 
 (defn update-shot [shot distance range-limit]
   (let [{:keys [x y bearing range]} shot
-        radians (->radians bearing)
+        radians (geo/->radians bearing)
         delta (vector/from-angular distance radians)
         [sx sy] (vector/add [x y] delta)
         range (+ range distance)]
@@ -154,26 +153,26 @@
       (assoc shot :x sx :y sy :range range))))
 
 (def shot-velocity
-  {:phaser phaser-velocity
-   :torpedo torpedo-velocity
-   :kinetic kinetic-velocity
-   :klingon-kinetic klingon-kinetic-velocity
-   :klingon-phaser klingon-phaser-velocity
-   :klingon-torpedo klingon-torpedo-velocity
-   :romulan-blast romulan-blast-velocity})
+  {:phaser glc/phaser-velocity
+   :torpedo glc/torpedo-velocity
+   :kinetic glc/kinetic-velocity
+   :klingon-kinetic glc/klingon-kinetic-velocity
+   :klingon-phaser glc/klingon-phaser-velocity
+   :klingon-torpedo glc/klingon-torpedo-velocity
+   :romulan-blast glc/romulan-blast-velocity})
 
 (defn- shot-distance [ms shot]
   (* ms ((:type shot) shot-velocity)))
 
 (defn- shot-range-limit [shot]
   (condp = (:type shot)
-    :kinetic kinetic-range
-    :torpedo torpedo-range
-    :phaser phaser-range
-    :klingon-kinetic klingon-kinetic-range
-    :klingon-phaser klingon-phaser-range
-    :klingon-torpedo klingon-torpedo-range
-    :romulan-blast romulan-blast-range))
+    :kinetic glc/kinetic-range
+    :torpedo glc/torpedo-range
+    :phaser glc/phaser-range
+    :klingon-kinetic glc/klingon-kinetic-range
+    :klingon-phaser glc/klingon-phaser-range
+    :klingon-torpedo glc/klingon-torpedo-range
+    :romulan-blast glc/romulan-blast-range))
 
 
 (defn update-shot-positions [ms world]
@@ -185,9 +184,9 @@
          (assoc world :shots))))
 
 (def hit-proximity
-  {:phaser phaser-proximity
-   :torpedo torpedo-proximity
-   :kinetic kinetic-proximity
+  {:phaser glc/phaser-proximity
+   :torpedo glc/torpedo-proximity
+   :kinetic glc/kinetic-proximity
    })
 
 (defn shot-proximity [shot]
@@ -196,7 +195,7 @@
 
 (defn- hit-by-kinetic [hit-pairs target]
   (let [hit-shots (map :shot (filter #(= target (:target %)) hit-pairs))]
-    (assoc target :hit {:weapon :kinetic :damage (* kinetic-damage (count hit-shots))}))
+    (assoc target :hit {:weapon :kinetic :damage (* glc/kinetic-damage (count hit-shots))}))
   )
 
 (defn- hit-by-phaser [hit-pairs target]
@@ -207,7 +206,7 @@
 
 (defn- hit-by-torpedo [hit-pairs target]
   (let [hit-shots (map :shot (filter #(= target (:target %)) hit-pairs))]
-    (assoc target :hit {:weapon :torpedo :damage (* torpedo-damage (count hit-shots))}))
+    (assoc target :hit {:weapon :torpedo :damage (* glc/torpedo-damage (count hit-shots))}))
   )
 
 (def hit-processors
@@ -230,7 +229,7 @@
         pairs (for [t targets s relevant-shots]
                 {:target t
                  :shot s
-                 :distance (distance [(:x s) (:y s)]
+                 :distance (geo/distance [(:x s) (:y s)]
                                      [(:x t) (:y t)])})
         hits (filter #(>= (shot-proximity (:shot %)) (:distance %)) pairs)
         hit-targets (set (map :target hits))
@@ -250,28 +249,28 @@
 
 (defn- foe-weapon-proximity [type]
   (condp = type
-    :klingon-kinetic klingon-kinetic-proximity
-    :klingon-phaser klingon-phaser-proximity
-    :klingon-torpedo klingon-torpedo-proximity
+    :klingon-kinetic glc/klingon-kinetic-proximity
+    :klingon-phaser glc/klingon-phaser-proximity
+    :klingon-torpedo glc/klingon-torpedo-proximity
     :romulan-blast nil))
 
 (defn romulan-blast-damage-by [range]
-  (let [factor (- 1 (/ range romulan-blast-range))]
-    (* factor romulan-blast-damage)))
+  (let [factor (- 1 (/ range glc/romulan-blast-range))]
+    (* factor glc/romulan-blast-damage)))
 
 (defn- ship-hit-damage [shot]
   (condp = (:type shot)
-    :klingon-kinetic klingon-kinetic-damage
-    :klingon-phaser klingon-phaser-damage
-    :klingon-torpedo klingon-torpedo-damage
+    :klingon-kinetic glc/klingon-kinetic-damage
+    :klingon-phaser glc/klingon-phaser-damage
+    :klingon-torpedo glc/klingon-torpedo-damage
     :romulan-blast (romulan-blast-damage-by (:range shot))))
 
 (defn- klingon-blast-hits-ship? [shot ship]
   (let [{:keys [bearing range]} shot
         angle-to-origin (+ bearing 180)
-        radians-to-origin (->radians angle-to-origin)
-        origin (vector/add (pos shot) (vector/from-angular range radians-to-origin))
-        dist-origin-ship (distance origin (pos ship))]
+        radians-to-origin (geo/->radians angle-to-origin)
+        origin (vector/add (util/pos shot) (vector/from-angular range radians-to-origin))
+        dist-origin-ship (geo/distance origin (util/pos ship))]
     (> range dist-origin-ship)))
 
 (defn- hits-ship? [shot ship dist proximity]
@@ -280,18 +279,18 @@
         (<= dist proximity)))
 
 (defn- hit-miss-ship [ship shot]
-  (let [dist (distance [(:x ship) (:y ship)]
+  (let [dist (geo/distance [(:x ship) (:y ship)]
                        [(:x shot) (:y shot)])
         proximity (foe-weapon-proximity (:type shot))]
     (if (hits-ship? shot ship dist proximity) :hit :miss)))
 
 (defn calc-damage [shields damage]
-  (let [shield-threshold (/ ship-shields 2)
+  (let [shield-threshold (/ glc/ship-shields 2)
         damage-absorbed (max 0 (- shields shield-threshold))
         residual-damage (max 0 (- damage damage-absorbed))
         remaining-shields (max 0 (- shields damage))
         avg-shields (/ (+ shields remaining-shields) 2)]
-    (* (- 1 (/ avg-shields ship-shields)) residual-damage)
+    (* (- 1 (/ avg-shields glc/ship-shields)) residual-damage)
     ))
 
 (defn up-to-max-damage [system damage]
