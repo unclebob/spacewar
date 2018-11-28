@@ -1,31 +1,31 @@
 (ns spacewar.ui.control-panels.scan-panel
   (:require [spacewar.ui.protocols :as p]
-            [spacewar.ui.config :refer :all]
-            [spacewar.ui.widgets.button :refer :all]
-            [spacewar.ui.widgets.slider :refer :all]
-            [spacewar.ui.widgets.lcars :refer :all]))
+            [spacewar.ui.config :as uic]
+            [spacewar.ui.widgets.button :refer [->button]]
+            [spacewar.ui.widgets.slider :refer [->slider]]
+            [spacewar.ui.widgets.lcars :as lcars]))
 
 (defn- button-color [selected button]
   (if (= selected button)
-    scan-panel-selection-color
-    scan-panel-button-color))
+    uic/scan-panel-selection-color
+    uic/scan-panel-button-color))
 
 (deftype scan-panel [state]
   p/Drawable
   (draw [_]
-    (draw-banner state)
+    (lcars/draw-banner state)
     (p/draw-elements state))
 
   (setup [_]
     (let [{:keys [x y w h button-color color]} state
           bottom (+ y h)
-          button-w (- w stringer-width 10)
-          strategic-y (+ y banner-width button-gap)
-          tactical-y (+ strategic-y button-h button-gap)
-          front-view-y (+ tactical-y button-h button-gap)
-          strat-scale-slider-x (- (+ x w) stringer-width slider-width button-gap)
-          strat-scale-slider-y (+ front-view-y button-h button-gap)
-          strat-scale-slider-h (- bottom front-view-y button-h button-gap)]
+          button-w (- w uic/stringer-width 10)
+          strategic-y (+ y uic/banner-width uic/button-gap)
+          tactical-y (+ strategic-y uic/button-h uic/button-gap)
+          front-view-y (+ tactical-y uic/button-h uic/button-gap)
+          strat-scale-slider-x (- (+ x w) uic/stringer-width uic/slider-width uic/button-gap)
+          strat-scale-slider-y (+ front-view-y uic/button-h uic/button-gap)
+          strat-scale-slider-h (- bottom front-view-y uic/button-h uic/button-gap)]
       (scan-panel.
         (assoc state
           :strategic (p/setup
@@ -33,7 +33,7 @@
                          {:x x
                           :y strategic-y
                           :w button-w
-                          :h button-h
+                          :h uic/button-h
                           :name "STRAT"
                           :color button-color
                           :left-up-event {:event :strategic-scan}}))
@@ -42,7 +42,7 @@
                         {:x x
                          :y tactical-y
                          :w button-w
-                         :h button-h
+                         :h uic/button-h
                          :name "TACT"
                          :color button-color
                          :left-up-event {:event :tactical-scan}}))
@@ -52,7 +52,7 @@
                           {:x x
                            :y front-view-y
                            :w button-w
-                           :h button-h
+                           :h uic/button-h
                            :name "FRONT"
                            :color button-color
                            :left-up-event {:event :front-view}}))
@@ -60,7 +60,7 @@
                          (->slider
                            {:x strat-scale-slider-x
                             :y strat-scale-slider-y
-                            :w slider-width
+                            :w uic/slider-width
                             :h strat-scale-slider-h
                             :color color
                             :thumb-color button-color
