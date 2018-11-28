@@ -1,8 +1,8 @@
 (ns spacewar.ui.control-panels.deploy-panel
   (:require (spacewar.ui [protocols :as p]
-                         [config :refer :all])
-            [spacewar.ui.widgets.lcars :refer :all]
-            [spacewar.ui.widgets.button :refer :all]
+                         [config :as uic])
+            [spacewar.ui.widgets.lcars :as lcars]
+            [spacewar.ui.widgets.button :refer [->button]]
             [spacewar.game-logic.ship :as ship]))
 
 (deftype deploy-panel [state]
@@ -10,19 +10,19 @@
   (get-state [_] state)
 
   (draw [_]
-    (draw-banner state)
+    (lcars/draw-banner state)
     (p/draw-elements state))
 
   (setup [_]
     (let [{:keys [x y w button-color]} state
-          button-w (- w stringer-width 10)
-          am-x (+ x stringer-width 10)
-          am-y (+ y banner-width button-gap)
+          button-w (- w uic/stringer-width 10)
+          am-x (+ x uic/stringer-width 10)
+          am-y (+ y uic/banner-width uic/button-gap)
           dl-x am-x
-          dl-y (+ am-y button-h button-gap)
+          dl-y (+ am-y uic/button-h uic/button-gap)
           wpn-x am-x
-          wpn-y (+ dl-y button-h button-gap)
-          height (+ banner-width button-gap button-h button-gap button-h button-gap button-h)]
+          wpn-y (+ dl-y uic/button-h uic/button-gap)
+          height (+ uic/banner-width uic/button-gap uic/button-h uic/button-gap uic/button-h uic/button-gap uic/button-h)]
       (deploy-panel.
         (assoc state
           :h height
@@ -32,7 +32,7 @@
                                   {:x am-x
                                    :y am-y
                                    :w button-w
-                                   :h button-h
+                                   :h uic/button-h
                                    :name "AM BASE"
                                    :color button-color
                                    :left-up-event {:event :antimatter-factory}}))
@@ -42,7 +42,7 @@
                                  {:x dl-x
                                   :y dl-y
                                   :w button-w
-                                  :h button-h
+                                  :h uic/button-h
                                   :name "DL BASE"
                                   :color button-color
                                   :left-up-event {:event :dilithium-factory}}))
@@ -52,7 +52,7 @@
                               {:x wpn-x
                                :y wpn-y
                                :w button-w
-                               :h button-h
+                               :h uic/button-h
                                :name "WPN BASE"
                                :color button-color
                                :left-up-event {:event :weapon-factory}}))
