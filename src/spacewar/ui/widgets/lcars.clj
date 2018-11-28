@@ -30,7 +30,7 @@
        :c2 [(+ x w (- stringer-width)) (+ y banner-width)]
        :label-position [(+ x 10) (+ y 10)]})))
 
-(defn draw-lcars [state]
+(defn draw-banner [state]
   (let [color (:color state)
         {:keys [a b c d e f g h c1 c2 label-position]} (lcars-points state)]
     (q/no-stroke)

@@ -10,7 +10,7 @@
   (get-state [_] state)
 
   (draw [_]
-    (draw-lcars state)
+    (draw-banner state)
     (p/draw-elements state))
 
   (setup [_]

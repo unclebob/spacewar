@@ -17,7 +17,7 @@
   p/Drawable
   (draw [_]
     (let [{:keys [bearing-label-x number-label-x spread-label-x label-y]} state]
-      (draw-lcars state)
+      (draw-banner state)
       (p/draw-elements state)
       (apply q/fill black)
       (q/text-align :center :bottom)

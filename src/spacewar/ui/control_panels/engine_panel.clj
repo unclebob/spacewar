@@ -18,7 +18,7 @@
 
   (draw [_]
     (let [{:keys [heading-label-x power-label-x label-y]} state]
-      (draw-lcars state)
+      (draw-banner state)
       (p/draw-elements state)
       (apply q/fill black)
       (q/text-align :center :bottom)
