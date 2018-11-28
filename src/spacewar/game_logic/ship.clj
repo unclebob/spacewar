@@ -1,10 +1,10 @@
 (ns spacewar.game-logic.ship
   (:require
-    [spacewar.geometry :refer :all]
+    [spacewar.geometry :as geo]
     [spacewar.vector :as vector]
-    [spacewar.util :refer :all]
-    [spacewar.game-logic.config :refer :all]
-    [spacewar.game-logic.world :refer :all]
+    [spacewar.util :as util :refer [handle-event]]
+    [spacewar.game-logic.config :as glc]
+    [spacewar.game-logic.world :as world]
     [spacewar.game-logic.bases :as bases]
     [clojure.spec.alpha :as s]))
 
@@ -59,8 +59,8 @@
                                ::destroyed]))
 
 (defn initialize []
-  {:x (int (rand known-space-x))
-   :y (int (rand known-space-y))
+  {:x (int (rand glc/known-space-x))
+   :y (int (rand glc/known-space-y))
    :warp 0
    :warp-charge 0
    :impulse 0
@@ -74,12 +74,12 @@
    :weapon-number-setting 1
    :weapon-spread-setting 1
    :heading-setting 0
-   :antimatter ship-antimatter
+   :antimatter glc/ship-antimatter
    :core-temp 0
-   :dilithium ship-dilithium
-   :shields ship-shields
-   :kinetics ship-kinetics
-   :torpedos ship-torpedos
+   :dilithium glc/ship-dilithium
+   :shields glc/ship-shields
+   :kinetics glc/ship-kinetics
+   :torpedos glc/ship-torpedos
    :life-support-damage 0
    :hull-damage 0
    :sensor-damage 0
@@ -91,13 +91,13 @@
   )
 
 (defn heat-core [antimatter ship]
-  (let [heat (* antimatter antimatter-to-heat)]
+  (let [heat (* antimatter glc/antimatter-to-heat)]
     (update ship :core-temp + heat)))
 
 (defn dissipate-core-heat [ms ship]
   (let [dilithium (:dilithium ship)
-        efficiency (Math/sqrt (/ dilithium ship-dilithium))
-        dissipation-factor (- 1 (* efficiency dilithium-heat-dissipation))]
+        efficiency (Math/sqrt (/ dilithium glc/ship-dilithium))
+        dissipation-factor (- 1 (* efficiency glc/dilithium-heat-dissipation))]
     (update ship :core-temp * (Math/pow dissipation-factor ms))))
 
 (defn drag [[x y :as v]]
@@ -106,18 +106,18 @@
     (let [mag (vector/magnitude v)
           mag-sqr (* mag mag)
           uv (vector/unit v)]
-      (vector/scale (* -1 mag-sqr drag-factor) uv))))
+      (vector/scale (* -1 mag-sqr glc/drag-factor) uv))))
 
 (defn apply-drag [drag velocity]
   (let [new-velocity (vector/add velocity drag)]
-    (if (= (sign (first new-velocity))
-           (sign (first velocity)))
+    (if (= (geo/sign (first new-velocity))
+           (geo/sign (first velocity)))
       new-velocity
       [0 0])))
 
 (defn apply-impulse [ms velocity heading impulse]
-  (let [delta-v (* ms impulse-thrust impulse)
-        radians (->radians heading)
+  (let [delta-v (* ms glc/impulse-thrust impulse)
+        radians (geo/->radians heading)
         dv (vector/from-angular delta-v radians)
         new-velocity (vector/add velocity dv)]
     new-velocity))
@@ -135,7 +135,7 @@
   (Math/pow warp 1.3))
 
 (defn calc-dilithium-consumed [warp ms]
-  (* warp ms ship-dilithium-consumption))
+  (* warp ms glc/ship-dilithium-consumption))
 
 (defn- consume-dilithium [dilithium warp ms]
   (if (zero? warp)
@@ -149,18 +149,18 @@
                   heading antimatter
                   dilithium]} ship
           dilithium (consume-dilithium dilithium warp ms)
-          power-required (* ms (warp-factor warp) warp-power)
+          power-required (* ms (warp-factor warp) glc/warp-power)
           power-used (min power-required antimatter)
           antimatter (- antimatter power-used)
           actual-warp (* warp (/ power-used power-required))
-          warp-charge-increment (* ms (calc-warp-charge actual-warp) warp-charge-rate)
+          warp-charge-increment (* ms (calc-warp-charge actual-warp) glc/warp-charge-rate)
           warp-efficiency (/ (- 100 (:warp-damage ship)) 100)
           warp-charge-increment (* warp-charge-increment warp-efficiency)
           warp-charge (+ warp-charge-increment warp-charge)
-          warp-trigger (> warp-charge warp-threshold)
+          warp-trigger (> warp-charge glc/warp-threshold)
           warp-charge (if warp-trigger 0 warp-charge)
-          radians (->radians heading)
-          warp-vector (vector/from-angular warp-leap radians)
+          radians (geo/->radians heading)
+          warp-vector (vector/from-angular glc/warp-leap radians)
           [wx wy] (if warp-trigger
                     (vector/add [x y] warp-vector)
                     [x y])
@@ -171,7 +171,7 @@
 
 (defn- impulse-ship [ms ship]
   (let [{:keys [antimatter velocity heading impulse x y]} ship
-        power-required (* ms impulse-power impulse)
+        power-required (* ms glc/impulse-power impulse)
         power-used (min power-required antimatter)
         actual-impulse (if (zero? power-required)
                          0
@@ -191,8 +191,8 @@
 (defn rotate-ship [ms ship]
   (let [{:keys [heading heading-setting]} ship
         total-rotation (rotation-direction heading heading-setting)
-        rotation-step (* rotation-rate ms (sign total-rotation))
-        rotation-step (if (< (abs total-rotation) (abs rotation-step))
+        rotation-step (* glc/rotation-rate ms (geo/sign total-rotation))
+        rotation-step (if (< (geo/abs total-rotation) (geo/abs rotation-step))
                         total-rotation
                         rotation-step)
         new-heading (mod (+ heading rotation-step) 360)]
@@ -201,17 +201,17 @@
 (defn charge-shields [ms ship]
   (let [antimatter (:antimatter ship)
         shields (:shields ship)
-        difference (- ship-shields shields)
-        charge (min difference antimatter (* ms ship-shield-recharge-rate))
+        difference (- glc/ship-shields shields)
+        charge (min difference antimatter (* ms glc/ship-shield-recharge-rate))
         ship (update ship :shields + charge)
-        antimatter (* charge ship-shield-recharge-cost)
+        antimatter (* charge glc/ship-shield-recharge-cost)
         ship (update ship :antimatter - antimatter)
         ship (heat-core antimatter ship)]
     ship))
 
 (defn repair-capacity [ms ship]
   (let [{:keys [life-support-damage]} ship]
-    (* ms ship-repair-capacity (- 100 life-support-damage) 0.01)))
+    (* ms glc/ship-repair-capacity (- 100 life-support-damage) 0.01)))
 
 (defn repair-ship [ms ship]
   (loop [systems [:life-support-damage
@@ -315,9 +315,9 @@
   (assoc ship :strat-scale value))
 
 (defn- in-range-of-base [ship base]
-  (< (distance [(:x base) (:y base)]
+  (< (geo/distance [(:x base) (:y base)]
                [(:x ship) (:y ship)])
-     ship-docking-distance))
+     glc/ship-docking-distance))
 
 (defn- resupply-ship [ship base commodity maximum]
   (let [need (- maximum (ship commodity))
@@ -331,10 +331,10 @@
     (if (empty? bases)
       [ship processed-bases]
       (let [base (first bases)
-            [ship base] (resupply-ship ship base :antimatter ship-antimatter)
-            [ship base] (resupply-ship ship base :dilithium ship-dilithium)
-            [ship base] (resupply-ship ship base :torpedos ship-torpedos)
-            [ship base] (resupply-ship ship base :kinetics ship-kinetics)]
+            [ship base] (resupply-ship ship base :antimatter glc/ship-antimatter)
+            [ship base] (resupply-ship ship base :dilithium glc/ship-dilithium)
+            [ship base] (resupply-ship ship base :torpedos glc/ship-torpedos)
+            [ship base] (resupply-ship ship base :kinetics glc/ship-kinetics)]
         (recur ship (rest bases) (conj processed-bases base))))))
 
 (defn dock-ship [_ world]
@@ -357,39 +357,39 @@
     :weapon-factory #{:f :g}))
 
 (defn- find-deployable-star [type ship stars]
-  (let [stars-in-range (filter #(< (distance (pos ship) (pos %))
-                                   ship-deploy-distance)
+  (let [stars-in-range (filter #(< (geo/distance (util/pos ship) (util/pos %))
+                                   glc/ship-deploy-distance)
                                stars)
         deployable-classes (deployment-classes type)]
     (first (filter #(deployable-classes (:class %)) stars-in-range))))
 
 (defn- base-already-deployed? [star bases]
-  (let [bases-in-range (filter #(< (distance (pos star) (pos %))
-                                   ship-deploy-distance)
+  (let [bases-in-range (filter #(< (geo/distance (util/pos star) (util/pos %))
+                                   glc/ship-deploy-distance)
                                bases)]
     (not (empty? bases-in-range))))
 
 (defn- sufficient-resources-for-deployment? [ship]
   (let [{:keys [antimatter dilithium]} ship]
-    (and (> antimatter base-deployment-antimatter)
-         (> dilithium base-deployment-dilithium))))
+    (and (> antimatter glc/base-deployment-antimatter)
+         (> dilithium glc/base-deployment-dilithium))))
 
 (defn deploy-base [type world]
   (let [{:keys [ship stars bases]} world
         deployable-star (find-deployable-star type ship stars)]
     (if (not deployable-star)
-      (add-message world "No star nearby sir." 2000)
+      (world/add-message world "No star nearby sir." 2000)
       (if (base-already-deployed? deployable-star bases)
-        (add-message world "Base already deployed, sir." 2000)
+        (world/add-message world "Base already deployed, sir." 2000)
         (if (not (sufficient-resources-for-deployment? ship))
-          (add-message world "Insufficient resources sir." 2000)
+          (world/add-message world "Insufficient resources sir." 2000)
           (let [{:keys [x y]} ship
                 bases (:bases world)
                 base (bases/make-base [x y] type)
                 bases (conj bases base)
                 ship (-> ship
-                         (update :antimatter - base-deployment-antimatter)
-                         (update :dilithium - base-deployment-dilithium))]
+                         (update :antimatter - glc/base-deployment-antimatter)
+                         (update :dilithium - glc/base-deployment-dilithium))]
             (assoc world :bases bases :ship ship)))))))
 
 (defn- deploy-antimatter-factory [_ world]
@@ -431,19 +431,19 @@
 (defn dockable? [ship bases]
   (if (empty? bases)
     false
-    (let [distances (map #(distance [(:x ship) (:y ship)]
+    (let [distances (map #(geo/distance [(:x ship) (:y ship)]
                                     [(:x %) (:y %)]) bases)
           closest (apply min distances)]
-      (< closest ship-docking-distance))))
+      (< closest glc/ship-docking-distance))))
 
 (defn deployable? [factory ship stars]
   (let [{:keys [x y]} ship
         deployment-classes-set (deployment-classes factory)
         deployable-stars (filter #(deployment-classes-set (:class %)) stars)
-        distances (map #(distance [x y] [(:x %) (:y %)]) deployable-stars)
+        distances (map #(geo/distance [x y] [(:x %) (:y %)]) deployable-stars)
         closest (if (empty? distances)
                   nil
                   (apply min distances))]
     (if closest
-      (< closest ship-deploy-distance)
+      (< closest glc/ship-deploy-distance)
       false)))

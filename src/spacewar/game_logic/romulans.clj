@@ -1,6 +1,6 @@
 (ns spacewar.game-logic.romulans
   (:require [clojure.spec.alpha :as s]
-            [spacewar.game-logic.config :as gc]
+            [spacewar.game-logic.config :as glc]
             [spacewar.game-logic.explosions :as explosions]
             [spacewar.game-logic.shots :as shots]
             [spacewar.geometry :as geo]
@@ -29,11 +29,11 @@
 
 (defn romulan-state-transition [ms age state]
   (let [min-time (condp = state
-                   :invisible gc/romulan-invisible-time
-                   :appearing gc/romulan-appearing-time
-                   :visible gc/romulan-visible-time
-                   :firing gc/romulan-firing-time
-                   :fading gc/romulan-fading-time)
+                   :invisible glc/romulan-invisible-time
+                   :appearing glc/romulan-appearing-time
+                   :visible glc/romulan-visible-time
+                   :firing glc/romulan-firing-time
+                   :fading glc/romulan-fading-time)
         past-time? (> age min-time)
         next-second? (<= (rem age 1000) ms)
         fifty-fifty? (< 0.5 (rand 1))]
@@ -94,10 +94,10 @@
        (destroy-hit-romulans)))
 
 (defn- add-occasional-romulan [world]
-  (if (< (rand 1) gc/romulan-appear-odds-per-second)
+  (if (< (rand 1) glc/romulan-appear-odds-per-second)
     (let [{:keys [romulans ship]} world
           {:keys [x y]} ship
-          dist (* gc/romulan-appear-distance (- 1.5 (rand 1)))
+          dist (* glc/romulan-appear-distance (- 1.5 (rand 1)))
           angle (rand 360)
           pos (vector/from-angular dist (geo/->radians angle))
           [rx ry] (vector/add [x y] pos)
