@@ -1,9 +1,8 @@
 (ns spacewar.ui.control-panels.status-panel
   (:require [spacewar.ui.protocols :as p]
-            [spacewar.ui.config :refer :all]
-            [spacewar.game-logic.config :refer :all]
-            (spacewar.ui.widgets [lcars :refer :all]
-                                 [horizontal-scale :refer :all])))
+            [spacewar.ui.config :as uic]
+            [spacewar.game-logic.config :as glc]
+            [spacewar.ui.widgets.horizontal-scale :refer [->h-scale]]))
 
 (deftype status-panel [state]
   p/Drawable
@@ -31,13 +30,13 @@
                            :w scale-w
                            :h scale-h
                            :min 0
-                           :max ship-antimatter
-                           :value ship-antimatter
+                           :max glc/ship-antimatter
+                           :value glc/ship-antimatter
                            :name "ANTIMATTER"
                            :color color
-                           :mercury-colors [[(* 0.1 ship-antimatter) red]
-                                            [(* 0.25 ship-antimatter) orange]
-                                             [ship-antimatter mercury-color]]}))
+                           :mercury-colors [[(* 0.1 glc/ship-antimatter) uic/red]
+                                            [(* 0.25 glc/ship-antimatter) uic/orange]
+                                             [glc/ship-antimatter mercury-color]]}))
           :dilithium (p/setup
                        (->h-scale
                          {:x scale-x
@@ -45,13 +44,13 @@
                           :w scale-w
                           :h scale-h
                           :min 0
-                          :max ship-dilithium
-                          :value ship-dilithium
+                          :max glc/ship-dilithium
+                          :value glc/ship-dilithium
                           :name "DILITHIUM"
                           :color color
-                          :mercury-colors [[(* 0.1) red]
-                                           [(* 0.2 ship-dilithium) orange]
-                                           [ship-dilithium mercury-color]]}))
+                          :mercury-colors [[(* 0.1) uic/red]
+                                           [(* 0.2 glc/ship-dilithium) uic/orange]
+                                           [glc/ship-dilithium mercury-color]]}))
           :core-temp (p/setup
                        (->h-scale
                          {:x scale-x
@@ -64,8 +63,8 @@
                           :name "CORE TEMP"
                           :color color
                           :mercury-colors [[70 mercury-color]
-                                           [85 orange]
-                                           [100 red]]}))
+                                           [85 uic/orange]
+                                           [100 uic/red]]}))
           :shields (p/setup
                      (->h-scale
                        {:x scale-x
@@ -73,13 +72,13 @@
                         :w scale-w
                         :h scale-h
                         :min 0
-                        :max ship-shields
-                        :value ship-shields
+                        :max glc/ship-shields
+                        :value glc/ship-shields
                         :name "SHIELDS"
                         :color color
-                        :mercury-colors [[(* 0.1 ship-shields) red]
-                                         [(* 0.6 ship-shields) orange]
-                                         [ship-shields mercury-color]]}))
+                        :mercury-colors [[(* 0.1 glc/ship-shields) uic/red]
+                                         [(* 0.6 glc/ship-shields) uic/orange]
+                                         [glc/ship-shields mercury-color]]}))
           :elements [:antimatter :dilithium :core-temp :shields]))))
 
   (update-state [_ world]
