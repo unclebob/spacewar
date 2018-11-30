@@ -1,8 +1,8 @@
 (ns spacewar.ui.widgets.button
   (:require [quil.core :as q]
               [spacewar.ui.protocols :as p]
-              [spacewar.geometry :refer :all]
-              [spacewar.ui.config :refer :all]))
+              [spacewar.geometry :as geo]
+              [spacewar.ui.config :as uic]))
 
 (deftype button [state]
   p/Drawable
@@ -17,13 +17,13 @@
         (q/with-translation
           [x y]
           (q/stroke-weight 2)
-          (apply q/stroke (if mouse-in white color))
-          (apply q/fill (if left-down white color))
+          (apply q/stroke (if mouse-in uic/white color))
+          (apply q/fill (if left-down uic/white color))
           (q/rect-mode :corner)
           (q/rect 0 0 w h h)
           (q/text-align :right :bottom)
           (q/text-font (:lcars (q/state :fonts)) 18)
-          (apply q/fill black)
+          (apply q/fill uic/black)
           (q/text name (+ w -10) (+ h))
           (when status
             (do (q/text-size 14)
@@ -36,7 +36,7 @@
           last-left-down (:left-down state)
           mx (q/mouse-x)
           my (q/mouse-y)
-          mouse-in (inside-rect [x y w h] [mx my])
+          mouse-in (geo/inside-rect [x y w h] [mx my])
           left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
           new-state (assoc state :mouse-in mouse-in :left-down left-down)
           event (if (and (not disabled) (not left-down) last-left-down mouse-in)
