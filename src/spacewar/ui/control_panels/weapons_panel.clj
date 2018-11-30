@@ -1,25 +1,25 @@
 (ns spacewar.ui.control-panels.weapons-panel
   (:require [spacewar.ui.protocols :as p]
-            [spacewar.ui.config :refer :all]
-            [spacewar.game-logic.config :refer :all]
-            [spacewar.ui.widgets.lcars :refer :all]
-            [spacewar.ui.widgets.button :refer :all]
-            [spacewar.ui.widgets.direction-selector :refer :all]
-            [spacewar.ui.widgets.slider :refer :all]
-            [spacewar.ui.widgets.engage :refer :all]
+            [spacewar.ui.config :as uic]
+            [spacewar.game-logic.config :as glc]
+            [spacewar.ui.widgets.lcars :as lcars]
+            [spacewar.ui.widgets.button :refer [->button]]
+            [spacewar.ui.widgets.direction-selector :refer [->direction-selector]]
+            [spacewar.ui.widgets.slider :refer [->slider]]
+            [spacewar.ui.widgets.engage :refer [->engage]]
             [quil.core :as q]))
 (defn- button-color [selected button]
   (if (= selected button)
-    weapons-panel-selection-color
-    weapons-panel-button-color))
+    uic/weapons-panel-selection-color
+    uic/weapons-panel-button-color))
 
 (deftype weapons-panel [state]
   p/Drawable
   (draw [_]
     (let [{:keys [bearing-label-x number-label-x spread-label-x label-y]} state]
-      (draw-banner state)
+      (lcars/draw-banner state)
       (p/draw-elements state)
-      (apply q/fill black)
+      (apply q/fill uic/black)
       (q/text-align :center :bottom)
       (q/text-font (:lcars (q/state :fonts)) 14)
       (q/text "BEARING" bearing-label-x label-y)
@@ -29,29 +29,29 @@
   (setup [_]
     (let [{:keys [x y h color button-color]} state
           button-w 150
-          button-x (+ x stringer-width button-gap)
-          torpedo-y (+ y banner-width button-gap)
-          kinetic-y (+ torpedo-y button-h button-gap)
-          phaser-y (+ kinetic-y button-h button-gap)
-          direction-x (+ button-x button-w button-gap)
-          direction-y (+ y banner-width button-gap)
-          direction-diameter (- h banner-width)
-          number-x (+ direction-x direction-diameter button-gap)
+          button-x (+ x uic/stringer-width uic/button-gap)
+          torpedo-y (+ y uic/banner-width uic/button-gap)
+          kinetic-y (+ torpedo-y uic/button-h uic/button-gap)
+          phaser-y (+ kinetic-y uic/button-h uic/button-gap)
+          direction-x (+ button-x button-w uic/button-gap)
+          direction-y (+ y uic/banner-width uic/button-gap)
+          direction-diameter (- h uic/banner-width)
+          number-x (+ direction-x direction-diameter uic/button-gap)
           number-y direction-y
-          number-w slider-width
-          number-h (- h banner-width)
-          spread-x (+ number-x number-w button-gap)
+          number-w uic/slider-width
+          number-h (- h uic/banner-width)
+          spread-x (+ number-x number-w uic/button-gap)
           spread-y number-y
-          spread-w slider-width
+          spread-w uic/slider-width
           spread-h number-h
-          fire-x (+ spread-x spread-w button-gap)
+          fire-x (+ spread-x spread-w uic/button-gap)
           fire-y number-y
-          fire-w engage-width
+          fire-w uic/engage-width
           fire-h number-h
           bearing-label-x (+ direction-x (/ direction-diameter 2))
           number-label-x (+ number-x (/ number-w 2))
           spread-label-x (+ spread-x (/ spread-w 2))
-          label-y (+ y banner-width)]
+          label-y (+ y uic/banner-width)]
       (weapons-panel.
         (assoc state
           :bearing-label-x bearing-label-x
@@ -63,7 +63,7 @@
                        {:x button-x
                         :y torpedo-y
                         :w button-w
-                        :h button-h
+                        :h uic/button-h
                         :name "TORPEDO"
                         :color button-color
                         :left-up-event {:event :select-torpedo}}))
@@ -72,7 +72,7 @@
                        {:x button-x
                         :y kinetic-y
                         :w button-w
-                        :h button-h
+                        :h uic/button-h
                         :name "KINETIC"
                         :color button-color
                         :left-up-event {:event :select-kinetic}}))
@@ -81,7 +81,7 @@
                       {:x button-x
                        :y phaser-y
                        :w button-w
-                       :h button-h
+                       :h uic/button-h
                        :name "PHASER"
                        :color button-color
                        :left-up-event {:event :select-phaser}}))
@@ -144,7 +144,7 @@
           torpedo-button-color (button-color selected-weapon :torpedo)
           kinetic-button-color (button-color selected-weapon :kinetic)
           weapon-disabled (= selected-weapon :none)
-          allowed-number (selected-weapon max-shots-by-type)
+          allowed-number (selected-weapon glc/max-shots-by-type)
 
           state (p/change-elements state [[:direction-selector :direction target-bearing]
                                           [:number-slider :value weapon-number-setting]
