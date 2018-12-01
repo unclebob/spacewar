@@ -1,33 +1,32 @@
 (ns spacewar.ui.widgets.lcars
   (:require [quil.core :as q]
-            [spacewar.geometry :refer :all]
-            [spacewar.ui.config :refer :all]))
+            [spacewar.ui.config :as uic]))
 
 (defn- lcars-points [state]
   (let [{:keys [x y w h]} state
         inverted (:inverted state false)]
     (if inverted
       {:a [(+ x w) y]
-       :b [(+ x banner-width) y]
-       :c [x (+ y banner-width)]
+       :b [(+ x uic/banner-width) y]
+       :c [x (+ y uic/banner-width)]
        :d [x (+ y h)]
-       :e [(+ x stringer-width) (+ y h)]
-       :f [(+ x stringer-width) (+ y banner-width stringer-width)]
-       :g [(+ x stringer-width stringer-width) (+ y banner-width)]
-       :h [(+ x w) (+ y banner-width)]
+       :e [(+ x uic/stringer-width) (+ y h)]
+       :f [(+ x uic/stringer-width) (+ y uic/banner-width uic/stringer-width)]
+       :g [(+ x uic/stringer-width uic/stringer-width) (+ y uic/banner-width)]
+       :h [(+ x w) (+ y uic/banner-width)]
        :c1 [x y]
-       :c2 [(+ x stringer-width) (+ y banner-width)]
-       :label-position [(+ x 10 stringer-width) (+ y 10)]}
+       :c2 [(+ x uic/stringer-width) (+ y uic/banner-width)]
+       :label-position [(+ x 10 uic/stringer-width) (+ y 10)]}
       {:a [x y]
-       :b [(+ x w (- banner-width)) y]
-       :c [(+ x w) (+ y banner-width)]
+       :b [(+ x w (- uic/banner-width)) y]
+       :c [(+ x w) (+ y uic/banner-width)]
        :d [(+ x w) (+ y h)]
-       :e [(+ x w (- stringer-width)) (+ y h)]
-       :f [(+ x w (- stringer-width)) (+ y banner-width stringer-width)]
-       :g [(+ x w (- stringer-width) (- stringer-width)) (+ y banner-width)]
-       :h [x (+ y banner-width)]
+       :e [(+ x w (- uic/stringer-width)) (+ y h)]
+       :f [(+ x w (- uic/stringer-width)) (+ y uic/banner-width uic/stringer-width)]
+       :g [(+ x w (- uic/stringer-width) (- uic/stringer-width)) (+ y uic/banner-width)]
+       :h [x (+ y uic/banner-width)]
        :c1 [(+ x w) y]
-       :c2 [(+ x w (- stringer-width)) (+ y banner-width)]
+       :c2 [(+ x w (- uic/stringer-width)) (+ y uic/banner-width)]
        :label-position [(+ x 10) (+ y 10)]})))
 
 (defn draw-banner [state]
@@ -57,11 +56,11 @@
     (q/no-stroke)
     (apply q/fill color)
     (q/rect-mode :corner)
-    (q/rect x (+ y h (- banner-width)) w banner-width)
+    (q/rect x (+ y h (- uic/banner-width)) w uic/banner-width)
     (q/fill 0 0 0)
     (q/text-size 24)
     (q/text-font (:lcars (q/state :fonts)))
     (q/text-align :center :center)
-    (q/text name (+ x (/ w 2)) (+ y h (/ banner-width -2)))
+    (q/text name (+ x (/ w 2)) (+ y h (/ uic/banner-width -2)))
     )
   )
