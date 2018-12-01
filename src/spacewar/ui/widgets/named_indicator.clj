@@ -1,8 +1,7 @@
 (ns spacewar.ui.widgets.named-indicator
   (:require [quil.core :as q]
             [spacewar.ui.protocols :as p]
-            [spacewar.geometry :refer :all]
-            [spacewar.ui.config :refer :all]
+            [spacewar.ui.config :as uic]
             [spacewar.ui.widgets.lights :as lights]))
 
 (deftype named-indicator [state]
@@ -12,7 +11,7 @@
   (draw [_]
     (let [{:keys [x y name]} state]
       (p/draw-elements state)
-      (apply q/fill black)
+      (apply q/fill uic/black)
       (q/text-align :left :top)
       (q/text-font (:lcars (q/state :fonts)) 18)
       (q/text name (+ x 25) y)))
