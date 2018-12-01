@@ -1,6 +1,5 @@
 (ns spacewar.ui.protocols
-  (:require [clojure.spec.alpha :as s]
-            [spacewar.util :refer :all]))
+  (:require [clojure.spec.alpha :as s]))
 
 ;update-state returns [new-drawable [events]]
 (defprotocol Drawable
