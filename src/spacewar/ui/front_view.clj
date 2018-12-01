@@ -1,12 +1,9 @@
 (ns spacewar.ui.front-view
   (:require [quil.core :as q]
-            [spacewar.geometry :refer :all]
-            [spacewar.ui.config :refer :all]
-            [spacewar.game-logic.config :refer :all]
-            [spacewar.ui.strategic-scan :refer :all]
+            [spacewar.geometry :as geo]
+            [spacewar.ui.strategic-scan :refer [->strategic-scan]]
             [spacewar.ui.protocols :as p]
             [spacewar.vector :as vector]))
-
 
 ; Stars
 ;                                 * star
@@ -72,7 +69,7 @@
         h-distance (rand (* luminosity 200))]
     {:h-distance h-distance
      :v-distance (+ -20 (rand 200) (/ h-distance 20))
-     :angle (->radians (rand 360))
+     :angle (geo/->radians (rand 360))
      :luminosity luminosity}))
 
 (defn- make-stars [n]
