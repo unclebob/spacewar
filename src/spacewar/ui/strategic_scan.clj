@@ -1,9 +1,9 @@
 (ns spacewar.ui.strategic-scan
   (:require [quil.core :as q]
-            [spacewar.geometry :refer :all]
-            [spacewar.ui.config :refer :all]
-            [spacewar.ui.icons :refer :all]
-            [spacewar.game-logic.config :refer :all]
+            [spacewar.geometry :as geo]
+            [spacewar.ui.config :as uic]
+            [spacewar.ui.icons :as icons]
+            [spacewar.game-logic.config :as glc]
             [spacewar.ui.protocols :as p]
             [spacewar.vector :as vector]
             [clojure.math.combinatorics :as combo]))
@@ -25,7 +25,7 @@
         (q/with-translation
           [(* (- x sx) pixel-width)
            (* (- y sy) pixel-width)]
-          (draw-star-icon star))))))
+          (icons/draw-star-icon star))))))
 
 (defn- draw-klingons [state]
   (let [{:keys [klingons pixel-width ship]} state
@@ -36,7 +36,7 @@
         (q/with-translation
           [(* (- x sx) pixel-width)
            (* (- y sy) pixel-width)]
-          (draw-klingon-icon))))))
+          (icons/draw-klingon-icon))))))
 
 (defn- draw-romulans [state]
   (let [{:keys [romulans pixel-width ship]} state
@@ -47,14 +47,14 @@
           (q/with-translation
             [(* (- x sx) pixel-width)
              (* (- y sy) pixel-width)]
-            (draw-strategic-romulan))))) )
+            (icons/draw-strategic-romulan))))) )
 
 (defn- draw-ship [state]
   (let [heading (or (->> state :ship :heading) 0)
         velocity (or (->> state :ship :velocity) [0 0])
-        [vx vy] (vector/scale velocity-vector-scale velocity)
-        radians (->radians heading)]
-    (draw-ship-icon [vx vy] radians)))
+        [vx vy] (vector/scale uic/velocity-vector-scale velocity)
+        radians (geo/->radians heading)]
+    (icons/draw-ship-icon [vx vy] radians)))
 
 (defn- draw-bases [state]
   (let [{:keys [bases pixel-width ship]} state
@@ -65,16 +65,16 @@
         (q/with-translation
           [(* (- x sx) pixel-width)
            (* (- y sy) pixel-width)]
-          (draw-base-icon base))))))
+          (icons/draw-base-icon base))))))
 
 (defn- draw-transport-routes [state]
   (let [{:keys [bases pixel-width ship]} state
         base-pairs (combo/combinations bases 2)
-        routes (filter #(<= (distance [(:x (first %)) (:y (first %))]
+        routes (filter #(<= (geo/distance [(:x (first %)) (:y (first %))]
                                       [(:x (second %)) (:y (second %))])
-                            transport-range)
+                            glc/transport-range)
                        base-pairs)]
-    (apply q/stroke transport-route-color)
+    (apply q/stroke uic/transport-route-color)
     (q/stroke-weight 3)
     (doseq [[base1 base2] routes]
       (let [sx (:x ship)
@@ -96,7 +96,7 @@
             y (* (- ty sy) pixel-width)]
         (q/with-translation
           [x y]
-          (draw-transport-icon transport))))))
+          (icons/draw-transport-icon transport))))))
 
 (defn- draw-sectors [state]
   (let [{:keys [pixel-width ship]} state
@@ -105,11 +105,11 @@
         x->frame (fn [x] (* pixel-width (- x sx)))
         y->frame (fn [y] (* pixel-width (- y sy)))]
     (q/stroke-weight 1)
-    (apply q/stroke (conj white 100))
-    (doseq [x (range 0 known-space-x strategic-range)]
-      (q/line (x->frame x) (y->frame 0) (x->frame x) (y->frame known-space-y)))
-    (doseq [y (range 0 known-space-y strategic-range)]
-      (q/line (x->frame 0) (y->frame y) (x->frame known-space-x) (y->frame y)))))
+    (apply q/stroke (conj uic/white 100))
+    (doseq [x (range 0 glc/known-space-x glc/strategic-range)]
+      (q/line (x->frame x) (y->frame 0) (x->frame x) (y->frame glc/known-space-y)))
+    (doseq [y (range 0 glc/known-space-y glc/strategic-range)]
+      (q/line (x->frame 0) (y->frame y) (x->frame glc/known-space-x) (y->frame y)))))
 
 (defn- click->pos [strategic-scan ship click]
   (let [{:keys [x y w h pixel-width]} strategic-scan
@@ -138,17 +138,17 @@
 
   (setup [_]
     (strategic-scan.
-      (assoc state :pixel-width (/ (:h state) strategic-range))))
+      (assoc state :pixel-width (/ (:h state) glc/strategic-range))))
 
   (update-state [_ world]
     (let [{:keys [x y w h]} state
           ship (:ship world)
           scale (:strat-scale ship)
-          range (* scale strategic-range)
+          range (* scale glc/strategic-range)
           last-left-down (:left-down state)
           mx (q/mouse-x)
           my (q/mouse-y)
-          mouse-in (inside-rect [x y w h] [mx my])
+          mouse-in (geo/inside-rect [x y w h] [mx my])
           left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
           state (assoc state :mouse-in mouse-in :left-down left-down)
           left-up (and (not left-down) last-left-down mouse-in)
