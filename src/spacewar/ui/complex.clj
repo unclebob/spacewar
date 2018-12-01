@@ -2,13 +2,13 @@
   (:require [quil.core :as q]
             (spacewar.ui [protocols :as p]
                          [view-frame :as f]
-                         [config :refer :all])
-            (spacewar.ui.control-panels [scan-panel :refer :all]
-                                        [engine-panel :refer :all]
-                                        [weapons-panel :refer :all]
-                                        [damage-panel :refer :all]
-                                        [status-panel :refer :all]
-                                        [deploy-panel :refer :all])
+                         [config :as uic])
+            (spacewar.ui.control-panels [scan-panel :refer [->scan-panel]]
+                                        [engine-panel :refer [->engine-panel]]
+                                        [weapons-panel :refer [->weapons-panel]]
+                                        [damage-panel :refer [->damage-panel]]
+                                        [status-panel :refer [->status-panel]]
+                                        [deploy-panel :refer [->deploy-panel]])
             (spacewar.ui.widgets [lights :refer :all])))
 
 (defn draw-light-panel [state]
@@ -102,7 +102,7 @@
   p/Drawable
   (draw [_]
     (p/draw-elements state)
-    (apply q/fill white)
+    (apply q/fill uic/white)
     (q/text-align :left :top)
     (q/text-font (:lcars (q/state :fonts)) 18)
     (let [{:keys [x y fps]} state
@@ -164,8 +164,8 @@
                                       :w scan-panel-w
                                       :h scan-panel-h
                                       :name "SCAN"
-                                      :color scan-panel-color
-                                      :button-color scan-panel-button-color}))
+                                      :color uic/scan-panel-color
+                                      :button-color uic/scan-panel-button-color}))
 
           engine-panel-x scan-panel-x
           engine-panel-y (+ y frame-height small-panel-gap)
@@ -177,8 +177,8 @@
                                           :w engine-panel-w
                                           :h engine-panel-h
                                           :name "ENGINES"
-                                          :color engine-panel-color
-                                          :button-color engine-panel-button-color}))
+                                          :color uic/engine-panel-color
+                                          :button-color uic/engine-panel-button-color}))
 
           weapons-panel-x (+ bottom-lights-x bottom-lights-width small-panel-gap)
           weapons-panel-y (+ y frame-height small-panel-gap)
@@ -190,8 +190,8 @@
                                             :w weapons-panel-w
                                             :h weapons-panel-h
                                             :name "WEAPONS"
-                                            :color weapons-panel-color
-                                            :button-color weapons-panel-button-color
+                                            :color uic/weapons-panel-color
+                                            :button-color uic/weapons-panel-button-color
                                             :inverted true}))
 
           damage-panel-x (+ x left-margin frame-width small-panel-gap)
@@ -202,7 +202,7 @@
                                           :y damage-panel-y
                                           :w damage-panel-w
                                           :name "DAMAGE"
-                                          :color damage-panel-color
+                                          :color uic/damage-panel-color
                                           :inverted true}))
           damage-panel-h (:h (p/get-state damage-panel))
 
@@ -210,15 +210,14 @@
           deploy-panel-y (+ damage-panel-y damage-panel-h panel-gap)
           deploy-panel-w damage-panel-w
           deploy-panel (p/setup
-                           (->deploy-panel {:x deploy-panel-x
-                                            :y deploy-panel-y
-                                            :w deploy-panel-w
-                                            :name "DEPLOY"
-                                              :color deploy-panel-color
-                                            :button-color deploy-panel-button-color
-                                            :inverted true}))
+                         (->deploy-panel {:x deploy-panel-x
+                                          :y deploy-panel-y
+                                          :w deploy-panel-w
+                                          :name "DEPLOY"
+                                          :color uic/deploy-panel-color
+                                          :button-color uic/deploy-panel-button-color
+                                          :inverted true}))
           deploy-panel-h (:h (p/get-state deploy-panel))
-
 
           status-panel-x (+ engine-panel-x engine-panel-w small-panel-gap)
           status-panel-y (+ bottom-lights-y bottom-lights-h panel-gap)
@@ -230,8 +229,8 @@
                                           :w status-panel-w
                                           :h status-panel-h
                                           :name "STATUS"
-                                          :color status-panel-color
-                                          :mercury-color status-panel-mercury-color}))
+                                          :color uic/status-panel-color
+                                          :mercury-color uic/status-panel-mercury-color}))
 
           new-state (assoc state :frame frame
                                  :bottom-lights bottom-lights
