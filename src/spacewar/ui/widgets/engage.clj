@@ -1,8 +1,8 @@
 (ns spacewar.ui.widgets.engage
   (:require [quil.core :as q]
             [spacewar.ui.protocols :as p]
-            [spacewar.geometry :refer :all]
-            [spacewar.ui.config :refer :all]))
+            [spacewar.geometry :as geo]
+            [spacewar.ui.config :as uic]))
 
 (deftype engage [state]
   p/Drawable
@@ -18,11 +18,11 @@
           [x y]
           (q/no-stroke)
           (q/rect-mode :center)
-          (apply q/fill (if (= button-time h) white activation-color))
+          (apply q/fill (if (= button-time h) uic/white activation-color))
           (q/rect cx cy w h w)
           (apply q/fill color)
           (q/rect cx cy w (- h button-time) w)
-          (apply q/fill black)
+          (apply q/fill uic/black)
           (q/text-align :center :center)
           (q/text-font (:lcars (q/state :fonts)) 18)
           (q/text name cx cy)))))
@@ -36,7 +36,7 @@
           last-button-time (:button-time state)
           last-left-down (:left-down state)
           mouse-pos [(q/mouse-x) (q/mouse-y)]
-          mouse-in (inside-rect [x y w h] mouse-pos)
+          mouse-in (geo/inside-rect [x y w h] mouse-pos)
           left-down (and (not disabled) mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
           button-time (if left-down (min h (+ 10 last-button-time)) 0)
           new-state (assoc state
