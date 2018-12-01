@@ -1,17 +1,17 @@
 (ns spacewar.ui.widgets.slider
   (:require [quil.core :as q]
             [spacewar.ui.protocols :as p]
-            [spacewar.geometry :refer :all]
-            [spacewar.ui.config :refer :all]))
+            [spacewar.geometry :as geo]
+            [spacewar.ui.config :as uic]))
 
 (defn draw-slider-bezel [state]
   (let [{:keys [w h color mouse-in]} state]
     (q/stroke-weight 2)
-    (apply q/stroke light-grey)
-    (apply q/fill light-grey)
+    (apply q/stroke uic/light-grey)
+    (apply q/fill uic/light-grey)
     (q/rect-mode :corner)
     (q/rect 0 0 w h)
-    (apply q/stroke (if mouse-in white color))
+    (apply q/stroke (if mouse-in uic/white color))
     (apply q/fill color)
     (q/rect 0 0 w h w)))
 
@@ -21,7 +21,7 @@
   (apply q/fill thumb-color)
   (q/rect-mode :center)
   (q/rect thumb-x thumb-y w thumb-h thumb-h)
-  (apply q/fill black)
+  (apply q/fill uic/black)
   (q/text-align :center :center)
   (q/text-font (:lcars-small (q/state :fonts)) 12)
   (q/text (str value) thumb-x thumb-y))
@@ -36,7 +36,7 @@
 
 (defn draw-slider-labels [state]
   (let [{:keys [min-val max-val thumb-x min-y max-y]} state]
-    (apply q/fill black)
+    (apply q/fill uic/black)
     (q/text-align :center :center)
     (q/text-font (:lcars-small (q/state :fonts)) 12)
     (q/text (str min-val) thumb-x min-y)
@@ -75,7 +75,7 @@
           (when (not left-down)
             (draw-slider-labels state))
 
-          (draw-slider-thumb {:stroke (if mouse-in black light-grey)
+          (draw-slider-thumb {:stroke (if mouse-in uic/black uic/light-grey)
                               :thumb-color thumb-color
                               :thumb-x thumb-x
                               :thumb-y thumb-y
@@ -86,8 +86,8 @@
             (let [m-val (slider-thumb-val state)
                   m-pos (- max-val m-val)                   ; top is max
                   mouse-thumb-y (+ margin (* m-pos increment))]
-              (draw-slider-thumb {:stroke light-grey
-                                  :thumb-color light-grey
+              (draw-slider-thumb {:stroke uic/light-grey
+                                  :thumb-color uic/light-grey
                                   :thumb-x thumb-x
                                   :thumb-y mouse-thumb-y
                                   :w w
@@ -101,7 +101,7 @@
     (let [{:keys [x y w h]} state
           last-left-down (:left-down state)
           mouse-pos [(q/mouse-x) (q/mouse-y)]
-          mouse-in (inside-rect [x y w h] mouse-pos)
+          mouse-in (geo/inside-rect [x y w h] mouse-pos)
           left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
           state (set-slider-state state)
           state (assoc state
