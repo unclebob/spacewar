@@ -1,11 +1,11 @@
 (ns spacewar.ui.tactical-scan
   (:require [quil.core :as q]
-            [spacewar.util :refer :all]
-            [spacewar.ui.config :refer :all]
-            [spacewar.ui.icons :refer :all]
-            [spacewar.game-logic.config :refer :all]
+            [spacewar.util :as util]
+            [spacewar.ui.config :as uic]
+            [spacewar.ui.icons :as icons]
+            [spacewar.game-logic.config :as glc]
             [spacewar.ui.protocols :as p]
-            [spacewar.geometry :refer :all]
+            [spacewar.geometry :as geo]
             [spacewar.vector :as vector]))
 
 (defn- background-color [world]
@@ -23,12 +23,12 @@
                         impulse-damage
                         sensor-damage
                         weapons-damage)]
-    (cond game-over black
-          (< (mod time 1000) 500) black
-          (> max-damage 0) dark-red
-          (< (/ antimatter ship-antimatter) 0.1) dark-red
-          (< (/ shields ship-shields) 0.6) dark-yellow
-          :else black)))
+    (cond game-over uic/black
+          (< (mod time 1000) 500) uic/black
+          (> max-damage 0) uic/dark-red
+          (< (/ antimatter glc/ship-antimatter) 0.1) uic/dark-red
+          (< (/ shields glc/ship-shields) 0.6) uic/dark-yellow
+          :else uic/black)))
 
 (defn- draw-background [state]
   (let [{:keys [w h]} state]
@@ -37,13 +37,13 @@
     (q/rect 0 0 w h)))
 
 (defn- in-range [x y ship]
-  (< (distance [x y] [(:x ship) (:y ship)]) (/ tactical-range 2)))
+  (< (geo/distance [x y] [(:x ship) (:y ship)]) (/ glc/tactical-range 2)))
 
 (defn- click->pos [tactical-scan click]
   (let [{:keys [x y w h world]} tactical-scan
         ship (:ship world)
         center (vector/add [(/ w 2) (/ h 2)] [x y])
-        scale (/ tactical-range w)
+        scale (/ glc/tactical-range w)
         click-delta (vector/subtract click center)
         tactical-click-delta (vector/scale scale click-delta)]
     (vector/add tactical-click-delta [(:x ship) (:y ship)])))
@@ -52,7 +52,7 @@
   (let [tactical-loc (click->pos tactical-scan click)
         ship (-> tactical-scan :world :ship)
         ship-loc [(:x ship) (:y ship)]
-        bearing (angle-degrees ship-loc tactical-loc)
+        bearing (geo/angle-degrees ship-loc tactical-loc)
         ] bearing))
 
 (defn- present-objects [state objects]
@@ -60,7 +60,7 @@
     []
     (let [{:keys [w world]} state
           ship (:ship world)
-          scale (/ w tactical-range)
+          scale (/ w glc/tactical-range)
           presentables (->> objects
                             (filter #(in-range (:x %) (:y %) ship))
                             (map #(assoc % :x (- (:x %) (:x ship))
@@ -81,32 +81,32 @@
   (draw-objects-in state (-> state :world key) draw))
 
 (defn- draw-bases [state]
-  (draw-objects state :bases draw-base-icon))
+  (draw-objects state :bases icons/draw-base-icon))
 
 (defn- draw-transports [state]
-  (draw-objects state :transports draw-transport-icon))
+  (draw-objects state :transports icons/draw-transport-icon))
 
 (defn- draw-stars [state]
-  (draw-objects state :stars draw-star-icon))
+  (draw-objects state :stars icons/draw-star-icon))
 
 (defn- draw-klingon-and-shield [klingon]
-  (draw-klingon-shields (:shields klingon))
-  (draw-klingon-icon))
+  (icons/draw-klingon-shields (:shields klingon))
+  (icons/draw-klingon-icon))
 
 (defn- draw-klingons [state]
   (draw-objects state :klingons draw-klingon-and-shield))
 
 (defn- draw-romulans [state]
-  (draw-objects state :romulans draw-romulan))
+  (draw-objects state :romulans icons/draw-romulan))
 
 (defn target-arc [ship]
   (let [{:keys [selected-weapon
                 target-bearing
                 weapon-spread-setting]} ship
         range (condp = selected-weapon
-                :phaser phaser-target
-                :torpedo torpedo-target
-                :kinetic kinetic-target
+                :phaser uic/phaser-target
+                :torpedo uic/torpedo-target
+                :kinetic uic/kinetic-target
                 0)
         half-spread (max 3 (/ weapon-spread-setting 2))]
     [range
@@ -118,7 +118,7 @@
         ship (->> state :world :ship)
         heading (or (:heading ship) 0)
         velocity (or (:velocity ship) [0 0])
-        [vx vy] (vector/scale velocity-vector-scale velocity)
+        [vx vy] (vector/scale uic/velocity-vector-scale velocity)
         radians (q/radians heading)
         [tgt-radius start stop] (target-arc ship)
         start (q/radians start)
@@ -131,14 +131,14 @@
         (q/fill 255 255 255 50)
         (q/ellipse-mode :center)
         (q/arc 0 0 tgt-radius tgt-radius start stop :pie))
-      (draw-ship-icon [vx vy] radians)
+      (icons/draw-ship-icon [vx vy] radians)
       )))
 
 (defn- draw-torpedo-segment []
   (let [angle (rand 360)
         color (repeatedly 3 #(+ 128 (rand 127)))
         length (+ 5 (rand 5))
-        radians (->radians angle)
+        radians (geo/->radians angle)
         [tx ty] (vector/from-angular length radians)]
     (apply q/stroke color)
     (q/line 0 0 tx ty)))
@@ -153,17 +153,17 @@
 (defn- draw-torpedo-shots [state]
   (draw-objects-in state
                    (filter #(= :torpedo (:type %)) (:shots (:world state)))
-                   (partial draw-torpedo white)))
+                   (partial draw-torpedo uic/white)))
 
 (defn- draw-klingon-torpedo-shots [state]
   (draw-objects-in state
                    (filter #(= :klingon-torpedo (:type %)) (:shots (:world state)))
-                   (partial draw-torpedo green)))
+                   (partial draw-torpedo uic/green)))
 
 (defn- draw-romulan-blast-shots [state]
   (draw-objects-in state
                    (filter #(= :romulan-blast (:type %)) (:shots (:world state)))
-                   (partial draw-romulan-shot (/ (:w state) tactical-range))))
+                   (partial icons/draw-romulan-shot (/ (:w state) glc/tactical-range))))
 
 (defn- draw-kinetic-shot [color _]
   (q/ellipse-mode :center)
@@ -174,27 +174,27 @@
 (defn- draw-kinetic-shots [state]
   (draw-objects-in state
                    (filter #(= :kinetic (:type %)) (:shots (:world state)))
-                   (partial draw-kinetic-shot kinetic-color)))
+                   (partial draw-kinetic-shot uic/kinetic-color)))
 
 (defn- draw-klingon-kinetic-shots [state]
   (draw-objects-in state
                    (filter #(= :klingon-kinetic (:type %)) (:shots (:world state)))
-                   (partial draw-kinetic-shot klingon-kinetic-color)))
+                   (partial draw-kinetic-shot uic/klingon-kinetic-color)))
 
 (defn- phaser-intensity [range]
-  (let [intensity (* 255 (- 1 (/ range phaser-range)))]
+  (let [intensity (* 255 (- 1 (/ range glc/phaser-range)))]
     [intensity intensity intensity]))
 
 (defn- phaser-color [shot]
   (phaser-intensity (:range shot)))
 
 (defn- klingon-phaser-color [_]
-  green)
+  uic/green)
 
 (defn- draw-phaser-shot [color-function shot]
   (let [{:keys [bearing]} shot
-        radians (->radians bearing)
-        [sx sy] (vector/from-angular phaser-length radians)
+        radians (geo/->radians bearing)
+        [sx sy] (vector/from-angular uic/phaser-length radians)
         beam-color (color-function shot)]
     (apply q/stroke beam-color)
     (q/stroke-weight 3)
@@ -232,17 +232,17 @@
         (let [profile-entry (first profile)
               {:keys [until colors]} profile-entry
               [c1 c2] colors
-              diff (color-diff c2 c1)
+              diff (util/color-diff c2 c1)
               span (- until last-age)
-              increment (color-scale diff (/ (- age last-age) span))]
-          (color-add increment c1))
+              increment (util/color-scale diff (/ (- age last-age) span))]
+          (util/color-add increment c1))
         (let [profile-entry (first profile)
               {:keys [until colors]} profile-entry]
           (recur (rest profile) until (last colors)))))))
 
 (defn draw-fragment [fragment age fragment-color]
   (let [{:keys [velocity direction]} fragment
-        radians (->radians direction)
+        radians (geo/->radians direction)
         velocity-vector (vector/from-angular velocity radians)
         [hx hy] (vector/scale age velocity-vector)
         [tx ty] (vector/scale (* age 0.9) velocity-vector)
@@ -255,7 +255,7 @@
   (let [{:keys [age type]} explosion
         {:keys [explosion-profile
                 explosion-color-profile
-                fragment-color-profile]} (type explosion-profiles)]
+                fragment-color-profile]} (type uic/explosion-profiles)]
     (let [fragments (present-objects state (:fragments explosion))
           radius (explosion-radius age explosion-profile)
           explosion-color (age-color age explosion-color-profile)
@@ -273,7 +273,7 @@
   (draw-objects state :explosions (partial draw-explosion state)))
 
 (defn- draw-clouds [state]
-  (draw-objects state :clouds draw-cloud-icon))
+  (draw-objects state :clouds icons/draw-cloud-icon))
 
 (defn- draw-shots [state]
   (draw-phaser-shots state)
@@ -311,7 +311,7 @@
           last-left-down (:left-down state)
           mx (q/mouse-x)
           my (q/mouse-y)
-          mouse-in (inside-rect [x y w h] [mx my])
+          mouse-in (geo/inside-rect [x y w h] [mx my])
           left-down (and mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
           state (assoc state :mouse-in mouse-in :left-down left-down)
           left-up (and (not left-down) last-left-down mouse-in)
