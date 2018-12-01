@@ -1,8 +1,7 @@
 (ns spacewar.ui.widgets.horizontal-scale
   (:require [quil.core :as q]
-              [spacewar.ui.protocols :as p]
-              [spacewar.geometry :refer :all]
-              [spacewar.ui.config :refer :all]))
+            [spacewar.ui.protocols :as p]
+            [spacewar.ui.config :as uic]))
 
 (defn mercury-color [value thresholds]
   (let [max-value (first (last thresholds))
@@ -24,7 +23,7 @@
           scale-x (+ x name-gap)
           range (- max min)
           mercury (* scale-w (/ (- value min) range))]
-      (apply q/fill black)
+      (apply q/fill uic/black)
       (q/text-align :left :top)
       (q/text-font (:lcars (q/state :fonts)) 18)
       (q/text name x y)
