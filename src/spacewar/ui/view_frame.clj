@@ -1,11 +1,9 @@
 (ns spacewar.ui.view-frame
   (:require [quil.core :as q]
-            [spacewar.ui.config :refer :all]
-            [spacewar.game-logic.config :refer :all]
-            [spacewar.game-logic.world :refer :all]
-            [spacewar.ui.strategic-scan :refer :all]
-            [spacewar.ui.tactical-scan :refer :all]
-            [spacewar.ui.front-view :refer :all]
+            [spacewar.ui.config :as uic]
+            [spacewar.ui.strategic-scan :refer [->strategic-scan]]
+            [spacewar.ui.tactical-scan :refer [->tactical-scan]]
+            [spacewar.ui.front-view :refer [->front-view]]
             [spacewar.ui.protocols :as p]))
 
 (defn update-messages [ms world]
@@ -20,7 +18,7 @@
         lines (map :text messages)
         text (clojure.string/join "\n" lines)]
     (when (not (empty? messages))
-      (apply q/fill (conj green 180))
+      (apply q/fill (conj uic/green 180))
       (q/text-font (:messages (q/state :fonts)) 24)
       (q/text-align :left :bottom)
       (q/with-translation
@@ -36,7 +34,7 @@
       (q/fill 0 0 255)
       (q/rect-mode :corner)
       (q/rect (- x 5) (- y 5) (+ w 10) (+ h 10))
-      (apply q/fill black)
+      (apply q/fill uic/black)
       (q/rect x y w h 5)
       (q/clip x y w h)
       (when (not (:sensor-loss state))
