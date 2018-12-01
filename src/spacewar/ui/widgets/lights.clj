@@ -1,8 +1,7 @@
 (ns spacewar.ui.widgets.lights
   (:require [quil.core :as q]
             [spacewar.ui.protocols :as p]
-            [spacewar.geometry :refer :all]
-            [spacewar.ui.config :refer :all]))
+            [spacewar.ui.config :as uic]))
 
 (defn rectangle-light [x y w h]
   (q/rect-mode :corner)
@@ -23,7 +22,7 @@
   (clone [_ clone-state] (indicator-light. clone-state))
   (draw [_]
     (let [{:keys [x y w h level draw-func colors]} state]
-      (apply q/stroke black)
+      (apply q/stroke uic/black)
       (q/stroke-weight 1)
       (apply q/fill (nth colors level))
       (draw-func x y w h)))
