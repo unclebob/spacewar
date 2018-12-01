@@ -4,7 +4,7 @@
             [spacewar.ui.complex :as main-viewer]
             [spacewar.ui.view-frame :as view-frame]
             [spacewar.ui.protocols :as p]
-            [spacewar.game-logic.config :as gc]
+            [spacewar.game-logic.config :as glc]
             [spacewar.game-logic.world :as world]
             [spacewar.game-logic.ship :as ship]
             [spacewar.game-logic.stars :as stars]
@@ -64,7 +64,7 @@
 
 (defn setup []
   (let [vmargin 30 hmargin 5]
-    (q/frame-rate gc/frame-rate)
+    (q/frame-rate glc/frame-rate)
     (q/color-mode :rgb)
     (q/background 200 200 200)
     (q/ellipse-mode :corner)
@@ -91,17 +91,17 @@
   (println event)
   (let [[x y] (:pos event)
         clouds (:clouds world)
-        cloud (clouds/make-cloud x y gc/klingon-debris)
+        cloud (clouds/make-cloud x y glc/klingon-debris)
         clouds (conj clouds cloud)]
     (assoc world :clouds clouds)))
 
 (defn- debug-resupply-ship [_ world]
   (let [ship (:ship world)
-        ship (assoc ship :antimatter gc/ship-antimatter
-                         :dilithium gc/ship-dilithium
-                         :torpedos gc/ship-torpedos
-                         :kinetics gc/ship-kinetics
-                         :shields gc/ship-shields
+        ship (assoc ship :antimatter glc/ship-antimatter
+                         :dilithium glc/ship-dilithium
+                         :torpedos glc/ship-torpedos
+                         :kinetics glc/ship-kinetics
+                         :shields glc/ship-shields
                          :core-temp 0
                          :hull-damage 0
                          :weapons-damage 0
@@ -179,9 +179,9 @@
   (let [ship (:ship world)
         shields (:shields ship)]
     (cond
-      (< shields (/ gc/ship-shields 5)) (msg world "Captain! Shields are buckling!")
-      (< shields (/ gc/ship-shields 2)) (msg world "Taking Damage sir!")
-      (< shields gc/ship-shields) (msg world "Shields Holding sir!")
+      (< shields (/ glc/ship-shields 5)) (msg world "Captain! Shields are buckling!")
+      (< shields (/ glc/ship-shields 2)) (msg world "Taking Damage sir!")
+      (< shields glc/ship-shields) (msg world "Shields Holding sir!")
       :else world)))
 
 (defn- add-messages [world]
