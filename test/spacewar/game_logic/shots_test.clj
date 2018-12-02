@@ -1,7 +1,39 @@
 (ns spacewar.game-logic.shots-test
-  (:require [midje.sweet :refer :all]
-            [spacewar.game-logic.config :refer :all]
-            [spacewar.game-logic.shots :refer :all]
+  (:require [midje.sweet :refer [facts fact tabular roughly =>]]
+            [spacewar.game-logic.config :refer [phaser-velocity
+                                                kinetic-velocity
+                                                phaser-range
+                                                torpedo-velocity
+                                                torpedo-range
+                                                phaser-proximity
+                                                torpedo-proximity
+                                                kinetic-proximity
+                                                torpedo-damage
+                                                kinetic-damage
+                                                ship-shields
+                                                klingon-kinetic-proximity
+                                                klingon-kinetic-damage
+                                                klingon-torpedo-damage
+                                                klingon-phaser-damage
+                                                klingon-torpedo-proximity
+                                                klingon-phaser-proximity
+                                                ship-antimatter
+                                                phaser-power
+                                                ship-kinetics
+                                                ship-torpedos]]
+            [spacewar.game-logic.shots :refer [update-shot-positions
+                                               fire-weapon
+                                               update-hits
+                                               update-ship-hits
+                                               ->shot
+                                               weapon-fire-handler
+                                               calc-damage
+                                               incur-damage
+                                               corrupt-shots-by-damage
+                                               weapon-failure-dice
+                                               weapon-bearing-deviation
+                                               warp-bearing-deviation
+                                               warp-corruption]]
             [spacewar.game-logic.test-mother :as mom]))
 
 (facts

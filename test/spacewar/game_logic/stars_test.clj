@@ -1,6 +1,6 @@
 (ns spacewar.game-logic.stars-test
-  (:require [midje.sweet :refer :all]
-            [spacewar.game-logic.config :refer :all]
+  (:require [midje.sweet :refer [facts fact]]
+            [spacewar.game-logic.config :refer [number-of-stars]]
             [spacewar.game-logic.stars :as s]
             [clojure.spec.alpha :as spec]))
 
