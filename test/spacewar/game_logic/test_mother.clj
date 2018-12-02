@@ -1,7 +1,12 @@
 (ns spacewar.game-logic.test-mother
-  (:require [midje.sweet :refer :all]
+  (:require [midje.sweet :refer [chatty-checker]]
             [clojure.spec.alpha :as spec]
-            [spacewar.game-logic.config :refer :all]
+            [spacewar.game-logic.config :refer [ship-antimatter
+                                                ship-dilithium
+                                                ship-shields
+                                                ship-kinetics
+                                                ship-torpedos
+                                                klingon-shields]]
             [spacewar.core :as core]
             [spacewar.game-logic.ship :as ship]
             [spacewar.game-logic.klingons :as klingons]
