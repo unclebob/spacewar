@@ -1,7 +1,15 @@
 (ns spacewar.game-logic.clouds-test
-  (:require [midje.sweet :refer :all]
-            [spacewar.game-logic.config :refer :all]
-            [spacewar.game-logic.clouds :refer :all]
+  (:require [midje.sweet :refer [fact
+                                 roughly]]
+            [spacewar.game-logic.config :refer [cloud-decay-rate
+                                                dilithium-harvest-range
+                                                dilithium-harvest-rate
+                                                ship-dilithium]]
+            [spacewar.game-logic.clouds :refer [make-cloud
+                                                valid-cloud?
+                                                update-clouds-age
+                                                harvest-dilithium
+                                                update-dilithium-harvest]]
             [spacewar.game-logic.test-mother :as mom]))
 
 (fact
