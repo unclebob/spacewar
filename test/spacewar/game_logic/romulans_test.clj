@@ -1,5 +1,5 @@
 (ns spacewar.game-logic.romulans-test
-  (:require [midje.sweet :refer :all]
+  (:require [midje.sweet :refer [facts fact tabular => roughly]]
             [spacewar.game-logic.romulans :as r]
             [spacewar.game-logic.test-mother :as mom]))
 

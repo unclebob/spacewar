@@ -1,7 +1,40 @@
 (ns spacewar.game-logic.ship-test
-  (:require [midje.sweet :refer :all]
-            [spacewar.game-logic.config :refer :all]
-            [spacewar.game-logic.ship :refer :all]
+  (:require [midje.sweet :refer [facts fact tabular => roughly anything]]
+            [spacewar.game-logic.config :refer [rotation-rate
+                                                drag-factor
+                                                impulse-thrust
+                                                ship-shield-recharge-rate
+                                                ship-antimatter
+                                                ship-shields
+                                                ship-docking-distance
+                                                ship-dilithium
+                                                ship-kinetics
+                                                ship-torpedos
+                                                ship-deploy-distance
+                                                ship-repair-capacity
+                                                ship-dilithium-consumption
+                                                antimatter-to-heat
+                                                dilithium-heat-dissipation
+                                                base-deployment-antimatter
+                                                base-deployment-dilithium
+                                                ]]
+            [spacewar.game-logic.ship :refer [rotation-direction
+                                              rotate-ship
+                                              drag
+                                              apply-drag
+                                              apply-impulse
+                                              charge-shields
+                                              dockable?
+                                              dock-ship
+                                              deployable?
+                                              repair-capacity
+                                              repair-ship
+                                              update-destruction
+                                              calc-dilithium-consumed
+                                              update-ship
+                                              heat-core
+                                              dissipate-core-heat
+                                              deploy-base]]
             [spacewar.vector-test :as vt]
             [spacewar.vector :as vector]
             [midje.experimental :refer [for-all]]
