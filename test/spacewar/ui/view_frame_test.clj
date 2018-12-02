@@ -1,7 +1,7 @@
 (ns spacewar.ui.view-frame-test
-  (:require [midje.sweet :refer :all]
-            [spacewar.game-logic.world :refer :all]
-            [spacewar.ui.view-frame :refer :all]
+  (:require [midje.sweet :refer [facts fact =>]]
+            [spacewar.game-logic.world :refer [add-message]]
+            [spacewar.ui.view-frame :refer [update-messages]]
             [spacewar.game-logic.test-mother :as mom]))
 
 (facts

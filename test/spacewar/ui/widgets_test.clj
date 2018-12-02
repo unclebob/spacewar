@@ -1,6 +1,6 @@
 (ns spacewar.ui.widgets-test
-    (:require [midje.sweet :refer :all]
-              [spacewar.ui.widgets.direction-selector :refer :all]
+    (:require [midje.sweet :refer [facts fact => tabular]]
+              [spacewar.ui.widgets.direction-selector :refer [degree-tick]]
               [spacewar.ui.widgets.horizontal-scale :as scale]
               [spacewar.ui.config :refer :all]))
 
