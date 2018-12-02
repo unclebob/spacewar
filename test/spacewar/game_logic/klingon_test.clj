@@ -1,6 +1,28 @@
 (ns spacewar.game-logic.klingon-test
-  (:require [midje.sweet :refer :all]
-            [spacewar.game-logic.config :refer :all]
+  (:require [midje.sweet :refer [fact facts => tabular roughly anything]]
+            [spacewar.game-logic.config :refer [klingon-shields
+                                                number-of-klingons
+                                                klingon-antimatter
+                                                klingon-battle-state-transition-age
+                                                phaser-range
+                                                phaser-damage
+                                                klingon-shield-recharge-rate
+                                                klingon-shield-recharge-cost
+                                                klingon-kinetic-firing-distance
+                                                klingon-kinetic-power
+                                                klingon-kinetic-threshold
+                                                klingon-phaser-firing-distance
+                                                klingon-phaser-power
+                                                klingon-phaser-threshold
+                                                klingon-torpedo-firing-distance
+                                                klingon-torpedo-threshold
+                                                klingon-torpedo-power
+                                                klingon-tactical-range
+                                                klingon-thrust
+                                                klingon-antimatter-runaway-threshold
+                                                klingon-evasion-limit
+                                                ship-docking-distance
+                                                klingon-evasion-trajectories]]
             [spacewar.game-logic.klingons :as k]
             [spacewar.game-logic.test-mother :as mom]
             [clojure.spec.alpha :as s]
