@@ -1,6 +1,22 @@
 (ns spacewar.game-logic.test-mother-test
-  (:require [midje.sweet :refer :all]
-            [spacewar.game-logic.test-mother :refer :all]))
+  (:require [midje.sweet :refer [fact]]
+            [spacewar.game-logic.test-mother :refer [make-world
+                                                     valid-world?
+                                                     make-ship
+                                                     valid-ship?
+                                                     make-klingon
+                                                     valid-klingon?
+                                                     make-shot
+                                                     valid-shot?
+                                                     make-star
+                                                     valid-star?
+                                                     make-base
+                                                     valid-base?
+                                                     make-romulan
+                                                     valid-romulan?
+                                                     set-pos
+                                                     set-ship
+                                                     set-klingons]]))
 
 (fact "make-world"
       (make-world) => valid-world?)
