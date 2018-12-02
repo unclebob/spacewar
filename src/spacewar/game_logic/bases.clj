@@ -3,7 +3,6 @@
             [spacewar.util :as util]
             [spacewar.geometry :as geo]
             [spacewar.vector :as vector]
-            ;[spacewar.game-logic.config :refer :all]
             [spacewar.game-logic.config :as glc]
             [clojure.math.combinatorics :as combo]))
 

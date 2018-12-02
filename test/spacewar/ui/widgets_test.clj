@@ -2,7 +2,7 @@
     (:require [midje.sweet :refer [facts fact => tabular]]
               [spacewar.ui.widgets.direction-selector :refer [degree-tick]]
               [spacewar.ui.widgets.horizontal-scale :as scale]
-              [spacewar.ui.config :refer :all]))
+              [spacewar.ui.config :refer [white yellow red]]))
 
 (facts
   "direction-selector"

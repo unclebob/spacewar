@@ -9,7 +9,9 @@
                                         [damage-panel :refer [->damage-panel]]
                                         [status-panel :refer [->status-panel]]
                                         [deploy-panel :refer [->deploy-panel]])
-            (spacewar.ui.widgets [lights :refer :all])))
+            (spacewar.ui.widgets [lights :refer [->indicator-light
+                                                 rectangle-light
+                                                 round-light]])))
 
 (defn draw-light-panel [state]
   (let [{:keys [x y w h indicators background]} state]

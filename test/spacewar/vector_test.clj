@@ -1,5 +1,5 @@
 (ns spacewar.vector-test
-  (:require [midje.sweet :refer :all]
+  (:require [midje.sweet :refer [fact facts => roughly]]
             [spacewar.vector :as v]
             [midje.experimental :refer [for-all]]
             [clojure.spec.alpha :as s]))

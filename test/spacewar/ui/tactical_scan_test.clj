@@ -1,8 +1,9 @@
 (ns spacewar.ui.tactical-scan-test
-  (:require [midje.sweet :refer :all]
-            [spacewar.ui.tactical-scan :refer :all]
-            [spacewar.ui.config :refer :all]
-            [spacewar.geometry :refer :all]))
+  (:require [midje.sweet :refer [tabular facts fact => roughly]]
+            [spacewar.ui.tactical-scan :refer [explosion-radius
+                                               age-color
+                                               target-arc]]
+            [spacewar.ui.config :refer [phaser-target torpedo-target]]))
 
 (tabular
   (fact
