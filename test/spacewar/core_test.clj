@@ -1,15 +1,20 @@
 (ns spacewar.core-test
-  (:require [midje.sweet :refer :all]
-            [spacewar.core :refer :all]
+  (:require [midje.sweet :refer [facts fact tabular => roughly]]
+            [spacewar.core :refer [make-initial-world
+                                   process-events
+                                   update-world
+                                   add-frame-time
+                                   frames-per-second]]
             [spacewar.vector-test :as vt]
-            [spacewar.game-logic.config :refer :all]
-            [spacewar.game-logic.test-mother :refer :all]
+            [spacewar.game-logic.config :refer [warp-threshold
+                                                warp-leap]]
+            [spacewar.game-logic.test-mother :as mom]
             [spacewar.game-logic.test-mother :as mom]
             [quil.core :as q]))
 
 (fact
   "initial world is created correctly"
-  (make-initial-world) => valid-world?
+  (make-initial-world) => mom/valid-world?
   (provided (q/millis) => 0)
   )
 
