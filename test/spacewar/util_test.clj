@@ -1,6 +1,6 @@
 (ns spacewar.util-test
-  (:require [midje.sweet :refer :all]
-            [spacewar.util :refer :all]))
+  (:require [midje.sweet :refer [facts fact => ]]
+            [spacewar.util :refer [get-event]]))
 
 (facts
   "about events"
