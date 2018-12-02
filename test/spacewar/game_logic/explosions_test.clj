@@ -1,7 +1,7 @@
 (ns spacewar.game-logic.explosions-test
-  (:require [midje.sweet :refer :all]
-            [spacewar.game-logic.config :refer :all]
-            [spacewar.game-logic.explosions :refer :all]))
+  (:require [midje.sweet :refer [fact]]
+            [spacewar.game-logic.explosions :refer [update-explosions
+                                                    make-fragments]]))
 
 (fact
   "update-explosions"
