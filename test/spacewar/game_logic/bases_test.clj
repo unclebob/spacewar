@@ -1,5 +1,5 @@
 (ns spacewar.game-logic.bases-test
-  (:require [midje.sweet :refer :all]
+  (:require [midje.sweet :refer [fact facts just tabular =>]]
             [spacewar.game-logic.config :as glc]
             [spacewar.game-logic.bases :refer [make-random-base
                                                age-bases
