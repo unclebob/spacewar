@@ -1,6 +1,12 @@
 (ns spacewar.ui.protocol-test
-  (:require [midje.sweet :refer :all]
-            [spacewar.ui.protocols :refer :all]))
+  (:require [midje.sweet :refer [facts fact =>]]
+            [spacewar.ui.protocols :refer [draw
+                                           setup
+                                           update-state
+                                           get-state
+                                           update-elements
+                                           change-elements]])
+  (:import (spacewar.ui.protocols Drawable)))
 
 (deftype mock-drawable [state]
   Drawable
