@@ -1,6 +1,14 @@
 (ns spacewar.geometry-test
-  (:require [midje.sweet :refer :all]
-            [spacewar.geometry :refer :all]
+  (:require [midje.sweet :refer [facts fact => roughly =not=>]]
+            [spacewar.geometry :refer [distance
+                                       inside-circle
+                                       angle-degrees
+                                       ->degrees
+                                       ->radians
+                                       abs
+                                       inside-rect
+                                       round
+                                       sign]]
             [clojure.spec.alpha :as s]
             [midje.experimental :refer [for-all]]))
 
