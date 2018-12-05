@@ -15,7 +15,8 @@
             [spacewar.game-logic.clouds :as clouds]
             [spacewar.game-logic.romulans :as romulans]
             [spacewar.util :as util]
-            [clojure.spec.alpha :as s]))
+            [clojure.spec.alpha :as s]
+            [clojure.java.io :as io]))
 
 (s/def ::update-time number?)
 (s/def ::transport-check-time number?)
@@ -63,7 +64,8 @@
      :game-over false}))
 
 (defn setup []
-  (let [vmargin 30 hmargin 5]
+  (let [vmargin 30
+        hmargin 5]
     (q/frame-rate glc/frame-rate)
     (q/color-mode :rgb)
     (q/background 200 200 200)
@@ -74,7 +76,9 @@
                 {:x hmargin :y vmargin
                  :w (- (q/width) (* 2 hmargin))
                  :h (- (q/height) (* 2 vmargin))}))
-     :world (make-initial-world)
+     :world (if (.exists (io/file "starwars.world"))
+              (read-string (slurp "starwars.world"))
+              (make-initial-world))
      :fonts {:lcars (q/create-font "Helvetica-Bold" 24)
              :lcars-small (q/create-font "Arial" 18)
              :messages (q/create-font "Bank Gothic" 24)}
@@ -153,14 +157,16 @@
         game-over (:game-over world)
         explosions (:explosions world)
         messages (:messages world)
-        game-ending (and destroyed (not game-over))
+        game-ending? (and destroyed (not game-over))
         game-over destroyed
-        explosions (if game-ending
+        explosions (if game-ending?
                      (conj explosions (ship-explosion ship))
                      explosions)
-        messages (if game-ending
+        messages (if game-ending?
                    (conj messages {:text "Game Over!" :duration 10000000})
                    messages)]
+    (when game-ending?
+      (.delete (io/file "starwars.world")))
     (assoc world :game-over game-over
                  :explosions explosions
                  :messages messages)
@@ -236,7 +242,7 @@
   (let [world (:world context)
         time (q/millis)
         last-update-time (:update-time world)
-        ms (- time last-update-time)
+        ms (max 1 (- time last-update-time)) ;negative values imply restarting from file.
         context (add-frame-time ms context)
         frame-times (:frame-times context)
         fps (frames-per-second frame-times)
@@ -249,9 +255,13 @@
         world (process-events events world)
         world (update-world ms world)
         new-second? (not= (int (/ time 1000)) (int (/ last-update-time 1000)))
+        new-minute? (not= (int (/ time 5000)) (int (/ last-update-time 5000)))
+
         world (if new-second?
                 (update-world-per-second world)
                 world)]
+    (when (and new-minute? (not (:game-over world)))
+      (spit "starwars.world" world))
     (assoc context
       :state complex
       :world world)))
