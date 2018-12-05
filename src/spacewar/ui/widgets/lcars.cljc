@@ -1,5 +1,5 @@
 (ns spacewar.ui.widgets.lcars
-  (:require [quil.core :as q]
+  (:require [quil.core :as q #?@(:cljs [:include-macros true])]
             [spacewar.ui.config :as uic]))
 
 (defn- lcars-points [state]
@@ -29,6 +29,15 @@
        :c2 [(+ x w (- uic/stringer-width)) (+ y uic/banner-width)]
        :label-position [(+ x 10) (+ y 10)]})))
 
+(defn quadratic-vertex [x1 y1 cx cy x3 y3]
+  (q/bezier-vertex
+    (+ x1 (* (/ 2 3) (- cx x1)))
+    (+ y1 (* (/ 2 3) (- cy y1)))
+    (+ x3 (* (/ 2 3) (- cx x3)))
+    (+ y3 (* (/ 2 3) (- cy y3)))
+    x3
+    y3))
+
 (defn draw-banner [state]
   (let [color (:color state)
         {:keys [a b c d e f g h c1 c2 label-position]} (lcars-points state)]
@@ -37,11 +46,13 @@
     (q/begin-shape)
     (apply q/vertex a)
     (apply q/vertex b)
-    (apply q/quadratic-vertex (concat c1 c))
+    #?(:clj  (apply q/quadratic-vertex (concat c1 c))
+       :cljs (apply quadratic-vertex (concat b c1 c)))
     (apply q/vertex d)
     (apply q/vertex e)
     (apply q/vertex f)
-    (apply q/quadratic-vertex (concat c2 g))
+    #?(:clj  (apply q/quadratic-vertex (concat c2 g))
+       :cljs (apply quadratic-vertex (concat f c2 g)))
     (apply q/vertex h)
     (apply q/vertex a)
     (q/end-shape)

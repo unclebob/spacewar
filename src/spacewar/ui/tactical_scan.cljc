@@ -1,5 +1,5 @@
 (ns spacewar.ui.tactical-scan
-  (:require [quil.core :as q]
+  (:require [quil.core :as q #?@(:cljs [:include-macros true])]
             [spacewar.util :as util]
             [spacewar.ui.config :as uic]
             [spacewar.ui.icons :as icons]
@@ -130,7 +130,7 @@
         (q/no-stroke)
         (q/fill 255 255 255 50)
         (q/ellipse-mode :center)
-        (q/arc 0 0 tgt-radius tgt-radius start stop :pie))
+        (q/arc 0 0 tgt-radius tgt-radius start stop #?(:clj :pie)))
       (icons/draw-ship-icon [vx vy] radians)
       )))
 

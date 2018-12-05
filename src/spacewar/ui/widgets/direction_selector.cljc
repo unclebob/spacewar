@@ -1,5 +1,5 @@
 (ns spacewar.ui.widgets.direction-selector
-  (:require [quil.core :as q]
+  (:require [quil.core :as q #?@(:cljs [:include-macros true])]
             [spacewar.ui.protocols :as p]
             [spacewar.geometry :as geo]
             [spacewar.ui.config :as uic]

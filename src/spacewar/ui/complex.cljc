@@ -1,17 +1,17 @@
 (ns spacewar.ui.complex
-  (:require [quil.core :as q]
-            (spacewar.ui [protocols :as p]
-                         [view-frame :as f]
-                         [config :as uic])
-            (spacewar.ui.control-panels [scan-panel :refer [->scan-panel]]
-                                        [engine-panel :refer [->engine-panel]]
-                                        [weapons-panel :refer [->weapons-panel]]
-                                        [damage-panel :refer [->damage-panel]]
-                                        [status-panel :refer [->status-panel]]
-                                        [deploy-panel :refer [->deploy-panel]])
-            (spacewar.ui.widgets [lights :refer [->indicator-light
-                                                 rectangle-light
-                                                 round-light]])))
+  (:require [quil.core :as q #?@(:cljs [:include-macros true])]
+            [spacewar.ui.protocols :as p]
+            [spacewar.ui.view-frame :as f]
+            [spacewar.ui.config :as uic]
+            [spacewar.ui.control-panels.scan-panel :refer [->scan-panel]]
+            [spacewar.ui.control-panels.engine-panel :refer [->engine-panel]]
+            [spacewar.ui.control-panels.weapons-panel :refer [->weapons-panel]]
+            [spacewar.ui.control-panels.damage-panel :refer [->damage-panel]]
+            [spacewar.ui.control-panels.status-panel :refer [->status-panel]]
+            [spacewar.ui.control-panels.deploy-panel :refer [->deploy-panel]]
+            [spacewar.ui.widgets.lights :refer [->indicator-light
+                                                rectangle-light
+                                                round-light]]))
 
 (defn draw-light-panel [state]
   (let [{:keys [x y w h indicators background]} state]
@@ -109,7 +109,8 @@
     (q/text-font (:lcars (q/state :fonts)) 18)
     (let [{:keys [x y fps]} state
           fps (or fps 0)
-          fps (format "FPS: %6.2f" (float fps))]
+          fps #?(:clj (format "FPS: %6.2f" (float fps))
+                 :cljs (str "FPS: " (.toFixed fps 2)))]
       (q/text fps x y))
     )
 

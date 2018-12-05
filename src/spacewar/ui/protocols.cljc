@@ -1,4 +1,5 @@
 (ns spacewar.ui.protocols
+  #?(:cljs (:refer-clojure :exclude [clone]))
   (:require [clojure.spec.alpha :as s]))
 
 ;update-state returns [new-drawable [events]]
