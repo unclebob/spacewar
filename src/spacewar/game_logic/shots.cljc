@@ -8,7 +8,7 @@
     [clojure.set :as set]
     [spacewar.game-logic.explosions :as explosions]
     [clojure.spec.alpha :as s]
-    [quil.core :as q]))
+    [quil.core :as q #?@(:cljs [:include-macros true])]))
 
 
 (s/def ::x number?)

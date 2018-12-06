@@ -7,7 +7,7 @@
             [spacewar.ui.widgets.direction-selector :refer [->direction-selector]]
             [spacewar.ui.widgets.slider :refer [->slider]]
             [spacewar.ui.widgets.engage :refer [->engage]]
-            [quil.core :as q]))
+            [quil.core :as q #?@(:cljs [:include-macros true])]))
 (defn- button-color [selected button]
   (if (= selected button)
     uic/weapons-panel-selection-color

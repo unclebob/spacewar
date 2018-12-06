@@ -9,7 +9,7 @@
             [spacewar.geometry :as geo]
             [spacewar.vector :as vector]
             [spacewar.game-logic.ship :as ship]
-            [quil.core :as q]))
+            [quil.core :as q #?@(:cljs [:include-macros true])]))
 
 (deftype engine-panel [state]
   p/Drawable

@@ -2,7 +2,7 @@
   (:require [clojure.spec.alpha :as s]
             [spacewar.geometry :as geo]))
 
-(s/def ::number (s/or :number number? :rational rational?))
+(s/def ::number (s/or :number number? #?@(:clj [:rational rational?])))
 (s/def ::vector (s/coll-of ::number :count 2))
 
 (defn add [[x1 y1] [x2 y2]]

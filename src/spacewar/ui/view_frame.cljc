@@ -1,5 +1,5 @@
 (ns spacewar.ui.view-frame
-  (:require [quil.core :as q]
+  (:require [quil.core :as q #?@(:cljs [:include-macros true])]
             [spacewar.ui.config :as uic]
             [spacewar.ui.strategic-scan :refer [->strategic-scan]]
             [spacewar.ui.tactical-scan :refer [->tactical-scan]]
@@ -25,6 +25,13 @@
         [message-x (+ y h)]
         (q/text text 0 0)))))
 
+(defn fill-outside-rect [x y w h screen-w screen-h rgb]
+  (apply q/fill rgb)
+  (q/no-stroke)
+  (q/rect 0 0 x screen-h)
+  (q/rect x 0 w y)
+  (q/rect (+ x w) 0 (- screen-w w x) screen-h)
+  (q/rect x (+ y h) w (- screen-h h y)))
 
 (deftype view-frame [state]
   p/Drawable
@@ -36,11 +43,14 @@
       (q/rect (- x 5) (- y 5) (+ w 10) (+ h 10))
       (apply q/fill uic/black)
       (q/rect x y w h 5)
-      (q/clip x y w h)
+      #?(:clj (q/clip x y w h))
       (when (not (:sensor-loss state))
         (p/draw contents))
+      #?(:cljs (fill-outside-rect (- x 5) (- y 5) (+ w 10) (+ h 10)
+                 (.-width (q/current-graphics)) (.-height (q/current-graphics))
+                 uic/light-grey))
       (draw-messages state)
-      (q/no-clip)))
+      #?(:clj (q/no-clip))))
 
   (setup [_] (let [{:keys [x y w h]} state
                    bounds {:x x :y y :h h :w w}

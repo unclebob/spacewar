@@ -1,6 +1,6 @@
 (ns spacewar.ui.control-panels.damage-panel
-  (:require (spacewar.ui [protocols :as p]
-                         [config :as uic])
+  (:require [spacewar.ui.protocols :as p]
+            [spacewar.ui.config :as uic]
             [spacewar.ui.widgets.lcars :as lcars]
             [spacewar.ui.widgets.lights :as lights]
             [spacewar.ui.widgets.named-indicator :refer [->named-indicator]]

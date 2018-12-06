@@ -1,5 +1,5 @@
 (ns spacewar.ui.widgets.named-indicator
-  (:require [quil.core :as q]
+  (:require [quil.core :as q #?@(:cljs [:include-macros true])]
             [spacewar.ui.protocols :as p]
             [spacewar.ui.config :as uic]
             [spacewar.ui.widgets.lights :as lights]))

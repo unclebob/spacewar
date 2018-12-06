@@ -1,5 +1,5 @@
 (ns spacewar.ui.front-view
-  (:require [quil.core :as q]
+  (:require [quil.core :as q #?@(:cljs [:include-macros true])]
             [spacewar.geometry :as geo]
             [spacewar.ui.strategic-scan :refer [->strategic-scan]]
             [spacewar.ui.protocols :as p]

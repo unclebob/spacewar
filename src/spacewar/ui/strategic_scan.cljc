@@ -1,5 +1,5 @@
 (ns spacewar.ui.strategic-scan
-  (:require [quil.core :as q]
+  (:require [quil.core :as q #?@(:cljs [:include-macros true])]
             [spacewar.geometry :as geo]
             [spacewar.ui.config :as uic]
             [spacewar.ui.icons :as icons]
@@ -125,7 +125,7 @@
     (let [{:keys [x y w h]} state]
       (q/with-translation
         [(+ x (/ w 2)) (+ y (/ h 2))]
-        (draw-background state)
+        #?(:clj (draw-background state))
         (draw-stars state)
         (draw-klingons state)
         (when (not (-> state :game-over))

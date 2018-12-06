@@ -1,5 +1,5 @@
 (ns spacewar.core
-  (:require [quil.core :as q]
+  (:require [quil.core :as q #?@(:cljs [:include-macros true])]
             [quil.middleware :as m]
             [spacewar.ui.complex :as main-viewer]
             [spacewar.ui.view-frame :as view-frame]
@@ -16,7 +16,8 @@
             [spacewar.game-logic.romulans :as romulans]
             [spacewar.util :as util]
             [clojure.spec.alpha :as s]
-            [clojure.java.io :as io]))
+            [clojure.tools.reader.edn :as edn]
+            #?(:clj [clojure.java.io :as io])))
 
 (s/def ::update-time number?)
 (s/def ::transport-check-time number?)
@@ -64,13 +65,16 @@
      :game-over false}))
 
 (defn game-saved? []
-  (.exists (io/file "spacewar.world")))
+  #?(:clj  (.exists (io/file "spacewar.world"))
+     :cljs (and (exists? js/localStorage)
+                (.getItem js/localStorage "spacewar.world"))))
 
 (defn setup []
   (let [vmargin 30
         hmargin 5
         world (if (game-saved?)
-                (read-string (slurp "spacewar.world"))
+                #?(:clj  (read-string (slurp "spacewar.world"))
+                   :cljs (edn/read-string (.getItem js/localStorage "spacewar.world")))
                 (make-initial-world))]
     (q/frame-rate glc/frame-rate)
     (q/color-mode :rgb)
@@ -171,7 +175,9 @@
                    (conj messages {:text "Game Over!" :duration 10000000})
                    messages)]
     (when game-ending?
-      (.delete (io/file "spacewar.world")))
+      #?(:clj  (.delete (io/file "spacewar.world"))
+         :cljs (when (exists? js/localStorage)
+                 (.removeItem js/localStorage "spacewar.world"))))
     (assoc world :game-over game-over
                  :explosions explosions
                  :messages messages)
@@ -266,7 +272,9 @@
                 (update-world-per-second world)
                 world)]
     (when (and new-minute? (not (:game-over world)))
-      (spit "spacewar.world" world))
+      #?(:clj  (spit "spacewar.world" world)
+         :cljs (when (exists? js/localStorage)
+                 (.setItem js/localStorage "spacewar.world" world))))
     (assoc context
       :state complex
       :world world)))
@@ -279,11 +287,13 @@
   (p/draw state))
 
 (declare space-war)
-(defn -main [& args]
+(defn ^:export -main [& args]
 
   (q/defsketch space-war
                :title "Space War"
-               :size [(- (q/screen-width) 10) (- (q/screen-height) 40)]
+               :size #?(:clj  [(- (q/screen-width) 10) (- (q/screen-height) 40)]
+                        :cljs [(max (- (.-scrollWidth (.-body js/document)) 20) 900)
+                               (max (- (.-innerHeight js/window) 25) 700)])
                :setup setup
                :update update-state
                :draw draw-state

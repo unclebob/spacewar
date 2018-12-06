@@ -1,5 +1,5 @@
 (ns spacewar.ui.icons
-  (:require [quil.core :as q]
+  (:require [quil.core :as q #?@(:cljs [:include-macros true])]
             [spacewar.ui.config :as uic]
             [spacewar.game-logic.config :as glc]
             [spacewar.geometry :as geo]
@@ -25,7 +25,7 @@
   (q/fill 0 0 0 150)
   (q/no-stroke)
   (q/ellipse-mode :center)
-  (q/arc 0 0 30 30 0 (age-angle age) :pie))
+  (q/arc 0 0 30 30 0 (age-angle age) #?(:clj :pie)))
 
 (defn- draw-base-contents [antimatter dilithium]
   (let [antimatter-angle (* 2 Math/PI (/ antimatter glc/base-antimatter-maximum))

@@ -1,6 +1,6 @@
 (ns spacewar.ui.control-panels.deploy-panel
-  (:require (spacewar.ui [protocols :as p]
-                         [config :as uic])
+  (:require [spacewar.ui.protocols :as p]
+            [spacewar.ui.config :as uic]
             [spacewar.ui.widgets.lcars :as lcars]
             [spacewar.ui.widgets.button :refer [->button]]
             [spacewar.game-logic.ship :as ship]))
