@@ -64,13 +64,13 @@
      :game-over false}))
 
 (defn game-saved? []
-  (.exists (io/file "starwars.world")))
+  (.exists (io/file "spacewar.world")))
 
 (defn setup []
   (let [vmargin 30
         hmargin 5
         world (if (game-saved?)
-                (read-string (slurp "starwars.world"))
+                (read-string (slurp "spacewar.world"))
                 (make-initial-world))]
     (q/frame-rate glc/frame-rate)
     (q/color-mode :rgb)
@@ -171,7 +171,7 @@
                    (conj messages {:text "Game Over!" :duration 10000000})
                    messages)]
     (when game-ending?
-      (.delete (io/file "starwars.world")))
+      (.delete (io/file "spacewar.world")))
     (assoc world :game-over game-over
                  :explosions explosions
                  :messages messages)
@@ -266,7 +266,7 @@
                 (update-world-per-second world)
                 world)]
     (when (and new-minute? (not (:game-over world)))
-      (spit "starwars.world" world))
+      (spit "spacewar.world" world))
     (assoc context
       :state complex
       :world world)))
