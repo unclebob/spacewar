@@ -52,8 +52,8 @@
      :transports []
      :clouds []
      :romulans []
-     :update-time (q/millis)
-     :transport-check-time (q/millis)
+     :update-time 0
+     :transport-check-time 0
      :explosions []
      :shots []
      :ms 0
@@ -65,7 +65,10 @@
 
 (defn setup []
   (let [vmargin 30
-        hmargin 5]
+        hmargin 5
+        world (if (.exists (io/file "starwars.world"))
+                (read-string (slurp "starwars.world"))
+                (make-initial-world))]
     (q/frame-rate glc/frame-rate)
     (q/color-mode :rgb)
     (q/background 200 200 200)
@@ -76,9 +79,8 @@
                 {:x hmargin :y vmargin
                  :w (- (q/width) (* 2 hmargin))
                  :h (- (q/height) (* 2 vmargin))}))
-     :world (if (.exists (io/file "starwars.world"))
-              (read-string (slurp "starwars.world"))
-              (make-initial-world))
+     :world world
+     :base-time (:update-time world)
      :fonts {:lcars (q/create-font "Helvetica-Bold" 24)
              :lcars-small (q/create-font "Arial" 18)
              :messages (q/create-font "Bank Gothic" 24)}
@@ -239,8 +241,8 @@
 
 
 (defn update-state [context]
-  (let [world (:world context)
-        time (q/millis)
+  (let [{:keys [world base-time]} context
+        time (+ base-time (q/millis))
         last-update-time (:update-time world)
         ms (max 1 (- time last-update-time)) ;negative values imply restarting from file.
         context (add-frame-time ms context)

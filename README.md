@@ -201,5 +201,16 @@ non-functional.
   to your systems, and has a one in three chance of killing you outright.  When they appear, you have two options:  Fight, or run. If you choose to fight,
   make sure you hit them before they fire their weapon.  If you choose to run,
   run fast and far; the weapon loses potency with distance. 
+  
+  ## Saving and Pausing
+  
+  The game is saved every five seconds.  You pause the game by quitting.  Your previous
+  game will resume when you start the program up again.  If you lose the game, then
+  the next time you start up you'll be in a new universe, starting over.
+  
+  On the desktop, the game is saved in a file named: `spacewar.world`.  You can delete
+  this file if you want to start a new game.  You can rename this file if you want to
+  set the current game aside and start a new one.  You bring a set-aside game back by
+  renaming it to `spacewar.world`.
    
  
