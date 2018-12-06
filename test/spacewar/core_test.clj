@@ -9,14 +9,11 @@
             [spacewar.game-logic.config :refer [warp-threshold
                                                 warp-leap]]
             [spacewar.game-logic.test-mother :as mom]
-            [spacewar.game-logic.test-mother :as mom]
-            [quil.core :as q]))
+            [spacewar.game-logic.test-mother :as mom]))
 
 (fact
   "initial world is created correctly"
-  (make-initial-world) => mom/valid-world?
-  (provided (q/millis) => 0)
-  )
+  (make-initial-world) => mom/valid-world?)
 
 (tabular
   (fact

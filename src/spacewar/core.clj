@@ -63,10 +63,13 @@
                  :duration 10000}]
      :game-over false}))
 
+(defn game-saved? []
+  (.exists (io/file "starwars.world")))
+
 (defn setup []
   (let [vmargin 30
         hmargin 5
-        world (if (.exists (io/file "starwars.world"))
+        world (if (game-saved?)
                 (read-string (slurp "starwars.world"))
                 (make-initial-world))]
     (q/frame-rate glc/frame-rate)
