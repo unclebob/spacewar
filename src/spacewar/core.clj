@@ -244,7 +244,7 @@
   (let [{:keys [world base-time]} context
         time (+ base-time (q/millis))
         last-update-time (:update-time world)
-        ms (max 1 (- time last-update-time)) ;negative values imply restarting from file.
+        ms (max 1 (- time last-update-time)) ;zero or negative values imply restarting from file.
         context (add-frame-time ms context)
         frame-times (:frame-times context)
         fps (frames-per-second frame-times)
