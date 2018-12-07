@@ -4,7 +4,7 @@
     [spacewar.vector :as vector]
     [spacewar.game-logic.config :as glc]
     [spacewar.game-logic.ship :as ship]
-    [spacewar.util :as util :refer [handle-event]]
+    [spacewar.util :as util :refer [handle-event pos]]
     [clojure.set :as set]
     [spacewar.game-logic.explosions :as explosions]
     [clojure.spec.alpha :as s]
@@ -222,15 +222,13 @@
     (hit-by hits target)))
 
 (defn update-hits [target-tag world]
-  (let [shots (:shots world)
+  (let [{:keys [shots explosions]} world
         relevant-shots (filter #(#{:kinetic :torpedo :phaser} (:type %)) shots)
         targets (target-tag world)
-        explosions (or (:explosions world) [])
         pairs (for [t targets s relevant-shots]
                 {:target t
                  :shot s
-                 :distance (geo/distance [(:x s) (:y s)]
-                                     [(:x t) (:y t)])})
+                 :distance (geo/distance (pos s) (pos t))})
         hits (filter #(>= (shot-proximity (:shot %)) (:distance %)) pairs)
         hit-targets (set (map :target hits))
         hit-shots (set (map :shot hits))
