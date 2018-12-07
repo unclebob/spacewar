@@ -232,12 +232,12 @@
         hits (filter #(>= (shot-proximity (:shot %)) (:distance %)) pairs)
         hit-targets (set (map :target hits))
         hit-shots (set (map :shot hits))
-        targets (set/difference (set targets) hit-targets)
-        shots (set/difference (set shots) hit-shots)
+        un-hit-targets (set/difference (set targets) hit-targets)
+        un-hit-shots (set/difference (set shots) hit-shots)
         hit-targets (map #(process-hit hits %) hit-targets)
         explosions (concat explosions (map #(explosions/shot->explosion %) hit-shots))]
-    (assoc world target-tag (doall (concat targets hit-targets))
-                 :shots (doall (concat shots))
+    (assoc world target-tag (doall (concat un-hit-targets hit-targets))
+                 :shots (doall (concat un-hit-shots))
                  :explosions (doall explosions))))
 
 (defn- friend-or-foe [shot]
