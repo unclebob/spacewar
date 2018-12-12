@@ -110,7 +110,7 @@
                                      [(* -1 impulse-thrust ?ms ?impulse) 0]))))
 
 (fact
-  "sheilds recharge from antimatter"
+  "shields recharge from antimatter"
   (let [ship (mom/make-ship)
         ship (assoc ship :shields 0)
         ms 10
