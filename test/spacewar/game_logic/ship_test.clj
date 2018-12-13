@@ -35,6 +35,7 @@
                                               heat-core
                                               dissipate-core-heat
                                               deploy-base]]
+            [spacewar.game-logic.shots :refer [weapon-fire-handler]]
             [spacewar.vector-test :as vt]
             [spacewar.vector :as vector]
             [midje.experimental :refer [for-all]]
@@ -500,3 +501,13 @@
     (:antimatter ship) => (- ship-antimatter base-deployment-antimatter)
     (:dilithium ship) => (- ship-dilithium base-deployment-dilithium)))
 
+(fact
+  "ship cannot shoot if it is destroyed"
+  (let [world (mom/make-world)
+        ship (assoc (mom/make-ship) :selected-weapon :phaser)
+        ship (assoc ship :hull-damage 100)
+        destroyed-ship (update-destruction ship)
+        world (assoc world :ship destroyed-ship)
+        new-world (weapon-fire-handler {} world)
+        shots (:shots new-world)]
+    (count shots) => 0))
