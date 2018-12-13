@@ -114,7 +114,8 @@
                 antimatter]} ship
         required-power (* weapon-number-setting (power-required selected-weapon))
         can-shoot? (and (< required-power antimatter)
-                        (sufficient-inventory ship))
+                        (sufficient-inventory ship)
+                        (not (:destroyed ship)))
         antimatter (if can-shoot?
                      (- antimatter required-power)
                      antimatter)
