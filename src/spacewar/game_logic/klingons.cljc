@@ -119,7 +119,7 @@
   (for [klingon klingons]
     (if (> glc/klingon-kinetic-firing-distance
            (geo/distance [(:x ship) (:y ship)]
-                     [(:x klingon) (:y klingon)]))
+                         [(:x klingon) (:y klingon)]))
       (let [efficiency (/ (:shields klingon) glc/klingon-shields)
             charge-increment (* ms efficiency)]
         (update klingon :weapon-charge + charge-increment))
@@ -153,7 +153,7 @@
         vx (+ vjx vix)
         vy (+ vjy viy)]
     (geo/angle-degrees [0 0]
-                   [vx vy])))
+                       [vx vy])))
 
 (defn- ready-to-fire-kinetic? [klingon]
   (and
@@ -190,35 +190,45 @@
       (<= glc/klingon-torpedo-threshold
           (:weapon-charge klingon)))))
 
-(defn- weapon-velocity [weapon]
-  (condp = weapon
-    :klingon-kinetic glc/klingon-kinetic-velocity
-    :klingon-phaser glc/klingon-phaser-velocity
-    :klingon-torpedo glc/klingon-torpedo-velocity))
+(defprotocol klingon-weapon
+  (weapon-velocity [this])
+  (weapon-threshold [this])
+  (weapon-power [this])
+  (weapon-inventory [this])
+  (weapon-type [this]))
 
-(defn- weapon-threshold [weapon]
-  (condp = weapon
-    :klingon-kinetic glc/klingon-kinetic-threshold
-    :klingon-phaser glc/klingon-phaser-threshold
-    :klingon-torpedo glc/klingon-torpedo-threshold))
+(deftype klingon-kinetic []
+  klingon-weapon
+  (weapon-velocity [_] glc/klingon-kinetic-velocity)
+  (weapon-threshold [_] glc/klingon-kinetic-threshold)
+  (weapon-power [_] glc/klingon-kinetic-power)
+  (weapon-inventory [_] :kinetics)
+  (weapon-type [_] :klingon-kinetic)
+  )
 
-(defn- weapon-power [weapon]
-  (condp = weapon
-    :klingon-kinetic glc/klingon-kinetic-power
-    :klingon-phaser glc/klingon-phaser-power
-    :klingon-torpedo glc/klingon-torpedo-power))
+(deftype klingon-phaser []
+  klingon-weapon
+  (weapon-velocity [_] glc/klingon-phaser-velocity)
+  (weapon-threshold [_] glc/klingon-phaser-threshold)
+  (weapon-power [_] glc/klingon-phaser-power)
+  (weapon-inventory [_] nil)
+  (weapon-type [_] :klingon-phaser)
+  )
 
-(defn- weapon-inventory [weapon]
-  (condp = weapon
-    :klingon-kinetic :kinetics
-    :klingon-phaser nil
-    :klingon-torpedo :torpedos))
+(deftype klingon-torpedo []
+  klingon-weapon
+  (weapon-velocity [_] glc/klingon-torpedo-velocity)
+  (weapon-threshold [_] glc/klingon-torpedo-threshold)
+  (weapon-power [_] glc/klingon-torpedo-power)
+  (weapon-inventory [_] :torpedos)
+  (weapon-type [_] :klingon-torpedo)
+  )
 
 (defn- fire-shot [klingon ship weapon]
   (shots/->shot
     (:x klingon) (:y klingon)
     (firing-solution klingon ship (weapon-velocity weapon))
-    weapon)
+    (weapon-type weapon))
   )
 
 (defn- apply-weapon-costs [klingon weapon]
@@ -236,9 +246,9 @@
       [fired-klingons shots]
       (let [klingon (first klingons)
             weapon (cond
-                     (ready-to-fire-torpedo? klingon ship) :klingon-torpedo
-                     (ready-to-fire-phaser? klingon ship) :klingon-phaser
-                     (ready-to-fire-kinetic? klingon) :klingon-kinetic
+                     (ready-to-fire-torpedo? klingon ship) (->klingon-torpedo)
+                     (ready-to-fire-phaser? klingon ship) (->klingon-phaser)
+                     (ready-to-fire-kinetic? klingon) (->klingon-kinetic)
                      :else nil)]
         (if weapon
           (recur (rest klingons)
