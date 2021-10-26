@@ -5,7 +5,8 @@ A Star Trek Game.
 >_You can get the source here, or you can just play at http://spacewar.fikesfarm.com/spacewar.html_
 
 The Borg have been defeated; but the federation fleet has been destroyed.
-The enterprise is the only star ship left in service.  
+The enterprise is the only star ship left in service.  A few bases remain, but the transport network
+is completely disrupted.
 
 The Klingons in Federation space took a beating as well.  But the Borg didn't like the taste of
 Klingons in the "collective" so they simply left many crippled Klingon ships
@@ -17,7 +18,7 @@ If so, it won't be long until they arrive in force.
 
 All Federation shipyards were obliterated.  No new ships can be ready in time.
 
-Your mission is to rebuild federation defenses by constructing a network of bases
+Your mission is to rebuild federation defenses by reconstituting the network of bases
 that you can use to supply yourself with antimatter, dilithium, and weapons.  Harvest
 what you can from the crippled Klingons.  Then, if the invasion fleet comes -- defeat it. 
 
@@ -116,14 +117,15 @@ non-functional.
  So it is often a good idea to warp away from a bad situation and wait
  the repairs out.
  
- ## Docking
+## Docking
  To replenish your antimatter, and weapons, you'll need to dock at a base.
  You do this by warping close and then using your impulse engines to approach
  the base as closely as you can.  Put the ship on top of the base.  Watch for the 
  _DOCK_ button to show up in the Engine Control Panel.  Hit that button
  and you'll be refueled and restocked.
  
- ## Bases 
+  
+## Bases 
  There are three kinds of bases.  Antimatter factories, Dilithium factories, and Weapon factories.
   * Antimatter factories manufacture antimatter using the power from nearby O, B, or A
   class stars (the big blue or white ones).
@@ -140,7 +142,7 @@ non-functional.
   Bases do not start making products right away, there is a startup time.  During that time you
   will see the base partially obscured.  Afterwards the bases start slowly manufacturing products. 
   
-  ## Transport routes
+## Transport routes
   On the strategic display you will find green lines that connect some of the bases.
   Cargo transport vessels follow these routes to supply the bases with the resources they need.
   Yellow transports carry dilithium.  Orange transports carry antimatter.  They travel at just over Warp 1.
@@ -149,7 +151,9 @@ non-functional.
   them out.  It is possible to deprive bases of resources by connecting them by long routes to
   bases that have short routes to other bases.  
   
-  ## Production
+  Transport routes have a maximum length.  Bases that are too far apart will not ship goods to each other.  
+  
+## Production
   Weapon bases use antimatter to create kinetics.  This production is quite rapid.  Torpedoes require
   substantial amounts of both antimatter and dilithium to create.  Make sure you have the weapon factories 
   connected, either directly, or indirectly, to antimatter and dilithium factories.  Take care, a weapon factory
@@ -158,14 +162,15 @@ non-functional.
   Dilithium factories require small amounts of antimatter to produce dilithium.  Dilithium
   production is slow, so you will likely need many of these factories. 
  
-  ## Klingons
+  
+## Klingons
   
   Some of the crippled Klingons are still pretty strong.  Be careful.  Others
   are so weakened that they'll run from you and won't put up much of a fight.  They can't detect
   you at long range; but they can detect bases.  So once you place a base down, you
   can expect visitors.  Perhaps _lots_ of visitors.  
   
-  ## Blockades
+## Blockades
   
   Eventually, unless you stop them, the Klingons will invade your bases and take them over. 
   Blockaded bases will not ship any materials to other bases.  Materials manufactured by, or
@@ -174,7 +179,7 @@ non-functional.
   Beware, more than one Klingon can occupy a base.  If you challenge a base with three or four
   Klingons occupying it; be prepared for a pitched battle.  
   
-  ## Klingon Battle Strategy
+## Klingon Battle Strategy
   
   Once your ship is in range of a Klingon's detectors, it will head towards you to do battle.  
   The Klingon strategy is to confuse and delude you.  They accomplish this by continuously
@@ -184,14 +189,14 @@ non-functional.
   When a Klingon is critically low on resources, there is a good chance it will run away.  This
   is a good time to attack them.  Be careful though, the retreat may be a ruse.
   
-  ## Dilithium Clouds
+## Dilithium Clouds
   
   When you destroy a Klingon vessel, their on-board dilithium will disperse amidst
   the cloud of debris.  You can harvest this dilithium by easing yourself as close
   as possible into the _center_ of the cloud.  Dilithium, when exposed to the vacuum,
   has a half-life of about a minute.  So hurry.
   
-  ## Romulans
+## Romulans
   
   Romulans are marauders.  Their ships are cloaked and quite difficult to detect.
   They are quite deadly, due to an omni-directional energy weapon that does
@@ -204,7 +209,7 @@ non-functional.
   make sure you hit them before they fire their weapon.  If you choose to run,
   run fast and far; the weapon loses potency with distance. 
   
-  ## Saving and Pausing
+## Saving and Pausing
   
   The game is saved every five seconds.  You pause the game by quitting.  Your previous
   game will resume when you start the program up again.  If you lose the game, then

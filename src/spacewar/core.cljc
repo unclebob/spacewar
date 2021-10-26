@@ -45,11 +45,12 @@
                                 ::game-over]))
 
 (defn make-initial-world []
-  (let [ship (ship/initialize)]
-    {:stars (stars/initialize)
+  (let [ship (ship/initialize)
+        stars (stars/initialize)]
+    {:stars stars
      :klingons (klingons/initialize)
      :ship ship
-     :bases []
+     :bases (bases/make-random-bases stars)
      :transports []
      :clouds []
      :romulans []

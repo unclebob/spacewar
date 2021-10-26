@@ -35,6 +35,49 @@
    :kinetics 0
    :transport-readiness 0})
 
+
+
+(defn make-random-antimatter-factory [star]
+  (if (< (rand) 0.03)
+    (let [base (make-base [(:x star) (:y star)] :antimatter-factory)
+          base (assoc base :age glc/base-maturity-age
+                           :antimatter (rand (/ glc/base-antimatter-maximum 2)))]
+      base)
+    nil)
+  )
+
+(defn make-random-weapons-factory [star]
+  (if (< (rand) 0.003)
+    (let [base (make-base [(:x star) (:y star)] :weapon-factory)
+          base (assoc base :age glc/base-maturity-age
+                           :torpedos (rand (/ glc/base-torpedos-maximum 2))
+                           :kinetics (rand (/ glc/base-kinetics-maximum 2)))]
+      base)
+    nil))
+
+(defn make-random-dilithium-factory [star]
+  (if (< (rand) 0.01)
+    (let [base (make-base [(:x star) (:y star)] :dilithium-factory)
+          base (assoc base :age glc/base-maturity-age
+                           :antimatter (rand (/ glc/base-antimatter-maximum 2))
+                           :dilithium (rand (/ glc/base-dilithium-maximum 2)))]
+      base)
+    nil))
+
+(defn make-random-base-for-star [star]
+  (condp = (:class star)
+    :o (make-random-antimatter-factory star)
+    :b (make-random-antimatter-factory star)
+    :a (make-random-antimatter-factory star)
+    :f (make-random-weapons-factory star)
+    :g (make-random-weapons-factory star)
+    :k (make-random-dilithium-factory star)
+    :m (make-random-dilithium-factory star)))
+
+(defn make-random-bases [stars]
+  (remove nil?
+          (map make-random-base-for-star stars)))
+
 (s/def ::velocity (s/tuple number? number?))
 (s/def ::commodity #{:antimatter :dilithium})
 (s/def ::amount number?)
@@ -307,7 +350,7 @@
 
 (defn- delivering? [transport]
   (<= (geo/distance (util/pos transport)
-                (:destination transport))
+                    (:destination transport))
       glc/transport-delivery-range))
 
 (defn- transport-going-to [base transport]
