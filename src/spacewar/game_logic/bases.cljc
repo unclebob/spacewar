@@ -50,8 +50,8 @@
   (if (< (rand) 0.003)
     (let [base (make-base [(:x star) (:y star)] :weapon-factory)
           base (assoc base :age glc/base-maturity-age
-                           :torpedos (rand (/ glc/base-torpedos-maximum 2))
-                           :kinetics (rand (/ glc/base-kinetics-maximum 2)))]
+                           :torpedos (rand-int (/ glc/base-torpedos-maximum 2))
+                           :kinetics (rand-int (/ glc/base-kinetics-maximum 2)))]
       base)
     nil))
 

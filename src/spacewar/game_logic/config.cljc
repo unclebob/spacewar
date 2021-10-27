@@ -4,12 +4,12 @@
 
 (def spectral-classes [:o :b :a :f :g :k :m])
 (def drag-factor 0.005)
-(def rotation-rate 0.01)                                    ; degrees per millisecond.
+(def rotation-rate 0.02)                                    ; degrees per millisecond.
 (def impulse-thrust 0.0001)                                 ; per millisecond per power.
 (def impulse-power 0.01)
 (def warp-power 0.01)
 (def warp-leap 10000)                                       ;spacial coordinates.
-(def warp-charge-rate 1)
+(def warp-charge-rate 2)
 (def warp-threshold 2000)
 (def ship-shields 1000)
 (def ship-antimatter 100000)
@@ -109,7 +109,7 @@
 (def romulan-fading-time 2000)
 (def romulan-appear-odds-per-second 0.001)
 (def romulan-appear-distance 40000)
-(def romulan-blast-velocity 60)
+(def romulan-blast-velocity 80)
 (def romulan-blast-range 1000000)
 (def romulan-blast-damage (* 1.5 ship-shields))
 
