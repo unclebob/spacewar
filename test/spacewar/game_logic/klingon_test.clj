@@ -29,10 +29,13 @@
             [spacewar.game-logic.shots :as shots]
             [spacewar.game-logic.bases :as bases]
             [spacewar.vector-test :as vt]
-            [spacewar.geometry :as geo]))
+            [spacewar.geometry :as geo]
+            [spacewar.game-logic.config :as glc]))
 
 (let [klingon (assoc (mom/make-klingon) :shields klingon-shields
-                                        :antimatter 1000)
+                                        :antimatter 100)
+      klingon2 (assoc (mom/make-klingon) :shields 50
+                                         :antimatter 50)
       ship (mom/make-ship)
       world (assoc (mom/make-world) :klingons [klingon]
                                     :ship ship)]
@@ -378,6 +381,24 @@
           klingon (-> world :klingons first)]
       (:antimatter base) => 0
       (:antimatter klingon) => 100))
+
+  (fact
+    "two klingons stealing from one base"
+    (let [base (mom/make-base (:x klingon) (+ (:y klingon) (/ ship-docking-distance 2))
+                              :antimatter-factory 10000000 100)
+          klingon (assoc klingon :antimatter 10000 :id 1)
+          klingon2 (assoc klingon2 :antimatter 0 :id 2 :x (inc (:x klingon)))
+          world (assoc world :klingons [klingon klingon2] :bases [base])
+          world (k/klingons-steal-antimatter world)
+          base-count (-> world :bases count)
+          base (-> world :bases first)
+          klingon (-> world :klingons first)
+          klingon2 (-> world :klingons second)]
+      base-count => 1
+      (:antimatter base) => 9910000
+      (:antimatter klingon) => glc/klingon-antimatter
+      (:antimatter klingon2) => glc/klingon-antimatter)
+    )
 
   (fact
     "update-klingons calls all the necessary functions"

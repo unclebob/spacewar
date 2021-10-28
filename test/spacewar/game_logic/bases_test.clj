@@ -40,11 +40,14 @@
   (let [am-base (mom/make-base)
         dl-base (mom/make-base)
         wpn-base (mom/make-base)
-        am-base (assoc am-base :age (dec glc/base-maturity-age)
+        am-base (assoc am-base :x 1
+                               :age (dec glc/base-maturity-age)
                                :type :antimatter-factory)
-        dl-base (assoc dl-base :age (dec glc/base-maturity-age)
+        dl-base (assoc dl-base :x 2
+                               :age (dec glc/base-maturity-age)
                                :type :dilithium-factory)
-        wpn-base (assoc wpn-base :age (dec glc/base-maturity-age)
+        wpn-base (assoc wpn-base :x 3
+                                 :age (dec glc/base-maturity-age)
                                  :type :weapon-factory)
         bases [am-base dl-base wpn-base]
         [am-base dl-base wpn-base] (update-bases-manufacturing 10 bases)]
@@ -58,12 +61,15 @@
   (let [am-base (mom/make-base)
         dl-base (mom/make-base)
         wpn-base (mom/make-base)
-        am-base (assoc am-base :age (inc glc/base-maturity-age)
+        am-base (assoc am-base :x 1
+                               :age (inc glc/base-maturity-age)
                                :type :antimatter-factory)
-        dl-base (assoc dl-base :age (inc glc/base-maturity-age)
+        dl-base (assoc dl-base :x 2
+                               :age (inc glc/base-maturity-age)
                                :type :dilithium-factory
                                :antimatter glc/base-antimatter-maximum)
-        wpn-base (assoc wpn-base :age (inc glc/base-maturity-age)
+        wpn-base (assoc wpn-base :x 3
+                                 :age (inc glc/base-maturity-age)
                                  :type :weapon-factory
                                  :antimatter glc/base-antimatter-maximum
                                  :dilithium glc/base-dilithium-maximum)
@@ -86,13 +92,16 @@
   (let [am-base (mom/make-base)
         dl-base (mom/make-base)
         wpn-base (mom/make-base)
-        am-base (assoc am-base :age (inc glc/base-maturity-age)
+        am-base (assoc am-base :x 1
+                               :age (inc glc/base-maturity-age)
                                :type :antimatter-factory
                                :antimatter glc/base-antimatter-maximum)
-        dl-base (assoc dl-base :age (inc glc/base-maturity-age)
+        dl-base (assoc dl-base :x 2
+                               :age (inc glc/base-maturity-age)
                                :type :dilithium-factory
                                :dilithium glc/base-dilithium-maximum)
-        wpn-base (assoc wpn-base :age (inc glc/base-maturity-age)
+        wpn-base (assoc wpn-base :x 3
+                                 :age (inc glc/base-maturity-age)
                                  :type :weapon-factory
                                  :kinetics glc/base-kinetics-maximum
                                  :torpedos glc/base-torpedos-maximum)

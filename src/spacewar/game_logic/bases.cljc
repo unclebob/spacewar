@@ -35,8 +35,6 @@
    :kinetics 0
    :transport-readiness 0})
 
-
-
 (defn make-random-antimatter-factory [star]
   (if (< (rand) 0.03)
     (let [base (make-base [(:x star) (:y star)] :antimatter-factory)
@@ -162,8 +160,8 @@
     base))
 
 (defn update-bases-manufacturing [ms bases]
-  (map #(update-base-manufacturing ms %) bases)
-  )
+  (let [bases (map #(update-base-manufacturing ms %) bases)]
+    bases))
 
 (defn update-transport-readiness-for [ms base]
   (let [readiness (:transport-readiness base)
@@ -371,7 +369,8 @@
         waiting (grouped-bases false)]
     (loop [accepting accepting delivering delivering adjusted-bases []]
       (if (empty? accepting)
-        (assoc world :transports in-transit :bases (concat waiting adjusted-bases))
+        (let [new-bases (concat waiting adjusted-bases)]
+          (assoc world :transports in-transit :bases new-bases))
         (let [base (first accepting)
               transport (first (filter #(transport-going-to base %) delivering))
               base (update base (:commodity transport) + (:amount transport))]
@@ -382,7 +381,8 @@
         bases (->> bases
                    (age-bases ms)
                    (update-bases-manufacturing ms)
-                   (update-transport-readiness ms))
+                   (update-transport-readiness ms)
+                   )
         world (assoc world :bases bases)
         world (->> world
                    (update-transports ms)

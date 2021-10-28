@@ -185,7 +185,9 @@
         world (assoc world :ship ship :bases bases)
         world (dock-ship [] world)
         {:keys [kinetics torpedos antimatter dilithium]} (:ship world)
-        base (first (:bases world))]
+        base (first (:bases world))
+        base-count (-> world :bases count)]
+    base-count => 1
     kinetics => 3
     torpedos => 4
     antimatter => 1
@@ -202,11 +204,11 @@
         ship (assoc ship :kinetics 0 :torpedos 0 :antimatter 0 :dilithium 0)
         base1 (mom/make-base)
         base2 (mom/make-base)
-        base1 (assoc base1 :x 0 :y (dec ship-docking-distance)
+        base1 (assoc base1 :x 0 :y (/ ship-docking-distance 2)
                            :type :weapon-factory
                            :antimatter 1 :dilithium 2
                            :kinetics 3 :torpedos 4)
-        base2 (assoc base2 :x 0 :y (dec ship-docking-distance)
+        base2 (assoc base2 :x 1 :y (/ ship-docking-distance 2)
                            :type :weapon-factory
                            :antimatter 2 :dilithium 3
                            :kinetics 4 :torpedos 5)
@@ -215,7 +217,9 @@
         world (dock-ship [] world)
         {:keys [kinetics torpedos antimatter dilithium]} (:ship world)
         base1 (first (:bases world))
-        base2 (second (:bases world))]
+        base2 (second (:bases world))
+        base-count (-> world :bases count)]
+    base-count => 2
     kinetics => 7
     torpedos => 9
     antimatter => 3

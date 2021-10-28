@@ -341,7 +341,7 @@
                  glc/ship-docking-distance)]
     [klingon base]))
 
-(defn- steal-antimatter [[thief victim]]
+(defn- klingon-steals-antimatter [[thief victim]]
   (let [amount-needed (- glc/klingon-antimatter (:antimatter thief))
         amount-available (:antimatter victim)
         amount-stolen (min amount-needed amount-available)
@@ -349,18 +349,33 @@
         victim (update victim :antimatter - amount-stolen)]
     [thief victim]))
 
+(defn- steal-antimatter [thefts]
+  (let [thieves (util/pos-map (map first thefts))
+        victims (util/pos-map (map second thefts))]
+    (loop [thefts thefts
+           thieves thieves
+           victims victims]
+      (if (empty? thefts)
+        [(vals thieves) (vals victims)]
+        (let [theft (first thefts)
+              thief (get thieves (util/pos (first theft)))
+              victim (get victims (util/pos (second theft)))
+              [thief victim] (klingon-steals-antimatter [thief victim])]
+          (recur (rest thefts)
+                 (assoc thieves (util/pos thief) thief)
+                 (assoc victims (util/pos victim) victim)))))
+    ))
+
 (defn klingons-steal-antimatter [world]
   (let [{:keys [klingons bases]} world
         thefts (find-thefts klingons bases)
-        thieves (map first thefts)
-        victims (map second thefts)
-        innocents (vec (clojure.set/difference (set klingons) (set thieves)))
-        unmolested (vec (clojure.set/difference (set bases) (set victims)))
-        thefts (map steal-antimatter thefts)
-        thieves (map first thefts)
-        victims (map second thefts)
-        klingons (concat (set thieves) innocents)
-        bases (concat (set victims) unmolested)]
+        thieves (set (map first thefts))
+        victims (set (map second thefts))
+        innocents (vec (clojure.set/difference (set klingons) thieves))
+        unmolested (vec (clojure.set/difference (set bases) victims))
+        [thieves victims] (steal-antimatter thefts)
+        klingons (concat thieves innocents)
+        bases (concat victims unmolested)]
     (assoc world :klingons klingons :bases bases)))
 
 (defn random-battle-state []

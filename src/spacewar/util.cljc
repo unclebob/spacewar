@@ -37,3 +37,9 @@
 
 (defn pos [object]
   [(:x object) (:y object)])
+
+(defn pos-map [objects]
+  (loop [objects objects result {}]
+    (if (empty? objects)
+      result
+      (recur (rest objects) (assoc result (pos (first objects)) (first objects))))))

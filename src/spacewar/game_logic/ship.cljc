@@ -327,15 +327,18 @@
     [ship base]))
 
 (defn- resupply-ship-from-bases [ship bases]
-  (loop [ship ship bases bases processed-bases []]
-    (if (empty? bases)
-      [ship processed-bases]
-      (let [base (first bases)
-            [ship base] (resupply-ship ship base :antimatter glc/ship-antimatter)
-            [ship base] (resupply-ship ship base :dilithium glc/ship-dilithium)
-            [ship base] (resupply-ship ship base :torpedos glc/ship-torpedos)
-            [ship base] (resupply-ship ship base :kinetics glc/ship-kinetics)]
-        (recur ship (rest bases) (conj processed-bases base))))))
+  (let [base-map (util/pos-map bases)]
+    (loop [ship ship
+           bases (keys base-map)
+           base-map base-map]
+      (if (empty? bases)
+        [ship (vals base-map)]
+        (let [base (get base-map (first bases))
+              [ship base] (resupply-ship ship base :antimatter glc/ship-antimatter)
+              [ship base] (resupply-ship ship base :dilithium glc/ship-dilithium)
+              [ship base] (resupply-ship ship base :torpedos glc/ship-torpedos)
+              [ship base] (resupply-ship ship base :kinetics glc/ship-kinetics)]
+          (recur ship (rest bases) (assoc base-map (first bases) base)))))))
 
 (defn dock-ship [_ world]
   (let [ship (:ship world)
@@ -347,8 +350,9 @@
         ship (assoc ship
                :velocity [0 0]
                :warp 0
-               :impulse 0)]
-    (assoc world :ship ship :bases (concat distant-bases docked-bases))))
+               :impulse 0)
+        world (assoc world :ship ship :bases (concat distant-bases docked-bases))]
+    world))
 
 (defn deployment-classes [factory]
   (condp = factory

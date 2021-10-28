@@ -156,7 +156,7 @@
                                  :heading 70)
                 world (assoc world :ship ship)
                 world (update-world 1000 world)]
-            (->> world :ship :heading) => (roughly 80)))
+            (->> world :ship :heading) => (roughly 90)))
         (fact
           "impulse moves ship"
           (let [ship (assoc ship :impulse 1)
@@ -172,7 +172,7 @@
                 world (update-world 1000 world)
                 ship (:ship world)
                 warp-charge (:warp-charge ship)]
-            warp-charge => (roughly 1000)))
+            warp-charge => (roughly 2000)))
 
         (fact
           "warp field threshold moves ship"
