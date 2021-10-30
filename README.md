@@ -164,24 +164,21 @@ non-functional.
  
   
 ## Klingons
-  
   Some of the crippled Klingons are still pretty strong.  Be careful.  Others
-  are so weakened that they'll run from you and won't put up much of a fight.  They can't detect
-  you at long range; but they can detect bases.  So once you place a base down, you
-  can expect visitors.  Perhaps _lots_ of visitors.  
+  are so weakened that they'll run from you and won't put up much of a fight.  They can detect
+  you at long range.  So expect visits from the stronger Klingons.
   
 ## Blockades
-  
   Eventually, unless you stop them, the Klingons will invade your bases and take them over. 
   Blockaded bases will not ship any materials to other bases.  Materials manufactured by, or
   shipped to a blockaded base will be acquired by the occupying Klingons.
   
   Beware, more than one Klingon can occupy a base.  If you challenge a base with three or four
-  Klingons occupying it; be prepared for a pitched battle.  
+  Klingons occupying it; be prepared for a pitched battle.  They often fly in formation,
+  so it can be hard to know how many are flying together.
   
 ## Klingon Battle Strategy
-  
-  Once your ship is in range of a Klingon's detectors, it will head towards you to do battle.  
+  Once your ship is in range of a Klingon's short range detectors, it will head towards you to do battle.  
   The Klingon strategy is to confuse and delude you.  They accomplish this by continuously
   changing tactics.  Stay alert to their movements in the heat of battle; and don't let them
   get too close.  At short range their phasers are devastating. 
@@ -190,14 +187,12 @@ non-functional.
   is a good time to attack them.  Be careful though, the retreat may be a ruse.
   
 ## Dilithium Clouds
-  
   When you destroy a Klingon vessel, their on-board dilithium will disperse amidst
   the cloud of debris.  You can harvest this dilithium by easing yourself as close
   as possible into the _center_ of the cloud.  Dilithium, when exposed to the vacuum,
   has a half-life of about a minute.  So hurry.
   
 ## Romulans
-  
   Romulans are marauders.  Their ships are cloaked and quite difficult to detect.
   They are quite deadly, due to an omni-directional energy weapon that does
   tremendous damage and moves at roughly Warp 7.  Fortunately they cannot remain
@@ -210,7 +205,6 @@ non-functional.
   run fast and far; the weapon loses potency with distance. 
   
 ## Saving and Pausing
-  
   The game is saved every five seconds.  You pause the game by quitting.  Your previous
   game will resume when you start the program up again.  If you lose the game, then
   the next time you start up you'll be in a new universe, starting over.

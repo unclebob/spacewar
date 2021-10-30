@@ -318,7 +318,7 @@
 
 (defn- well-supplied [{:keys [antimatter torpedos]}]
   (and (> antimatter (* 0.9 glc/klingon-antimatter))
-       (> torpedos (* 0.5 glc/klingon-torpedos))))
+       (> torpedos (* 0.3 glc/klingon-torpedos))))
 
 (defn- thrust-to-nearest [klingon bases]
   (if (and (= (:battle-state klingon) :no-battle)

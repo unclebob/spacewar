@@ -46,7 +46,7 @@
 (def kinetic-power 20)
 
 (def number-of-stars 1000)
-(def number-of-klingons 20)
+(def number-of-klingons 30)
 (def tactical-range 200000)
 (def strategic-range 1000000)
 
