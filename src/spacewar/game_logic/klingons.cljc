@@ -316,8 +316,13 @@
         klingons (map #(drag-klingon ms %) klingons)]
     (assoc world :klingons klingons)))
 
+(defn- well-supplied [{:keys [antimatter torpedos]}]
+  (and (> antimatter (* 0.9 glc/klingon-antimatter))
+       (> torpedos (* 0.5 glc/klingon-torpedos))))
+
 (defn- thrust-to-nearest [klingon bases]
-  (if (= (:battle-state klingon) :no-battle)
+  (if (and (= (:battle-state klingon) :no-battle)
+           (not (well-supplied klingon)))
     (let [distance-map (apply hash-map
                               (flatten
                                 (map #(list (geo/distance (util/pos klingon) (util/pos %)) %) bases)))
@@ -327,12 +332,32 @@
       (assoc klingon :thrust thrust))
     klingon))
 
-(defn update-thrust-towards-nearest-base [world]
+(defn- update-thrust-under-supplied-klingons-towards-nearest-base [world]
   (let [{:keys [klingons bases]} world
         klingons (if (empty? bases)
                    klingons
                    (map #(thrust-to-nearest % bases) klingons))]
     (assoc world :klingons klingons)))
+
+(defn- thrust-toward-ship [klingon ship]
+  (if (and (= (:battle-state klingon) :no-battle)
+           (well-supplied klingon))
+    (let [angle-to-ship (geo/angle-degrees (util/pos klingon) (util/pos ship))
+          thrust (vector/from-angular glc/klingon-thrust (geo/->radians angle-to-ship))]
+      (assoc klingon :thrust (vector/scale 5 thrust)))
+    klingon)
+  )
+
+(defn update-thrust-well-supplied-klingons-towards-ship [world]
+  (let [{:keys [klingons ship]} world
+        klingons (map #(thrust-toward-ship % ship) klingons)]
+    (assoc world :klingons klingons))
+  )
+
+(defn update-thrust-towards-target [world]
+  (-> world
+      update-thrust-under-supplied-klingons-towards-nearest-base
+      update-thrust-well-supplied-klingons-towards-ship))
 
 (defn- find-thefts [klingons bases]
   (for [klingon klingons
@@ -420,5 +445,5 @@
 
 (defn update-klingons-per-second [world]
   (-> world
-      (update-thrust-towards-nearest-base)
+      (update-thrust-towards-target)
       (klingons-steal-antimatter)))

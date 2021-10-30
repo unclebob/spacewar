@@ -331,19 +331,30 @@
     "klingons far from ship don't thrust towards base if no bases"
     (let [ship (assoc ship :x 1e7 :y 1e7)
           world (assoc world :ship ship)
-          world (k/update-thrust-towards-nearest-base world)
+          world (k/update-thrust-towards-target world)
           klingon (-> world :klingons first)]
       (:thrust klingon) => [0 0]))
 
   (fact
-    "klingons far from ship thrust towards nearest base"
+    "Poorly supplied klingons far from ship thrust towards nearest base"
     (let [ship (assoc ship :x 1e7 :y 1e7)
           base1 (bases/make-base [0 2000] :antimatter-factory)
           base2 (bases/make-base [1000 0] :antimatter-factory)
           world (assoc world :ship ship :bases [base1 base2])
-          world (k/update-thrust-towards-nearest-base world)
+          world (k/update-thrust-towards-target world)
           klingon (-> world :klingons first)]
       (:thrust klingon) => (vt/roughly-v [klingon-thrust 0])))
+
+  (fact
+      "Well supplied klingons far from ship thrust towards ship"
+      (let [ship (assoc ship :x 1e7 :y 1e7)
+            klingon (assoc klingon :antimatter glc/klingon-antimatter
+                                   :torpedos glc/klingon-torpedos)
+            world (assoc world :ship ship :klingons [klingon])
+            world (k/update-thrust-towards-target world)
+            klingon (-> world :klingons first)
+            thrust (* (Math/sqrt 2) 0.5 klingon-thrust 5)]
+        (:thrust klingon) => (vt/roughly-v [thrust thrust])))
 
 
   (def expired-age (inc klingon-battle-state-transition-age))
