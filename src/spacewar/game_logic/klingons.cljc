@@ -363,8 +363,7 @@
               [thief victim] (klingon-steals-antimatter [thief victim])]
           (recur (rest thefts)
                  (assoc thieves (util/pos thief) thief)
-                 (assoc victims (util/pos victim) victim)))))
-    ))
+                 (assoc victims (util/pos victim) victim)))))))
 
 (defn klingons-steal-antimatter [world]
   (let [{:keys [klingons bases]} world

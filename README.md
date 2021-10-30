@@ -2,14 +2,14 @@
 
 A Star Trek Game.
 
->_You can get the source here, or you can just play at http://spacewar.fikesfarm.com/spacewar.html_
+>_You can play an older version at http://spacewar.fikesfarm.com/spacewar.html_
 
 The Borg have been defeated; but the federation fleet has been destroyed.
-The enterprise is the only star ship left in service.  A few bases remain, but the transport network
-is completely disrupted.
+The enterprise is the only star ship left in service.  A few bases remain, but the 
+Borg completely disrupted the antimatter and dilithium transport network.
 
 The Klingons in Federation space took a beating as well.  But the Borg didn't like the taste of
-Klingons in the "collective" so they simply left many crippled Klingon ships
+Klingons in the "collective", so they simply left many crippled Klingon ships
 stranded in Federation space rather than assimilating them.  
 
 There are rumors that the Klingon fleet escaped total destruction and that the 

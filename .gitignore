@@ -14,4 +14,6 @@ pom.xml.asc
 /figwheel_server.log
 /resources/public/js
 spacewar.world
+spacewar.world.save
+
 
