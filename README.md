@@ -113,7 +113,7 @@ non-functional.
  * WRP - Your warp engines.  As they degrade you'll notice the
  warp leaps become erratic.  
  
- As long as LIF is not black, these systems will be gradually repaired.
+ As long as either LIF or HUL are not black, these systems will be gradually repaired.
  So it is often a good idea to warp away from a bad situation and wait
  the repairs out.
  
