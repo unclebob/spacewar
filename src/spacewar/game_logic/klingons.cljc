@@ -22,10 +22,13 @@
 (s/def ::thrust (s/tuple number? number?))
 (s/def ::battle-state-age number?)
 (s/def ::battle-state #{:no-battle :flank-right :flank-left :retreating :advancing})
+(s/def ::cruise-state #{:patrol :guard :refuel :attack})
 
 (s/def ::klingon (s/keys :req-un [::x ::y ::shields ::antimatter
                                   ::kinetics ::torpedos ::weapon-charge
-                                  ::velocity ::thrust ::battle-state-age ::battle-state]
+                                  ::velocity ::thrust
+                                  ::battle-state-age ::battle-state
+                                  ::cruise-state]
                          :opt-un [::hit/hit]))
 (s/def ::klingons (s/coll-of ::klingon))
 
@@ -40,7 +43,8 @@
    :velocity [(- 2 (rand 4)) (- 2 (rand 4))]
    :thrust [0 0]
    :battle-state-age 0
-   :battle-state :no-battle})
+   :battle-state :no-battle
+   :cruise-state :patrol})
 
 (defn make-klingon [x y]
   {:x x
@@ -53,7 +57,8 @@
    :velocity [0 0]
    :thrust [0 0]
    :battle-state-age 0
-   :battle-state :no-battle})
+   :battle-state :no-battle
+   :cruise-state :patrol})
 
 (defn initialize []
   (repeatedly glc/number-of-klingons make-random-klingon))

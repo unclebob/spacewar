@@ -96,6 +96,7 @@
    :thrust [0 0]
    :battle-state-age 0
    :battle-state :no-battle
+   :cruise-state :patrol
    })
 
 (defn make-world []

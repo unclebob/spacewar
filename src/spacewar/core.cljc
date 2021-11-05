@@ -1,3 +1,18 @@
+
+;Klingons with more than 80% antimatter should start making torpedos, once per minute or so.
+;Klingons at Dilithium bases should acquire antimatter at half rate.
+;This will cause all Klingons at antimatter or dilithium bases to eventually go agro.
+;
+;Klingons should not engage ship when in warp.
+;
+;Fix Deployment LCARS.
+;Fix Shield messages.
+;Set up Corbomite factory at the south, and klingon energy moon at the north.
+;allow Corbomite factory to produce Corbomite bomb
+;Corbomite bomb will transport base to base until within range of Klingon energy moon "praxis".
+
+
+
 (ns spacewar.core
   (:require [quil.core :as q #?@(:cljs [:include-macros true])]
             [quil.middleware :as m]
