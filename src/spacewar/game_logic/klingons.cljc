@@ -32,6 +32,24 @@
                          :opt-un [::hit/hit]))
 (s/def ::klingons (s/coll-of ::klingon))
 
+(def cruise-fsm {:patrol {:low-antimatter :refuel
+                          :low-torpedo :patrol
+                          :capable :guard
+                          :well-supplied :attack}
+                 :refuel {:low-antimatter :refuel
+                          :low-torpedo :patrol
+                          :capable :guard
+                          :well-supplied :attack}
+                 :guard {:low-antimatter :guard
+                         :low-torpedo :guard
+                         :capable :guard
+                         :well-supplied :attack}
+                 :attack {:low-antimatter :refuel
+                          :low-torpedo :guard
+                          :capable :guard
+                          :well-supplied :attack}
+                 })
+
 (defn make-random-klingon []
   {:x (int (rand glc/known-space-x))
    :y (int (rand glc/known-space-y))
