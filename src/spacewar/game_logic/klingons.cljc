@@ -10,6 +10,10 @@
             [spacewar.vector :as vector]
             [spacewar.game-logic.clouds :as clouds]))
 
+;The Klingon state machine has two super-states: {:battle :cruise}.
+;In the :battle super-state a klingon will use the :battle-state FSM.
+;In the :cruise super-state a klingon will use the :cruise-state FSM.
+
 (s/def ::x number?)
 (s/def ::y number?)
 (s/def ::shields number?)
@@ -40,15 +44,22 @@
                           :low-torpedo :patrol
                           :capable :guard
                           :well-supplied :attack}
-                 :guard {:low-antimatter :guard
+                 :guard {:low-antimatter :refuel
                          :low-torpedo :guard
                          :capable :guard
                          :well-supplied :attack}
                  :attack {:low-antimatter :refuel
                           :low-torpedo :guard
-                          :capable :guard
+                          :capable :refuel
                           :well-supplied :attack}
                  })
+
+(defn super-state [klingon ship]
+  (let [distance (geo/distance [(:x ship) (:y ship)]
+                               [(:x klingon) (:y klingon)])]
+    (if (< distance glc/klingon-tactical-range)
+      :battle
+      :cruise)))
 
 (defn make-random-klingon []
   {:x (int (rand glc/known-space-x))
@@ -201,13 +212,17 @@
         diff (q/abs (- heading heading-setting))]
     (> diff 0.5)))
 
+(defn- warping? [ship]
+  (> (:warp ship) 0))
+
 (defn- ready-to-fire-torpedo? [klingon ship]
   (let [ship-pos [(:x ship) (:y ship)]
         klingon-pos [(:x klingon) (:y klingon)]
         dist (geo/distance ship-pos klingon-pos)]
     (and
+      (not (warping? ship))
       (not (turning? ship))
-      (> (:torpedos klingon) 0)
+      (> (int (:torpedos klingon)) 0)
       (< dist glc/klingon-torpedo-firing-distance)
       (> (:antimatter klingon) glc/klingon-torpedo-power)
       (<= glc/klingon-torpedo-threshold
@@ -305,17 +320,25 @@
         radians (geo/->radians degrees)
         efficiency (/ (:shields klingon) glc/klingon-shields)
         effective-thrust (min (klingon :antimatter)
-                              (* glc/klingon-thrust efficiency))
+                              (* glc/klingon-tactical-thrust efficiency))
         thrust (vector/from-angular effective-thrust radians)]
     (if (< glc/klingon-tactical-range dist)
       klingon
       (assoc klingon :thrust thrust))))
 
 (defn- accelerate-klingon [ms klingon]
-  (let [{:keys [thrust velocity]} klingon
-        acc (vector/scale ms thrust)
-        velocity (vector/add acc velocity)]
-    (assoc klingon :velocity velocity)))
+  (let [{:keys [thrust velocity antimatter]} klingon]
+    (if (= thrust [0 0])
+      klingon
+      (let [available-antimatter (min glc/klingon-antimatter antimatter)
+            full-thrust-antimatter (* ms glc/klingon-thrust-antimatter)
+            thrusting-antimatter (min available-antimatter full-thrust-antimatter)
+            efficiency (/ thrusting-antimatter full-thrust-antimatter)
+            thrust (vector/scale efficiency thrust)
+            acc (vector/scale ms thrust)
+            velocity (vector/add acc velocity)
+            antimatter (- antimatter thrusting-antimatter)]
+        (assoc klingon :velocity velocity :antimatter antimatter)))))
 
 (defn- move-klingon [ms klingon]
   (let [{:keys [x y velocity]} klingon
@@ -339,62 +362,23 @@
         klingons (map #(drag-klingon ms %) klingons)]
     (assoc world :klingons klingons)))
 
-(defn- well-supplied [{:keys [antimatter torpedos]}]
-  (and (> antimatter (* 0.9 glc/klingon-antimatter))
-       (> torpedos (* 0.3 glc/klingon-torpedos))))
-
-(defn- thrust-to-nearest [klingon bases]
-  (if (and (= (:battle-state klingon) :no-battle)
-           (not (well-supplied klingon)))
-    (let [distance-map (apply hash-map
-                              (flatten
-                                (map #(list (geo/distance (util/pos klingon) (util/pos %)) %) bases)))
-          nearest-base (distance-map (apply min (keys distance-map)))
-          angle-to-base (geo/angle-degrees (util/pos klingon) (util/pos nearest-base))
-          thrust (vector/from-angular glc/klingon-thrust (geo/->radians angle-to-base))]
-      (assoc klingon :thrust thrust))
-    klingon))
-
-(defn- update-thrust-under-supplied-klingons-towards-nearest-base [world]
-  (let [{:keys [klingons bases]} world
-        klingons (if (empty? bases)
-                   klingons
-                   (map #(thrust-to-nearest % bases) klingons))]
-    (assoc world :klingons klingons)))
-
-(defn- thrust-toward-ship [klingon ship]
-  (if (and (= (:battle-state klingon) :no-battle)
-           (well-supplied klingon))
-    (let [angle-to-ship (geo/angle-degrees (util/pos klingon) (util/pos ship))
-          thrust (vector/from-angular glc/klingon-thrust (geo/->radians angle-to-ship))]
-      (assoc klingon :thrust (vector/scale 5 thrust)))
-    klingon)
-  )
-
-(defn update-thrust-well-supplied-klingons-towards-ship [world]
-  (let [{:keys [klingons ship]} world
-        klingons (map #(thrust-toward-ship % ship) klingons)]
-    (assoc world :klingons klingons))
-  )
-
-(defn update-thrust-towards-target [world]
-  (-> world
-      update-thrust-under-supplied-klingons-towards-nearest-base
-      update-thrust-well-supplied-klingons-towards-ship))
-
 (defn- find-thefts [klingons bases]
   (for [klingon klingons
         base bases
         :when (< (geo/distance (util/pos klingon) (util/pos base))
-                 glc/ship-docking-distance)]
+                 glc/klingon-docking-distance)]
     [klingon base]))
 
 (defn- klingon-steals-antimatter [[thief victim]]
-  (let [amount-needed (- glc/klingon-antimatter (:antimatter thief))
+  (let [guarding? (#{:guard :refuel} (:cruise-state thief))
+        amount-needed (- glc/klingon-antimatter (:antimatter thief))
         amount-available (:antimatter victim)
         amount-stolen (min amount-needed amount-available)
         thief (update thief :antimatter + amount-stolen)
-        victim (update victim :antimatter - amount-stolen)]
+        victim (update victim :antimatter - amount-stolen)
+        thief (if guarding?
+                (assoc thief :velocity [0 0] :thrust [0 0])
+                thief)]
     [thief victim]))
 
 (defn- steal-antimatter [thefts]
@@ -458,15 +442,182 @@
         klingons (map #(update-klingon-state ms ship %) klingons)]
     (assoc world :klingons klingons)))
 
+(defn update-torpedo-production [ms {:keys [antimatter torpedos] :as klingon}]
+  (let [deficit (- glc/klingon-torpedos torpedos)
+        max-production (* ms glc/klingon-torpedo-production-rate)
+        new-torpedos (if (< antimatter glc/klingon-torpedo-antimatter-threshold)
+                       0
+                       (min deficit max-production))
+        efficiency (/ new-torpedos max-production)
+        antimatter-cost (* ms glc/klingon-torpedo-antimatter-cost efficiency)
+        torpedos (+ torpedos new-torpedos)
+        antimatter (- antimatter antimatter-cost)]
+    (assoc klingon :antimatter antimatter :torpedos torpedos)))
+
+(defn update-klingon-torpedo-production [ms world]
+  (let [klingons (:klingons world)
+        klingons (map #(update-torpedo-production ms %) klingons)]
+    (assoc world :klingons klingons))
+  )
+
 (defn update-klingons [ms world]
   (->> world
        (update-klingons-state ms)
        (update-klingon-defense ms)
        (update-klingon-offense ms)
        (update-klingon-motion ms)
+       (update-klingon-torpedo-production ms)
        ))
+
+(defn- thrust-to-nearest-base [klingon bases]
+  (if (= (:battle-state klingon) :no-battle)
+    (if (empty? bases)
+      (assoc klingon :cruise-state :patrol)
+      (let [distance-map (apply hash-map
+                                (flatten
+                                  (map #(list (geo/distance (util/pos klingon) (util/pos %)) %) bases)))
+            nearest-base (distance-map (apply min (keys distance-map)))
+            angle-to-base (geo/angle-degrees (util/pos klingon) (util/pos nearest-base))
+            thrust (vector/from-angular glc/klingon-cruise-thrust (geo/->radians angle-to-base))]
+        (assoc klingon :thrust thrust)))
+    klingon))
+
+(defn- thrust-toward-ship [klingon ship]
+  (if (= (:battle-state klingon) :no-battle)
+    (let [angle-to-ship (geo/angle-degrees (util/pos klingon) (util/pos ship))
+          thrust (vector/from-angular glc/klingon-cruise-thrust (geo/->radians angle-to-ship))]
+      (assoc klingon :thrust thrust))
+    klingon)
+  )
+
+(defn- thrust-to-nearest-antimatter-source [klingon stars bases]
+  (if (= (:battle-state klingon) :no-battle)
+    (let [antimatter-stars (filter #(#{:o :b} (:class %)) stars)
+          antimatter-bases (filter #(= :antimatter-factory (:type %)) bases)
+          base-distance-map (apply hash-map
+                                   (flatten
+                                     (map #(list (geo/distance (util/pos klingon) (util/pos %)) %)
+                                          antimatter-bases)))
+          star-distance-map (apply hash-map
+                                   (flatten
+                                     (map #(list (geo/distance (util/pos klingon) (util/pos %)) %)
+                                          antimatter-stars)))
+          distance-to-nearest-antimatter-star (apply min (keys star-distance-map))
+          distance-to-nearest-antimatter-base (if (empty? antimatter-bases)
+                                                1000000000 ;very far away.
+                                                (apply min (keys base-distance-map)))
+          nearest-antimatter-star (star-distance-map distance-to-nearest-antimatter-star)
+          nearest-antimatter-base (base-distance-map distance-to-nearest-antimatter-base)
+          angle-to-target (if (< distance-to-nearest-antimatter-base
+                                 glc/klingon-antimatter-base-in-range)
+                            (geo/angle-degrees (util/pos klingon) (util/pos nearest-antimatter-base))
+                            (geo/angle-degrees (util/pos klingon) (util/pos nearest-antimatter-star)))
+          thrust (vector/from-angular glc/klingon-cruise-thrust (geo/->radians angle-to-target))]
+      (assoc klingon :thrust thrust))
+    klingon))
+
+(defn- thrust-in-random-direction [klingon]
+  (if (= (:battle-state klingon) :no-battle)
+    (let [angle (rand (* 2 Math/PI))
+          tx (* glc/klingon-cruise-thrust (Math/cos angle))
+          ty (* glc/klingon-cruise-thrust (Math/sin angle))]
+      (assoc klingon :thrust [tx ty]))
+    klingon)
+  )
+
+(defn cruise-klingons [{:keys [ship klingons bases stars] :as world}]
+  (let [cruise-states (group-by :cruise-state klingons)
+        attacking-klingons (:attack cruise-states)
+        patrolling-klingons (:patrol cruise-states)
+        guarding-klingons (:guard cruise-states)
+        refuelling-klingons (:refuel cruise-states)
+        attacking-klingons (map #(thrust-toward-ship % ship) attacking-klingons)
+        guarding-klingons (map #(thrust-to-nearest-base % bases) guarding-klingons)
+        refuelling-klingons (map #(thrust-to-nearest-antimatter-source % stars bases) refuelling-klingons)
+        klingons (concat attacking-klingons
+                         patrolling-klingons
+                         guarding-klingons
+                         refuelling-klingons)
+        ]
+    (assoc world :klingons klingons))
+  )
+
+(defn cruise-transition [{:keys [antimatter torpedos]}]
+  (let [antimatter (/ antimatter glc/klingon-antimatter 0.01)
+        torpedos (/ torpedos glc/klingon-torpedos 0.01)]
+    (cond
+      (<= antimatter 40) :low-antimatter
+      (<= torpedos 40) :low-torpedo
+      (and (> antimatter 40) (> torpedos 60)) :well-supplied
+      :else :capable
+      ))
+  )
+
+(defn- change-cruise-state [klingon]
+  (let [antimatter (:antimatter klingon)
+        transition (cruise-transition klingon)
+        cruise-state (:cruise-state klingon)
+        new-state (if (and (= :refuel cruise-state)
+                           (< antimatter glc/klingon-antimatter))
+                    :refuel
+                    (-> cruise-fsm cruise-state transition))]
+    (assoc klingon :cruise-state new-state)))
+
+(defn- change-all-cruise-states [{:keys [klingons] :as world}]
+  (assoc world :klingons (map change-cruise-state klingons))
+  )
+
+(defn produce-antimatter [ms klingon stars]
+  (let [antimatter (:antimatter klingon)
+        thrust (:thrust klingon)
+        velocity (:velocity klingon)
+        refueling? (= :refuel (:cruise-state klingon))
+        deficit (- glc/klingon-antimatter antimatter)
+        distance-map (apply hash-map
+                            (flatten
+                              (map #(list (geo/distance (util/pos klingon) (util/pos %)) %) stars)))
+        distance-to-nearest-star (apply min (keys distance-map))
+        in-range? (< distance-to-nearest-star glc/klingon-range-for-antimatter-production)
+        nearest-star (distance-map distance-to-nearest-star)
+        production (if in-range?
+                     (* ms (glc/klingon-antimatter-production-rate (:class nearest-star)))
+                     0)
+        thrust (if (and in-range? refueling?)
+                 [0 0]
+                 thrust)
+        velocity (if (and in-range? refueling?)
+                   [0 0]
+                   velocity)]
+    (assoc klingon :antimatter (+ antimatter (min deficit production))
+                   :thrust thrust
+                   :velocity velocity))
+  )
+
+(defn klingons-produce-antimatter [{:keys [klingons stars] :as world}]
+  (let [klingons (map #(produce-antimatter 1000 % stars) klingons)]
+    (assoc world :klingons klingons)))
 
 (defn update-klingons-per-second [world]
   (-> world
-      (update-thrust-towards-target)
-      (klingons-steal-antimatter)))
+      (cruise-klingons)
+      (klingons-steal-antimatter)
+      (klingons-produce-antimatter)))
+
+(defn change-patrol-direction [{:keys [klingons] :as world}]
+  (let [cruise-states (group-by :cruise-state klingons)
+        attacking-klingons (:attack cruise-states)
+        patrolling-klingons (:patrol cruise-states)
+        guarding-klingons (:guard cruise-states)
+        refuelling-klingons (:refuel cruise-states)
+        patrolling-klingons (map thrust-in-random-direction patrolling-klingons)
+        klingons (concat attacking-klingons
+                         patrolling-klingons
+                         guarding-klingons
+                         refuelling-klingons)
+        ]
+    (assoc world :klingons klingons)))
+
+(defn update-klingons-per-minute [world]
+  (-> world
+      (change-patrol-direction)
+      (change-all-cruise-states)))

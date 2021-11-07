@@ -245,6 +245,9 @@
        (klingons/update-klingons-per-second)
        (romulans/update-romulans-per-second)))
 
+(defn update-world-per-minute [world]
+  (->> world (klingons/update-klingons-per-minute)))
+
 (defn add-frame-time [frame-time context]
   (let [frame-times (->
                       context
@@ -282,12 +285,16 @@
         world (process-events events world)
         world (update-world ms world)
         new-second? (not= (int (/ time 1000)) (int (/ last-update-time 1000)))
-        new-minute? (not= (int (/ time 5000)) (int (/ last-update-time 5000)))
+        new-minute? (not= (int (/ time 60000)) (int (/ last-update-time 60000)))
+        new-save? (not= (int (/ time 5000)) (int (/ last-update-time 5000)))
 
         world (if new-second?
                 (update-world-per-second world)
+                world)
+        world (if new-minute?
+                (update-world-per-minute world)
                 world)]
-    (when (and new-minute? (not (:game-over world)))
+    (when (and new-save? (not (:game-over world)))
       #?(:clj  (spit "spacewar.world" world)
          :cljs (when (exists? js/localStorage)
                  (.setItem js/localStorage "spacewar.world" world))))

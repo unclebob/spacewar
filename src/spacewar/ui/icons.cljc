@@ -155,6 +155,25 @@
   (q/line -10 3 -10 -3)
   (draw-base-adornments base))
 
+(defn- klingon-cruise-state [{:keys [cruise-state]}]
+  (condp = cruise-state
+    :patrol "P"
+    :refuel "R"
+    :guard "G"
+    :attack "A"
+    "X"))
+
+(defn draw-klingon-counts [klingon]
+  ;(apply q/fill uic/white)
+  ;(q/text-align :right :center)
+  ;(q/text-font (:lcars-small (q/state :fonts)) 12)
+  ;(q/text (str "T-" (int (/ (:torpedos klingon) glc/klingon-torpedos 0.01)) "%") -30 0)
+  ;(q/text-align :left :center)
+  ;(q/text (str "A-" (int (/ (:antimatter klingon) glc/klingon-antimatter 0.01)) "%") 30 0)
+  ;(q/text-align :center :bottom)
+  ;(q/text (klingon-cruise-state klingon) 0 -30)
+  )
+
 (defn draw-klingon-icon []
   (apply q/fill uic/black)
   (apply q/stroke uic/klingon-color)

@@ -32,11 +32,13 @@
         sx (:x ship)
         sy (:y ship)]
     (when klingons
-      (doseq [{:keys [x y]} klingons]
+      (doseq [{:keys [x y] :as klingon} klingons]
         (q/with-translation
           [(* (- x sx) pixel-width)
            (* (- y sy) pixel-width)]
-          (icons/draw-klingon-icon))))))
+          (icons/draw-klingon-icon)
+          (icons/draw-klingon-counts klingon)
+          )))))
 
 (defn- draw-romulans [state]
   (let [{:keys [romulans pixel-width ship]} state

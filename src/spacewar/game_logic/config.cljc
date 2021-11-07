@@ -46,7 +46,7 @@
 (def kinetic-power 20)
 
 (def number-of-stars 1000)
-(def number-of-klingons 30)
+(def number-of-klingons 15)
 (def tactical-range 200000)
 (def strategic-range 1000000)
 
@@ -72,9 +72,14 @@
                                    :no-battle 0})
 
 (def klingon-antimatter-runaway-threshold (* 0.1 klingon-antimatter))
-(def klingon-thrust 0.002)
+(def klingon-cruise-thrust 0.01)
+(def klingon-tactical-thrust 0.002)
+(def klingon-thrust-time 10) ;in minutes
+(def klingon-thrust-time-ms (* klingon-thrust-time 60 1000)) ;100% antimatter
+(def klingon-thrust-antimatter (/ klingon-antimatter klingon-thrust-time-ms))
 (def klingon-drag 0.999)
 (def klingon-debris 1000)
+(def klingon-docking-distance 10000)
 
 (def klingon-kinetic-range 1000000)
 (def klingon-kinetic-firing-distance 150000)
@@ -85,6 +90,20 @@
 (def klingon-kinetic-proximity 1000)
 (def klingon-kinetic-damage 50)
 (def klingon-kinetic-power 100)
+
+(def klingon-torpedo-production-rate (/ 1 60 1000)) ;one per minute
+(def klingon-torpedo-antimatter-cost (/ 1000 60 1000)) ;1000 per minute
+(def klingon-torpedo-antimatter-threshold (/ klingon-antimatter 5)) ;no production if under 20%
+(def klingon-antimatter-base-in-range 1000000)
+
+(def klingon-range-for-antimatter-production 10000)
+(def klingon-antimatter-production-rate {:o 0.1
+                                         :b 0.08
+                                         :a 0.06
+                                         :f 0.05
+                                         :g 0.04
+                                         :k 0.025
+                                         :m 0.01})
 
 (def klingon-phaser-power 200)
 (def klingon-phaser-firing-distance 30000)

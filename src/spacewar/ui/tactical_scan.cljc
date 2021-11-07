@@ -91,7 +91,8 @@
 
 (defn- draw-klingon-and-shield [klingon]
   (icons/draw-klingon-shields (:shields klingon))
-  (icons/draw-klingon-icon))
+  (icons/draw-klingon-icon)
+  (icons/draw-klingon-counts klingon))
 
 (defn- draw-klingons [state]
   (draw-objects state :klingons draw-klingon-and-shield))
