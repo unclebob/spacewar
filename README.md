@@ -168,8 +168,19 @@ non-functional.
   are so weakened that they'll run from you and won't put up much of a fight.  They can detect
   you at long range.  So expect visits from the stronger Klingons.
   
+  Klingons are slow because they never learned dilithium catalysis. Any dilithium
+  they have on board was probably stolen and is strictly used for currency.
+  
+  Klingons can collect antimatter from O and B stars.  You will often see them
+  hovering around those stars to refuel.  Klingons are also more than willing to
+  steal antimatter from a base.
+  
+  Klingons have the facilities on board to construct torpedos.  This takes lots
+  of antimatter.  A Klingon hovering by a base or a star may be building up their
+  arsenal.
+  
 ## Blockades
-  Eventually, unless you stop them, the Klingons will invade your bases and take them over. 
+  Klingons will sometimes invade your bases and take them over. 
   Blockaded bases will not ship any materials to other bases.  Materials manufactured by, or
   shipped to a blockaded base will be acquired by the occupying Klingons.
   
@@ -187,7 +198,7 @@ non-functional.
   is a good time to attack them.  Be careful though, the retreat may be a ruse.
   
 ## Dilithium Clouds
-  When you destroy a Klingon vessel, their on-board dilithium will disperse amidst
+  When you destroy a Klingon vessel, their stolen on-board dilithium will disperse amidst
   the cloud of debris.  You can harvest this dilithium by easing yourself as close
   as possible into the _center_ of the cloud.  Dilithium, when exposed to the vacuum,
   has a half-life of about a minute.  So hurry.
