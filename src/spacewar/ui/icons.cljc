@@ -11,11 +11,15 @@
     :antimatter uic/orange
     :dilithium uic/yellow))
 
+
 (defn draw-transport-icon [transport]
-  (q/ellipse-mode :center)
-  (q/no-stroke)
-  (apply q/fill (transport-color (:commodity transport)))
-  (q/triangle 0 -8 -6 6 6 6))
+  (let [commodity (:commodity transport)]
+    (q/ellipse-mode :center)
+    (q/no-stroke)
+    (apply q/fill (transport-color commodity))
+    (condp = commodity
+      :dilithium (q/triangle 0 -8 -6 6 6 6)
+      :antimatter (q/triangle 0 8 -6 -6 6 -6))))
 
 (defn- age-angle [age]
   (let [maturity (min 1 (/ age glc/base-maturity-age))]

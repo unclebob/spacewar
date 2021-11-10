@@ -206,7 +206,7 @@ non-functional.
 ## Romulans
   Romulans are marauders.  Their ships are cloaked and quite difficult to detect.
   They are quite deadly, due to an omni-directional energy weapon that does
-  tremendous damage and moves at roughly Warp 7.  Fortunately they cannot remain
+  tremendous damage and moves at roughly Warp 5.  Fortunately they cannot remain
   cloaked while energizing or firing their weapon.  During that very brief period
   they are quite vulnerable.  A single shot will kill them.  
   
