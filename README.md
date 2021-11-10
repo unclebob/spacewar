@@ -2,7 +2,7 @@
 
 A Star Trek Game.
 
->_You can play an older version at http://spacewar.fikesfarm.com/spacewar.html_
+>_Courtesy of Mike Fikes (@mfikes) you can play a (possibly older) version at http://spacewar.fikesfarm.com/spacewar.html_
 
 The Borg have been defeated; but the federation fleet has been destroyed.
 The enterprise is the only star ship left in service.  A few bases remain, but the 
