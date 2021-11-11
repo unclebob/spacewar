@@ -159,12 +159,15 @@
   (q/line -10 3 -10 -3)
   (draw-base-adornments base))
 
-(defn- klingon-cruise-state [{:keys [cruise-state]}]
+(defn- klingon-cruise-state [{:keys [cruise-state mission]}]
   (condp = cruise-state
     :patrol "P"
     :refuel "R"
     :guard "G"
-    :attack "A"
+    :mission (condp = mission
+               :blockade "B"
+               :seek-and-destroy "A"
+               "-")
     "X"))
 
 (defn draw-klingon-counts [klingon]

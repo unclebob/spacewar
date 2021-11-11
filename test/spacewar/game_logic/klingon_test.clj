@@ -317,9 +317,9 @@
   (facts
     "in :cruise superstate"
     (fact
-      "Klingons in :attack state thrusts towards ship"
+      "Seek and destroy Klingons in :mission state thrusts towards ship"
       (let [ship (assoc ship :x 1e7 :y 1e7)
-            klingon (assoc klingon :cruise-state :attack)
+            klingon (assoc klingon :cruise-state :mission :mission :seek-and-destroy)
             world (assoc world :ship ship :klingons [klingon])
             world (k/cruise-klingons world)
             klingon (-> world :klingons first)
@@ -331,6 +331,18 @@
       "Klingons in :guard thrust towards nearest base"
       (let [ship (assoc ship :x 1e7 :y 1e7)
             klingon (assoc klingon :cruise-state :guard)
+            base1 (bases/make-base [0 2000] :antimatter-factory)
+            base2 (bases/make-base [1000 0] :antimatter-factory)
+            world (assoc world :ship ship :bases [base1 base2] :klingons [klingon])
+            world (k/cruise-klingons world)
+            klingon (-> world :klingons first)]
+        (:thrust klingon) => (vt/roughly-v [klingon-cruise-thrust 0])
+        (k/super-state klingon ship) => :cruise))
+
+    (fact
+      "Blockading Klingons in :guard thrust towards nearest base"
+      (let [ship (assoc ship :x 1e7 :y 1e7)
+            klingon (assoc klingon :cruise-state :mission :mission :blockade)
             base1 (bases/make-base [0 2000] :antimatter-factory)
             base2 (bases/make-base [1000 0] :antimatter-factory)
             world (assoc world :ship ship :bases [base1 base2] :klingons [klingon])
@@ -556,13 +568,34 @@
     )
 
   (fact
-    "klingon within docking distance of base steals antimatter but does not stop if not guarding or refueling"
+      "klingon within docking distance of base steals antimatter and stops if in blockading and on mission"
+      (let [base (mom/make-base (:x klingon) (+ (:y klingon) (dec ship-docking-distance))
+                                :antimatter-factory 100 100)
+            klingon (assoc klingon :antimatter 0
+                                   :thrust [1 1]
+                                   :velocity [1 1]
+                                   :cruise-state :mission
+                                   :mission :blockade)
+            world (assoc world :klingons [klingon] :bases [base])
+            world (k/klingons-steal-antimatter world)
+            base (-> world :bases first)
+            klingon (-> world :klingons first)]
+        (:antimatter base) => 0
+        (:antimatter klingon) => 100
+        (:velocity klingon) => [0 0]
+        (:thrust klingon) => [0 0]
+        )
+      )
+
+  (fact
+    "klingon within docking distance of base steals antimatter but does not stop if seek-and-destroy on mission"
     (let [base (mom/make-base (:x klingon) (+ (:y klingon) (dec ship-docking-distance))
                               :antimatter-factory 100 100)
           klingon (assoc klingon :antimatter 0
                                  :thrust [1 1]
                                  :velocity [1 1]
-                                 :cruise-state :attack)
+                                 :cruise-state :mission
+                                 :mission :seek-and-destroy)
           world (assoc world :klingons [klingon] :bases [base])
           world (k/klingons-steal-antimatter world)
           base (-> world :bases first)

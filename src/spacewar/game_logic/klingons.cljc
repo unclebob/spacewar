@@ -26,32 +26,34 @@
 (s/def ::thrust (s/tuple number? number?))
 (s/def ::battle-state-age number?)
 (s/def ::battle-state #{:no-battle :flank-right :flank-left :retreating :advancing})
-(s/def ::cruise-state #{:patrol :guard :refuel :attack})
+(s/def ::cruise-state #{:patrol :guard :refuel :mission})
+(s/def ::mission #{:blockade :seek-and-destroy})
 
 (s/def ::klingon (s/keys :req-un [::x ::y ::shields ::antimatter
                                   ::kinetics ::torpedos ::weapon-charge
                                   ::velocity ::thrust
                                   ::battle-state-age ::battle-state
-                                  ::cruise-state]
+                                  ::cruise-state
+                                  ::mission]
                          :opt-un [::hit/hit]))
 (s/def ::klingons (s/coll-of ::klingon))
 
 (def cruise-fsm {:patrol {:low-antimatter :refuel
                           :low-torpedo :patrol
                           :capable :guard
-                          :well-supplied :attack}
+                          :well-supplied :mission}
                  :refuel {:low-antimatter :refuel
                           :low-torpedo :patrol
                           :capable :guard
-                          :well-supplied :attack}
+                          :well-supplied :mission}
                  :guard {:low-antimatter :refuel
                          :low-torpedo :guard
                          :capable :guard
-                         :well-supplied :attack}
-                 :attack {:low-antimatter :refuel
+                         :well-supplied :mission}
+                 :mission {:low-antimatter :refuel
                           :low-torpedo :guard
                           :capable :refuel
-                          :well-supplied :attack}
+                          :well-supplied :mission}
                  })
 
 (defn super-state [klingon ship]
@@ -73,7 +75,10 @@
    :thrust [0 0]
    :battle-state-age 0
    :battle-state :no-battle
-   :cruise-state :patrol})
+   :cruise-state :patrol
+   :mission (if (< 0.5 (rand))
+              :seek-and-destroy
+              :blockade)})
 
 (defn make-klingon [x y]
   {:x x
@@ -370,7 +375,10 @@
     [klingon base]))
 
 (defn- klingon-steals-antimatter [[thief victim]]
-  (let [guarding? (#{:guard :refuel} (:cruise-state thief))
+  (let [guarding? (or
+                    (#{:guard :refuel} (:cruise-state thief))
+                    (and (= :mission (:cruise-state thief))
+                         (= :blockade (:mission thief))))
         amount-needed (- glc/klingon-antimatter (:antimatter thief))
         amount-available (:antimatter victim)
         amount-stolen (min amount-needed amount-available)
@@ -482,12 +490,17 @@
         (assoc klingon :thrust thrust)))
     klingon))
 
-(defn- thrust-toward-ship [klingon ship]
+(defn- thrust-towards-ship [klingon ship]
   (if (= (:battle-state klingon) :no-battle)
-    (let [angle-to-ship (geo/angle-degrees (util/pos klingon) (util/pos ship))
-          thrust (vector/from-angular glc/klingon-cruise-thrust (geo/->radians angle-to-ship))]
-      (assoc klingon :thrust thrust))
-    klingon)
+      (let [angle-to-ship (geo/angle-degrees (util/pos klingon) (util/pos ship))
+            thrust (vector/from-angular glc/klingon-cruise-thrust (geo/->radians angle-to-ship))]
+        (assoc klingon :thrust thrust))
+      klingon))
+
+(defn- thrust-toward-mission [klingon ship bases]
+  (condp = (:mission klingon)
+    :seek-and-destroy (thrust-towards-ship klingon ship)
+    :blockade (thrust-to-nearest-base klingon bases))
   )
 
 (defn- thrust-to-nearest-antimatter-source [klingon stars bases]
@@ -527,14 +540,14 @@
 
 (defn cruise-klingons [{:keys [ship klingons bases stars] :as world}]
   (let [cruise-states (group-by :cruise-state klingons)
-        attacking-klingons (:attack cruise-states)
+        on-mission-klingons (:mission cruise-states)
         patrolling-klingons (:patrol cruise-states)
         guarding-klingons (:guard cruise-states)
         refuelling-klingons (:refuel cruise-states)
-        attacking-klingons (map #(thrust-toward-ship % ship) attacking-klingons)
+        on-mission-klingons (map #(thrust-toward-mission % ship bases) on-mission-klingons)
         guarding-klingons (map #(thrust-to-nearest-base % bases) guarding-klingons)
         refuelling-klingons (map #(thrust-to-nearest-antimatter-source % stars bases) refuelling-klingons)
-        klingons (concat attacking-klingons
+        klingons (concat on-mission-klingons
                          patrolling-klingons
                          guarding-klingons
                          refuelling-klingons)
@@ -605,12 +618,12 @@
 
 (defn change-patrol-direction [{:keys [klingons] :as world}]
   (let [cruise-states (group-by :cruise-state klingons)
-        attacking-klingons (:attack cruise-states)
+        on-mission-klingons (:mission cruise-states)
         patrolling-klingons (:patrol cruise-states)
         guarding-klingons (:guard cruise-states)
         refuelling-klingons (:refuel cruise-states)
         patrolling-klingons (map thrust-in-random-direction patrolling-klingons)
-        klingons (concat attacking-klingons
+        klingons (concat on-mission-klingons
                          patrolling-klingons
                          guarding-klingons
                          refuelling-klingons)

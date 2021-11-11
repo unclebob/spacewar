@@ -97,6 +97,7 @@
    :battle-state-age 0
    :battle-state :no-battle
    :cruise-state :patrol
+   :mission :seek-and-destroy
    })
 
 (defn make-world []
