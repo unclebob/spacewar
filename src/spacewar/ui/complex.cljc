@@ -131,7 +131,8 @@
                                    :h frame-height
                                    :w frame-width}))
 
-          bottom-lights-width (/ frame-width 2)
+          engine-weapon-width 750; hack.  Eyeballed.
+          bottom-lights-width (- frame-width engine-weapon-width)
           bottom-lights-left-offset (/ (- frame-width bottom-lights-width) 2)
           bottom-lights-x (+ x left-margin bottom-lights-left-offset)
           bottom-lights-y (+ y (- h bottom-margin) panel-gap)

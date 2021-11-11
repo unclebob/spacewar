@@ -19,10 +19,10 @@
           am-x (+ x uic/stringer-width 10)
           am-y (+ y uic/banner-width uic/button-gap)
           dl-x am-x
-          dl-y (+ am-y uic/button-h uic/button-gap)
+          dl-y am-y
           wpn-x am-x
-          wpn-y (+ dl-y uic/button-h uic/button-gap)
-          height (+ uic/banner-width uic/button-gap uic/button-h uic/button-gap uic/button-h uic/button-gap uic/button-h)]
+          wpn-y am-y
+          height (+ uic/banner-width uic/button-gap uic/button-h)]
       (deploy-panel.
         (assoc state
           :h height

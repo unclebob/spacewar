@@ -28,7 +28,7 @@
 
   (setup [_]
     (let [{:keys [x y h color button-color]} state
-          button-w 150
+          button-w uic/button-width
           button-x (+ x uic/stringer-width uic/button-gap)
           torpedo-y (+ y uic/banner-width uic/button-gap)
           kinetic-y (+ torpedo-y uic/button-h uic/button-gap)

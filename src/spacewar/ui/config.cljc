@@ -42,6 +42,7 @@
 (def button-h 40)
 (def slider-width 50)
 (def engage-width 100)
+(def button-width 150)
 
 (def phaser-length 30)
 (def kinetic-color [255 0 0])

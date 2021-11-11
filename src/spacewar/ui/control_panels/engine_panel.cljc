@@ -28,7 +28,7 @@
 
   (setup [_]
     (let [{:keys [x y w h color button-color]} state
-          button-w 150
+          button-w uic/button-width
           warp-y (+ y uic/banner-width uic/button-gap)
           impulse-y (+ warp-y uic/button-h uic/button-gap)
           dock-y (+ impulse-y uic/button-h uic/button-gap)
