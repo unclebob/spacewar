@@ -465,7 +465,7 @@
         klingons (map #(update-klingon-state ms ship %) klingons)]
     (assoc world :klingons klingons)))
 
-(defn update-torpedo-production [ms {:keys [antimatter torpedos] :as klingon}]
+(defn update-torpedo-and-kinetic-production [ms {:keys [antimatter torpedos kinetics] :as klingon}]
   (let [deficit (- glc/klingon-torpedos torpedos)
         max-production (* ms glc/klingon-torpedo-production-rate)
         new-torpedos (if (< antimatter glc/klingon-torpedo-antimatter-threshold)
@@ -474,12 +474,13 @@
         efficiency (/ new-torpedos max-production)
         antimatter-cost (* ms glc/klingon-torpedo-antimatter-cost efficiency)
         torpedos (+ torpedos new-torpedos)
-        antimatter (- antimatter antimatter-cost)]
-    (assoc klingon :antimatter antimatter :torpedos torpedos)))
+        antimatter (- antimatter antimatter-cost)
+        kinetics (min glc/klingon-kinetics (+ kinetics (* ms glc/klingon-kinetic-production-rate)))]
+    (assoc klingon :antimatter antimatter :torpedos torpedos :kinetics kinetics)))
 
 (defn update-klingon-torpedo-production [ms world]
   (let [klingons (:klingons world)
-        klingons (map #(update-torpedo-production ms %) klingons)]
+        klingons (map #(update-torpedo-and-kinetic-production ms %) klingons)]
     (assoc world :klingons klingons))
   )
 

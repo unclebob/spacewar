@@ -91,7 +91,8 @@
 (def klingon-kinetic-damage 50)
 (def klingon-kinetic-power 100)
 
-(def klingon-torpedo-production-rate (/ 1 60 1000)) ;one per minute
+(def klingon-torpedo-production-rate (/ 2 60 1000)) ;two per minute
+(def klingon-kinetic-production-rate (/ 30 60 1000)) ;thirty per minute
 (def klingon-torpedo-antimatter-cost (/ 1000 60 1000)) ;1000 per minute
 (def klingon-torpedo-antimatter-threshold (/ klingon-antimatter 5)) ;no production if under 20%
 (def klingon-antimatter-base-in-range 1000000)

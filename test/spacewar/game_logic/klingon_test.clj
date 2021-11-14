@@ -367,20 +367,20 @@
             (k/super-state klingon ship) => :cruise))
 
     (fact "Klingons in :refuel state thrust towards nearest antimatter base if close enough."
-              (let [ship (assoc ship :x 1e7 :y 1e7)
-                    star1 (mom/make-star 100 100 :o)
-                    star2 (mom/make-star 20 0 :g)
-                    star3 (mom/make-star 0 200 :o)
-                    base (mom/make-base 150 0 :antimatter-factory 0 0)
-                    klingon (assoc klingon :cruise-state :refuel)
-                    world (assoc world :stars [star1 star2 star3]
-                                       :klingons [klingon]
-                                       :ship ship
-                                       :bases [base])
-                    world (k/cruise-klingons world)
-                    klingon (-> world :klingons first)]
-                (:thrust klingon) => (vt/roughly-v [klingon-cruise-thrust 0])
-                (k/super-state klingon ship) => :cruise))
+          (let [ship (assoc ship :x 1e7 :y 1e7)
+                star1 (mom/make-star 100 100 :o)
+                star2 (mom/make-star 20 0 :g)
+                star3 (mom/make-star 0 200 :o)
+                base (mom/make-base 150 0 :antimatter-factory 0 0)
+                klingon (assoc klingon :cruise-state :refuel)
+                world (assoc world :stars [star1 star2 star3]
+                                   :klingons [klingon]
+                                   :ship ship
+                                   :bases [base])
+                world (k/cruise-klingons world)
+                klingon (-> world :klingons first)]
+            (:thrust klingon) => (vt/roughly-v [klingon-cruise-thrust 0])
+            (k/super-state klingon ship) => :cruise))
 
     (fact "Klingons in :patrol state thrust in random direction"
           (let [ship (assoc ship :x 1e7 :y 1e7)
@@ -413,12 +413,26 @@
     )
 
   (facts
-    "torpedo production"
+    "weapon production"
+    (fact
+      "klingons make kinetics"
+      (let [klingon (assoc klingon :antimatter klingon-antimatter
+                                   :kinetics 0)
+            klingon (k/update-torpedo-and-kinetic-production 2 klingon)]
+        (:kinetics klingon) => (roughly (* 2 glc/klingon-kinetic-production-rate))))
+
+    (fact
+          "klingons will full kinetics do not make kinetics"
+          (let [klingon (assoc klingon :antimatter klingon-antimatter
+                                       :kinetics glc/klingon-kinetics)
+                klingon (k/update-torpedo-and-kinetic-production 2 klingon)]
+            (:kinetics klingon) => glc/klingon-kinetics))
+
     (fact
       "klingon with lots of antimatter will make torpedos"
       (let [klingon (assoc klingon :antimatter klingon-antimatter
                                    :torpedos 0)
-            klingon (k/update-torpedo-production 2 klingon)]
+            klingon (k/update-torpedo-and-kinetic-production 2 klingon)]
         (:torpedos klingon) => (roughly (* 2 glc/klingon-torpedo-production-rate))
         (:antimatter klingon) => (roughly (- klingon-antimatter (* 2 glc/klingon-torpedo-antimatter-cost)))))
 
@@ -426,7 +440,7 @@
       "klingons with full torpedos do not produce more"
       (let [klingon (assoc klingon :antimatter glc/klingon-antimatter
                                    :torpedos glc/klingon-torpedos)
-            klingon (k/update-torpedo-production 2 klingon)]
+            klingon (k/update-torpedo-and-kinetic-production 2 klingon)]
         (:antimatter klingon) => glc/klingon-antimatter
         (:torpedos klingon) => glc/klingon-torpedos))
 
@@ -434,7 +448,7 @@
       "klingons with antimatter below threshold do not produce"
       (let [klingon (assoc klingon :antimatter (dec glc/klingon-torpedo-antimatter-threshold)
                                    :torpedos 0)
-            klingon (k/update-torpedo-production 2 klingon)]
+            klingon (k/update-torpedo-and-kinetic-production 2 klingon)]
         (:antimatter klingon) => (dec glc/klingon-torpedo-antimatter-threshold)
         (:torpedos klingon) => 0)
       )
@@ -568,24 +582,24 @@
     )
 
   (fact
-      "klingon within docking distance of base steals antimatter and stops if in blockading and on mission"
-      (let [base (mom/make-base (:x klingon) (+ (:y klingon) (dec ship-docking-distance))
-                                :antimatter-factory 100 100)
-            klingon (assoc klingon :antimatter 0
-                                   :thrust [1 1]
-                                   :velocity [1 1]
-                                   :cruise-state :mission
-                                   :mission :blockade)
-            world (assoc world :klingons [klingon] :bases [base])
-            world (k/klingons-steal-antimatter world)
-            base (-> world :bases first)
-            klingon (-> world :klingons first)]
-        (:antimatter base) => 0
-        (:antimatter klingon) => 100
-        (:velocity klingon) => [0 0]
-        (:thrust klingon) => [0 0]
-        )
+    "klingon within docking distance of base steals antimatter and stops if in blockading and on mission"
+    (let [base (mom/make-base (:x klingon) (+ (:y klingon) (dec ship-docking-distance))
+                              :antimatter-factory 100 100)
+          klingon (assoc klingon :antimatter 0
+                                 :thrust [1 1]
+                                 :velocity [1 1]
+                                 :cruise-state :mission
+                                 :mission :blockade)
+          world (assoc world :klingons [klingon] :bases [base])
+          world (k/klingons-steal-antimatter world)
+          base (-> world :bases first)
+          klingon (-> world :klingons first)]
+      (:antimatter base) => 0
+      (:antimatter klingon) => 100
+      (:velocity klingon) => [0 0]
+      (:thrust klingon) => [0 0]
       )
+    )
 
   (fact
     "klingon within docking distance of base steals antimatter but does not stop if seek-and-destroy on mission"
