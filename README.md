@@ -55,8 +55,8 @@ You have two modes of movement.  Warp, and Impulse.
 You have three weapons.  Phasers, Torpedos, and Kinetics.  
  * Phasers are powerful rays that move quickly and do a lot of damage.
   However, they are short range and lose effectiveness rapidly with distance.
-  If you want to use them, get close.  They are great in a stern chase.
-  
+  If you want to use them, get close.  They are great in a stern chase, or a game of chicken.
+    
  * Torpedos are slow, but pack a significant punch.  
   
  * Kinetics are just cannon balls moving at relativistic velocity.  They do a small amount of damage but are cheap to shoot.
@@ -171,11 +171,11 @@ non-functional.
   Klingons are slow because they never learned dilithium catalysis. Any dilithium
   they have on board was probably stolen and is strictly used for currency.
   
-  Klingons can collect antimatter from O and B stars.  You will often see them
+  Klingons can collect antimatter from O and B (blue-white) stars.  You will often see them
   hovering around those stars to refuel.  Klingons are also more than willing to
   steal antimatter from a base.
   
-  Klingons have the facilities on board to construct torpedos.  This takes lots
+  Klingons have the facilities on board to construct torpedos and kinetics.  This takes lots
   of antimatter.  A Klingon hovering by a base or a star may be building up their
   arsenal.
   
