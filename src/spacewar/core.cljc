@@ -149,6 +149,11 @@
         klingons (conj klingons klingon)]
     (assoc world :klingons klingons)))
 
+(defn- debug-new-klingon-from-praxis [event world]
+  (println event)
+  (klingons/new-klingon-from-praxis world)
+  )
+
 (defn- debug-add-romulan [event world]
   (println event)
   (let [[x y] (:pos event)
@@ -164,6 +169,7 @@
                        (util/handle-event :debug-resupply-ship debug-resupply-ship)
                        (util/handle-event :debug-add-klingon debug-add-klingon)
                        (util/handle-event :debug-add-romulan debug-add-romulan)
+                       (util/handle-event :debug-new-klingon-from-praxis debug-new-klingon-from-praxis)
                        )]
     world))
 

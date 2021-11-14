@@ -160,6 +160,7 @@
                     :p {:event :debug-position-ship :pos (click->pos state ship [mx my])}
                     :k {:event :debug-add-klingon :pos (click->pos state ship [mx my])}
                     :r {:event :debug-resupply-ship}
+                    :K {:event :debug-new-klingon-from-praxis}
                     nil)
                   nil)]
       (p/pack-update

@@ -51,9 +51,9 @@
                          :capable :guard
                          :well-supplied :mission}
                  :mission {:low-antimatter :refuel
-                          :low-torpedo :guard
-                          :capable :refuel
-                          :well-supplied :mission}
+                           :low-torpedo :guard
+                           :capable :refuel
+                           :well-supplied :mission}
                  })
 
 (defn super-state [klingon ship]
@@ -62,6 +62,11 @@
     (if (< distance glc/klingon-tactical-range)
       :battle
       :cruise)))
+
+(defn- random-mission []
+  (if (< 0.5 (rand))
+    :seek-and-destroy
+    :blockade))
 
 (defn make-random-klingon []
   {:x (int (rand glc/known-space-x))
@@ -76,9 +81,7 @@
    :battle-state-age 0
    :battle-state :no-battle
    :cruise-state :patrol
-   :mission (if (< 0.5 (rand))
-              :seek-and-destroy
-              :blockade)})
+   :mission (random-mission)})
 
 (defn make-klingon [x y]
   {:x x
@@ -93,6 +96,18 @@
    :battle-state-age 0
    :battle-state :no-battle
    :cruise-state :patrol})
+
+(defn new-klingon-from-praxis [world]
+  (let [klingons (:klingons world)
+        klingon (make-klingon (rand-int glc/known-space-x) 0)
+        klingon (assoc klingon :mission (random-mission)
+                               :cruise-state :mission
+                               :thrust [0 glc/klingon-cruise-thrust]
+                               :velocity [0 -1]
+                               :antimatter glc/klingon-antimatter
+                               :torpedos glc/klingon-torpedos
+                               :kinetics glc/klingon-kinetics)]
+    (assoc world :klingons (conj klingons klingon))))
 
 (defn initialize []
   (repeatedly glc/number-of-klingons make-random-klingon))
@@ -492,15 +507,16 @@
 
 (defn- thrust-towards-ship [klingon ship]
   (if (= (:battle-state klingon) :no-battle)
-      (let [angle-to-ship (geo/angle-degrees (util/pos klingon) (util/pos ship))
-            thrust (vector/from-angular glc/klingon-cruise-thrust (geo/->radians angle-to-ship))]
-        (assoc klingon :thrust thrust))
-      klingon))
+    (let [angle-to-ship (geo/angle-degrees (util/pos klingon) (util/pos ship))
+          thrust (vector/from-angular glc/klingon-cruise-thrust (geo/->radians angle-to-ship))]
+      (assoc klingon :thrust thrust))
+    klingon))
 
 (defn- thrust-toward-mission [klingon ship bases]
   (condp = (:mission klingon)
     :seek-and-destroy (thrust-towards-ship klingon ship)
-    :blockade (thrust-to-nearest-base klingon bases))
+    :blockade (thrust-to-nearest-base klingon bases)
+    klingon)
   )
 
 (defn- thrust-to-nearest-antimatter-source [klingon stars bases]
@@ -517,7 +533,7 @@
                                           antimatter-stars)))
           distance-to-nearest-antimatter-star (apply min (keys star-distance-map))
           distance-to-nearest-antimatter-base (if (empty? antimatter-bases)
-                                                1000000000 ;very far away.
+                                                1000000000  ;very far away.
                                                 (apply min (keys base-distance-map)))
           nearest-antimatter-star (star-distance-map distance-to-nearest-antimatter-star)
           nearest-antimatter-base (base-distance-map distance-to-nearest-antimatter-base)
@@ -634,3 +650,4 @@
   (-> world
       (change-patrol-direction)
       (change-all-cruise-states)))
+
