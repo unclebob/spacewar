@@ -122,6 +122,8 @@
 (def klingon-torpedo-proximity 2000)
 (def klingon-torpedo-range 100000)
 
+(def minutes-till-full-invasion (* 5 60)) ;five hours
+
 (def romulan-invisible-time 1000)
 (def romulan-appearing-time 2000)
 (def romulan-visible-time 1000)

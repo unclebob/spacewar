@@ -647,8 +647,16 @@
         ]
     (assoc world :klingons klingons)))
 
+(defn- add-klingons-from-praxis [world]
+  (let [minutes (get world :minutes 0)
+        probability (/ minutes glc/minutes-till-full-invasion)]
+    (if (< (rand) probability)
+      (new-klingon-from-praxis world)
+      world)))
+
 (defn update-klingons-per-minute [world]
   (-> world
       (change-patrol-direction)
-      (change-all-cruise-states)))
+      (change-all-cruise-states)
+      (add-klingons-from-praxis)))
 

@@ -43,6 +43,7 @@
 (s/def ::message (s/keys :req-un [::text ::duration]))
 (s/def ::messages (s/coll-of ::message))
 (s/def ::game-over boolean?)
+(s/def ::minutes integer?)
 
 (s/def ::world (s/keys :req-un [::explosions/explosions
                                 ::klingons/klingons
@@ -57,7 +58,8 @@
                                 ::transport-check-time
                                 ::ms
                                 ::messages
-                                ::game-over]))
+                                ::game-over
+                                ::minutes]))
 
 (defn make-initial-world []
   (let [ship (ship/initialize)
@@ -78,7 +80,8 @@
                  :duration 5000}
                 {:text "Save the Federation!"
                  :duration 10000}]
-     :game-over false}))
+     :game-over false
+     :minutes 0}))
 
 (defn game-saved? []
   #?(:clj  (.exists (io/file "spacewar.world"))
@@ -251,8 +254,14 @@
        (klingons/update-klingons-per-second)
        (romulans/update-romulans-per-second)))
 
+(defn- increment-minutes [world]
+  (let [minutes (get world :minutes 0)]
+    (assoc world :minutes (inc minutes))))
+
 (defn update-world-per-minute [world]
-  (->> world (klingons/update-klingons-per-minute)))
+  (->> world
+       (increment-minutes)
+       (klingons/update-klingons-per-minute)))
 
 (defn add-frame-time [frame-time context]
   (let [frame-times (->
