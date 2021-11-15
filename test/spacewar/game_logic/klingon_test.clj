@@ -634,7 +634,7 @@
     "two klingons stealing from one base"
     (let [base (mom/make-base (:x klingon) (+ (:y klingon) (/ ship-docking-distance 2))
                               :antimatter-factory 10000000 100)
-          klingon (assoc klingon :antimatter 10000 :id 1)
+          klingon (assoc klingon :antimatter (- glc/klingon-antimatter 10000) :id 1)
           klingon2 (assoc klingon2 :antimatter 0 :id 2 :x (inc (:x klingon)))
           world (assoc world :klingons [klingon klingon2] :bases [base])
           world (k/klingons-steal-antimatter world)
@@ -643,7 +643,7 @@
           klingon (-> world :klingons first)
           klingon2 (-> world :klingons second)]
       base-count => 1
-      (:antimatter base) => 9910000
+      (:antimatter base) => (- 10000000 glc/klingon-antimatter 10000)
       (:antimatter klingon) => glc/klingon-antimatter
       (:antimatter klingon2) => glc/klingon-antimatter)
     )

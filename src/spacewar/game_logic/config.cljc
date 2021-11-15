@@ -29,7 +29,7 @@
 (def max-shots-by-type {:none 0 :phaser 10 :torpedo 5 :kinetic 20})
 
 (def phaser-range 50000)
-(def phaser-velocity 40) ;per ms
+(def phaser-velocity 40)                                    ;per ms
 (def phaser-proximity 1000)
 (def phaser-damage 80)
 (def phaser-power 500)
@@ -58,8 +58,8 @@
 (def klingon-antimatter 100000)
 (def klingon-shield-recharge-rate 0.01)
 (def klingon-shield-recharge-cost 10)
-(def klingon-tactical-range 100000)
-(def klingon-evasion-limit 50000)
+(def klingon-tactical-range 100000) ;engage in battle if nearer than this.
+(def klingon-evasion-limit 50000) ;advance if farther than this.
 (def klingon-battle-state-transition-age 20000)
 (def klingon-battle-states [:advancing
                             :retreating
@@ -75,7 +75,7 @@
 (def klingon-antimatter-runaway-threshold (* 0.2 klingon-antimatter))
 (def klingon-cruise-thrust 0.01)
 (def klingon-tactical-thrust 0.002)
-(def klingon-thrust-time 15) ;in minutes
+(def klingon-thrust-time 15)                                ;in minutes
 (def klingon-thrust-time-ms (* klingon-thrust-time 60 1000)) ;100% antimatter
 (def klingon-thrust-antimatter (/ klingon-antimatter klingon-thrust-time-ms))
 (def klingon-drag 0.999)
@@ -86,15 +86,15 @@
 (def klingon-kinetic-firing-distance 150000)
 (def klingon-kinetics 500)
 (def klingon-torpedos 20)
-(def klingon-kinetic-threshold 2000)
+(def klingon-kinetic-threshold 1000)
 (def klingon-kinetic-velocity 6.0)
 (def klingon-kinetic-proximity 1000)
 (def klingon-kinetic-damage 50)
 (def klingon-kinetic-power 100)
 
-(def klingon-torpedo-production-rate (/ 2 60 1000)) ;two per minute
-(def klingon-kinetic-production-rate (/ 10 60 1000)) ;ten per minute
-(def klingon-torpedo-antimatter-cost (/ 1000 60 1000)) ;1000 per minute
+(def klingon-torpedo-production-rate (/ 2 60 1000))         ;two per minute
+(def klingon-kinetic-production-rate (/ 10 60 1000))        ;ten per minute
+(def klingon-torpedo-antimatter-cost (/ 1000 60 1000))      ;1000 per minute
 (def klingon-torpedo-antimatter-threshold (/ klingon-antimatter 5)) ;no production if under 20%
 (def klingon-antimatter-base-in-range 1000000)
 
@@ -123,7 +123,7 @@
 (def klingon-torpedo-proximity 2000)
 (def klingon-torpedo-range 100000)
 
-(def minutes-till-full-invasion (* 5 60)) ;five hours
+(def minutes-till-full-invasion (* 5 60))                   ;five hours
 
 (def romulan-invisible-time 1000)
 (def romulan-appearing-time 2000)
