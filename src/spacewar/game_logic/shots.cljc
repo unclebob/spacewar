@@ -111,10 +111,11 @@
   (let [{:keys [ship]} world
         {:keys [x y selected-weapon weapon-spread-setting
                 weapon-number-setting target-bearing
-                antimatter]} ship
+                antimatter destroyed]} ship
         required-power (* weapon-number-setting (power-required selected-weapon))
         can-shoot? (and (< required-power antimatter)
-                        (sufficient-inventory ship))
+                        (sufficient-inventory ship)
+                        (not destroyed))
         antimatter (if can-shoot?
                      (- antimatter required-power)
                      antimatter)
