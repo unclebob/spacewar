@@ -1,6 +1,7 @@
 (ns spacewar.game-logic.config)
 
 (def frame-rate 30)
+(def klingon-stats false)
 
 (def spectral-classes [:o :b :a :f :g :k :m])
 (def drag-factor 0.005)
@@ -54,10 +55,10 @@
 (def known-space-y 10000000)
 
 (def klingon-shields 200)
-(def klingon-antimatter 50000)
+(def klingon-antimatter 100000)
 (def klingon-shield-recharge-rate 0.01)
 (def klingon-shield-recharge-cost 10)
-(def klingon-tactical-range 150000)
+(def klingon-tactical-range 100000)
 (def klingon-evasion-limit 50000)
 (def klingon-battle-state-transition-age 20000)
 (def klingon-battle-states [:advancing
@@ -71,10 +72,10 @@
                                    :retreating 210
                                    :no-battle 0})
 
-(def klingon-antimatter-runaway-threshold (* 0.1 klingon-antimatter))
+(def klingon-antimatter-runaway-threshold (* 0.2 klingon-antimatter))
 (def klingon-cruise-thrust 0.01)
 (def klingon-tactical-thrust 0.002)
-(def klingon-thrust-time 10) ;in minutes
+(def klingon-thrust-time 15) ;in minutes
 (def klingon-thrust-time-ms (* klingon-thrust-time 60 1000)) ;100% antimatter
 (def klingon-thrust-antimatter (/ klingon-antimatter klingon-thrust-time-ms))
 (def klingon-drag 0.999)
@@ -92,7 +93,7 @@
 (def klingon-kinetic-power 100)
 
 (def klingon-torpedo-production-rate (/ 2 60 1000)) ;two per minute
-(def klingon-kinetic-production-rate (/ 30 60 1000)) ;thirty per minute
+(def klingon-kinetic-production-rate (/ 10 60 1000)) ;ten per minute
 (def klingon-torpedo-antimatter-cost (/ 1000 60 1000)) ;1000 per minute
 (def klingon-torpedo-antimatter-threshold (/ klingon-antimatter 5)) ;no production if under 20%
 (def klingon-antimatter-base-in-range 1000000)

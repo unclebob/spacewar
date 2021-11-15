@@ -159,26 +159,37 @@
   (q/line -10 3 -10 -3)
   (draw-base-adornments base))
 
-(defn- klingon-cruise-state [{:keys [cruise-state mission]}]
-  (condp = cruise-state
-    :patrol "P"
-    :refuel "R"
-    :guard "G"
-    :mission (condp = mission
-               :blockade "B"
-               :seek-and-destroy "A"
-               "-")
-    "X"))
+(defn- klingon-state [{:keys [cruise-state battle-state mission]}]
+  (let [cruise-state (condp = cruise-state
+                       :patrol "P"
+                       :refuel "R"
+                       :guard "G"
+                       :mission (condp = mission
+                                  :blockade "B"
+                                  :seek-and-destroy "A"
+                                  "-")
+                       "X")
+        battle-state (condp = battle-state
+                       :no-battle "n"
+                       :flank-right "fr"
+                       :flank-left "fl"
+                       :retreating "r"
+                       :advancing "a")]
+    (str cruise-state "-" battle-state))
+  )
 
 (defn draw-klingon-counts [klingon]
-  ;(apply q/fill uic/white)
-  ;(q/text-align :right :center)
-  ;(q/text-font (:lcars-small (q/state :fonts)) 12)
-  ;(q/text (str "T-" (int (/ (:torpedos klingon) glc/klingon-torpedos 0.01)) "%") -30 0)
-  ;(q/text-align :left :center)
-  ;(q/text (str "A-" (int (/ (:antimatter klingon) glc/klingon-antimatter 0.01)) "%") 30 0)
-  ;(q/text-align :center :bottom)
-  ;(q/text (klingon-cruise-state klingon) 0 -30)
+  (when glc/klingon-stats
+    (apply q/fill uic/white)
+    (q/text-align :right :center)
+    (q/text-font (:lcars-small (q/state :fonts)) 12)
+    (q/text (str "T-" (int (/ (:torpedos klingon) glc/klingon-torpedos 0.01)) "%") -30 0)
+    (q/text-align :left :center)
+    (q/text (str "A-" (int (/ (:antimatter klingon) glc/klingon-antimatter 0.01)) "%") 30 0)
+    (q/text-align :center :bottom)
+    (q/text (klingon-state klingon) 0 -30)
+    (q/text-align :center :top)
+    (q/text (str "K-" (int (:kinetics klingon))) 0 30))
   )
 
 (defn draw-klingon-icon []

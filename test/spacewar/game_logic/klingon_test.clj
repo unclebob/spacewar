@@ -356,15 +356,24 @@
                 star1 (mom/make-star 100 100 :o)
                 star2 (mom/make-star 20 0 :g)
                 star3 (mom/make-star 0 200 :o)
-                klingon (assoc klingon :cruise-state :refuel)
+                klingon-hi (assoc klingon :cruise-state :refuel
+                                          :antimatter glc/klingon-antimatter
+                                          :id :hi)
+                klingon-low (assoc klingon-hi :cruise-state :refuel
+                                              :antimatter (/ glc/klingon-antimatter 10)
+                                              :id :low)
                 world (assoc world :stars [star1 star2 star3]
-                                   :klingons [klingon]
+                                   :klingons [klingon-hi klingon-low]
                                    :ship ship)
                 world (k/cruise-klingons world)
-                klingon (-> world :klingons first)
+                klingons (group-by :id (-> world :klingons))
+                klingon-hi (first (:hi klingons))
+                klingon-low (first (:low klingons))
                 thrust (* (Math/sqrt 2) 0.5 klingon-cruise-thrust)]
-            (:thrust klingon) => (vt/roughly-v [thrust thrust])
-            (k/super-state klingon ship) => :cruise))
+            (:thrust klingon-hi) => (vt/roughly-v [thrust thrust])
+            (:thrust klingon-low) => (vt/roughly-v [klingon-cruise-thrust 0])
+            (k/super-state klingon-hi ship) => :cruise
+            (k/super-state klingon-low ship) => :cruise))
 
     (fact "Klingons in :refuel state thrust towards nearest antimatter base if close enough."
           (let [ship (assoc ship :x 1e7 :y 1e7)
@@ -422,11 +431,11 @@
         (:kinetics klingon) => (roughly (* 2 glc/klingon-kinetic-production-rate))))
 
     (fact
-          "klingons will full kinetics do not make kinetics"
-          (let [klingon (assoc klingon :antimatter klingon-antimatter
-                                       :kinetics glc/klingon-kinetics)
-                klingon (k/update-torpedo-and-kinetic-production 2 klingon)]
-            (:kinetics klingon) => glc/klingon-kinetics))
+      "klingons will full kinetics do not make kinetics"
+      (let [klingon (assoc klingon :antimatter klingon-antimatter
+                                   :kinetics glc/klingon-kinetics)
+            klingon (k/update-torpedo-and-kinetic-production 2 klingon)]
+        (:kinetics klingon) => glc/klingon-kinetics))
 
     (fact
       "klingon with lots of antimatter will make torpedos"

@@ -95,7 +95,8 @@
    :thrust [0 0]
    :battle-state-age 0
    :battle-state :no-battle
-   :cruise-state :patrol})
+   :cruise-state :patrol
+   :mission (random-mission)})
 
 (defn new-klingon-from-praxis [world]
   (let [klingons (:klingons world)
@@ -468,7 +469,8 @@
 (defn update-torpedo-and-kinetic-production [ms {:keys [antimatter torpedos kinetics] :as klingon}]
   (let [deficit (- glc/klingon-torpedos torpedos)
         max-production (* ms glc/klingon-torpedo-production-rate)
-        new-torpedos (if (< antimatter glc/klingon-torpedo-antimatter-threshold)
+        can-make-torpedos? (< antimatter glc/klingon-torpedo-antimatter-threshold)
+        new-torpedos (if can-make-torpedos?
                        0
                        (min deficit max-production))
         efficiency (/ new-torpedos max-production)
@@ -522,7 +524,12 @@
 
 (defn- thrust-to-nearest-antimatter-source [klingon stars bases]
   (if (= (:battle-state klingon) :no-battle)
-    (let [antimatter-stars (filter #(#{:o :b} (:class %)) stars)
+    (let [fraction-fuel-remaining (/ (:antimatter klingon) glc/klingon-antimatter)
+          target-classes (condp <= fraction-fuel-remaining
+                           0.5 #{:o :b}
+                           0.3 #{:o :b :a :f}
+                           #{:o :b :a :f :g :k :m})
+          antimatter-stars (filter #(target-classes (:class %)) stars)
           antimatter-bases (filter #(= :antimatter-factory (:type %)) bases)
           base-distance-map (apply hash-map
                                    (flatten
