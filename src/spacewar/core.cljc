@@ -34,6 +34,8 @@
             [clojure.tools.reader.edn :as edn]
             #?(:clj [clojure.java.io :as io])))
 
+(def version "202111161428")
+
 (s/def ::update-time number?)
 (s/def ::transport-check-time number?)
 (s/def ::shots ::shots/shots)
@@ -84,7 +86,7 @@
                  :duration 10000}]
      :game-over false
      :minutes 0
-     :version "202111160746"}))
+     :version version}))
 
 (defn game-saved? []
   #?(:clj  (.exists (io/file "spacewar.world"))
