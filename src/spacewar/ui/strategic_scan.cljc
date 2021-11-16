@@ -129,12 +129,12 @@
         [(+ x (/ w 2)) (+ y (/ h 2))]
         #?(:clj (draw-background state))
         (draw-stars state)
-        (draw-klingons state)
-        (when (not (-> state :game-over))
-          (draw-ship state))
         (draw-transport-routes state)
         (draw-transports state)
         (draw-bases state)
+        (draw-klingons state)
+        (when (not (-> state :game-over))
+          (draw-ship state))
         (draw-romulans state)
         (draw-sectors state))))
 
