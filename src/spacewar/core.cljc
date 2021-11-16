@@ -44,6 +44,7 @@
 (s/def ::messages (s/coll-of ::message))
 (s/def ::game-over boolean?)
 (s/def ::minutes integer?)
+(s/def ::version string?)
 
 (s/def ::world (s/keys :req-un [::explosions/explosions
                                 ::klingons/klingons
@@ -59,7 +60,8 @@
                                 ::ms
                                 ::messages
                                 ::game-over
-                                ::minutes]))
+                                ::minutes
+                                ::version]))
 
 (defn make-initial-world []
   (let [ship (ship/initialize)
@@ -81,7 +83,8 @@
                 {:text "Save the Federation!"
                  :duration 10000}]
      :game-over false
-     :minutes 0}))
+     :minutes 0
+     :version "202111160746"}))
 
 (defn game-saved? []
   #?(:clj  (.exists (io/file "spacewar.world"))

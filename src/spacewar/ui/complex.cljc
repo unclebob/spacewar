@@ -111,7 +111,10 @@
           fps (or fps 0)
           fps #?(:clj (format "FPS: %6.2f" (float fps))
                  :cljs (str "FPS: " (.toFixed fps 2)))]
-      (q/text fps x y))
+      (q/text fps x y)
+      (q/text (get state :version "--") x (+ y 30))
+      (q/text (str "minutes: " (:minutes state)) x (+ y 60))
+      (q/text (str "Klingons: " (:klingons state)) x (+ y 90)))
     )
 
   (setup [_]
@@ -254,7 +257,10 @@
       (complex. new-state)))
 
   (update-state [_ world]
-    (let [state (assoc state :fps (:fps world))
+    (let [state (assoc state :fps (:fps world)
+                             :version (:version world)
+                             :minutes (:minutes world)
+                             :klingons (count (:klingons world)))
           [state events] (p/update-elements state world)]
       (p/pack-update
         (complex. state)

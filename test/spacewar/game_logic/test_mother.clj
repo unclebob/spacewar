@@ -116,6 +116,7 @@
    :messages []
    :game-over false
    :minutes 0
+   :version "version"
    })
 
 (defn make-shot []

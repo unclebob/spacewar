@@ -304,7 +304,7 @@
 (defn- blockaded-transport? [transport klingons]
   (let [blockading-klingons (filter #(< (geo/distance (util/pos transport)
                                                       (util/pos %))
-                                        glc/ship-docking-distance)
+                                        glc/klingon-docking-distance)
                                     klingons)
         blockaded? (not (empty? blockading-klingons))]
     blockaded?))
