@@ -94,16 +94,20 @@
        (remove-disappeared-romulans)
        (destroy-hit-romulans)))
 
-(defn- add-occasional-romulan [world]
-  (if (< (rand 1) glc/romulan-appear-odds-per-second)
-    (let [{:keys [romulans ship]} world
-          {:keys [x y]} ship
+(defn add-romulan [{:keys [ship romulans] :as world}]
+  (if (zero? (:warp ship))
+    (let [{:keys [x y]} ship
           dist (* glc/romulan-appear-distance (- 1.5 (rand 1)))
           angle (rand 360)
           pos (vector/from-angular dist (geo/->radians angle))
           [rx ry] (vector/add [x y] pos)
           romulans (conj romulans (make-romulan rx ry))]
-      (assoc world :romulans romulans))
+      (assoc world :romulans romulans)))
+  world)
+
+(defn add-occasional-romulan [world]
+  (if (< (rand 1) glc/romulan-appear-odds-per-second)
+    (add-romulan world)
     world))
 
 

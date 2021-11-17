@@ -1,7 +1,8 @@
 (ns spacewar.game-logic.romulans-test
   (:require [midje.sweet :refer [facts fact tabular => roughly]]
             [spacewar.game-logic.romulans :as r]
-            [spacewar.game-logic.test-mother :as mom]))
+            [spacewar.game-logic.test-mother :as mom]
+            [spacewar.game-logic.config :as glc]))
 
 (fact
   "can make romulan"
@@ -22,22 +23,22 @@
 
     (tabular
       (fact
-      "romulans change state properly"
-      (prerequisite (r/romulan-state-transition ms 99 ?current-state) => true)
-      (let [romulan (assoc romulan :state ?current-state :age 99)
-            world (assoc world :romulans [romulan])
-            world (r/update-romulans-state ms world)
-            romulan (first (:romulans world))]
-        (:state romulan) => ?next-state
-        (:age romulan) => 0
-        (:fire-weapon romulan) => ?fire-weapon))
-        ?current-state ?next-state ?fire-weapon
-        :invisible :appearing false
-        :appearing :visible false
-        :visible :firing false
-        :firing :fading true
-        :fading :disappeared false
-        )
+        "romulans change state properly"
+        (prerequisite (r/romulan-state-transition ms 99 ?current-state) => true)
+        (let [romulan (assoc romulan :state ?current-state :age 99)
+              world (assoc world :romulans [romulan])
+              world (r/update-romulans-state ms world)
+              romulan (first (:romulans world))]
+          (:state romulan) => ?next-state
+          (:age romulan) => 0
+          (:fire-weapon romulan) => ?fire-weapon))
+      ?current-state ?next-state ?fire-weapon
+      :invisible :appearing false
+      :appearing :visible false
+      :visible :firing false
+      :firing :fading true
+      :fading :disappeared false
+      )
 
     (fact
       "romulan does not create shot when firing-weapon is false"
@@ -89,6 +90,14 @@
                 (r/remove-disappeared-romulans world) => world
                 (r/destroy-hit-romulans world) => world
                 (r/fire-romulan-weapons world) => world
-                )))
-
+                ))
+    (fact
+      "Romulans do not appear when ship is in warp."
+      (let [ship (assoc (mom/make-ship) :x 0 :y 0 :warp 1)
+            world (assoc world :ship ship :romulans [])
+            world (r/add-romulan world)
+            romulans (:romulans world)]
+        romulans => empty?)
+      )
+    )
   )
