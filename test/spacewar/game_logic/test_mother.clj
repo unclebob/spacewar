@@ -114,7 +114,7 @@
    :ms 0
    :shots []
    :messages []
-   :game-over false
+   :game-over-timer 0
    :minutes 0
    :version "version"
    :deaths 0

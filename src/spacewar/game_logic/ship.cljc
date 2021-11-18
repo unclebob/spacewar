@@ -451,3 +451,34 @@
     (if closest
       (< closest glc/ship-deploy-distance)
       false)))
+
+(defn reincarnate []
+  {:x (int (rand glc/known-space-x))
+     :y (int (rand glc/known-space-y))
+     :warp 0
+     :warp-charge 0
+     :impulse 0
+     :heading 0
+     :velocity [0 0]
+     :selected-view :front-view
+     :selected-weapon :none
+     :selected-engine :none
+     :target-bearing 0
+     :engine-power-setting 0
+     :weapon-number-setting 1
+     :weapon-spread-setting 1
+     :heading-setting 0
+     :antimatter (/ glc/ship-antimatter 2)
+     :core-temp 0
+     :dilithium (/ glc/ship-dilithium 2)
+     :shields glc/ship-shields
+     :kinetics (/ glc/ship-kinetics 2)
+     :torpedos (/ glc/ship-torpedos 2)
+     :life-support-damage 0
+     :hull-damage 0
+     :sensor-damage 0
+     :warp-damage 0
+     :impulse-damage 0
+     :weapons-damage 0
+     :strat-scale 1
+     :destroyed false})

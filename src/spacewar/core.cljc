@@ -1,4 +1,3 @@
-
 ;Klingons with more than 80% antimatter should start making torpedos, once per minute or so.
 ;Klingons at Dilithium bases should acquire antimatter at half rate.
 ;This will cause all Klingons at antimatter or dilithium bases to eventually go agro.
@@ -34,7 +33,7 @@
             [clojure.tools.reader.edn :as edn]
             #?(:clj [clojure.java.io :as io])))
 
-(def version "202111171314")
+(def version "202111181735")
 
 (s/def ::update-time number?)
 (s/def ::transport-check-time number?)
@@ -44,7 +43,7 @@
 (s/def ::duration int?)
 (s/def ::message (s/keys :req-un [::text ::duration]))
 (s/def ::messages (s/coll-of ::message))
-(s/def ::game-over boolean?)
+(s/def ::game-over-timer int?)
 (s/def ::minutes integer?)
 (s/def ::version string?)
 (s/def ::deaths int?)
@@ -62,7 +61,7 @@
                                 ::transport-check-time
                                 ::ms
                                 ::messages
-                                ::game-over
+                                ::game-over-timer
                                 ::minutes
                                 ::version
                                 ::deaths]))
@@ -86,7 +85,7 @@
                  :duration 5000}
                 {:text "Save the Federation!"
                  :duration 10000}]
-     :game-over false
+     :game-over-timer 0
      :minutes 0
      :version version
      :deaths 0}))
@@ -198,28 +197,27 @@
 (defn- ship-explosion [ship]
   (explosions/->explosion :ship ship))
 
-(defn- game-over [world]
-  (let [ship (:ship world)
-        destroyed (:destroyed ship)
-        game-over (:game-over world)
-        explosions (:explosions world)
-        messages (:messages world)
-        game-ending? (and destroyed (not game-over))
-        game-over destroyed
-        explosions (if game-ending?
-                     (conj explosions (ship-explosion ship))
-                     explosions)
-        messages (if game-ending?
-                   (conj messages {:text "Game Over!" :duration 10000000})
-                   messages)]
-    (when game-ending?
-      #?(:clj  (.delete (io/file "spacewar.world"))
-         :cljs (when (exists? js/localStorage)
-                 (.removeItem js/localStorage "spacewar.world"))))
-    (assoc world :game-over game-over
-                 :explosions explosions
-                 :messages messages)
-    ))
+(defn- game-over [ms {:keys [ship game-over-timer explosions messages deaths] :as world}]
+  (if (:destroyed ship)
+    (let [explosions (if (zero? game-over-timer)
+                       (conj explosions (ship-explosion ship))
+                       explosions)
+          messages (if (zero? game-over-timer)
+                     (conj messages {:text "You Died!" :duration 10000})
+                     messages)
+          done? (and
+                  (pos? game-over-timer)
+                  (empty? explosions))
+          game-over-timer (if done? 0 1)
+          ship (if done? (ship/reincarnate) ship)
+          deaths (if done? (inc deaths) deaths)
+          ]
+      (assoc world :game-over-timer game-over-timer
+                   :explosions explosions
+                   :messages messages
+                   :ship ship
+                   :deaths deaths))
+    world))
 
 (defn- valid-world? [world]
   (let [valid (s/valid? ::world world)]
@@ -250,7 +248,7 @@
   ;{:pre [(valid-world? world)]
   ; :post [(valid-world? %)]}
   (->> world
-       (game-over)
+       (game-over ms)
        (ship/update-ship ms)
        (shots/update-shots ms)
        (explosions/update-explosions ms)
@@ -306,7 +304,7 @@
                            time
                            last-update-time)
         ms (- time last-update-time)
-        ms (max 1 ms) ;zero or negative values imply a game restart or new game.
+        ms (max 1 ms)                                       ;zero or negative values imply a game restart or new game.
         context (add-frame-time ms context)
         frame-times (:frame-times context)
         fps (frames-per-second frame-times)
@@ -328,7 +326,7 @@
         world (if new-minute?
                 (update-world-per-minute world)
                 world)]
-    (when (and new-save? (not (:game-over world)))
+    (when new-save?
       #?(:clj  (spit "spacewar.world" world)
          :cljs (when (exists? js/localStorage)
                  (.setItem js/localStorage "spacewar.world" world))))

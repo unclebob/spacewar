@@ -8,11 +8,8 @@
             [spacewar.geometry :as geo]
             [spacewar.vector :as vector]))
 
-(defn- background-color [world]
-  (let [time (:update-time world)
-        ship (:ship world)
-        game-over (:game-over world)
-        {:keys [shields antimatter
+(defn- background-color [{:keys [update-time ship game-over-timer]}]
+  (let [{:keys [shields antimatter
                 life-support-damage
                 hull-damage warp-damage
                 impulse-damage sensor-damage
@@ -23,8 +20,8 @@
                         impulse-damage
                         sensor-damage
                         weapons-damage)]
-    (cond game-over uic/black
-          (< (mod time 1000) 500) uic/black
+    (cond (pos? game-over-timer) uic/black
+          (< (mod update-time 1000) 500) uic/black
           (> max-damage 0) uic/dark-red
           (< (/ antimatter glc/ship-antimatter) 0.1) uic/dark-red
           (< (/ shields glc/ship-shields) 0.6) uic/dark-yellow
@@ -295,7 +292,7 @@
         (draw-stars state)
         (draw-shots state)
         (draw-klingons state)
-        (when (not (-> state :world :game-over))
+        (when (zero? (-> state :world :game-over-timer))
           (draw-ship state))
         (draw-bases state)
         (draw-transports state)

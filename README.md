@@ -220,9 +220,8 @@ non-functional.
   game will resume when you start the program up again.  If you lose the game, then
   the next time you start up you'll be in a new universe, starting over.
   
-  On the desktop, the game is saved in a file named: `spacewar.world`.  You can delete
-  this file if you want to start a new game.  You can rename this file if you want to
+  On the desktop, the game is saved in a file named: `spacewar.world`.  You can rename this file if you want to
   set the current game aside and start a new one.  You bring a set-aside game back by
-  renaming it to `spacewar.world`.
+  renaming it to `spacewar.world`.  
    
  

@@ -133,7 +133,7 @@
         (draw-transports state)
         (draw-bases state)
         (draw-klingons state)
-        (when (not (-> state :game-over))
+        (when (not (-> state :ship :destroyed))
           (draw-ship state))
         (draw-romulans state)
         (draw-sectors state))))
@@ -165,7 +165,7 @@
                   nil)]
       (p/pack-update
         (strategic-scan.
-          (assoc state :game-over (:game-over world)
+          (assoc state :game-over-timer (:game-over-timer world)
                        :stars (:stars world)
                        :klingons (:klingons world)
                        :romulans (:romulans world)

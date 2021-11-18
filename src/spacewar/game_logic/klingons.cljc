@@ -319,7 +319,7 @@
   (> 95 (rand 100)))
 
 (defn update-klingon-offense [ms world]
-  (if (:game-over world)
+  (if (pos? (:game-over-timer world))
     world
     (let [{:keys [klingons ship shots]} world
           klingons (charge-weapons ms klingons ship)
