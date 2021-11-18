@@ -117,6 +117,7 @@
    :game-over false
    :minutes 0
    :version "version"
+   :deaths 0
    })
 
 (defn make-shot []

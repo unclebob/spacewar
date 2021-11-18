@@ -11,7 +11,8 @@
             [spacewar.ui.control-panels.deploy-panel :refer [->deploy-panel]]
             [spacewar.ui.widgets.lights :refer [->indicator-light
                                                 rectangle-light
-                                                round-light]]))
+                                                round-light]]
+            [spacewar.ui.widgets.engage :refer [->engage]]))
 
 (defn draw-light-panel [state]
   (let [{:keys [x y w h indicators background]} state]
@@ -160,6 +161,18 @@
                                          :y side-panel-y
                                          :w side-panel-width
                                          :h side-panel-height}))
+          new-game-button (p/setup
+                            (->engage {
+                                       :x (+ x left-margin frame-width panel-gap)
+                                       :y y
+                                       :w 150
+                                       :h 100
+                                       :color uic/new-game-color
+                                       :activation-color uic/new-game-button-color
+                                       :name "New Game"
+                                       :disabled false
+                                       :left-up-event {:event :new-game}
+                                       }))
 
           scan-panel-x (+ small-panel-gap x)
           scan-panel-y (+ side-panel-y side-panel-height panel-gap)
@@ -249,11 +262,12 @@
                                  :damage-panel damage-panel
                                  :status-panel status-panel
                                  :deploy-panel deploy-panel
+                                 :new-game-button new-game-button
                                  :elements [:frame :bottom-lights :left-lights
                                             :right-lights :scan-panel
                                             :engine-panel :weapons-panel
                                             :damage-panel :status-panel
-                                            :deploy-panel])]
+                                            :deploy-panel :new-game-button])]
       (complex. new-state)))
 
   (update-state [_ world]

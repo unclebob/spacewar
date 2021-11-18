@@ -47,6 +47,7 @@
 (s/def ::game-over boolean?)
 (s/def ::minutes integer?)
 (s/def ::version string?)
+(s/def ::deaths int?)
 
 (s/def ::world (s/keys :req-un [::explosions/explosions
                                 ::klingons/klingons
@@ -63,7 +64,8 @@
                                 ::messages
                                 ::game-over
                                 ::minutes
-                                ::version]))
+                                ::version
+                                ::deaths]))
 
 (defn make-initial-world []
   (let [ship (ship/initialize)
@@ -86,7 +88,8 @@
                  :duration 10000}]
      :game-over false
      :minutes 0
-     :version version}))
+     :version version
+     :deaths 0}))
 
 (defn game-saved? []
   #?(:clj  (.exists (io/file "spacewar.world"))
@@ -170,7 +173,11 @@
         romulans (conj romulans romulan)]
     (assoc world :romulans romulans)))
 
-(defn- process-debug-events [events world]
+(defn- new-game [event world]
+  (println "New Game!")
+  (make-initial-world))
+
+(defn- process-game-events [events world]
   (let [[_ world] (->> [events world]
                        (util/handle-event :debug-position-ship debug-position-ship-handler)
                        (util/handle-event :debug-dilithium-cloud debug-dilithium-cloud-handler)
@@ -178,12 +185,13 @@
                        (util/handle-event :debug-add-klingon debug-add-klingon)
                        (util/handle-event :debug-add-romulan debug-add-romulan)
                        (util/handle-event :debug-new-klingon-from-praxis debug-new-klingon-from-praxis)
+                       (util/handle-event :new-game new-game)
                        )]
     world))
 
 (defn process-events [events world]
   (let [world (ship/process-events events world)
-        world (process-debug-events events world)
+        world (process-game-events events world)
         world (shots/process-events events world)]
     world))
 
@@ -292,7 +300,13 @@
   (let [{:keys [world base-time]} context
         time (+ base-time (q/millis))
         last-update-time (:update-time world)
-        ms (max 1 (- time last-update-time)) ;zero or negative values imply restarting from file.
+        ms (- time last-update-time)
+        new-game? (> ms 500)
+        last-update-time (if new-game?
+                           time
+                           last-update-time)
+        ms (- time last-update-time)
+        ms (max 1 ms) ;zero or negative values imply a game restart or new game.
         context (add-frame-time ms context)
         frame-times (:frame-times context)
         fps (frames-per-second frame-times)

@@ -35,6 +35,8 @@
 (def deploy-panel-color [120 120 255])
 (def status-panel-color [255 255 200])
 (def status-panel-mercury-color [240 240 0])
+(def new-game-color [128 128 128])
+(def new-game-button-color [100 100 100])
 
 (def banner-width 40)
 (def stringer-width 15)
