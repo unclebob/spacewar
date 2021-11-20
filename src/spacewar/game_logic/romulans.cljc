@@ -102,8 +102,9 @@
           pos (vector/from-angular dist (geo/->radians angle))
           [rx ry] (vector/add [x y] pos)
           romulans (conj romulans (make-romulan rx ry))]
-      (assoc world :romulans romulans)))
-  world)
+      (assoc world :romulans romulans))
+    world)
+  )
 
 (defn add-occasional-romulan [world]
   (if (< (rand 1) glc/romulan-appear-odds-per-second)

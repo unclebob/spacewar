@@ -58,8 +58,8 @@
 (def klingon-antimatter 100000)
 (def klingon-shield-recharge-rate 0.01)
 (def klingon-shield-recharge-cost 10)
-(def klingon-tactical-range 100000) ;engage in battle if nearer than this.
-(def klingon-evasion-limit 50000) ;advance if farther than this.
+(def klingon-tactical-range 100000)                         ;engage in battle if nearer than this.
+(def klingon-evasion-limit 50000)                           ;advance if farther than this.
 (def klingon-battle-state-transition-age 20000)
 (def klingon-battle-states [:advancing
                             :retreating
@@ -123,7 +123,9 @@
 (def klingon-torpedo-proximity 2000)
 (def klingon-torpedo-range 100000)
 
-(def minutes-till-full-invasion (* 5 60))                   ;five hours
+(def klingon-odds-to-become-destroyer 0.01) ;per minute
+
+(def minutes-till-full-klingon-invasion (* 5 60))           ;five hours
 
 (def romulan-invisible-time 3000)
 (def romulan-appearing-time 2000)

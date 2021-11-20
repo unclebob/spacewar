@@ -562,14 +562,27 @@
     klingon)
   )
 
+(defn- occupying? [base klingon]
+  (let [distance (geo/distance (util/pos klingon) (util/pos base))]
+    (<= distance glc/klingon-docking-distance)))
+
+(defn- unoccupied-base? [base klingons]
+  (let [occupiers (filter #(occupying? base %) klingons)]
+    (<= (count occupiers) 3)))
+
+(defn find-unoccupied-bases [bases klingons]
+  (filter #(unoccupied-base? % klingons) bases)
+  )
+
 (defn cruise-klingons [{:keys [ship klingons bases stars] :as world}]
   (let [cruise-states (group-by :cruise-state klingons)
         on-mission-klingons (:mission cruise-states)
         patrolling-klingons (:patrol cruise-states)
         guarding-klingons (:guard cruise-states)
         refuelling-klingons (:refuel cruise-states)
-        on-mission-klingons (map #(thrust-toward-mission % ship bases) on-mission-klingons)
-        guarding-klingons (map #(thrust-to-nearest-base % bases) guarding-klingons)
+        unoccupied-bases (find-unoccupied-bases bases klingons)
+        on-mission-klingons (map #(thrust-toward-mission % ship unoccupied-bases) on-mission-klingons)
+        guarding-klingons (map #(thrust-to-nearest-base % unoccupied-bases) guarding-klingons)
         refuelling-klingons (map #(thrust-to-nearest-antimatter-source % stars bases) refuelling-klingons)
         klingons (concat on-mission-klingons
                          patrolling-klingons
@@ -656,14 +669,25 @@
 
 (defn- add-klingons-from-praxis [world]
   (let [minutes (get world :minutes 0)
-        probability (/ minutes glc/minutes-till-full-invasion)]
+        probability (/ minutes glc/minutes-till-full-klingon-invasion)]
     (if (< (rand) probability)
       (new-klingon-from-praxis world)
       world)))
+
+(defn- try-change-to-seek-and-destroy [klingon]
+  (if (< (rand) glc/klingon-odds-to-become-destroyer)
+    (assoc klingon :mission :seek-and-destroy)
+    klingon))
+
+(defn change-blockade-to-seek-and-destroy [{:keys [klingons] :as world}]
+  (let [klingons (map try-change-to-seek-and-destroy klingons)]
+    (assoc world :klingons klingons))
+  )
 
 (defn update-klingons-per-minute [world]
   (-> world
       (change-patrol-direction)
       (change-all-cruise-states)
+      (change-blockade-to-seek-and-destroy)
       (add-klingons-from-praxis)))
 
