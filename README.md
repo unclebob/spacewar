@@ -16,32 +16,42 @@ There are rumors that the Klingon fleet escaped total destruction and that the
 remaining ships are regrouping in Klingon space in order to form an invasion fleet. 
 If so, it won't be long until they arrive in force.
 
-All Federation shipyards were obliterated.  No new ships can be ready in time.
+## Your Mission
 
-Your mission is to rebuild federation defenses by reconstituting the network of bases
+> Build the _Corbomite_ device and use it to thwart the Klingon invasion!  
+
+All Federation shipyards were obliterated by the Borg.  No new ships can be ready in time.
+
+You will have to reconstitute a network of bases
 that you can use to supply yourself with antimatter, dilithium, and weapons.  Harvest
-what you can from the crippled Klingons.  Then, if the invasion fleet comes -- defeat it. 
+what you can from the crippled Klingons.  Then build _The Corbomite Device_ before the
+invasion fleet arrives in force. 
 
-### Sensors
+Once you have enough production going, find _The Pulsar_ and build the _Corbomite_ factory there.
+Surround that factory with plenty of Antimatter and Dilithium bases so that it can manufacture
+enough _Corbomite_.  
+
+## Sensors
 You have three views.  
 
  * Front view, which shows you a pretty picture
 of stars, but is otherwise useless. 
 
  * STRAT. is the strategic view of the whole galaxy.  You can zoom in and out using the
- slider.  You cannot see any weapons in this view; but you can see Klingons, stars, and bases.
+ slider.  You cannot see any weapons, explosions, or debris in this view; but you _can_ see Klingons, Romulans, stars,
+ bases, transports, and transport routes.
  
  * TACT.  This is the tactical view.  You can see what is nearby, including all weapons that you
  or your enemies have fired.  You'll also see explosions.
  
-### Engines
+## Engines
 You have two modes of movement.  Warp, and Impulse.
 
  * The WARP engines move you in a sequence of leaps.  Each leap
  is the same size.  The more power you use the faster those leaps
  are made.  Be careful, the energy consumed is not linear.  Warp 10
  uses a _lot_ more antimatter than Warp 1.  And, remember, rapid energy
- consumption increases the Core Temperature; especially if are low on Dilithium.
+ consumption increases the Core Temperature; especially if you are low on Dilithium.
  
  * The Impulse engines are reaction thrust engines.  They consume antimatter and
  can propel you at speeds that are a significant fraction of C.  At those speeds
@@ -51,7 +61,7 @@ You have two modes of movement.  Warp, and Impulse.
  * The Heading control turns the ship.  Both the Impulse and Warp engines
  move the ship in the direction it is facing.
  
- ### Weapons
+## Weapons
 You have three weapons.  Phasers, Torpedos, and Kinetics.  
  * Phasers are powerful rays that move quickly and do a lot of damage.
   However, they are short range and lose effectiveness rapidly with distance.
@@ -121,18 +131,20 @@ non-functional.
  To replenish your antimatter, and weapons, you'll need to dock at a base.
  You do this by warping close and then using your impulse engines to approach
  the base as closely as you can.  Put the ship on top of the base.  Watch for the 
- _DOCK_ button to show up in the Engine Control Panel.  Hit that button
- and you'll be refueled and restocked.
+ _DOCK_ button to show up in the Engine Control Panel.  Hit that button to be refueled and restocked.
  
-  
 ## Bases 
- There are three kinds of bases.  Antimatter factories, Dilithium factories, and Weapon factories.
+ There are four kinds of bases.  Antimatter factories, Dilithium factories, Weapon factories, 
+ and _The Corbomite Factory_.
   * Antimatter factories manufacture antimatter using the power from nearby O, B, or A
   class stars (the big blue or white ones).
   * Dilithium factories harvest dilithium from the atmospheres of nearby K or M class stars.
   (the little red or orange ones.)
   * Weapon factories manufacture Kinetics and Torpedos.  They require the elements found 
   around the planets of F or G class stars (The medium sized yellow stars like our Sun).  
+  * _Corbomite_ factories manufacture _Corbomite_.  Only one can be built, and it must be built
+  adjacent to _The Pulsar_.  When supplied with a ready stream of antimatter and dilithium
+  it will manufacture _Corbomite_.
   
   You can deploy a base by gradually approaching the appropriate kind of star.  When you
   are in deployment range, the appropriate deploy button will appear in the Deploy panel.   
@@ -162,17 +174,17 @@ non-functional.
   Dilithium factories require small amounts of antimatter to produce dilithium.  Dilithium
   production is slow, so you will likely need many of these factories. 
  
-  
 ## Klingons
   Some of the crippled Klingons are still pretty strong.  Be careful.  Others
   are so weakened that they'll run from you and won't put up much of a fight.  They can detect
   you at long range.  So expect visits from the stronger Klingons.
   
   Klingons are slow because they never learned dilithium catalysis. Any dilithium
-  they have on board was probably stolen and is strictly used for currency.
+  they have on board was probably stolen and is strictly used for trading purposes.
   
-  Klingons can collect antimatter from O and B (blue-white) stars.  You will often see them
-  hovering around those stars to refuel.  Klingons are also more than willing to
+  Klingons can collect antimatter from all stars, though they collect faster from O and A stars,
+  and only very slowly from K and M stars.  You will often see them
+  hovering around a star to refuel.  Klingons are also more than willing to
   steal antimatter from a base.
   
   Klingons have the facilities on board to construct torpedos and kinetics.  This takes lots
@@ -189,7 +201,7 @@ non-functional.
   so it can be hard to know how many are flying together.
   
 ## Klingon Battle Strategy
-  Once your ship is in range of a Klingon's short range detectors, it will head towards you to do battle.  
+  Once your ship is in range of a Klingon's short range detectors, the Klingon will head towards you to do battle.  
   The Klingon strategy is to confuse and delude you.  They accomplish this by continuously
   changing tactics.  Stay alert to their movements in the heat of battle; and don't let them
   get too close.  At short range their phasers are devastating. 
@@ -215,10 +227,15 @@ non-functional.
   make sure you hit them before they fire their weapon.  If you choose to run,
   run fast and far; the weapon loses potency with distance. 
   
+## _The Pulsar_
+  There is only one _Pulsar_ in federation space.  It is small and hard to find.  It has a greenish
+  tinge and flashes dimly.  This is the only star that can support a _Corbomite_ factory.
+  
 ## Saving and Pausing
   The game is saved every five seconds.  You pause the game by quitting.  Your previous
-  game will resume when you start the program up again.  If you lose the game, then
-  the next time you start up you'll be in a new universe, starting over.
+  game will resume when you start the program up again.  If you die, you will be resurrected
+  in a random location with partial resources.  If you want to start a new game, use the _New Game_
+  button at the top left or delete the `spacewar.world` file before starting the game.
   
   On the desktop, the game is saved in a file named: `spacewar.world`.  You can rename this file if you want to
   set the current game aside and start a new one.  You bring a set-aside game back by
