@@ -358,7 +358,8 @@
   (condp = factory
     :antimatter-factory #{:o :b :a}
     :dilithium-factory #{:k :m}
-    :weapon-factory #{:f :g}))
+    :weapon-factory #{:f :g}
+    :corbomite-factory #{:pulsar}))
 
 (defn- find-deployable-star [type ship stars]
   (let [stars-in-range (filter #(< (geo/distance (util/pos ship) (util/pos %))
@@ -405,6 +406,9 @@
 (defn- deploy-weapon-factory [_ world]
   (deploy-base :weapon-factory world))
 
+(defn- deploy-corbomite-factory [_ world]
+  (deploy-base :corbomite-factory world))
+
 (defn process-events [events world]
   (let [ship (:ship world)
         [_ ship] (->> [events ship]
@@ -429,7 +433,8 @@
                        (handle-event :select-dock dock-ship)
                        (handle-event :antimatter-factory deploy-antimatter-factory)
                        (handle-event :dilithium-factory deploy-dilithium-factory)
-                       (handle-event :weapon-factory deploy-weapon-factory))]
+                       (handle-event :weapon-factory deploy-weapon-factory)
+                       (handle-event :corbomite-factory deploy-corbomite-factory))]
     world))
 
 (defn dockable? [ship bases]

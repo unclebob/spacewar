@@ -22,6 +22,8 @@
           dl-y am-y
           wpn-x am-x
           wpn-y am-y
+          corbomite-x am-x
+          corbomite-y am-y
           height (+ uic/banner-width uic/button-gap uic/button-h)]
       (deploy-panel.
         (assoc state
@@ -57,17 +59,29 @@
                                :color button-color
                                :left-up-event {:event :weapon-factory}}))
 
-          :elements [:antimatter-factory :dilithium-factory :weapon-factory]))))
+          :corbomite-factory (p/setup
+                               (->button
+                                 {:x corbomite-x
+                                  :y corbomite-y
+                                  :w button-w
+                                  :h uic/button-h
+                                  :name "CORB BASE"
+                                  :color button-color
+                                  :left-up-event {:event :corbomite-factory}}))
+
+          :elements [:antimatter-factory :dilithium-factory :weapon-factory :corbomite-factory]))))
 
   (update-state [_ world]
     (let [{:keys [ship stars]} world
           am-deployable (ship/deployable? :antimatter-factory ship stars)
           dl-deployable (ship/deployable? :dilithium-factory ship stars)
           wpn-deployable (ship/deployable? :weapon-factory ship stars)
+          corb-deployable (ship/deployable? :corbomite-factory ship stars)
           state (p/change-elements
-                  state[[:antimatter-factory :disabled (not am-deployable)]
-                        [:dilithium-factory :disabled (not dl-deployable)]
-                        [:weapon-factory :disabled (not wpn-deployable)]])
+                  state [[:antimatter-factory :disabled (not am-deployable)]
+                         [:dilithium-factory :disabled (not dl-deployable)]
+                         [:weapon-factory :disabled (not wpn-deployable)]
+                         [:corbomite-factory :disabled (not corb-deployable)]])
           [state events] (p/update-elements state world)]
       (p/pack-update
         (deploy-panel. state)

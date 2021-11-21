@@ -23,5 +23,12 @@
    :y (int (rand glc/known-space-y))
    :class (random-class)})
 
+(defn- make-pulsar []
+  {:x (int (rand glc/known-space-x))
+     :y (int (rand glc/known-space-y))
+     :class :pulsar})
+
 (defn initialize []
-  (repeatedly glc/number-of-stars make-random-star))
+  (let [normal-stars (repeatedly glc/number-of-stars make-random-star)
+        stars (conj normal-stars (make-pulsar))]
+    stars))

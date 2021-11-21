@@ -11,12 +11,13 @@
 (s/def ::type #{:antimatter-factory :dilithium-factory :weapon-factory})
 (s/def ::antimatter number?)
 (s/def ::dilithium number?)
+(s/def ::corbomite number?)
 (s/def ::kinetics int?)
 (s/def ::torpedos int?)
 (s/def ::age number?)
 (s/def ::transport-readiness number?)
 
-(s/def ::base (s/keys :req-un [::x ::y ::type ::antimatter ::dilithium ::age ::transport-readiness]
+(s/def ::base (s/keys :req-un [::x ::y ::type ::antimatter ::dilithium ::corbomite ::age ::transport-readiness]
                       :opt-un [::kinetics ::torpedos]))
 (s/def ::bases (s/coll-of ::base))
 
@@ -31,6 +32,7 @@
    :type type
    :antimatter 0
    :dilithium 0
+   :corbomite 0
    :torpedos 0
    :kinetics 0
    :transport-readiness 0})
@@ -70,7 +72,8 @@
     :f (make-random-weapons-factory star)
     :g (make-random-weapons-factory star)
     :k (make-random-dilithium-factory star)
-    :m (make-random-dilithium-factory star)))
+    :m (make-random-dilithium-factory star)
+    :pulsar nil))
 
 (defn make-random-bases [stars]
   (remove nil?
@@ -129,6 +132,12 @@
    :antimatter-cost glc/weapon-factory-kinetic-antimatter-cost
    :dilithium-cost 0})
 
+(def corbomite-production
+  {:rate glc/corbomite-factory-production-rate
+   :maximum glc/corbomite-maximum
+   :antimatter-cost glc/corbomite-factory-antimatter-cost
+   :dilithium-cost glc/corbomite-factory-dilithium-cost})
+
 (defn- manufacture [base ms commodity production]
   (let [{:keys [rate maximum antimatter-cost dilithium-cost]} production
         inventory (commodity base)
@@ -156,7 +165,8 @@
       :dilithium-factory (manufacture base ms :dilithium dilithium-production)
       :weapon-factory (-> base
                           (manufacture ms :torpedos torpedo-production)
-                          (manufacture ms :kinetics kinetic-production)))
+                          (manufacture ms :kinetics kinetic-production))
+      :corbomite-factory (manufacture base ms :corbomite corbomite-production))
     base))
 
 (defn update-bases-manufacturing [ms bases]
@@ -167,7 +177,7 @@
   (let [readiness (:transport-readiness base)
         deficit (- glc/transport-ready readiness)
         adjustment (min deficit ms)]
-    (update base :transport-readiness + adjustment)))
+      (update base :transport-readiness + adjustment)))
 
 (defn- update-transport-readiness [ms bases]
   (map #(update-transport-readiness-for ms %) bases))
@@ -187,25 +197,29 @@
   (condp = type
     :antimatter-factory glc/antimatter-factory-sufficient-antimatter
     :dilithium-factory glc/dilithium-factory-sufficient-antimatter
-    :weapon-factory glc/weapon-factory-sufficient-antimatter))
+    :weapon-factory glc/weapon-factory-sufficient-antimatter
+    :corbomite-factory glc/corbomite-factory-sufficient-antimatter))
 
 (defn- antimatter-reserve [type]
   (condp = type
     :antimatter-factory glc/antimatter-factory-antimatter-reserve
     :dilithium-factory glc/dilithium-factory-antimatter-reserve
-    :weapon-factory glc/weapon-factory-antimatter-reserve))
+    :weapon-factory glc/weapon-factory-antimatter-reserve
+    :corbomite-factory glc/corbomite-factory-antimatter-reserve))
 
 (defn- sufficient-dilithium [type]
   (condp = type
     :antimatter-factory glc/antimatter-factory-sufficient-dilithium
     :dilithium-factory glc/dilithium-factory-sufficient-dilithium
-    :weapon-factory glc/weapon-factory-sufficient-dilithium))
+    :weapon-factory glc/weapon-factory-sufficient-dilithium
+    :corbomite-factory glc/corbomite-factory-sufficient-dilithium))
 
 (defn- dilithium-reserve [type]
   (condp = type
     :antimatter-factory glc/antimatter-factory-dilithium-reserve
     :dilithium-factory glc/dilithium-factory-dilithium-reserve
-    :weapon-factory glc/weapon-factory-dilithium-reserve))
+    :weapon-factory glc/weapon-factory-dilithium-reserve
+    :corbomite-factory glc/corbomite-factory-dilithium-reserve))
 
 (defn- get-promised-commodity [commodity dest transports]
   (let [transports (filter #(= commodity (:commodity %)) transports)

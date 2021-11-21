@@ -31,9 +31,10 @@
   (q/ellipse-mode :center)
   (q/arc 0 0 30 30 0 (age-angle age) #?(:clj :pie)))
 
-(defn- draw-base-contents [antimatter dilithium]
+(defn- draw-base-contents [antimatter dilithium corbomite]
   (let [antimatter-angle (* 2 Math/PI (/ antimatter glc/base-antimatter-maximum))
-        dilithium-angle (* 2 Math/PI (/ dilithium glc/base-dilithium-maximum))]
+        dilithium-angle (* 2 Math/PI (/ dilithium glc/base-dilithium-maximum))
+        corbomite-angle (* 2 Math/PI (/ corbomite glc/corbomite-maximum))]
     (q/stroke-weight 3)
     (q/no-fill)
     (when (> dilithium-angle 0.01)
@@ -41,7 +42,10 @@
       (q/arc 0 0 30 30 0 dilithium-angle))
     (when (> antimatter-angle 0.01)
       (apply q/stroke uic/orange)
-      (q/arc 0 0 35 35 0 antimatter-angle))))
+      (q/arc 0 0 38 38 0 antimatter-angle))
+    (when (> corbomite-angle 0.01)
+      (apply q/stroke uic/green)
+      (q/arc 0 0 46 46 0 corbomite-angle))))
 
 (defn- draw-base-counts [base]
   (apply q/fill uic/white)
@@ -54,7 +58,7 @@
 
 (defn- draw-base-adornments [base]
   (draw-base-age (:age base))
-  (draw-base-contents (:antimatter base) (:dilithium base))
+  (draw-base-contents (:antimatter base) (:dilithium base) (:corbomite base))
   (when (= (:type base) :weapon-factory)
     (draw-base-counts base)))
 
@@ -159,6 +163,20 @@
   (q/line -10 3 -10 -3)
   (draw-base-adornments base))
 
+(defmethod draw-base-icon :corbomite-factory [base]
+  (q/no-fill)
+  (apply q/stroke uic/corbomite-factory-color)
+  (q/stroke-weight 2)
+  (q/line -10 10 10 -10)
+  (q/line 10 10 -10 -10)
+  (q/line -10 10 10 10)
+  (q/line -10 -10 10 -10)
+  (apply q/fill (if (< 200 (mod (q/millis) 400))
+                  uic/corbomite-factory-color
+                  uic/black))
+  (q/ellipse 0 0 10 10)
+  (draw-base-adornments base))
+
 (defn- klingon-state [{:keys [cruise-state battle-state mission]}]
   (let [cruise-state (condp = cruise-state
                        :patrol "P"
@@ -231,11 +249,15 @@
     (q/line -5 -9 -15 -9)))
 
 (defn draw-star-icon [star]
-  (let [class (:class star)]
+  (let [class (:class star)
+        pulsar? (= class :pulsar)
+        pulsar-on? (< (mod (q/millis) 500) 250)]
     (q/no-stroke)
     (q/ellipse-mode :center)
     (apply q/fill (class uic/star-colors))
-    (q/ellipse 0 0 (class uic/star-sizes) (class uic/star-sizes))))
+    (when (or (not pulsar?)
+              pulsar-on?)
+      (q/ellipse 0 0 (class uic/star-sizes) (class uic/star-sizes)))))
 
 (defn- draw-blob [jitter half-jitter diameter]
   (q/ellipse (- half-jitter (rand jitter))

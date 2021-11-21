@@ -3,7 +3,7 @@
 (def frame-rate 30)
 (def klingon-stats false)
 
-(def spectral-classes [:o :b :a :f :g :k :m])
+(def spectral-classes [:o :b :a :f :g :k :m :pulsar])
 (def drag-factor 0.005)
 (def rotation-rate 0.02)                                    ; degrees per millisecond.
 (def impulse-thrust 0.0001)                                 ; per millisecond per power.
@@ -178,6 +178,16 @@
 (def weapon-factory-antimatter-reserve ship-antimatter)
 (def weapon-factory-sufficient-dilithium base-dilithium-maximum)
 (def weapon-factory-dilithium-reserve ship-dilithium)
+
+(def corbomite-factory-production-rate 0.00005)
+(def corbomite-maximum 100)
+(def corbomite-factory-antimatter-cost 10000)
+(def corbomite-factory-dilithium-cost 100)
+
+(def corbomite-factory-sufficient-antimatter base-antimatter-maximum)
+(def corbomite-factory-antimatter-reserve ship-antimatter)
+(def corbomite-factory-sufficient-dilithium base-dilithium-maximum)
+(def corbomite-factory-dilithium-reserve ship-dilithium)
 
 (def cloud-decay-rate 0.999988)
 (def dilithium-harvest-range 3000)

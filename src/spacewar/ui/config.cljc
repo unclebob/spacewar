@@ -20,6 +20,7 @@
 (def weapon-factory-color [0 50 255])
 (def antimatter-factory-color [255 100 0])
 (def dilithium-factory-color [250 200 0])
+(def corbomite-factory-color [0 255 0])
 
 (def scan-panel-color [150 200 255])
 (def scan-panel-button-color [100 150 255])
@@ -62,7 +63,8 @@
                   :f [250 250 200]
                   :g [250 250 150]
                   :k [255 200 150]
-                  :m [255 150 150]})
+                  :m [255 150 150]
+                  :pulsar [20 150 20]})
 
 (def star-sizes {:o 6
                  :b 5
@@ -70,7 +72,8 @@
                  :f 4
                  :g 4
                  :k 3
-                 :m 3})
+                 :m 3
+                 :pulsar 3})
 
 (def explosion-profiles
   {:phaser {:duration 1000

@@ -12,6 +12,5 @@
   (fact
     "initialize"
     (let [stars (s/initialize)]
-      (spec/explain-data ::s/stars stars) => nil
-      (count stars) => number-of-stars)))
+      (spec/explain-data ::s/stars stars) => nil)))
 

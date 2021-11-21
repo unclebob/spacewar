@@ -143,6 +143,7 @@
                :type type
                :antimatter antimatter
                :dilithium dilithium
+               :corbomite 0
                :transport-readiness 0}]
      (if (= type :weapon-factory)
        (assoc base :kinetics (first weapons)
