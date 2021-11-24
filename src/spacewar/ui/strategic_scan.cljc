@@ -162,6 +162,7 @@
                     :k {:event :debug-add-klingon :pos (click->pos state ship [mx my])}
                     :r {:event :debug-resupply-ship}
                     :K {:event :debug-new-klingon-from-praxis}
+                    :c {:event :debug-corbomite-device-installed}
                     nil)
                   nil)]
       (p/pack-update

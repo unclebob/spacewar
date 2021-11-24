@@ -58,7 +58,7 @@
     {:stars stars
      :klingons (klingons/initialize)
      :ship ship
-     :bases (conj (bases/make-random-bases stars) (bases/make-base [0 0] :corbomite-device))
+     :bases (bases/make-random-bases stars)
      :transports []
      :clouds []
      :romulans []
@@ -162,6 +162,11 @@
   (println "New Game!")
   (make-initial-world))
 
+(defn- debug-corbomite-device-installed [event world]
+  (let [ship (:ship world)
+        ship (assoc ship :corbomite-device-installed true)]
+    (assoc world :ship ship)))
+
 (defn- process-game-events [events world]
   (let [[_ world] (->> [events world]
                        (util/handle-event :debug-position-ship debug-position-ship-handler)
@@ -170,6 +175,7 @@
                        (util/handle-event :debug-add-klingon debug-add-klingon)
                        (util/handle-event :debug-add-romulan debug-add-romulan)
                        (util/handle-event :debug-new-klingon-from-praxis debug-new-klingon-from-praxis)
+                       (util/handle-event :debug-corbomite-device-installed debug-corbomite-device-installed)
                        (util/handle-event :new-game new-game)
                        )]
     world))
@@ -182,6 +188,15 @@
 
 (defn- ship-explosion [ship]
   (explosions/->explosion :ship ship))
+
+(defn- game-won [ms world]
+  (let [klingons (:klingons world)
+        messages (:messages world)
+        messages (if (zero? (count klingons))
+                  (conj messages {:text "The Federation is safe!  You win!"
+                                 :duration 1000000})
+                  messages)]
+    (assoc world :messages messages)))
 
 (defn- game-over [ms {:keys [ship game-over-timer explosions messages deaths] :as world}]
   (if (:destroyed ship)
@@ -234,6 +249,7 @@
   ;{:pre [(valid-world? world)]
   ; :post [(valid-world? %)]}
   (->> world
+       (game-won ms)
        (game-over ms)
        (ship/update-ship ms)
        (shots/update-shots ms)

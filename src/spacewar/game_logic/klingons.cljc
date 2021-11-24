@@ -375,9 +375,16 @@
   (let [drag-factor (calc-drag ms)]
     (update klingon :velocity #(vector/scale drag-factor %))))
 
+(defn- full-retreat [klingon]
+  (assoc klingon :thrust [0 (/ glc/klingon-cruise-thrust -2)]))
+
 (defn update-klingon-motion [ms world]
   (let [ship (:ship world)
-        klingons (map #(thrust-if-battle ship %) (:klingons world))
+        corbomite (:corbomite-device-installed ship)
+        klingons (:klingons world)
+        klingons (if corbomite
+                   (map full-retreat klingons)
+                   (map #(thrust-if-battle ship %) klingons))
         klingons (map #(accelerate-klingon ms %) klingons)
         klingons (map #(move-klingon ms %) klingons)
         klingons (map #(drag-klingon ms %) klingons)]
@@ -486,6 +493,12 @@
     (assoc world :klingons klingons))
   )
 
+(defn remove-klingons-out-of-range [ms world]
+  (let [klingons (:klingons world)
+        klingons (remove #(< (:y %) -10000) klingons)]
+    (assoc world :klingons klingons))
+  )
+
 (defn update-klingons [ms world]
   (->> world
        (update-klingons-state ms)
@@ -493,6 +506,7 @@
        (update-klingon-offense ms)
        (update-klingon-motion ms)
        (update-klingon-torpedo-production ms)
+       (remove-klingons-out-of-range ms)
        ))
 
 (defn- thrust-to-nearest-base [klingon bases]
