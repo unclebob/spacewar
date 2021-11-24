@@ -31,6 +31,9 @@ Once you have enough production going, find _The Pulsar_ and build the _Corbomit
 Surround that factory with plenty of Antimatter and Dilithium bases so that it can manufacture
 enough _Corbomite_.  
 
+Once the _Corbomite_ factory has been filled to capacity, it will transform into 
+_The Corbomite Device_.
+
 ## Sensors
 You have three views.  
 

@@ -25,6 +25,7 @@
 (def ship-repair-capacity 0.005)
 (def antimatter-to-heat 0.01)
 (def dilithium-heat-dissipation 0.00005)
+(def passive-heat-dissipation 0.0000005)
 
 (def max-shots-by-type {:none 0 :phaser 10 :torpedo 5 :kinetic 20})
 

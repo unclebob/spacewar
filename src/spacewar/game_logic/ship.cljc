@@ -97,7 +97,7 @@
 (defn dissipate-core-heat [ms ship]
   (let [dilithium (:dilithium ship)
         efficiency (Math/sqrt (/ dilithium glc/ship-dilithium))
-        dissipation-factor (- 1 (* efficiency glc/dilithium-heat-dissipation))]
+        dissipation-factor (- 1 (max glc/passive-heat-dissipation (* efficiency glc/dilithium-heat-dissipation)))]
     (update ship :core-temp * (Math/pow dissipation-factor ms))))
 
 (defn drag [[x y :as v]]

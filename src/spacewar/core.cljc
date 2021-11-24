@@ -19,7 +19,7 @@
             [clojure.tools.reader.edn :as edn]
             #?(:clj [clojure.java.io :as io])))
 
-(def version "202111202354")
+(def version "202111240751")
 
 (s/def ::update-time number?)
 (s/def ::transport-check-time number?)

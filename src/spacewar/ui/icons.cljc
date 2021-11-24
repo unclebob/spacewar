@@ -31,21 +31,18 @@
   (q/ellipse-mode :center)
   (q/arc 0 0 30 30 0 (age-angle age) #?(:clj :pie)))
 
-(defn- draw-base-contents [antimatter dilithium corbomite]
-  (let [antimatter-angle (* 2 Math/PI (/ antimatter glc/base-antimatter-maximum))
-        dilithium-angle (* 2 Math/PI (/ dilithium glc/base-dilithium-maximum))
-        corbomite-angle (* 2 Math/PI (/ corbomite glc/corbomite-maximum))]
+(defn- draw-inventory-circle [commodity maximum color radius]
+  (let [angle (* 2 Math/PI (/ commodity maximum))]
     (q/stroke-weight 3)
     (q/no-fill)
-    (when (> dilithium-angle 0.01)
-      (apply q/stroke uic/yellow)
-      (q/arc 0 0 30 30 0 dilithium-angle))
-    (when (> antimatter-angle 0.01)
-      (apply q/stroke uic/orange)
-      (q/arc 0 0 38 38 0 antimatter-angle))
-    (when (> corbomite-angle 0.01)
-      (apply q/stroke uic/green)
-      (q/arc 0 0 46 46 0 corbomite-angle))))
+    (when (> angle 0.01)
+          (apply q/stroke color)
+          (q/arc 0 0 radius radius 0 angle))))
+
+(defn- draw-base-contents [antimatter dilithium corbomite]
+  (draw-inventory-circle dilithium glc/base-dilithium-maximum uic/yellow 30)
+  (draw-inventory-circle antimatter glc/base-antimatter-maximum uic/orange 38)
+  (draw-inventory-circle corbomite glc/corbomite-maximum uic/green 46))
 
 (defn- draw-base-counts [base]
   (apply q/fill uic/white)
@@ -176,6 +173,22 @@
                   uic/black))
   (q/ellipse 0 0 10 10)
   (draw-base-adornments base))
+
+(defmethod draw-base-icon :corbomite-device [base]
+  (q/no-fill)
+  (apply q/stroke uic/corbomite-factory-color)
+  (q/stroke-weight 2)
+  (q/line -10 10 10 -10)
+  (q/line 10 10 -10 -10)
+  (q/line -10 10 10 10)
+  (q/line -10 -10 10 -10)
+  (apply q/stroke uic/red)
+  (q/stroke-weight 4)
+  (q/line -10 0 10 0)
+  (apply q/fill (if (< 200 (mod (q/millis) 400))
+                    uic/red
+                    uic/black))
+    (q/ellipse 0 0 10 10))
 
 (defn- klingon-state [{:keys [cruise-state battle-state mission]}]
   (let [cruise-state (condp = cruise-state

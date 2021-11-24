@@ -71,6 +71,7 @@
 
 (defn- draw-transport-routes [state]
   (let [{:keys [bases pixel-width ship]} state
+        bases (remove #(= :corbomite-device (:type %)) bases)
         base-pairs (combo/combinations bases 2)
         routes (filter #(<= (geo/distance [(:x (first %)) (:y (first %))]
                                       [(:x (second %)) (:y (second %))])

@@ -250,6 +250,22 @@
   )
 
 (fact
+  "should not transport antimatter to Corbomite Device"
+  (let [am-base (mom/make-base 0 0 :antimatter-factory glc/base-antimatter-maximum 0)
+        corbomite-device (mom/make-base 100 100 :corbomite-device 0 0)]
+    (should-transport-antimatter? am-base corbomite-device []) => false
+    )
+  )
+
+(fact
+  "should not transport dilithium to Corbomite Device"
+  (let [dl-base (mom/make-base 0 0 :dilithium-factory 0 glc/base-dilithium-maximum)
+        corbomite-device (mom/make-base 100 100 :corbomite-device 0 0)]
+    (should-transport-dilithium? dl-base corbomite-device []) => false
+    )
+  )
+
+(fact
   "transport analysis is not done within the transport-check-period of the last"
   (let [world (assoc (mom/make-world) :transport-check-time 0
                                       :update-time (dec glc/transport-check-period))]
@@ -385,4 +401,35 @@
         [dest] (:bases world)]
     (count transports) => 0
     (:antimatter dest) => 100))
+
+(facts
+  "about Corbomite base and device"
+  (fact
+    "Full Corbomite base becomes Corbomite Device"
+    (let [world (mom/make-world)
+          base (mom/make-base 0 0 :corbomite-factory 100 100)
+          base (assoc base :corbomite glc/corbomite-maximum)
+          world (assoc world :bases [base])
+          world (update-bases 1 world)
+          base (-> world :bases first)]
+      (:type base) => :corbomite-device
+      (:corbomite base) => zero?
+      (:antimatter base) => zero?
+      (:dilithium base) => zero?
+      )
+    )
+
+  (fact
+    "transports that are near the Corbomite device are not received"
+    (let [world (mom/make-world)
+          dest (mom/make-base 0 (dec glc/transport-delivery-range) :corbomite-device 0 0)
+          transport (make-transport :antimatter 100 [0 (dec glc/transport-delivery-range)])
+          world (assoc world :bases [dest] :transports [transport])
+          world (receive-transports world)
+          transports (:transports world)
+          [dest] (:bases world)]
+      (count transports) => 0
+      (:antimatter dest) => 0))
+
+  )
 

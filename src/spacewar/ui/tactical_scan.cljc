@@ -142,6 +142,7 @@
     (q/line 0 0 tx ty)))
 
 (defn- draw-torpedo [color _]
+  (q/stroke-weight 1)
   (doseq [_ (range 3)]
     (draw-torpedo-segment))
   (apply q/fill color)

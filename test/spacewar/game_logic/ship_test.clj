@@ -40,7 +40,8 @@
             [midje.experimental :refer [for-all]]
             [clojure.spec.alpha :as s]
             [spacewar.game-logic.test-mother :as mom]
-            [spacewar.game-logic.bases :as bases]))
+            [spacewar.game-logic.bases :as bases]
+            [spacewar.game-logic.config :as glc]))
 
 (facts
   "ship"
@@ -424,7 +425,7 @@
       (let [hot-ship (assoc ship :core-temp 50
                                  :dilithium 0)
             cool-ship (dissipate-core-heat 1 hot-ship)]
-        (:core-temp cool-ship) => (roughly 50 1e-10)))
+        (:core-temp cool-ship) => (roughly (- 50 glc/passive-heat-dissipation))))
 
     (fact
       "dissipate heat with half dilithium"

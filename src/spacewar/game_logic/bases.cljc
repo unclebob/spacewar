@@ -8,7 +8,7 @@
 
 (s/def ::x number?)
 (s/def ::y number?)
-(s/def ::type #{:antimatter-factory :dilithium-factory :weapon-factory})
+(s/def ::type #{:antimatter-factory :dilithium-factory :weapon-factory :corbomite-factory :corbomite-device})
 (s/def ::antimatter number?)
 (s/def ::dilithium number?)
 (s/def ::corbomite number?)
@@ -166,7 +166,8 @@
       :weapon-factory (-> base
                           (manufacture ms :torpedos torpedo-production)
                           (manufacture ms :kinetics kinetic-production))
-      :corbomite-factory (manufacture base ms :corbomite corbomite-production))
+      :corbomite-factory (manufacture base ms :corbomite corbomite-production)
+      :corbomite-device base)
     base))
 
 (defn update-bases-manufacturing [ms bases]
@@ -198,28 +199,32 @@
     :antimatter-factory glc/antimatter-factory-sufficient-antimatter
     :dilithium-factory glc/dilithium-factory-sufficient-antimatter
     :weapon-factory glc/weapon-factory-sufficient-antimatter
-    :corbomite-factory glc/corbomite-factory-sufficient-antimatter))
+    :corbomite-factory glc/corbomite-factory-sufficient-antimatter
+    :corbomite-device 0))
 
 (defn- antimatter-reserve [type]
   (condp = type
     :antimatter-factory glc/antimatter-factory-antimatter-reserve
     :dilithium-factory glc/dilithium-factory-antimatter-reserve
     :weapon-factory glc/weapon-factory-antimatter-reserve
-    :corbomite-factory glc/corbomite-factory-antimatter-reserve))
+    :corbomite-factory glc/corbomite-factory-antimatter-reserve
+    :corbomite-device 0))
 
 (defn- sufficient-dilithium [type]
   (condp = type
     :antimatter-factory glc/antimatter-factory-sufficient-dilithium
     :dilithium-factory glc/dilithium-factory-sufficient-dilithium
     :weapon-factory glc/weapon-factory-sufficient-dilithium
-    :corbomite-factory glc/corbomite-factory-sufficient-dilithium))
+    :corbomite-factory glc/corbomite-factory-sufficient-dilithium
+    :corbomite-device 0))
 
 (defn- dilithium-reserve [type]
   (condp = type
     :antimatter-factory glc/antimatter-factory-dilithium-reserve
     :dilithium-factory glc/dilithium-factory-dilithium-reserve
     :weapon-factory glc/weapon-factory-dilithium-reserve
-    :corbomite-factory glc/corbomite-factory-dilithium-reserve))
+    :corbomite-factory glc/corbomite-factory-dilithium-reserve
+    :corbomite-device 0))
 
 (defn- get-promised-commodity [commodity dest transports]
   (let [transports (filter #(= commodity (:commodity %)) transports)
@@ -233,6 +238,7 @@
         dest-antimatter (:antimatter dest)
         promised-antimatter (get-promised-commodity :antimatter dest transports)]
     (and
+      (not= :corbomite-device dest-type)
       (<= (+ promised-antimatter dest-antimatter) (sufficient-antimatter dest-type))
       (>= source-antimatter (+ glc/antimatter-cargo-size (antimatter-reserve source-type))))))
 
@@ -243,6 +249,7 @@
         dest-dilithium (:dilithium dest)
         promised-dilithium (get-promised-commodity :dilithium dest transports)]
     (and
+      (not= :corbomite-device dest-type)
       (< (+ promised-dilithium dest-dilithium) (sufficient-dilithium dest-type))
       (>= source-dilithium (+ glc/dilithium-cargo-size (dilithium-reserve source-type))))))
 
@@ -370,7 +377,9 @@
 
 (defn- accepting-delivery? [transports base]
   (let [delivery-transports (filter #(transport-going-to base %) transports)]
-    (not (empty? delivery-transports))))
+    (and
+      (not= :corbomite-device (:type base))
+      (not (empty? delivery-transports)))))
 
 (defn receive-transports [world]
   (let [transports (:transports world)
@@ -390,12 +399,27 @@
               base (update base (:commodity transport) + (:amount transport))]
           (recur (rest accepting) delivering (conj adjusted-bases base)))))))
 
+(defn- check-corbomite-base [ms bases]
+  (let [base-map (group-by #(= :corbomite-factory (:type %)) bases)
+        corbomite-base (first (get base-map true))
+        other-bases (get base-map false)
+        bases (if (nil? corbomite-base)
+                bases
+                (conj other-bases (assoc corbomite-base
+                                    :type :corbomite-device
+                                    :antimatter 0
+                                    :dilithium 0
+                                    :corbomite 0))
+                )]
+    bases))
+
 (defn update-bases [ms world]
   (let [bases (:bases world)
         bases (->> bases
                    (age-bases ms)
                    (update-bases-manufacturing ms)
                    (update-transport-readiness ms)
+                   (check-corbomite-base ms)
                    )
         world (assoc world :bases bases)
         world (->> world
