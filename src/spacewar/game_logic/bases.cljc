@@ -403,7 +403,8 @@
   (let [base-map (group-by #(= :corbomite-factory (:type %)) bases)
         corbomite-base (first (get base-map true))
         other-bases (get base-map false)
-        bases (if (nil? corbomite-base)
+        bases (if (or (nil? corbomite-base)
+                      (> glc/corbomite-maximum (:corbomite corbomite-base)))
                 bases
                 (conj other-bases (assoc corbomite-base
                                     :type :corbomite-device
