@@ -129,7 +129,7 @@
         (q/fill 255 255 255 50)
         (q/ellipse-mode :center)
         (q/arc 0 0 tgt-radius tgt-radius start stop #?(:clj :pie)))
-      (icons/draw-ship-icon [vx vy] radians)
+      (icons/draw-ship-icon [vx vy] radians ship)
       )))
 
 (defn- draw-torpedo-segment []

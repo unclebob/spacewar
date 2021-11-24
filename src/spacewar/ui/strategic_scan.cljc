@@ -56,7 +56,7 @@
         velocity (or (->> state :ship :velocity) [0 0])
         [vx vy] (vector/scale uic/velocity-vector-scale velocity)
         radians (geo/->radians heading)]
-    (icons/draw-ship-icon [vx vy] radians)))
+    (icons/draw-ship-icon [vx vy] radians (:ship state))))
 
 (defn- draw-bases [state]
   (let [{:keys [bases pixel-width ship]} state

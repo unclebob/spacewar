@@ -151,6 +151,21 @@
     (dockable? ship [base]) => true))
 
 (fact
+  "Ship docking at Corbomite Device becomes :corbomite-device-installed and deletes the device."
+  (let [world (mom/make-world)
+        ship (:ship world)
+        base (mom/make-base 0 (dec ship-docking-distance) :corbomite-device 0 0 0 0)
+        bases [base]
+        world (assoc world :ship ship :bases bases)
+        world (dock-ship [] world)
+        base (first (:bases world))
+        ship (:ship world)]
+    base => nil?
+    (:corbomite-device-installed ship) => true?
+    )
+  )
+
+(fact
   "Docking replenishes fuel and weapons and subtracts from in-range base."
   (let [world (mom/make-world)
         ship (:ship world)

@@ -37,6 +37,7 @@
 (s/def ::warp-damage ::percent)
 (s/def ::weapons-damage ::percent)
 (s/def ::destroyed boolean?)
+(s/def ::corbomite-device-installed boolean?)
 
 (s/def ::strat-scale (s/and number? #(<= 1 % 10)))
 
@@ -56,7 +57,8 @@
                                ::sensor-damage ::impulse-damage
                                ::warp-damage ::weapons-damage
                                ::strat-scale
-                               ::destroyed]))
+                               ::destroyed
+                               ::corbomite-device-installed]))
 
 (defn initialize []
   {:x (int (rand glc/known-space-x))
@@ -87,7 +89,8 @@
    :impulse-damage 0
    :weapons-damage 0
    :strat-scale 1
-   :destroyed false}
+   :destroyed false
+   :corbomite-device-installed false}
   )
 
 (defn heat-core [antimatter ship]
@@ -316,15 +319,17 @@
 
 (defn- in-range-of-base [ship base]
   (< (geo/distance [(:x base) (:y base)]
-               [(:x ship) (:y ship)])
+                   [(:x ship) (:y ship)])
      glc/ship-docking-distance))
 
 (defn- resupply-ship [ship base commodity maximum]
-  (let [need (- maximum (ship commodity))
-        supplied (int (min need (base commodity)))
-        ship (update ship commodity + supplied)
-        base (update base commodity - supplied)]
-    [ship base]))
+  (if (= :corbomite-device (:type base))
+    [ship base]
+    (let [need (- maximum (ship commodity))
+          supplied (int (min need (base commodity)))
+          ship (update ship commodity + supplied)
+          base (update base commodity - supplied)]
+      [ship base])))
 
 (defn- resupply-ship-from-bases [ship bases]
   (let [base-map (util/pos-map bases)]
@@ -333,12 +338,16 @@
            base-map base-map]
       (if (empty? bases)
         [ship (vals base-map)]
-        (let [base (get base-map (first bases))
-              [ship base] (resupply-ship ship base :antimatter glc/ship-antimatter)
-              [ship base] (resupply-ship ship base :dilithium glc/ship-dilithium)
-              [ship base] (resupply-ship ship base :torpedos glc/ship-torpedos)
-              [ship base] (resupply-ship ship base :kinetics glc/ship-kinetics)]
-          (recur ship (rest bases) (assoc base-map (first bases) base)))))))
+        (if (= :corbomite-device (:type (get base-map (first bases))))
+          (recur (assoc ship :corbomite-device-installed true)
+                 (rest bases)
+                 (assoc base-map (first bases) nil))
+          (let [base (get base-map (first bases))
+                [ship base] (resupply-ship ship base :antimatter glc/ship-antimatter)
+                [ship base] (resupply-ship ship base :dilithium glc/ship-dilithium)
+                [ship base] (resupply-ship ship base :torpedos glc/ship-torpedos)
+                [ship base] (resupply-ship ship base :kinetics glc/ship-kinetics)]
+            (recur ship (rest bases) (assoc base-map (first bases) base))))))))
 
 (defn dock-ship [_ world]
   (let [ship (:ship world)
@@ -347,6 +356,7 @@
         docked-bases (grouped-bases true)
         distant-bases (grouped-bases false)
         [ship docked-bases] (resupply-ship-from-bases ship docked-bases)
+        docked-bases (filter some? docked-bases)
         ship (assoc ship
                :velocity [0 0]
                :warp 0
@@ -441,7 +451,7 @@
   (if (empty? bases)
     false
     (let [distances (map #(geo/distance [(:x ship) (:y ship)]
-                                    [(:x %) (:y %)]) bases)
+                                        [(:x %) (:y %)]) bases)
           closest (apply min distances)]
       (< closest glc/ship-docking-distance))))
 
@@ -459,31 +469,31 @@
 
 (defn reincarnate []
   {:x (int (rand glc/known-space-x))
-     :y (int (rand glc/known-space-y))
-     :warp 0
-     :warp-charge 0
-     :impulse 0
-     :heading 0
-     :velocity [0 0]
-     :selected-view :front-view
-     :selected-weapon :none
-     :selected-engine :none
-     :target-bearing 0
-     :engine-power-setting 0
-     :weapon-number-setting 1
-     :weapon-spread-setting 1
-     :heading-setting 0
-     :antimatter (/ glc/ship-antimatter 2)
-     :core-temp 0
-     :dilithium (/ glc/ship-dilithium 2)
-     :shields glc/ship-shields
-     :kinetics (/ glc/ship-kinetics 2)
-     :torpedos (/ glc/ship-torpedos 2)
-     :life-support-damage 0
-     :hull-damage 0
-     :sensor-damage 0
-     :warp-damage 0
-     :impulse-damage 0
-     :weapons-damage 0
-     :strat-scale 1
-     :destroyed false})
+   :y (int (rand glc/known-space-y))
+   :warp 0
+   :warp-charge 0
+   :impulse 0
+   :heading 0
+   :velocity [0 0]
+   :selected-view :front-view
+   :selected-weapon :none
+   :selected-engine :none
+   :target-bearing 0
+   :engine-power-setting 0
+   :weapon-number-setting 1
+   :weapon-spread-setting 1
+   :heading-setting 0
+   :antimatter (/ glc/ship-antimatter 2)
+   :core-temp 0
+   :dilithium (/ glc/ship-dilithium 2)
+   :shields glc/ship-shields
+   :kinetics (/ glc/ship-kinetics 2)
+   :torpedos (/ glc/ship-torpedos 2)
+   :life-support-damage 0
+   :hull-damage 0
+   :sensor-damage 0
+   :warp-damage 0
+   :impulse-damage 0
+   :weapons-damage 0
+   :strat-scale 1
+   :destroyed false})

@@ -245,14 +245,17 @@
       (q/no-stroke)
       (q/ellipse 0 0 radius radius))))
 
-(defn draw-ship-icon [[vx vy] radians]
+(defn draw-ship-icon [[vx vy] radians ship]
   (apply q/stroke uic/enterprise-vector-color)
   (q/stroke-weight 2)
   (q/line 0 0 vx vy)
   (q/with-rotation
     [radians]
     (apply q/stroke uic/enterprise-color)
-    (q/stroke-weight 2)
+    (q/stroke-weight (if (and (:corbomite-device-installed ship)
+                              (< 250 (mod (q/millis) 500)))
+                       4
+                       2))
     (q/ellipse-mode :center)
     (apply q/fill uic/black)
     (q/line -9 -9 0 0)

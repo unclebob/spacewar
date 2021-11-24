@@ -81,6 +81,7 @@
    :weapons-damage 0
    :strat-scale 1
    :destroyed false
+   :corbomite-device-installed false
    })
 
 (defn make-klingon []

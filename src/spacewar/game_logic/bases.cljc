@@ -410,8 +410,7 @@
                                     :type :corbomite-device
                                     :antimatter 0
                                     :dilithium 0
-                                    :corbomite 0))
-                )]
+                                    :corbomite 0)))]
     bases))
 
 (defn update-bases [ms world]
