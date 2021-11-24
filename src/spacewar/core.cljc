@@ -58,7 +58,7 @@
     {:stars stars
      :klingons (klingons/initialize)
      :ship ship
-     :bases (bases/make-random-bases stars)
+     :bases (conj (bases/make-random-bases stars) (bases/make-base [0 0] :corbomite-device))
      :transports []
      :clouds []
      :romulans []

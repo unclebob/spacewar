@@ -202,12 +202,15 @@
     (assoc ship :heading new-heading)))
 
 (defn charge-shields [ms ship]
-  (let [antimatter (:antimatter ship)
+  (let [corbomite (:corbomite-device-installed ship)
+        antimatter (:antimatter ship)
         shields (:shields ship)
         difference (- glc/ship-shields shields)
-        charge (min difference antimatter (* ms glc/ship-shield-recharge-rate))
+        charge (min difference antimatter (* ms
+                                             glc/ship-shield-recharge-rate
+                                             (if corbomite 3 1)))
         ship (update ship :shields + charge)
-        antimatter (* charge glc/ship-shield-recharge-cost)
+        antimatter (* charge glc/ship-shield-recharge-cost (if corbomite 0.5 1))
         ship (update ship :antimatter - antimatter)
         ship (heat-core antimatter ship)]
     ship))
@@ -496,4 +499,5 @@
    :impulse-damage 0
    :weapons-damage 0
    :strat-scale 1
-   :destroyed false})
+   :destroyed false
+   :corbomite-device-installed false})

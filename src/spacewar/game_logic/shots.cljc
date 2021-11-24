@@ -16,13 +16,14 @@
 (s/def ::bearing (s/and number? #(<= 0 % 360)))
 (s/def ::range number?)
 (s/def ::type #{:phaser :torpedo :kinetic :klingon-kinetic :klingon-phaser :klingon-torpedo :romulan-blast})
-(s/def ::shot (s/keys :req-un [::x ::y ::bearing ::range ::type]))
+(s/def ::corbomite boolean?)
+(s/def ::shot (s/keys :req-un [::x ::y ::bearing ::range ::type ::corbomite]))
 (s/def ::shots (s/coll-of ::shot))
 
 (defn ->shot [x y bearing type]
-  {:x x :y y :bearing bearing :range 0 :type type})
+  {:x x :y y :bearing bearing :range 0 :type type :corbomite false})
 
-(defn fire-weapon [pos bearing number spread]
+(defn fire-weapon [pos bearing number spread corbomite]
   (let [start-bearing (if (= number 1)
                         bearing
                         (- bearing (/ spread 2)))
@@ -38,7 +39,8 @@
                      {:x (first pos)
                       :y (second pos)
                       :bearing (mod bearing 360)
-                      :range 0})
+                      :range 0
+                      :corbomite corbomite})
                (+ bearing bearing-inc)
                (dec number))))))
 
@@ -111,7 +113,7 @@
   (let [{:keys [ship]} world
         {:keys [x y selected-weapon weapon-spread-setting
                 weapon-number-setting target-bearing
-                antimatter destroyed]} ship
+                antimatter destroyed corbomite-device-installed]} ship
         required-power (* weapon-number-setting (power-required selected-weapon))
         can-shoot? (and (< required-power antimatter)
                         (sufficient-inventory ship)
@@ -123,7 +125,8 @@
                 (fire-weapon [x y]
                              target-bearing
                              weapon-number-setting
-                             weapon-spread-setting)
+                             weapon-spread-setting
+                             corbomite-device-installed)
                 [])
         ship (if can-shoot?
                (->> ship
@@ -144,7 +147,8 @@
     world))
 
 (defn update-shot [shot distance range-limit]
-  (let [{:keys [x y bearing range]} shot
+  (let [{:keys [x y bearing range corbomite]} shot
+        distance (if corbomite (* 3 distance) distance)
         radians (geo/->radians bearing)
         delta (vector/from-angular distance radians)
         [sx sy] (vector/add [x y] delta)
@@ -195,19 +199,28 @@
     (type hit-proximity)))
 
 (defn- hit-by-kinetic [hit-pairs target]
-  (let [hit-shots (map :shot (filter #(= target (:target %)) hit-pairs))]
-    (assoc target :hit {:weapon :kinetic :damage (* glc/kinetic-damage (count hit-shots))}))
+  (let [hit-shots (map :shot (filter #(= target (:target %)) hit-pairs))
+        corbomite (-> hit-shots first :corbomite)]
+    (assoc target :hit {:weapon :kinetic :damage (* glc/kinetic-damage
+                                                    (count hit-shots)
+                                                    (if corbomite 3 1))}))
   )
 
 (defn- hit-by-phaser [hit-pairs target]
   (let [hit-shots (map :shot (filter #(= target (:target %)) hit-pairs))
-        ranges (map :range hit-shots)]
-    (assoc target :hit {:weapon :phaser :damage ranges}))
+        ranges (map :range hit-shots)
+        corbomite (-> hit-shots first :corbomite)]
+    (assoc target :hit {:weapon :phaser :damage (if corbomite
+                                                  (map #(* -1 %) ranges)
+                                                  ranges) }))
   )
 
 (defn- hit-by-torpedo [hit-pairs target]
-  (let [hit-shots (map :shot (filter #(= target (:target %)) hit-pairs))]
-    (assoc target :hit {:weapon :torpedo :damage (* glc/torpedo-damage (count hit-shots))}))
+  (let [hit-shots (map :shot (filter #(= target (:target %)) hit-pairs))
+        corbomite (-> hit-shots first :corbomite)]
+    (assoc target :hit {:weapon :torpedo :damage (* glc/torpedo-damage
+                                                    (count hit-shots)
+                                                    (if corbomite 3 1))}))
   )
 
 (def hit-processors

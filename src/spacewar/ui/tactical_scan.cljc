@@ -141,18 +141,19 @@
     (apply q/stroke color)
     (q/line 0 0 tx ty)))
 
-(defn- draw-torpedo [color _]
+(defn- draw-torpedo [color shot]
   (q/stroke-weight 1)
   (doseq [_ (range 3)]
     (draw-torpedo-segment))
-  (apply q/fill color)
+  (apply q/fill (if (:corbomite shot) uic/red color))
   (q/ellipse-mode :center)
   (q/ellipse 0 0 4 4))
 
-(defn- draw-torpedo-shots [state]
-  (draw-objects-in state
-                   (filter #(= :torpedo (:type %)) (:shots (:world state)))
-                   (partial draw-torpedo uic/white)))
+(defn- draw-torpedo-shots [{:keys [world] :as state}]
+  (let [shots (:shots world)]
+    (draw-objects-in state
+                     (filter #(= :torpedo (:type %)) shots)
+                     (partial draw-torpedo uic/white))))
 
 (defn- draw-klingon-torpedo-shots [state]
   (draw-objects-in state
@@ -164,11 +165,14 @@
                    (filter #(= :romulan-blast (:type %)) (:shots (:world state)))
                    (partial icons/draw-romulan-shot (/ (:w state) glc/tactical-range))))
 
-(defn- draw-kinetic-shot [color _]
-  (q/ellipse-mode :center)
-  (q/no-stroke)
-  (apply q/fill color)
-  (q/ellipse 0 0 3 3))
+(defn- draw-kinetic-shot [color shot]
+  (let [corbomite (:corbomite shot)
+        color (if corbomite uic/red color)
+        radius (if corbomite 5 3)]
+    (q/ellipse-mode :center)
+    (q/no-stroke)
+    (apply q/fill color)
+    (q/ellipse 0 0 radius radius)))
 
 (defn- draw-kinetic-shots [state]
   (draw-objects-in state
@@ -194,7 +198,7 @@
   (let [{:keys [bearing]} shot
         radians (geo/->radians bearing)
         [sx sy] (vector/from-angular uic/phaser-length radians)
-        beam-color (color-function shot)]
+        beam-color (if (:corbomite shot) uic/red (color-function shot))]
     (apply q/stroke beam-color)
     (q/stroke-weight 3)
     (q/line 0 0 sx sy)))

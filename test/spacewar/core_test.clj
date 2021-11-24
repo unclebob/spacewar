@@ -133,7 +133,7 @@
                              :weapon-spread-setting 0)
             world (assoc world :ship ship)
             new-world (process-events [{:event :weapon-fire}] world)]
-        (:shots new-world) => [{:x ..x.. :y ..y.. :bearing 90 :range 0 :type :phaser}]))
+        (:shots new-world) => [{:x ..x.. :y ..y.. :bearing 90 :range 0 :type :phaser :corbomite false}]))
 
     (fact
       "fire two torpedoes event"
@@ -143,8 +143,8 @@
                              :weapon-spread-setting 10)
             world (assoc world :ship ship)
             new-world (process-events [{:event :weapon-fire}] world)]
-        (:shots new-world) => [{:x ..x.. :y ..y.. :bearing 85 :range 0 :type :torpedo}
-                               {:x ..x.. :y ..y.. :bearing 95 :range 0 :type :torpedo}]))))
+        (:shots new-world) => [{:x ..x.. :y ..y.. :bearing 85 :range 0 :type :torpedo :corbomite false}
+                               {:x ..x.. :y ..y.. :bearing 95 :range 0 :type :torpedo :corbomite false}]))))
 
 (facts
   "updating the world"
