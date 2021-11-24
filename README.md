@@ -32,7 +32,8 @@ Surround that factory with plenty of Antimatter and Dilithium bases so that it c
 enough _Corbomite_.  
 
 Once the _Corbomite_ factory has been filled to capacity, it will transform into 
-_The Corbomite Device_.
+_The Corbomite Device_.  When you dock with _The Corbomite Device_ your ship will become
+much more powerful, and you should be able to rid the federation of all klingons.
 
 ## Sensors
 You have three views.  
