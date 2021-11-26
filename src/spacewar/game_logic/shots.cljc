@@ -148,7 +148,7 @@
 
 (defn update-shot [shot distance range-limit]
   (let [{:keys [x y bearing range corbomite]} shot
-        distance (if corbomite (* 3 distance) distance)
+        distance (if corbomite (* 2 distance) distance)
         radians (geo/->radians bearing)
         delta (vector/from-angular distance radians)
         [sx sy] (vector/add [x y] delta)
@@ -210,9 +210,9 @@
   (let [hit-shots (map :shot (filter #(= target (:target %)) hit-pairs))
         ranges (map :range hit-shots)
         corbomite (-> hit-shots first :corbomite)]
-    (assoc target :hit {:weapon :phaser :damage (if corbomite
-                                                  (map #(* -1 %) ranges)
-                                                  ranges) }))
+    (if corbomite
+      (assoc target :hit {:weapon :phaser :damage (repeat (count ranges) 0.001)})
+      (assoc target :hit {:weapon :phaser :damage ranges})))
   )
 
 (defn- hit-by-torpedo [hit-pairs target]
