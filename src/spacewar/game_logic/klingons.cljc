@@ -27,7 +27,7 @@
 (s/def ::battle-state-age number?)
 (s/def ::battle-state #{:no-battle :flank-right :flank-left :retreating :advancing})
 (s/def ::cruise-state #{:patrol :guard :refuel :mission})
-(s/def ::mission #{:blockade :seek-and-destroy})
+(s/def ::mission #{:blockade :seek-and-destroy :escape-corbomite})
 
 (s/def ::klingon (s/keys :req-un [::x ::y ::shields ::antimatter
                                   ::kinetics ::torpedos ::weapon-charge
@@ -376,15 +376,12 @@
     (update klingon :velocity #(vector/scale drag-factor %))))
 
 (defn- full-retreat [klingon]
-  (assoc klingon :thrust [0 (/ glc/klingon-cruise-thrust -2)]))
+  (assoc klingon :thrust [0 (- glc/klingon-cruise-thrust)]))
 
 (defn update-klingon-motion [ms world]
   (let [ship (:ship world)
-        corbomite (:corbomite-device-installed ship)
         klingons (:klingons world)
-        klingons (if corbomite
-                   (map full-retreat klingons)
-                   (map #(thrust-if-battle ship %) klingons))
+        klingons (map #(thrust-if-battle ship %) klingons)
         klingons (map #(accelerate-klingon ms %) klingons)
         klingons (map #(move-klingon ms %) klingons)
         klingons (map #(drag-klingon ms %) klingons)]
@@ -533,6 +530,7 @@
   (condp = (:mission klingon)
     :seek-and-destroy (thrust-towards-ship klingon ship)
     :blockade (thrust-to-nearest-base klingon bases)
+    :escape-corbomite (full-retreat klingon)
     klingon)
   )
 
@@ -628,8 +626,7 @@
     (assoc klingon :cruise-state new-state)))
 
 (defn- change-all-cruise-states [{:keys [klingons] :as world}]
-  (assoc world :klingons (map change-cruise-state klingons))
-  )
+  (assoc world :klingons (map change-cruise-state klingons)))
 
 (defn produce-antimatter [ms klingon stars]
   (let [antimatter (:antimatter klingon)
@@ -698,10 +695,21 @@
     (assoc world :klingons klingons))
   )
 
+(defn- change-mission-to-escape [klingon]
+  (assoc klingon :mission :escape-corbomite))
+
+(defn- check-escape-corbomite [{:keys [klingons ship] :as world}]
+  (let [corbomite (:corbomite-device-installed ship)
+        klingons (if corbomite
+                   (map change-mission-to-escape klingons)
+                   klingons)]
+    (assoc world :klingons klingons)))
+
 (defn update-klingons-per-minute [world]
   (-> world
       (change-patrol-direction)
       (change-all-cruise-states)
       (change-blockade-to-seek-and-destroy)
+      (check-escape-corbomite)
       (add-klingons-from-praxis)))
 

@@ -36,8 +36,8 @@
     (q/stroke-weight 3)
     (q/no-fill)
     (when (> angle 0.01)
-          (apply q/stroke color)
-          (q/arc 0 0 radius radius 0 angle))))
+      (apply q/stroke color)
+      (q/arc 0 0 radius radius 0 angle))))
 
 (defn- draw-base-contents [antimatter dilithium corbomite]
   (draw-inventory-circle dilithium glc/base-dilithium-maximum uic/yellow 30)
@@ -186,27 +186,29 @@
   (q/stroke-weight 4)
   (q/line -10 0 10 0)
   (apply q/fill (if (< 200 (mod (q/millis) 400))
-                    uic/red
-                    uic/black))
-    (q/ellipse 0 0 10 10))
+                  uic/red
+                  uic/black))
+  (q/ellipse 0 0 10 10))
 
 (defn- klingon-state [{:keys [cruise-state battle-state mission]}]
   (let [cruise-state (condp = cruise-state
                        :patrol "P"
                        :refuel "R"
                        :guard "G"
-                       :mission (condp = mission
-                                  :blockade "B"
-                                  :seek-and-destroy "A"
-                                  "-")
+                       :mission "M"
                        "X")
+        mission (condp = mission
+                  :blockade "B"
+                  :seek-and-destroy "A"
+                  :escape-corbomite "E"
+                  "-")
         battle-state (condp = battle-state
                        :no-battle "n"
                        :flank-right "fr"
                        :flank-left "fl"
                        :retreating "r"
                        :advancing "a")]
-    (str cruise-state "-" battle-state))
+    (str mission ":" cruise-state "-" battle-state))
   )
 
 (defn draw-klingon-counts [klingon]
@@ -220,8 +222,8 @@
     (q/text-align :center :bottom)
     (q/text (klingon-state klingon) 0 -30)
     (q/text-align :center :top)
-    (q/text (str "K-" (int (:kinetics klingon))) 0 30))
-  )
+    (q/text (str "K-" (int (:kinetics klingon))) 0 30)
+  ))
 
 (defn draw-klingon-icon []
   (apply q/fill uic/black)
