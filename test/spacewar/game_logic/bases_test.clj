@@ -411,11 +411,14 @@
           base (assoc base :corbomite glc/corbomite-maximum)
           world (assoc world :bases [base])
           world (update-bases 1 world)
-          base (-> world :bases first)]
+          base (-> world :bases first)
+          explosion (-> world :explosions first)]
       (:type base) => :corbomite-device
       (:corbomite base) => zero?
       (:antimatter base) => zero?
       (:dilithium base) => zero?
+      explosion => some?
+      (:type explosion) => :corbomite-device
       )
     )
 

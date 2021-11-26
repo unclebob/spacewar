@@ -4,6 +4,7 @@
             [spacewar.geometry :as geo]
             [spacewar.vector :as vector]
             [spacewar.game-logic.config :as glc]
+            [spacewar.game-logic.explosions :as explosions]
             [clojure.math.combinatorics :as combo]))
 
 (s/def ::x number?)
@@ -178,7 +179,7 @@
   (let [readiness (:transport-readiness base)
         deficit (- glc/transport-ready readiness)
         adjustment (min deficit ms)]
-      (update base :transport-readiness + adjustment)))
+    (update base :transport-readiness + adjustment)))
 
 (defn- update-transport-readiness [ms bases]
   (map #(update-transport-readiness-for ms %) bases))
@@ -399,19 +400,23 @@
               base (update base (:commodity transport) + (:amount transport))]
           (recur (rest accepting) delivering (conj adjusted-bases base)))))))
 
-(defn- check-corbomite-base [ms bases]
+(defn- check-corbomite-base [{:keys [bases explosions] :as world}]
   (let [base-map (group-by #(= :corbomite-factory (:type %)) bases)
         corbomite-base (first (get base-map true))
         other-bases (get base-map false)
-        bases (if (or (nil? corbomite-base)
-                      (> glc/corbomite-maximum (:corbomite corbomite-base)))
+        corbomite-incomplete? (or (nil? corbomite-base)
+                                  (> glc/corbomite-maximum (:corbomite corbomite-base)))
+        bases (if corbomite-incomplete?
                 bases
                 (conj other-bases (assoc corbomite-base
                                     :type :corbomite-device
                                     :antimatter 0
                                     :dilithium 0
-                                    :corbomite 0)))]
-    bases))
+                                    :corbomite 0)))
+        explosions (if corbomite-incomplete?
+                     explosions
+                     (conj explosions (explosions/->explosion :corbomite-device corbomite-base)))]
+    (assoc world :bases bases :explosions explosions)))
 
 (defn update-bases [ms world]
   (let [bases (:bases world)
@@ -419,13 +424,13 @@
                    (age-bases ms)
                    (update-bases-manufacturing ms)
                    (update-transport-readiness ms)
-                   (check-corbomite-base ms)
                    )
         world (assoc world :bases bases)
         world (->> world
                    (update-transports ms)
                    (check-new-transport-time)
-                   (receive-transports))]
+                   (receive-transports)
+                   (check-corbomite-base))]
     world))
 
 

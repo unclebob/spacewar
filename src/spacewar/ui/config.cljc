@@ -240,5 +240,25 @@
           :fragment-color-profile [{:until 500 :colors [white white]}
                                    {:until 2000 :colors [white yellow]}
                                    {:until 4000 :colors [yellow red]}
-                                   {:until 8000 :colors [red black]}]}})
+                                   {:until 8000 :colors [red black]}]}
+
+   :corbomite-device {:duration 4000
+                      :explosion-profile [{:velocity 0.8 :until 100}
+                                          {:velocity 0.9 :until 200}
+                                          {:velocity 0.0 :until 300}
+                                          {:velocity -0.1 :until 2000}
+                                          {:velocity 0.0 :until 4000}]
+                      :explosion-color-profile [{:until 400 :colors [green green]}
+                                                {:until 800 :colors [green white]}
+                                                {:until 2000 :colors [white red]}
+                                                {:until 2500 :colors [red dark-red]}
+                                                {:until 4000 :colors [dark-red black]}]
+                      :fragments 200
+                      :fragment-velocity 0.2
+                      :fragment-color-profile [{:until 500 :colors [white green]}
+                                               {:until 800 :colors [green orange]}
+                                               {:until 3000 :colors [orange red]}
+                                               {:until 4000 :colors [red black]}]}
+
+   })
 

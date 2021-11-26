@@ -7,7 +7,7 @@
 (s/def ::y number?)
 (s/def ::type #{:phaser :torpedo :kinetic
                 :klingon :klingon-kinetic
-                :klingon-phaser :ship})
+                :klingon-phaser :ship :corbomite-device})
 (s/def ::age number?)
 (s/def ::velocity number?)
 (s/def ::direction number?)

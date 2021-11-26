@@ -167,6 +167,22 @@
         ship (assoc ship :corbomite-device-installed true)]
     (assoc world :ship ship)))
 
+(defn- debug-explosion [event world]
+  (let [[x y] (:pos event)
+        explosion (explosions/->explosion :corbomite-device {:x x :y y})
+        explosions (:explosions world)
+        explosions (conj explosions explosion)]
+    (assoc world :explosions explosions)))
+
+(defn- debug-add-pulsar [event world]
+  (let [[x y] (:pos event)
+        pulsar (stars/make-pulsar)
+        pulsar (assoc pulsar :x x :y y)
+        stars (:stars world)
+        stars (conj stars pulsar)]
+    (assoc world :stars stars))
+  )
+
 (defn- process-game-events [events world]
   (let [[_ world] (->> [events world]
                        (util/handle-event :debug-position-ship debug-position-ship-handler)
@@ -176,6 +192,8 @@
                        (util/handle-event :debug-add-romulan debug-add-romulan)
                        (util/handle-event :debug-new-klingon-from-praxis debug-new-klingon-from-praxis)
                        (util/handle-event :debug-corbomite-device-installed debug-corbomite-device-installed)
+                       (util/handle-event :debug-explosion debug-explosion)
+                       (util/handle-event :debug-add-pulsar debug-add-pulsar)
                        (util/handle-event :new-game new-game)
                        )]
     world))
@@ -193,9 +211,9 @@
   (let [klingons (:klingons world)
         messages (:messages world)
         messages (if (zero? (count klingons))
-                  (conj messages {:text "The Federation is safe!  You win!"
-                                 :duration 1000000})
-                  messages)]
+                   (conj messages {:text "The Federation is safe!  You win!"
+                                   :duration 1000000})
+                   messages)]
     (assoc world :messages messages)))
 
 (defn- game-over [ms {:keys [ship game-over-timer explosions messages deaths] :as world}]

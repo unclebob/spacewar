@@ -23,7 +23,7 @@
    :y (int (rand glc/known-space-y))
    :class (random-class)})
 
-(defn- make-pulsar []
+(defn make-pulsar []
   {:x (int (rand glc/known-space-x))
      :y (int (rand glc/known-space-y))
      :class :pulsar})
