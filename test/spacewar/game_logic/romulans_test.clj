@@ -80,7 +80,8 @@
             world (assoc world :romulans [romulan])
             world (r/destroy-hit-romulans world)
             romulans (:romulans world)]
-        romulans => empty?))
+        romulans => empty?
+        (:romulans-killed world) => 1))
 
     (fact
       "update-romulans calls all intermediaries"

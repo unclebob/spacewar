@@ -108,15 +108,18 @@
     (apply q/fill uic/white)
     (q/text-align :left :top)
     (q/text-font (:lcars (q/state :fonts)) 18)
-    (let [{:keys [x y fps]} state
+    (let [line-height 20
+          {:keys [x y fps]} state
           fps (or fps 0)
           fps #?(:clj (format "FPS: %6.2f" (float fps))
                  :cljs (str "FPS: " (.toFixed fps 2)))]
       (q/text fps x y)
-      (q/text (get state :version "--") x (+ y 30))
-      (q/text (str "minutes: " (:minutes state)) x (+ y 60))
-      (q/text (str "Klingons: " (:klingons state)) x (+ y 90))
-      (q/text (str "Deaths: " (:deaths state)) x (+ y 120))
+      (q/text (get state :version "--") x (+ y (* line-height 1)))
+      (q/text (str "minutes: " (:minutes state)) x (+ y (* line-height 2)))
+      (q/text (str "Klingons: " (:klingons state)) x (+ y (* line-height 3)))
+      (q/text (str "Deaths: " (:deaths state)) x (+ y (* line-height 4)))
+      (q/text (str "Klingons killed: " (:klingons-killed state)) x (+ y (* line-height 5)))
+      (q/text (str "Romulans killed: " (:romulans-killed state)) x (+ y (* line-height 6)))
       )
     )
 
@@ -277,7 +280,9 @@
                              :version (:version world)
                              :minutes (:minutes world)
                              :klingons (count (:klingons world))
-                             :deaths (:deaths world))
+                             :deaths (:deaths world)
+                             :klingons-killed (:klingons-killed world)
+                             :romulans-killed (:romulans-killed world))
           [state events] (p/update-elements state world)]
       (p/pack-update
         (complex. state)

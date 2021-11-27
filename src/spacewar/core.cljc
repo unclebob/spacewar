@@ -19,7 +19,7 @@
             [clojure.tools.reader.edn :as edn]
             #?(:clj [clojure.java.io :as io])))
 
-(def version "202111261404")
+(def version "202111270727")
 
 (s/def ::update-time number?)
 (s/def ::transport-check-time number?)
@@ -33,6 +33,8 @@
 (s/def ::minutes integer?)
 (s/def ::version string?)
 (s/def ::deaths int?)
+(s/def ::klingons-killed int?)
+(s/def ::romulans-killed int?)
 
 (s/def ::world (s/keys :req-un [::explosions/explosions
                                 ::klingons/klingons
@@ -50,7 +52,9 @@
                                 ::game-over-timer
                                 ::minutes
                                 ::version
-                                ::deaths]))
+                                ::deaths
+                                ::klingons-killed
+                                ::romulans-killed]))
 
 (defn make-initial-world []
   (let [ship (ship/initialize)
@@ -74,7 +78,9 @@
      :game-over-timer 0
      :minutes 0
      :version version
-     :deaths 0}))
+     :deaths 0
+     :klingons-killed 0
+     :romulans-killed 0}))
 
 (defn game-saved? []
   #?(:clj  (.exists (io/file "spacewar.world"))
@@ -84,10 +90,14 @@
 (defn setup []
   (let [vmargin 30
         hmargin 5
-        world (if (game-saved?)
+        saved? (game-saved?)
+        world (if saved?
                 #?(:clj  (read-string (slurp "spacewar.world"))
                    :cljs (edn/read-string (.getItem js/localStorage "spacewar.world")))
-                (make-initial-world))]
+                (make-initial-world))
+        world (if (and saved? (= version (:version world)))
+                (world/add-message world "Saved game loaded." 10000)
+                (world/add-message (make-initial-world)  "Saved game ignored, old version." 10000))]
     (q/frame-rate glc/frame-rate)
     (q/color-mode :rgb)
     (q/background 200 200 200)

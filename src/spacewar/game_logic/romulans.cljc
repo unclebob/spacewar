@@ -64,12 +64,14 @@
   (explosions/->explosion :romulan romulan)
   )
 
-(defn destroy-hit-romulans [world]
-  (let [{:keys [romulans explosions]} world
-        hit-romulans (filter :hit romulans)
+(defn destroy-hit-romulans [{:keys [romulans explosions romulans-killed] :as world}]
+  (let [hit-romulans (filter :hit romulans)
         explosions (concat explosions (map explode-romulan hit-romulans))
-        romulans (remove :hit romulans)]
-    (assoc world :romulans romulans :explosions explosions)))
+        romulans (remove :hit romulans)
+        romulans-killed (+ romulans-killed (count hit-romulans))]
+    (assoc world :romulans romulans
+                 :explosions explosions
+                 :romulans-killed romulans-killed)))
 
 (defn- romulan-shots [ship romulan]
   (if (:fire-weapon romulan)

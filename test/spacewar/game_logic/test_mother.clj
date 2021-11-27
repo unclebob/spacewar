@@ -119,6 +119,8 @@
    :minutes 0
    :version "version"
    :deaths 0
+   :klingons-killed 0
+   :romulans-killed 0
    })
 
 (defn make-shot []

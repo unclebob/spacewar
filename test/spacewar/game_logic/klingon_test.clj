@@ -93,6 +93,7 @@
             ]
         (:klingons world) => []
         (count (:explosions world)) => 1
+        (:klingons-killed world) => 1
         (dissoc (first (:explosions world)) :fragments) => {:age 0 :x 50 :y 50 :type :klingon}))
 
     (tabular

@@ -160,15 +160,15 @@
 (defn- klingon-debris-clouds [dead-klingons]
   (map klingon-debris-cloud dead-klingons))
 
-(defn update-klingon-defense [ms world]
-  (let [klingons (:klingons world)
-        klingons (map hit-klingon klingons)
+(defn update-klingon-defense [ms {:keys [klingons klingons-killed explosions clouds] :as world}]
+  (let [klingons (map hit-klingon klingons)
         dead-klingons (filter #(> 0 (:shields %)) klingons)
+        klingons-killed (+ klingons-killed (count dead-klingons))
         klingons (filter #(<= 0 (:shields %)) klingons)
         klingons (recharge-shields ms klingons)]
-    (assoc world :klingons klingons
-                 :explosions (concat (:explosions world) (klingon-destruction dead-klingons))
-                 :clouds (concat (:clouds world) (klingon-debris-clouds dead-klingons)))))
+    (assoc world :klingons klingons :klingons-killed klingons-killed
+                 :explosions (concat explosions (klingon-destruction dead-klingons))
+                 :clouds (concat clouds (klingon-debris-clouds dead-klingons)))))
 
 (defn- charge-weapons [ms klingons ship]
   (for [klingon klingons]
