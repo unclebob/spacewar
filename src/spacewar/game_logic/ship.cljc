@@ -1,12 +1,12 @@
 (ns spacewar.game-logic.ship
   (:require
-    [spacewar.geometry :as geo]
-    [spacewar.vector :as vector]
-    [spacewar.util :as util :refer [handle-event]]
+    [clojure.spec.alpha :as s]
+    [spacewar.game-logic.bases :as bases]
     [spacewar.game-logic.config :as glc]
     [spacewar.game-logic.world :as world]
-    [spacewar.game-logic.bases :as bases]
-    [clojure.spec.alpha :as s]))
+    [spacewar.geometry :as geo]
+    [spacewar.util :as util :refer [handle-event]]
+    [spacewar.vector :as vector]))
 
 (s/def ::x number?)
 (s/def ::y number?)
@@ -22,6 +22,7 @@
 (s/def ::engine-power-setting number?)
 (s/def ::weapon-number-setting number?)
 (s/def ::weapon-spread-setting number?)
+(s/def ::saved-weapon-settings (s/keys :req-un [::phaser ::kinetic ::torpedo]))
 (s/def ::heading-setting (s/and number? #(<= 0 % 360)))
 (s/def ::antimatter number?)
 (s/def ::core-temp number?)
@@ -49,6 +50,7 @@
                                ::engine-power-setting
                                ::weapon-number-setting
                                ::weapon-spread-setting
+                               ::saved-weapon-settings
                                ::heading-setting
                                ::antimatter ::core-temp
                                ::dilithium ::shields
@@ -75,6 +77,12 @@
    :engine-power-setting 0
    :weapon-number-setting 1
    :weapon-spread-setting 1
+   :saved-weapon-settings {:phaser {:number-setting 1
+                                    :spread-setting 1}
+                           :torpedo {:number-setting 1
+                                     :spread-setting 1}
+                           :kinetic {:number-setting 1
+                                     :spread-setting 1}}
    :heading-setting 0
    :antimatter glc/ship-antimatter
    :core-temp 0
@@ -272,11 +280,21 @@
   (assoc ship :engine-power-setting value))
 
 (defn- set-weapon-number-handler [{:keys [value]} ship]
-  (assoc ship :weapon-number-setting value
-              :weapon-spread-setting (if (> value 1) 1 0)))
+  (let [selected-weapon (:selected-weapon ship)
+        ship (assoc ship :weapon-number-setting value)
+        ship (assoc-in ship [:saved-weapon-settings selected-weapon :number-setting] value)
+        ship (if (> value 1)
+               ship
+               (do
+                 (assoc-in ship [:saved-weapon-settings selected-weapon :spread-setting] 0)
+                 (assoc ship :weapon-spread-setting 0)))]
+    ship))
 
 (defn- set-weapon-spread-handler [{:keys [value]} ship]
-  (assoc ship :weapon-spread-setting value))
+  (let [selected-weapon (:selected-weapon ship)
+        ship (assoc ship :weapon-spread-setting value)
+        ship (assoc-in ship [:saved-weapon-settings selected-weapon :spread-setting] value)]
+    ship))
 
 (defn- engage-engine-handler [_ ship]
   (let [{:keys [selected-engine engine-power-setting]} ship]
@@ -304,17 +322,20 @@
 
 (defn- select-phaser [_ {:keys [selected-weapon] :as ship}]
   (assoc ship
-    :weapon-number-setting 1
+    :weapon-number-setting (get-in ship [:saved-weapon-settings :phaser :number-setting] 1)
+    :weapon-spread-setting (get-in ship [:saved-weapon-settings :phaser :spread-setting] 0)
     :selected-weapon (if (= selected-weapon :phaser) :none :phaser)))
 
 (defn- select-torpedo [_ {:keys [selected-weapon] :as ship}]
   (assoc ship
-    :weapon-number-setting 1
+    :weapon-number-setting (get-in ship [:saved-weapon-settings :torpedo :number-setting] 1)
+    :weapon-spread-setting (get-in ship [:saved-weapon-settings :torpedo :spread-setting] 0)
     :selected-weapon (if (= selected-weapon :torpedo) :none :torpedo)))
 
 (defn- select-kinetic [_ {:keys [selected-weapon] :as ship}]
   (assoc ship
-    :weapon-number-setting 1
+    :weapon-number-setting (get-in ship [:saved-weapon-settings :kinetic :number-setting] 1)
+    :weapon-spread-setting (get-in ship [:saved-weapon-settings :kinetic :spread-setting] 0)
     :selected-weapon (if (= selected-weapon :kinetic) :none :kinetic)))
 
 (defn- set-strat-scale [{:keys [value]} ship]

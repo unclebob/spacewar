@@ -6,10 +6,10 @@
 (def spectral-classes [:o :b :a :f :g :k :m :pulsar])
 (def drag-factor 0.005)
 (def rotation-rate 0.02)                                    ; degrees per millisecond.
-(def impulse-thrust 0.0001)                                 ; per millisecond per power.
+(def impulse-thrust 0.0002)                                 ; per millisecond per power.
 (def impulse-power 0.01)
 (def warp-power 0.01)
-(def warp-leap 10000)                                       ;spacial coordinates.
+(def warp-leap 20000)                                       ;spacial coordinates.
 (def warp-charge-rate 2)
 (def warp-threshold 2000)
 (def ship-shields 1000)
@@ -29,20 +29,20 @@
 
 (def max-shots-by-type {:none 0 :phaser 10 :torpedo 5 :kinetic 20})
 
-(def phaser-range 50000)
-(def phaser-velocity 40)                                    ;per ms
-(def phaser-proximity 1000)
-(def phaser-damage 80)
+(def phaser-range 150000)
+(def phaser-velocity 80)                                    ;per ms
+(def phaser-proximity 2500)
+(def phaser-damage 150)
 (def phaser-power 500)
 
 (def torpedo-range 100000)
-(def torpedo-velocity 5)
+(def torpedo-velocity 10)
 (def torpedo-proximity 2000)
 (def torpedo-damage 100)
 (def torpedo-power 200)
 
 (def kinetic-range 1000000)
-(def kinetic-velocity 6)
+(def kinetic-velocity 8)
 (def kinetic-proximity 500)
 (def kinetic-damage 50)
 (def kinetic-power 20)

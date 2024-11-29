@@ -51,9 +51,9 @@
 (def kinetic-color [255 0 0])
 (def klingon-kinetic-color [255 200 0])
 
-(def phaser-target 500)
-(def torpedo-target 700)
-(def kinetic-target 900)
+(def phaser-target 1000)
+(def torpedo-target 1000)
+(def kinetic-target 1000)
 
 (def transport-route-color [0 255 100 64])
 

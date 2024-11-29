@@ -200,7 +200,7 @@
         [sx sy] (vector/from-angular uic/phaser-length radians)
         beam-color (if (:corbomite shot) uic/red (color-function shot))]
     (apply q/stroke beam-color)
-    (q/stroke-weight 3)
+    (q/stroke-weight 6)
     (q/line 0 0 sx sy)))
 
 (defn- draw-phaser-shots [state]
