@@ -20,16 +20,16 @@
 (def ship-shield-recharge-cost 5)
 (def ship-docking-distance 2000)
 (def ship-deploy-distance 5000)
-(def ship-kinetics 500)
+(def ship-kinetics 1000)
 (def ship-torpedos 100)
 (def ship-repair-capacity 0.005)
 (def antimatter-to-heat 0.01)
 (def dilithium-heat-dissipation 0.00005)
 (def passive-heat-dissipation 0.0000005)
 
-(def max-shots-by-type {:none 0 :phaser 10 :torpedo 5 :kinetic 20})
+(def max-shots-by-type {:none 0 :phaser 10 :torpedo 5 :kinetic 30})
 
-(def phaser-range 150000)
+(def phaser-range 60000)
 (def phaser-velocity 80)                                    ;per ms
 (def phaser-proximity 2500)
 (def phaser-damage 150)
@@ -170,9 +170,9 @@
 (def dilithium-factory-dilithium-reserve 0)
 
 (def weapon-factory-torpedo-production-rate 0.0001)
-(def weapon-factory-kinetic-production-rate 0.001)
+(def weapon-factory-kinetic-production-rate 0.002)
 (def weapon-factory-torpedo-antimatter-cost 1000)
-(def weapon-factory-kinetic-antimatter-cost 100)
+(def weapon-factory-kinetic-antimatter-cost 50)
 (def weapon-factory-torpedo-dilithium-cost 100)
 
 (def weapon-factory-sufficient-antimatter base-antimatter-maximum)
