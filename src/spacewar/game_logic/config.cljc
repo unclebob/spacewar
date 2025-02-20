@@ -20,7 +20,7 @@
 (def ship-shield-recharge-cost 5)
 (def ship-docking-distance 2000)
 (def ship-deploy-distance 5000)
-(def ship-kinetics 1000)
+(def ship-kinetics 2000)
 (def ship-torpedos 100)
 (def ship-repair-capacity 0.005)
 (def antimatter-to-heat 0.01)
@@ -38,7 +38,7 @@
 (def torpedo-range 100000)
 (def torpedo-velocity 10)
 (def torpedo-proximity 2000)
-(def torpedo-damage 100)
+(def torpedo-damage 150)
 (def torpedo-power 200)
 
 (def kinetic-range 1000000)
@@ -169,11 +169,11 @@
 (def dilithium-factory-sufficient-dilithium (/ dilithium-cargo-size 10))
 (def dilithium-factory-dilithium-reserve 0)
 
-(def weapon-factory-torpedo-production-rate 0.0001)
-(def weapon-factory-kinetic-production-rate 0.002)
-(def weapon-factory-torpedo-antimatter-cost 1000)
+(def weapon-factory-torpedo-production-rate 0.0002)
+(def weapon-factory-kinetic-production-rate 0.005)
+(def weapon-factory-torpedo-antimatter-cost 500)
 (def weapon-factory-kinetic-antimatter-cost 50)
-(def weapon-factory-torpedo-dilithium-cost 100)
+(def weapon-factory-torpedo-dilithium-cost 30)
 
 (def weapon-factory-sufficient-antimatter base-antimatter-maximum)
 (def weapon-factory-antimatter-reserve ship-antimatter)
