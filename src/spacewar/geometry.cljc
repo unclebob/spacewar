@@ -5,10 +5,10 @@
         (pos? x) 1
         :else -1))
 
-(defn abs [x]
-  (if (neg? x)
-    (- x)
-    x))
+;(defn abs [x]
+;  (if (neg? x)
+;    (- x)
+;    x))
 
 (defn round [x]
   (long (Math/round (double x))))

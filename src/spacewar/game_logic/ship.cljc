@@ -203,7 +203,7 @@
   (let [{:keys [heading heading-setting]} ship
         total-rotation (rotation-direction heading heading-setting)
         rotation-step (* glc/rotation-rate ms (geo/sign total-rotation))
-        rotation-step (if (< (geo/abs total-rotation) (geo/abs rotation-step))
+        rotation-step (if (< (abs total-rotation) (abs rotation-step))
                         total-rotation
                         rotation-step)
         new-heading (mod (+ heading rotation-step) 360)]

@@ -1,0 +1,19 @@
+{:paths ["src" "test"]
+ :deps {org.clojure/clojure {:mvn/version "1.11.1"}
+        org.clojure/test.check {:mvn/version "0.10.0-alpha3"}
+        quil/quil {:mvn/version "4.3.1563"}
+        org.clojure/math.combinatorics {:mvn/version "0.1.4"}
+        org.clojure/tools.reader {:mvn/version "1.3.2"}
+        speclj/speclj {:mvn/version "3.4.6"}}
+
+ :aliases {:run {:main-opts ["-m" "spacewar.core"]
+                 :jvm-opts ["-Xms256m" "-Xmx512m" "-XX:+UseParallelGC"]}
+           :dev {:extra-deps {midje/midje {:mvn/version "1.10.10"}
+                              speclj/speclj {:mvn/version "3.4.6"}}}
+           :test {:extra-deps {midje/midje {:mvn/version "1.10.10"}}
+                  :main-opts ["-m" "midje.runner"]}
+           :spec {:main-opts ["-m" "speclj.main" "-c"]
+                   :extra-deps {speclj/speclj {:mvn/version "3.4.6"}}
+                   :extra-paths ["spec"]}
+           }
+ }
