@@ -3,6 +3,11 @@
     [clojure.spec.alpha :as spec]
     [spacewar.core :as core]
     [spacewar.game-logic.klingons :as klingons]
+    [spacewar.game-logic.romulans :as romulans]
+    [spacewar.game-logic.shots :as shots]
+    [spacewar.game-logic.ship :as ship]
+    [spacewar.game-logic.stars :as stars]
+    [spacewar.game-logic.bases :as bases]
     [spacewar.game-logic.config :refer [klingon-shields
                                         ship-antimatter
                                         ship-dilithium
@@ -14,23 +19,23 @@
   (let [explanation (spec/explain-data ::core/world world)]
     (if (nil? explanation) true explanation)))
 
-;(defn valid-ship? [ship]
-;    (nil? (spec/explain-data ::ship/ship ship)))
-;
+(defn valid-ship? [ship]
+    (nil? (spec/explain-data ::ship/ship ship)))
+
 (defn valid-klingon? [klingon]
     (nil? (spec/explain-data ::klingons/klingon klingon)))
-;
-;(defn valid-shot? [shot]
-;    (nil? (spec/explain-data ::shots/shot shot)))
-;
-;(defn valid-star? [star]
-;    (nil? (spec/explain-data ::stars/star star)))
-;
-;(defn valid-base? [base]
-;    (nil? (spec/explain-data ::bases/base base)))
-;
-;(defn valid-romulan? [romulan]
-;    (nil? (spec/explain-data ::romulans/romulan romulan)))
+
+(defn valid-shot? [shot]
+    (nil? (spec/explain-data ::shots/shot shot)))
+
+(defn valid-star? [star]
+    (nil? (spec/explain-data ::stars/star star)))
+
+(defn valid-base? [base]
+    (nil? (spec/explain-data ::bases/base base)))
+
+(defn valid-romulan? [romulan]
+    (nil? (spec/explain-data ::romulans/romulan romulan)))
 
 (defn make-ship []
   {
