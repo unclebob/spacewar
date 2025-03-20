@@ -16,3 +16,5 @@ pom.xml.asc
 spacewar.world
 spacewar.world.save
 /.cpcache/
+/project.clj.backup
+/.idea_backup/
