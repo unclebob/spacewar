@@ -35,6 +35,7 @@
 (s/def ::deaths int?)
 (s/def ::klingons-killed int?)
 (s/def ::romulans-killed int?)
+(s/def ::transport-routes set?)
 
 (s/def ::world (s/keys :req-un [::explosions/explosions
                                 ::klingons/klingons
@@ -54,33 +55,43 @@
                                 ::version
                                 ::deaths
                                 ::klingons-killed
-                                ::romulans-killed]))
+                                ::romulans-killed
+                                ::transport-routes]))
+
+(defn- add-base [world base]
+  (-> world (ship/add-transport-routes-to base)
+      (update :bases conj base)))
 
 (defn make-initial-world []
   (let [ship (ship/initialize)
-        stars (stars/initialize)]
-    {:stars stars
-     :klingons (klingons/initialize)
-     :ship ship
-     :bases (bases/make-random-bases stars)
-     :transports []
-     :clouds []
-     :romulans []
-     :update-time 0
-     :transport-check-time 0
-     :explosions []
-     :shots []
-     :ms 0
-     :messages [{:text "Welcome to Space War!"
-                 :duration 5000}
-                {:text "Save the Federation!"
-                 :duration 10000}]
-     :game-over-timer 0
-     :minutes 0
-     :version version
-     :deaths 0
-     :klingons-killed 0
-     :romulans-killed 0}))
+        stars (stars/initialize)
+        bases (bases/make-random-bases stars)
+        world {:stars stars
+               :klingons (klingons/initialize)
+               :ship ship
+               :bases []
+               :transports []
+               :clouds []
+               :romulans []
+               :update-time 0
+               :transport-check-time 0
+               :explosions []
+               :shots []
+               :ms 0
+               :messages [{:text "Welcome to Space War!"
+                           :duration 5000}
+                          {:text "Save the Federation!"
+                           :duration 10000}]
+               :game-over-timer 0
+               :minutes 0
+               :version version
+               :deaths 0
+               :klingons-killed 0
+               :romulans-killed 0
+               :transport-routes #{}}
+        world (reduce #(add-base %1 %2) world bases)]
+    world))
+
 
 (defn game-saved? []
   #?(:clj  (.exists (io/file "spacewar.world"))
@@ -97,7 +108,7 @@
                 (make-initial-world))
         world (if (and saved? (= version (:version world)))
                 (world/add-message world "Saved game loaded." 10000)
-                (world/add-message (make-initial-world)  "Saved game ignored, old version." 10000))]
+                (world/add-message (make-initial-world) "Saved game ignored, old version." 10000))]
     (q/frame-rate glc/frame-rate)
     (q/color-mode :rgb)
     (q/background 200 200 200)
@@ -359,7 +370,7 @@
     (when new-save?
       #?(:clj  (spit "spacewar.world" world)
          :cljs (when (exists? js/localStorage)
-                 (.setItem js/localStorage "spacewar.world" world))))
+                     (.setItem js/localStorage "spacewar.world" world))))
     (assoc context
       :state complex
       :world world)))
@@ -369,7 +380,8 @@
   (q/rect-mode :corner)
   (q/no-stroke)
   (q/rect 0 0 (q/width) (q/height))
-  (p/draw state))
+  (p/draw state)
+  )
 
 (declare space-war)
 (defn ^:export -main [& args]

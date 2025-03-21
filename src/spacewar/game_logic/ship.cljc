@@ -1,5 +1,6 @@
 (ns spacewar.game-logic.ship
   (:require
+    [clojure.set :as set]
     [clojure.spec.alpha :as s]
     [spacewar.game-logic.bases :as bases]
     [spacewar.game-logic.config :as glc]
@@ -413,6 +414,19 @@
     (and (> antimatter glc/base-deployment-antimatter)
          (> dilithium glc/base-deployment-dilithium))))
 
+(defn add-transport-routes-to [{:keys [bases] :as world}
+                               new-base]
+  (let [base-pairs (map #(list % new-base) bases)
+        valid-routes (filter #(<= (geo/distance
+                                    [(:x (first %)) (:y (first %))]
+                                    [(:x (second %)) (:y (second %))])
+                                  glc/transport-range)
+                             base-pairs)
+        transport-routes (map (fn [[b1 b2]]
+                                #{[(:x b1) (:y b1)]
+                                  [(:x b2) (:y b2)]}) valid-routes)]
+    (update world :transport-routes set/union (set transport-routes))))
+
 (defn deploy-base [type world]
   (let [{:keys [ship stars bases]} world
         deployable-star (find-deployable-star type ship stars)]
@@ -428,7 +442,8 @@
                 bases (conj bases base)
                 ship (-> ship
                          (update :antimatter - glc/base-deployment-antimatter)
-                         (update :dilithium - glc/base-deployment-dilithium))]
+                         (update :dilithium - glc/base-deployment-dilithium))
+                world (add-transport-routes-to world base)]
             (assoc world :bases bases :ship ship)))))))
 
 (defn- deploy-antimatter-factory [_ world]

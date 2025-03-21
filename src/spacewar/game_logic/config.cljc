@@ -1,6 +1,6 @@
 (ns spacewar.game-logic.config)
 
-(def frame-rate 30)
+(def frame-rate 20)
 (def klingon-stats false)
 
 (def spectral-classes [:o :b :a :f :g :k :m :pulsar])

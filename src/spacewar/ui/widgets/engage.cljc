@@ -38,7 +38,7 @@
           mouse-pos [(q/mouse-x) (q/mouse-y)]
           mouse-in (geo/inside-rect [x y w h] mouse-pos)
           left-down (and (not disabled) mouse-in (q/mouse-pressed?) (= :left (q/mouse-button)))
-          button-time (if left-down (min h (+ 10 last-button-time)) 0)
+          button-time (if left-down (min h (+ 30 last-button-time)) 0)
           new-state (assoc state
                       :mouse-in mouse-in
                       :left-down left-down

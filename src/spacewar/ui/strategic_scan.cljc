@@ -42,14 +42,14 @@
 
 (defn- draw-romulans [state]
   (let [{:keys [romulans pixel-width ship]} state
-          sx (:x ship)
-          sy (:y ship)]
-      (when romulans
-        (doseq [{:keys [x y]} romulans]
-          (q/with-translation
-            [(* (- x sx) pixel-width)
-             (* (- y sy) pixel-width)]
-            (icons/draw-strategic-romulan))))) )
+        sx (:x ship)
+        sy (:y ship)]
+    (when romulans
+      (doseq [{:keys [x y]} romulans]
+        (q/with-translation
+          [(* (- x sx) pixel-width)
+           (* (- y sy) pixel-width)]
+          (icons/draw-strategic-romulan))))))
 
 (defn- draw-ship [state]
   (let [heading (or (->> state :ship :heading) 0)
@@ -70,22 +70,19 @@
           (icons/draw-base-icon base))))))
 
 (defn- draw-transport-routes [state]
-  (let [{:keys [bases pixel-width ship]} state
-        bases (remove #(= :corbomite-device (:type %)) bases)
-        base-pairs (combo/combinations bases 2)
-        routes (filter #(<= (geo/distance [(:x (first %)) (:y (first %))]
-                                      [(:x (second %)) (:y (second %))])
-                            glc/transport-range)
-                       base-pairs)]
-    (apply q/stroke uic/transport-route-color)
-    (q/stroke-weight 3)
-    (doseq [[base1 base2] routes]
-      (let [sx (:x ship)
-            sy (:y ship)
-            b1x (* (- (:x base1) sx) pixel-width)
-            b1y (* (- (:y base1) sy) pixel-width)
-            b2x (* (- (:x base2) sx) pixel-width)
-            b2y (* (- (:y base2) sy) pixel-width)]
+  (apply q/stroke uic/transport-route-color)
+  (q/stroke-weight 3)
+
+  (let [{:keys [pixel-width ship transport-routes]} state
+        sx (:x ship)
+        sy (:y ship)]
+    (doseq [route transport-routes]
+      (let [b1 (first route)
+            b2 (second route)
+            b1x (* (- (first b1) sx) pixel-width)
+            b1y (* (- (second b1) sy) pixel-width)
+            b2x (* (- (first b2) sx) pixel-width)
+            b2y (* (- (second b2) sy) pixel-width)]
         (q/line b1x b1y b2x b2y)))))
 
 (defn- draw-transports [state]
@@ -173,6 +170,7 @@
                        :romulans (:romulans world)
                        :ship ship
                        :bases (:bases world)
+                       :transport-routes (:transport-routes world)
                        :transports (:transports world)
                        :pixel-width (/ (:h state) range)
                        :sector-top-left [0 0]))

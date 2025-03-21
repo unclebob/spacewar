@@ -18,7 +18,8 @@
                                                 ship-shields
                                                 ship-torpedos]]
             [spacewar.game-logic.config :as glc]
-            [spacewar.game-logic.ship :refer [apply-drag
+            [spacewar.game-logic.ship :refer [add-transport-routes-to
+                                              apply-drag
                                               apply-impulse
                                               charge-shields
                                               deploy-base
@@ -37,7 +38,7 @@
             [spacewar.game-logic.spec-mother :as mom]
             [spacewar.spec-utils :as ut]
             [spacewar.vector :as vector]
-            [speclj.core :refer [describe it should should-not should= stub with with-stubs]]))
+            [speclj.core :refer [context describe it should should-not should= stub with with-stubs]]))
 
 (declare ship)
 (describe "ship"
@@ -237,46 +238,82 @@
 
   (describe "deployment"
     (let [ship (mom/make-ship)]
-      (it "returns false for all factories with no stars"
-        (should-not (deployable? :antimatter-factory ship []))
-        (should-not (deployable? :dilithium-factory ship []))
-        (should-not (deployable? :weapon-factory ship [])))
-      (it "allows antimatter-factory near class O star"
-        (let [star (mom/make-star (dec ship-deploy-distance) 0 :o)]
-          (should (deployable? :antimatter-factory ship [star]))
-          (should-not (deployable? :dilithium-factory ship [star]))
-          (should-not (deployable? :weapon-factory ship [star]))))
-      (it "allows antimatter-factory near class B star"
-        (let [star (mom/make-star (dec ship-deploy-distance) 0 :b)]
-          (should (deployable? :antimatter-factory ship [star]))
-          (should-not (deployable? :dilithium-factory ship [star]))
-          (should-not (deployable? :weapon-factory ship [star]))))
-      (it "allows antimatter-factory near class A star"
-        (let [star (mom/make-star (dec ship-deploy-distance) 0 :a)]
-          (should (deployable? :antimatter-factory ship [star]))
-          (should-not (deployable? :dilithium-factory ship [star]))
-          (should-not (deployable? :weapon-factory ship [star]))))
-      (it "allows weapon-factory near class F star"
-        (let [star (mom/make-star (dec ship-deploy-distance) 0 :f)]
-          (should-not (deployable? :antimatter-factory ship [star]))
-          (should-not (deployable? :dilithium-factory ship [star]))
-          (should (deployable? :weapon-factory ship [star]))))
-      (it "allows weapon-factory near class G star"
-        (let [star (mom/make-star (dec ship-deploy-distance) 0 :g)]
-          (should-not (deployable? :antimatter-factory ship [star]))
-          (should-not (deployable? :dilithium-factory ship [star]))
-          (should (deployable? :weapon-factory ship [star]))))
-      (it "allows dilithium-factory near class K star"
-        (let [star (mom/make-star (dec ship-deploy-distance) 0 :k)]
-          (should-not (deployable? :antimatter-factory ship [star]))
-          (should (deployable? :dilithium-factory ship [star]))
-          (should-not (deployable? :weapon-factory ship [star]))))
-      (it "allows dilithium-factory near class M star"
-        (let [star (mom/make-star (dec ship-deploy-distance) 0 :m)]
-          (should-not (deployable? :antimatter-factory ship [star]))
-          (should (deployable? :dilithium-factory ship [star]))
-          (should-not (deployable? :weapon-factory ship [star]))))))
+      (context "bases and stars"
+        (it "returns false for all factories with no stars"
+          (should-not (deployable? :antimatter-factory ship []))
+          (should-not (deployable? :dilithium-factory ship []))
+          (should-not (deployable? :weapon-factory ship [])))
+        (it "allows antimatter-factory near class O star"
+          (let [star (mom/make-star (dec ship-deploy-distance) 0 :o)]
+            (should (deployable? :antimatter-factory ship [star]))
+            (should-not (deployable? :dilithium-factory ship [star]))
+            (should-not (deployable? :weapon-factory ship [star]))))
+        (it "allows antimatter-factory near class B star"
+          (let [star (mom/make-star (dec ship-deploy-distance) 0 :b)]
+            (should (deployable? :antimatter-factory ship [star]))
+            (should-not (deployable? :dilithium-factory ship [star]))
+            (should-not (deployable? :weapon-factory ship [star]))))
+        (it "allows antimatter-factory near class A star"
+          (let [star (mom/make-star (dec ship-deploy-distance) 0 :a)]
+            (should (deployable? :antimatter-factory ship [star]))
+            (should-not (deployable? :dilithium-factory ship [star]))
+            (should-not (deployable? :weapon-factory ship [star]))))
+        (it "allows weapon-factory near class F star"
+          (let [star (mom/make-star (dec ship-deploy-distance) 0 :f)]
+            (should-not (deployable? :antimatter-factory ship [star]))
+            (should-not (deployable? :dilithium-factory ship [star]))
+            (should (deployable? :weapon-factory ship [star]))))
+        (it "allows weapon-factory near class G star"
+          (let [star (mom/make-star (dec ship-deploy-distance) 0 :g)]
+            (should-not (deployable? :antimatter-factory ship [star]))
+            (should-not (deployable? :dilithium-factory ship [star]))
+            (should (deployable? :weapon-factory ship [star]))))
+        (it "allows dilithium-factory near class K star"
+          (let [star (mom/make-star (dec ship-deploy-distance) 0 :k)]
+            (should-not (deployable? :antimatter-factory ship [star]))
+            (should (deployable? :dilithium-factory ship [star]))
+            (should-not (deployable? :weapon-factory ship [star]))))
+        (it "allows dilithium-factory near class M star"
+          (let [star (mom/make-star (dec ship-deploy-distance) 0 :m)]
+            (should-not (deployable? :antimatter-factory ship [star]))
+            (should (deployable? :dilithium-factory ship [star]))
+            (should-not (deployable? :weapon-factory ship [star]))))))
 
+    (context "transport routes"
+      (it "does not add a route if there are no old bases"
+         (let [new-y (inc glc/transport-range)
+               new-base (mom/make-base 0 new-y :antimatter 1 1)
+               world (assoc (mom/make-world) :bases [] :transport-routes #{})
+               world (add-transport-routes-to world new-base)]
+           (should= #{} (:transport-routes world))))
+
+      (it "does not add a route if bases are too far apart"
+        (let [old-base (mom/make-base 0 0 :antimatter 1 1)
+              new-y (inc glc/transport-range)
+              new-base (mom/make-base 0 new-y :antimatter 1 1)
+              world (assoc (mom/make-world) :bases [old-base] :transport-routes #{})
+              world (add-transport-routes-to world new-base)]
+          (should= #{} (:transport-routes world))))
+
+      (it "adds a route if bases are in rage"
+        (let [old-base (mom/make-base 0 0 :antimatter 1 1)
+              new-y (dec glc/transport-range)
+              new-base (mom/make-base 0 new-y :antimatter 1 1)
+              world (assoc (mom/make-world) :bases [old-base] :transport-routes #{})
+              world (add-transport-routes-to world new-base)]
+          (should= #{#{[0 0] [0 new-y]}} (:transport-routes world))))
+
+      (it "adds many routes if bases are in rage"
+        (let [dist (dec glc/transport-range)
+              old-base1 (mom/make-base 0 dist :antimatter 1 1)
+              old-base2 (mom/make-base dist 0 :antimatter 1 1)
+              new-base (mom/make-base 0 0 :antimatter 1 1)
+              world (assoc (mom/make-world) :bases [old-base1 old-base2] :transport-routes #{})
+              world (add-transport-routes-to world new-base)]
+          (should= #{#{[0 0] [0 dist]}
+                     #{[0 0] [dist 0]}} (:transport-routes world))))
+      )
+    )
 
   (describe "damage repair"
     (with-stubs)

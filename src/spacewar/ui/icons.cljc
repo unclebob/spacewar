@@ -270,8 +270,6 @@
   (let [class (:class star)
         pulsar? (= class :pulsar)
         pulsar-on? (< (mod (q/millis) 500) 250)]
-    (q/no-stroke)
-    (q/ellipse-mode :center)
     (apply q/fill (class uic/star-colors))
     (when (or (not pulsar?)
               pulsar-on?)
