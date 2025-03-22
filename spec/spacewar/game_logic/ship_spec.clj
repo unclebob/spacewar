@@ -242,76 +242,105 @@
         (it "returns false for all factories with no stars"
           (should-not (deployable? :antimatter-factory ship []))
           (should-not (deployable? :dilithium-factory ship []))
-          (should-not (deployable? :weapon-factory ship [])))
+          (should-not (deployable? :weapon-factory ship []))
+          (should-not (deployable? :corbomite-factory ship [])))
         (it "allows antimatter-factory near class O star"
           (let [star (mom/make-star (dec ship-deploy-distance) 0 :o)]
             (should (deployable? :antimatter-factory ship [star]))
             (should-not (deployable? :dilithium-factory ship [star]))
-            (should-not (deployable? :weapon-factory ship [star]))))
+            (should-not (deployable? :weapon-factory ship [star]))
+            (should-not (deployable? :corbomite-factory ship [star]))))
         (it "allows antimatter-factory near class B star"
           (let [star (mom/make-star (dec ship-deploy-distance) 0 :b)]
             (should (deployable? :antimatter-factory ship [star]))
             (should-not (deployable? :dilithium-factory ship [star]))
-            (should-not (deployable? :weapon-factory ship [star]))))
+            (should-not (deployable? :weapon-factory ship [star]))
+            (should-not (deployable? :corbomite-factory ship [star]))))
         (it "allows antimatter-factory near class A star"
           (let [star (mom/make-star (dec ship-deploy-distance) 0 :a)]
             (should (deployable? :antimatter-factory ship [star]))
             (should-not (deployable? :dilithium-factory ship [star]))
-            (should-not (deployable? :weapon-factory ship [star]))))
+            (should-not (deployable? :weapon-factory ship [star]))
+            (should-not (deployable? :corbomite-factory ship [star]))))
         (it "allows weapon-factory near class F star"
           (let [star (mom/make-star (dec ship-deploy-distance) 0 :f)]
             (should-not (deployable? :antimatter-factory ship [star]))
             (should-not (deployable? :dilithium-factory ship [star]))
-            (should (deployable? :weapon-factory ship [star]))))
+            (should (deployable? :weapon-factory ship [star]))
+            (should-not (deployable? :corbomite-factory ship [star]))))
         (it "allows weapon-factory near class G star"
           (let [star (mom/make-star (dec ship-deploy-distance) 0 :g)]
             (should-not (deployable? :antimatter-factory ship [star]))
             (should-not (deployable? :dilithium-factory ship [star]))
-            (should (deployable? :weapon-factory ship [star]))))
+            (should (deployable? :weapon-factory ship [star]))
+            (should-not (deployable? :corbomite-factory ship [star]))))
         (it "allows dilithium-factory near class K star"
           (let [star (mom/make-star (dec ship-deploy-distance) 0 :k)]
             (should-not (deployable? :antimatter-factory ship [star]))
             (should (deployable? :dilithium-factory ship [star]))
-            (should-not (deployable? :weapon-factory ship [star]))))
+            (should-not (deployable? :weapon-factory ship [star]))
+            (should-not (deployable? :corbomite-factory ship [star]))))
         (it "allows dilithium-factory near class M star"
           (let [star (mom/make-star (dec ship-deploy-distance) 0 :m)]
             (should-not (deployable? :antimatter-factory ship [star]))
             (should (deployable? :dilithium-factory ship [star]))
-            (should-not (deployable? :weapon-factory ship [star]))))))
+            (should-not (deployable? :weapon-factory ship [star]))
+            (should-not (deployable? :corbomite-factory ship [star]))))
+        (it "allows corbomite-factory near pulsar"
+          (let [star (mom/make-star (dec ship-deploy-distance) 0 :pulsar)]
+            (should-not (deployable? :antimatter-factory ship [star]))
+            (should-not (deployable? :dilithium-factory ship [star]))
+            (should-not (deployable? :weapon-factory ship [star]))
+            (should (deployable? :corbomite-factory ship [star]))))))
 
     (context "transport routes"
       (it "does not add a route if there are no old bases"
-         (let [new-y (inc glc/transport-range)
-               new-base (mom/make-base 0 new-y :antimatter 1 1)
-               world (assoc (mom/make-world) :bases [] :transport-routes #{})
-               world (add-transport-routes-to world new-base)]
-           (should= #{} (:transport-routes world))))
+        (let [new-y (inc glc/transport-range)
+              new-base (mom/make-base 0 new-y :antimatter 1 1)
+              world (assoc (mom/make-world) :bases [])
+              world (add-transport-routes-to world new-base)]
+          (should= #{} (:transport-routes world))))
 
       (it "does not add a route if bases are too far apart"
         (let [old-base (mom/make-base 0 0 :antimatter 1 1)
               new-y (inc glc/transport-range)
               new-base (mom/make-base 0 new-y :antimatter 1 1)
-              world (assoc (mom/make-world) :bases [old-base] :transport-routes #{})
+              world (assoc (mom/make-world) :bases [old-base])
               world (add-transport-routes-to world new-base)]
           (should= #{} (:transport-routes world))))
 
-      (it "adds a route if bases are in rage"
+      (it "adds a route if bases are in range"
         (let [old-base (mom/make-base 0 0 :antimatter 1 1)
               new-y (dec glc/transport-range)
               new-base (mom/make-base 0 new-y :antimatter 1 1)
-              world (assoc (mom/make-world) :bases [old-base] :transport-routes #{})
+              world (assoc (mom/make-world) :bases [old-base])
               world (add-transport-routes-to world new-base)]
           (should= #{#{[0 0] [0 new-y]}} (:transport-routes world))))
 
-      (it "adds many routes if bases are in rage"
+      (it "adds more than one base in range"
         (let [dist (dec glc/transport-range)
               old-base1 (mom/make-base 0 dist :antimatter 1 1)
               old-base2 (mom/make-base dist 0 :antimatter 1 1)
               new-base (mom/make-base 0 0 :antimatter 1 1)
-              world (assoc (mom/make-world) :bases [old-base1 old-base2] :transport-routes #{})
+              world (assoc (mom/make-world) :bases [old-base1 old-base2])
               world (add-transport-routes-to world new-base)]
           (should= #{#{[0 0] [0 dist]}
                      #{[0 0] [dist 0]}} (:transport-routes world))))
+
+      (it "adds only the closest bases if more than base-routes-limit are in range"
+        (with-redefs [glc/base-routes-limit 2]
+          (let [far (dec glc/transport-range)
+                far-base (mom/make-base 0 far :antimatter 1 1)
+                closer (dec far)
+                closer-base (mom/make-base closer 0 :antimatter 1 1)
+                closest (- far 2)
+                closest-base (mom/make-base closest 0 :antimatter 1 1)
+                new-base (mom/make-base 0 0 :antimatter 1 1)
+                world (assoc (mom/make-world)
+                        :bases [far-base closer-base closest-base])
+                world (add-transport-routes-to world new-base)]
+            (should= #{#{[0 0] [closest 0]}
+                       #{[0 0] [closer 0]}} (:transport-routes world)))))
       )
     )
 

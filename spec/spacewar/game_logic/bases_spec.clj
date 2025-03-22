@@ -2,6 +2,7 @@
   (:require
     [spacewar.game-logic.bases :as bases]
     [spacewar.game-logic.config :as glc]
+    [spacewar.game-logic.ship :as ship]
     [spacewar.game-logic.spec-mother :as mom]
     [spacewar.spec-utils :as ut]
     [speclj.core :refer :all]))
@@ -102,22 +103,6 @@
   )
 
 (describe "base transport behavior"
-  (it "finds no transport routes to bases out of range"
-    (let [wpn-base (mom/make-base 0 0 :weapon-factory 0 0)
-          dl-base (mom/make-base (inc glc/transport-range) 0 :dilithium-factory 0 0)
-          am-base (mom/make-base 0 (inc glc/transport-range) :antimatter-factory 0 0 0 0)
-          bases [am-base dl-base wpn-base]
-          transport-routes (bases/find-transport-targets-for am-base bases)]
-      (should= [] transport-routes)))
-
-  (it "finds transport routes to bases within range"
-    (let [wpn-base (mom/make-base 0 0 :weapon-factory 0 0)
-          dl-base (mom/make-base (dec glc/transport-range) 0 :dilithium-factory 0 0)
-          am-base (mom/make-base 0 (dec glc/transport-range) :antimatter-factory 0 0 0 0)
-          bases [am-base dl-base wpn-base]
-          transport-routes (bases/find-transport-targets-for wpn-base bases)]
-      (should= #{dl-base am-base} (set transport-routes))))
-
   (it "prevents transport launch when transport is not ready"
     (let [base (mom/make-base 0 0 :antimatter-factory 0 0)
           base (assoc base :transport-readiness (dec glc/transport-ready))]
@@ -263,12 +248,24 @@
                                         :update-time (inc glc/transport-check-period))]
       (should= glc/transport-check-period (:transport-check-time (bases/check-new-transport-time world))))))
 
+(defn- deploy-bases [world source dest]
+  (let [world (assoc world :bases [source])
+        world (ship/add-transport-routes-to world dest)
+        world (update-in world [:bases] conj dest)]
+    world))
+
 (describe "transport scenarios"
+  (it "finds base from coordinates"
+    (let [base (mom/make-base 0 0 :dilithium-factory 0 0)
+          bases [base]]
+      (should= base (bases/base-from-coordinates bases [0 0]))
+      (should= nil (bases/base-from-coordinates bases [1 1]))))
+
   (it "does not create dilithium transport when there is nothing to ship"
     (let [world (mom/make-world)
           source (mom/make-base 0 0 :dilithium-factory 0 0)
           dest (mom/make-base 0 (dec glc/transport-range) :weapon-factory 0 0 0 0)
-          world (assoc world :bases [source dest])
+          world (deploy-bases world source dest)
           world (bases/check-new-transports world)
           transports (:transports world)]
       (should= [] transports)))
@@ -279,7 +276,8 @@
           source (assoc source :transport-readiness glc/transport-ready)
           dest (mom/make-base 0 (dec glc/transport-range) :weapon-factory 0 0 0 0)
           klingon (assoc (mom/make-klingon) :x (:x source) :y (+ (:y source) (dec glc/ship-docking-distance)))
-          world (assoc world :bases [source dest] :klingons [klingon])
+          world (deploy-bases world source dest)
+          world (assoc world :klingons [klingon])
           world (bases/check-new-transports world)
           transports (:transports world)]
       (should= [] transports)))
@@ -291,7 +289,7 @@
             source (mom/make-base 0 0 :dilithium-factory 0 (+ glc/dilithium-cargo-size glc/dilithium-factory-dilithium-reserve))
             source (assoc source :transport-readiness glc/transport-ready)
             dest (mom/make-base 0 (dec glc/transport-range) :weapon-factory 0 0 0 0)
-            world (assoc world :bases [source dest])
+            world (deploy-bases world source dest)
             world (bases/check-new-transports world)
             transports (:transports world)
             transport (first transports)
@@ -309,47 +307,49 @@
   (with-stubs)
   (it "creates antimatter transport when there is something to ship"
     (with-redefs [bases/random-transport-velocity-magnitude (constantly glc/transport-velocity)]
-    (let [world (mom/make-world)
-          source (mom/make-base 0 0 :antimatter-factory (+ glc/antimatter-cargo-size glc/antimatter-factory-antimatter-reserve) 0)
-          dest (mom/make-base (dec glc/transport-range) 0 :weapon-factory 0 0 0 0)
-          source (assoc source :transport-readiness glc/transport-ready)
-          world (assoc world :bases [source dest])
-          world (bases/check-new-transports world)
-          transports (:transports world)
-          transport (first transports)
-          [source _] (:bases world)]
-      (should= 1 (count transports))
-      (should= 0 (:x transport))
-      (should= 0 (:y transport))
-      (should= :antimatter (:commodity transport))
-      (should= glc/antimatter-cargo-size (:amount transport))
-      (should= [(dec glc/transport-range) 0] (:destination transport))
-      (should-be #(ut/roughly-v % [glc/transport-velocity 0]) (:velocity transport))
-      (should= glc/antimatter-factory-antimatter-reserve (:antimatter source))
-      (should= 0 (:transport-readiness source)))))
+      (let [world (mom/make-world)
+            source (mom/make-base 0 0 :antimatter-factory (+ glc/antimatter-cargo-size glc/antimatter-factory-antimatter-reserve) 0)
+            dest (mom/make-base (dec glc/transport-range) 0 :weapon-factory 0 0 0 0)
+            source (assoc source :transport-readiness glc/transport-ready)
+            world (deploy-bases world source dest)
+            world (bases/check-new-transports world)
+            transports (:transports world)
+            transport (first transports)
+            [source _] (:bases world)]
+        (should= 1 (count transports))
+        (should= 0 (:x transport))
+        (should= 0 (:y transport))
+        (should= :antimatter (:commodity transport))
+        (should= glc/antimatter-cargo-size (:amount transport))
+        (should= [(dec glc/transport-range) 0] (:destination transport))
+        (should-be #(ut/roughly-v % [glc/transport-velocity 0]) (:velocity transport))
+        (should= glc/antimatter-factory-antimatter-reserve (:antimatter source))
+        (should= 0 (:transport-readiness source)))))
 
   (with-stubs)
-  (it "launches only one transport to the nearest destination"
+  (it "launches only one transport to the neediest destination"
     (with-redefs [bases/random-transport-velocity-magnitude (constantly glc/transport-velocity)]
-    (let [world (mom/make-world)
-          source (mom/make-base 0 0 :antimatter-factory (+ glc/antimatter-cargo-size glc/antimatter-factory-antimatter-reserve) 0)
-          wrong-dest (mom/make-base (dec glc/transport-range) 0 :weapon-factory 0 0 0 0)
-          right-dest (mom/make-base (- glc/transport-range 2) 0 :weapon-factory 0 0 0 0)
-          source (assoc source :transport-readiness glc/transport-ready)
-          world (assoc world :bases [source wrong-dest right-dest])
-          world (bases/check-new-transports world)
-          transports (:transports world)
-          transport (first transports)
-          [source _] (:bases world)]
-      (should= 1 (count transports))
-      (should= 0 (:x transport))
-      (should= 0 (:y transport))
-      (should= :antimatter (:commodity transport))
-      (should= glc/antimatter-cargo-size (:amount transport))
-      (should= [(- glc/transport-range 2) 0] (:destination transport))
-      (should-be #(ut/roughly-v % [glc/transport-velocity 0]) (:velocity transport))
-      (should= glc/antimatter-factory-antimatter-reserve (:antimatter source))
-      (should= 0 (:transport-readiness source)))))
+      (let [world (mom/make-world)
+            source (mom/make-base 0 0 :antimatter-factory (+ glc/antimatter-cargo-size glc/antimatter-factory-antimatter-reserve) 0)
+            wrong-dest (mom/make-base (dec glc/transport-range) 0 :weapon-factory 10 0 0 0)
+            right-dest (mom/make-base (- glc/transport-range 2) 0 :weapon-factory 0 0 0 0)
+            source (assoc source :transport-readiness glc/transport-ready)
+            world (deploy-bases world source wrong-dest)
+            world (ship/add-transport-routes-to world right-dest)
+            world (update-in world [:bases] conj right-dest)
+            world (bases/check-new-transports world)
+            transports (:transports world)
+            transport (first transports)
+            [source _] (:bases world)]
+        (should= 1 (count transports))
+        (should= 0 (:x transport))
+        (should= 0 (:y transport))
+        (should= :antimatter (:commodity transport))
+        (should= glc/antimatter-cargo-size (:amount transport))
+        (should= [(- glc/transport-range 2) 0] (:destination transport))
+        (should-be #(ut/roughly-v % [glc/transport-velocity 0]) (:velocity transport))
+        (should= glc/antimatter-factory-antimatter-reserve (:antimatter source))
+        (should= 0 (:transport-readiness source)))))
 
   (it "moves transports over time"
     (let [world (mom/make-world)
@@ -409,4 +409,18 @@
           transports (:transports world)
           [dest] (:bases world)]
       (should= 0 (count transports))
-      (should= 0 (:antimatter dest)))))
+      (should= 0 (:antimatter dest))))
+
+  (it "removes routes to a base"
+    (let [world (mom/make-world)
+          corb (mom/make-base 0 0 :antimatter-factory 0 0)
+          world (assoc world :bases [corb])
+          b1 (mom/make-base 1 1 :antimatter-factory 0 0)
+          b2 (mom/make-base 2 2 :antimatter-factory 0 0)
+          world (ship/add-transport-routes-to world b1)
+          world (update-in world [:bases] conj b1)
+          world (ship/add-transport-routes-to world b2)
+          world (update-in world [:bases] conj b2)
+          world (bases/remove-routes-to-base world corb)]
+      (should= #{#{[2 2] [1 1]}} (:transport-routes world))))
+  )

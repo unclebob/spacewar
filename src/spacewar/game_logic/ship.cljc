@@ -417,14 +417,16 @@
 (defn add-transport-routes-to [{:keys [bases] :as world}
                                new-base]
   (let [base-pairs (map #(list % new-base) bases)
-        valid-routes (filter #(<= (geo/distance
-                                    [(:x (first %)) (:y (first %))]
-                                    [(:x (second %)) (:y (second %))])
-                                  glc/transport-range)
-                             base-pairs)
+        base-distances (map #(list (geo/distance
+                                     [(:x (first %)) (:y (first %))]
+                                     [(:x (second %)) (:y (second %))])
+                                   %)
+                            base-pairs)
+        valid-routes (filter #(<= (first %) glc/transport-range) base-distances)
+        sorted-routes (map second (sort-by first valid-routes))
         transport-routes (map (fn [[b1 b2]]
                                 #{[(:x b1) (:y b1)]
-                                  [(:x b2) (:y b2)]}) valid-routes)]
+                                  [(:x b2) (:y b2)]}) (take glc/base-routes-limit sorted-routes))]
     (update world :transport-routes set/union (set transport-routes))))
 
 (defn deploy-base [type world]

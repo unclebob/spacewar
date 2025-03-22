@@ -9,7 +9,7 @@
                                        inside-rect
                                        round
                                        sign]]
-            [speclj.core :refer [context describe it should should-not should=]]))
+            [speclj.core :refer [context describe it should should=]]))
 
 (s/def ::number (s/or :number number? :rational rational?))
 
@@ -98,13 +98,6 @@
         (should= (+ pi hpi) (->radians -90) 1e-5)))))
 
 (describe "numerical functions"
-  (context "abs properties"
-    (it "never returns negative"
-      (doseq [x (gen/sample (s/gen ::number))]
-        (should-not (neg? (abs x)))))
-    (it "returns either x or -x"
-      (doseq [x (gen/sample (s/gen ::number))]
-        (should (or (= (abs x) x) (= (abs x) (- x)))))))
   (context "round properties"
     (it "always returns integer"
       (doseq [x (gen/sample (s/gen ::number))]

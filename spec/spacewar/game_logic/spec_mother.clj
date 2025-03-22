@@ -114,6 +114,7 @@
    :deaths 0
    :klingons-killed 0
    :romulans-killed 0
+   :transport-routes #{}
    })
 
 (defn make-shot []

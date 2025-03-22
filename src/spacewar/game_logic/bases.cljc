@@ -1,11 +1,10 @@
 (ns spacewar.game-logic.bases
   (:require [clojure.spec.alpha :as s]
-            [spacewar.util :as util]
-            [spacewar.geometry :as geo]
-            [spacewar.vector :as vector]
             [spacewar.game-logic.config :as glc]
             [spacewar.game-logic.explosions :as explosions]
-            [clojure.math.combinatorics :as combo]))
+            [spacewar.geometry :as geo]
+            [spacewar.util :as util]
+            [spacewar.vector :as vector]))
 
 (s/def ::x number?)
 (s/def ::y number?)
@@ -39,7 +38,7 @@
    :transport-readiness 0})
 
 (defn make-random-antimatter-factory [star]
-  (if (< (rand) 0.03)
+  (if (< (rand) (/ 30 glc/number-of-stars))
     (let [base (make-base [(:x star) (:y star)] :antimatter-factory)
           base (assoc base :age glc/base-maturity-age
                            :antimatter (rand (/ glc/base-antimatter-maximum 2)))]
@@ -48,7 +47,7 @@
   )
 
 (defn make-random-weapons-factory [star]
-  (if (< (rand) 0.003)
+  (if (< (rand) (/ 5 glc/number-of-stars))
     (let [base (make-base [(:x star) (:y star)] :weapon-factory)
           base (assoc base :age glc/base-maturity-age
                            :torpedos (rand-int (/ glc/base-torpedos-maximum 2))
@@ -57,7 +56,7 @@
     nil))
 
 (defn make-random-dilithium-factory [star]
-  (if (< (rand) 0.01)
+  (if (< (rand) (/ 10 glc/number-of-stars))
     (let [base (make-base [(:x star) (:y star)] :dilithium-factory)
           base (assoc base :age glc/base-maturity-age
                            :antimatter (rand (/ glc/base-antimatter-maximum 2))
@@ -184,13 +183,6 @@
 (defn- update-transport-readiness [ms bases]
   (map #(update-transport-readiness-for ms %) bases))
 
-(defn- transportable-target? [source-base target-base]
-  (let [dist (geo/distance (util/pos source-base)
-                           (util/pos target-base))]
-    (and (< dist glc/transport-range) (> dist 0))))
-
-(defn find-transport-targets-for [base bases]
-  (filter #(transportable-target? base %) bases))
 
 (defn transport-ready? [base]
   (= (:transport-readiness base) glc/transport-ready))
@@ -280,13 +272,11 @@
   (let [should-antimatter? (should-transport-antimatter? source dest transports)
         should-dilithium? (should-transport-dilithium? source dest transports)
         source-ready? (transport-ready? source)
-        dist (geo/distance (util/pos source) (util/pos dest))
-        in-range? (<= dist glc/transport-range)
         new-transports []
-        new-transports (if (and in-range? source-ready? should-antimatter?)
+        new-transports (if (and source-ready? should-antimatter?)
                          (conj new-transports (launch-transport :antimatter source dest))
                          new-transports)
-        new-transports (if (and in-range? source-ready? should-dilithium?)
+        new-transports (if (and source-ready? should-dilithium?)
                          (conj new-transports (launch-transport :dilithium source dest))
                          new-transports)]
     new-transports)
@@ -309,8 +299,18 @@
                 base (assoc base :transport-readiness 0)]
             (recur (rest bases) transports (conj deducted-bases base))))))))
 
-(defn- distance-to-dest [base]
-  (geo/distance (util/pos base) (:destination base)))
+(defn- distance-to-dest [transport]
+  (geo/distance (util/pos transport) (:destination transport)))
+
+(defn base-from-coordinates [bases [x y]]
+  (let [base (first (filter #(and (= x (:x %))
+                                  (= y (:y %)))
+                            bases))]
+    base))
+
+(defn- amount-at-destination [bases transport]
+  (let [dest (base-from-coordinates bases (:destination transport))]
+    ((:commodity transport) dest)))
 
 (defn- select-best-transports [transports bases]
   (loop [bases bases candidates transports selected []]
@@ -320,8 +320,10 @@
             transports-from (filter #(transport-launched-from base %) candidates)]
         (if (empty? transports-from)
           (recur (rest bases) candidates selected)
-          (let [nearest (first (sort-by distance-to-dest transports-from))]
-            (recur (rest bases) candidates (conj selected nearest))))))))
+          (let [neediest (first
+                           (sort-by #(amount-at-destination bases %)
+                                    (shuffle transports-from)))]
+            (recur (rest bases) candidates (conj selected neediest))))))))
 
 (defn- blockaded-transport? [transport klingons]
   (let [blockading-klingons (filter #(< (geo/distance (util/pos transport)
@@ -335,10 +337,16 @@
   (remove #(blockaded-transport? % klingons) transports))
 
 (defn check-new-transports [world]
-  (let [{:keys [bases transports klingons]} world
-        pairs (combo/combinations bases 2)
-        pairs (concat pairs (map reverse pairs))
-        candidate-transports (flatten (map #(select-potential-transports % transports) pairs))
+  (let [{:keys [bases transports klingons transport-routes]} world
+        coord-pairs (map vec transport-routes)
+        base-pairs (map
+                     (fn [coord-pair]
+                       (map (fn [coord]
+                              (base-from-coordinates bases coord))
+                            coord-pair))
+                     coord-pairs)
+        base-pairs (concat base-pairs (map reverse base-pairs))
+        candidate-transports (flatten (map #(select-potential-transports % transports) base-pairs))
         selected-transports (select-best-transports candidate-transports bases)
         selected-transports (remove-blockaded-transports selected-transports klingons)
         bases (launch-transports-from-bases selected-transports bases)
@@ -400,6 +408,13 @@
               base (update base (:commodity transport) + (:amount transport))]
           (recur (rest accepting) delivering (conj adjusted-bases base)))))))
 
+(defn remove-routes-to-base [world base]
+  (let [coord [(:x base) (:y base)]
+        routes (:transport-routes world)
+        routes (set (remove #(contains? % coord) routes))]
+    (assoc world :transport-routes routes)))
+
+
 (defn- check-corbomite-base [{:keys [bases explosions] :as world}]
   (let [base-map (group-by #(= :corbomite-factory (:type %)) bases)
         corbomite-base (first (get base-map true))
@@ -415,7 +430,11 @@
                                     :corbomite 0)))
         explosions (if corbomite-incomplete?
                      explosions
-                     (conj explosions (explosions/->explosion :corbomite-device corbomite-base)))]
+                     (conj explosions (explosions/->explosion :corbomite-device corbomite-base)))
+        world (if corbomite-incomplete?
+                world
+                (remove-routes-to-base world corbomite-base))]
+
     (assoc world :bases bases :explosions explosions)))
 
 (defn update-bases [ms world]

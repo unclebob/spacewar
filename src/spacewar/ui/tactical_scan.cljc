@@ -84,6 +84,8 @@
   (draw-objects state :transports icons/draw-transport-icon))
 
 (defn- draw-stars [state]
+  (q/no-stroke)
+  (q/ellipse-mode :center)
   (draw-objects state :stars icons/draw-star-icon))
 
 (defn- draw-klingon-and-shield [klingon]
