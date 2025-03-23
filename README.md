@@ -24,7 +24,7 @@ All Federation shipyards were obliterated by the Borg.  No new ships can be read
 
 You will have to reconstitute a network of bases
 that you can use to supply yourself with antimatter, dilithium, and weapons.  Harvest
-what you can from the crippled Klingons.  Then build _The Corbomite Device_ before the
+what you can from the crippled Klingons.  Build _The Corbomite Device_ before the
 invasion fleet arrives in force. 
 
 Once you have enough production going, find _The Pulsar_ and build the _Corbomite_ factory there.
@@ -163,9 +163,10 @@ non-functional.
   Cargo transport vessels follow these routes to supply the bases with the resources they need.
   Yellow transports carry dilithium.  Orange transports carry antimatter.  They travel at just over Warp 1.
   
-  Factories prefer to transport goods along short routes.  Be careful how you lay
-  them out.  It is possible to deprive bases of resources by connecting them by long routes to
-  bases that have short routes to other bases.  
+  Factories work to build up a reserve.  Once that reserve is exceeded, factories will transport
+  goods to connected factories that need those goods.  Weapons factories and _The Corbomite Factory_
+  are resource sinks.  Dilithium factories are antimatter sinks.  Be careful how you lay
+  them out.  
   
   Transport routes have a maximum length.  Bases that are too far apart will not ship goods to each other.  
   
@@ -184,7 +185,7 @@ non-functional.
   you at long range.  So expect visits from the stronger Klingons.
   
   Klingons are slow because they never learned dilithium catalysis. Any dilithium
-  they have on board was probably stolen and is strictly used for trading purposes.
+  they have on board was probably stolen and is is hoarded to deplete Federation reserves.
   
   Klingons can collect antimatter from all stars, though they collect faster from O and A stars,
   and only very slowly from K and M stars.  You will often see them
@@ -208,7 +209,7 @@ non-functional.
   Once your ship is in range of a Klingon's short range detectors, the Klingon will head towards you to do battle.  
   The Klingon strategy is to confuse and delude you.  They accomplish this by continuously
   changing tactics.  Stay alert to their movements in the heat of battle; and don't let them
-  get too close.  At short range their phasers are devastating. 
+  get too close.  At short range their disrupters are devastating. 
   
   When a Klingon is critically low on resources, there is a good chance it will run away.  This
   is a good time to attack them.  Be careful though, the retreat may be a ruse.
@@ -221,13 +222,14 @@ non-functional.
   
 ## Romulans
   Romulans are marauders.  Their ships are cloaked and quite difficult to detect.
-  They are quite deadly, due to an omni-directional energy weapon that does
+  They fire an omni-directional energy weapon that does
   tremendous damage and moves at roughly Warp 5.  Fortunately they cannot remain
   cloaked while energizing or firing their weapon.  During that very brief period
   they are quite vulnerable.  A single shot will kill them.  
   
   A hit at short range from their weapon will completely drain your shields, do significant damage
-  to your systems, and has a one in three chance of killing you outright.  When they appear, you have two options:  Fight, or run. If you choose to fight,
+  to your systems, and has a one in three chance of killing you outright.  When they appear, you have two options:  
+  Fight, or run. If you choose to fight,
   make sure you hit them before they fire their weapon.  If you choose to run,
   run fast and far; the weapon loses potency with distance. 
   
