@@ -35,6 +35,11 @@ Once the _Corbomite_ factory has been filled to capacity, it will transform into
 _The Corbomite Device_.  When you dock with _The Corbomite Device_ your ship will become
 much more powerful, and you should be able to rid the federation of all klingons.
 
+## Controls
+Most of the controls are simple buttons or sliders.  You should not find them difficult to use.
+However, three controls (_ENGAGE_, _FIRE_, and _New Game_) require a long press to activate.
+This is to prevent accidental activation.  You must hold the button down until it turns white.
+
 ## Sensors
 You have three views.  
 
@@ -236,6 +241,16 @@ non-functional.
 ## _The Pulsar_
   There is only one _Pulsar_ in federation space.  It is small and hard to find.  It has a greenish
   tinge and flashes dimly.  This is the only star that can support a _Corbomite_ factory.
+
+## _The Corbomite Device_
+Once you have docked with _The Corbomite Device_ you weapons and sheilds will become
+much more effective.  You should be able to kill all the remaining Klingons and withstand
+their defenses.  You'll notice that they will all start retreating and heading back to their
+home world or Praxis.
+
+But be careful.  _The Corbomite Device_ does not make you invulnerable.  If you are careless
+enough to get yourself killed, you will not be reincarnated with the corbomite device; and the 
+Klingons will resume their agressive behavior.
   
 ## Saving and Pausing
   The game is saved every five seconds.  You pause the game by quitting.  Your previous
