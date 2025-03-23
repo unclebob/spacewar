@@ -31,7 +31,7 @@
 
 (def phaser-range 60000)
 (def phaser-velocity 80)                                    ;per ms
-(def phaser-proximity 2500)
+(def phaser-proximity 5000)
 (def phaser-damage 150)
 (def phaser-power 500)
 

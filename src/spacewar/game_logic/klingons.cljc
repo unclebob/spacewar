@@ -490,7 +490,7 @@
     (assoc world :klingons klingons))
   )
 
-(defn remove-klingons-out-of-range [ms world]
+(defn remove-klingons-out-of-range [_ms world]
   (let [klingons (:klingons world)
         klingons (remove #(< (:y %) -10000) klingons)]
     (assoc world :klingons klingons))
@@ -696,7 +696,7 @@
   )
 
 (defn- change-mission-to-escape [klingon]
-  (assoc klingon :mission :escape-corbomite))
+  (assoc klingon :mission :escape-corbomite :cruise-state :mission))
 
 (defn- check-escape-corbomite [{:keys [klingons ship] :as world}]
   (let [corbomite (:corbomite-device-installed ship)

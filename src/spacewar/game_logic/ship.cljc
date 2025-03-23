@@ -225,8 +225,9 @@
     ship))
 
 (defn repair-capacity [ms ship]
-  (let [{:keys [life-support-damage]} ship]
-    (* ms glc/ship-repair-capacity (- 100 life-support-damage) 0.01)))
+  (let [{:keys [life-support-damage]} ship
+        repair-factor (if (:corbomite-device-installed ship) 0.03 0.01)]
+    (* ms glc/ship-repair-capacity (- 100 life-support-damage) repair-factor)))
 
 (defn repair-ship [ms ship]
   (loop [systems [:life-support-damage
