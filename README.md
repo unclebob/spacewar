@@ -246,7 +246,8 @@ non-functional.
 Once you have docked with _The Corbomite Device_ you weapons and sheilds will become
 much more effective.  You should be able to kill all the remaining Klingons and withstand
 their defenses.  You'll notice that they will all start retreating and heading back to their
-home world or Praxis.
+home world or Praxis.  Some will likely run out of fuel in their panic to escape.  You can
+pick them off with one or two kinetics.
 
 But be careful.  _The Corbomite Device_ does not make you invulnerable.  If you are careless
 enough to get yourself killed, you will not be reincarnated with the corbomite device; and the 
