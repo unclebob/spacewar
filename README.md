@@ -243,7 +243,7 @@ non-functional.
   tinge and flashes dimly.  This is the only star that can support a _Corbomite_ factory.
 
 ## _The Corbomite Device_
-Once you have docked with _The Corbomite Device_ you weapons and sheilds will become
+Once you have docked with _The Corbomite Device_ your weapons and sheilds will become
 much more effective.  You should be able to kill all the remaining Klingons and withstand
 their defenses.  You'll notice that they will all start retreating and heading back to their
 home world or Praxis.  Some will likely run out of fuel in their panic to escape.  You can
