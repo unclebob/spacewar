@@ -71,7 +71,12 @@
                                    :flank-right 270
                                    :advancing 30
                                    :retreating 210
-                                   :no-battle 0})
+                                   :no-battle 0
+                                   :kamikazee 0})
+
+(def klingon-kamikazee-thrust-factor 4)
+(def klingon-kamikazee-time 10000)
+(def klingon-kamikazee-probability 0.5)
 
 (def klingon-antimatter-runaway-threshold (* 0.2 klingon-antimatter))
 (def klingon-cruise-thrust 0.01)

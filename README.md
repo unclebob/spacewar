@@ -200,6 +200,9 @@ non-functional.
   Klingons have the facilities on board to construct torpedos and kinetics.  This takes lots
   of antimatter.  A Klingon hovering by a base or a star may be building up their
   arsenal.
+
+Desperate klingons will sometimes go kamikazee on you.  They'll overload their engines
+to get close enough to kill you before their engines explode.
   
 ## Blockades
   Klingons will sometimes invade your bases and take them over. 

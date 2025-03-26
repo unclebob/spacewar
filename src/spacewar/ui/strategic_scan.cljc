@@ -5,8 +5,7 @@
             [spacewar.ui.icons :as icons]
             [spacewar.game-logic.config :as glc]
             [spacewar.ui.protocols :as p]
-            [spacewar.vector :as vector]
-            [clojure.math.combinatorics :as combo]))
+            [spacewar.vector :as vector]))
 
 (defn- draw-background [state]
   (let [{:keys [w h]} state]
@@ -36,7 +35,7 @@
         (q/with-translation
           [(* (- x sx) pixel-width)
            (* (- y sy) pixel-width)]
-          (icons/draw-klingon-icon)
+          (icons/draw-klingon-icon klingon)
           (icons/draw-klingon-counts klingon)
           )))))
 

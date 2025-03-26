@@ -90,7 +90,7 @@
 
 (defn- draw-klingon-and-shield [klingon]
   (icons/draw-klingon-shields (:shields klingon))
-  (icons/draw-klingon-icon)
+  (icons/draw-klingon-icon klingon)
   (icons/draw-klingon-counts klingon))
 
 (defn- draw-klingons [state]
@@ -330,6 +330,7 @@
                     :e {:event :debug-explosion :pos (click->pos state [mx my])}
                     :r {:event :debug-resupply-ship}
                     :k {:event :debug-add-klingon :pos (click->pos state [mx my])}
+                    :K {:event :debug-add-kamikazee-klingon :pos (click->pos state [mx my])}
                     :R {:event :debug-add-romulan :pos (click->pos state [mx my])}
                     :P {:event :debug-add-pulsar :pos (click->pos state [mx my])}
                     {:event :weapon-direction :angle (click->bearing state [mx my])})

@@ -16,7 +16,6 @@
             [spacewar.game-logic.romulans :as romulans]
             [spacewar.util :as util]
             [clojure.spec.alpha :as s]
-            [clojure.tools.reader.edn :as edn]
             #?(:clj [clojure.java.io :as io])))
 
 (def version "202111270727")
@@ -166,6 +165,16 @@
         klingons (conj klingons klingon)]
     (assoc world :klingons klingons)))
 
+(defn- debug-add-kamikazee-klingon [event world]
+  (println event)
+  (let [[x y] (:pos event)
+        klingons (:klingons world)
+        klingon (klingons/make-klingon x y)
+        klingon (update klingon :antimatter / 2)
+        klingon (assoc klingon :battle-state :kamikazee :kamikazee-time glc/klingon-kamikazee-time)
+        klingons (conj klingons klingon)]
+    (assoc world :klingons klingons)))
+
 (defn- debug-new-klingon-from-praxis [event world]
   (println event)
   (klingons/new-klingon-from-praxis world)
@@ -210,6 +219,7 @@
                        (util/handle-event :debug-dilithium-cloud debug-dilithium-cloud-handler)
                        (util/handle-event :debug-resupply-ship debug-resupply-ship)
                        (util/handle-event :debug-add-klingon debug-add-klingon)
+                       (util/handle-event :debug-add-kamikazee-klingon debug-add-kamikazee-klingon)
                        (util/handle-event :debug-add-romulan debug-add-romulan)
                        (util/handle-event :debug-new-klingon-from-praxis debug-new-klingon-from-praxis)
                        (util/handle-event :debug-corbomite-device-installed debug-corbomite-device-installed)

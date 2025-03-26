@@ -174,7 +174,7 @@
   (q/ellipse 0 0 10 10)
   (draw-base-adornments base))
 
-(defmethod draw-base-icon :corbomite-device [base]
+(defmethod draw-base-icon :corbomite-device [_base]
   (q/no-fill)
   (apply q/stroke uic/corbomite-factory-color)
   (q/stroke-weight 2)
@@ -223,12 +223,15 @@
     (q/text (klingon-state klingon) 0 -30)
     (q/text-align :center :top)
     (q/text (str "K-" (int (:kinetics klingon))) 0 30)
-  ))
+    ))
 
-(defn draw-klingon-icon []
+(defn draw-klingon-icon [klingon]
   (apply q/fill uic/black)
   (apply q/stroke uic/klingon-color)
-  (q/stroke-weight 2)
+  (q/stroke-weight (if (and (= :kamikazee (:battle-state klingon))
+                            (< 250 (mod (q/millis) 500)))
+                     5
+                     2))
   (q/ellipse-mode :center)
   (q/line 0 0 10 -6)
   (q/line 10 -6 14 -3)

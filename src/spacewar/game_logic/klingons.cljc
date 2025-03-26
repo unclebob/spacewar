@@ -1,14 +1,14 @@
 (ns spacewar.game-logic.klingons
   (:require [clojure.spec.alpha :as s]
-            [spacewar.util :as util]
+            [quil.core :as q]
+            [spacewar.game-logic.clouds :as clouds]
             [spacewar.game-logic.config :as glc]
             [spacewar.game-logic.explosions :as explosions]
-            [spacewar.game-logic.shots :as shots]
             [spacewar.game-logic.hit :as hit]
+            [spacewar.game-logic.shots :as shots]
             [spacewar.geometry :as geo]
-            [quil.core :as q]
-            [spacewar.vector :as vector]
-            [spacewar.game-logic.clouds :as clouds]))
+            [spacewar.util :as util]
+            [spacewar.vector :as vector]))
 
 ;The Klingon state machine has two super-states: {:battle :cruise}.
 ;In the :battle super-state a klingon will use the :battle-state FSM.
@@ -25,7 +25,7 @@
 (s/def ::velocity (s/tuple number? number?))
 (s/def ::thrust (s/tuple number? number?))
 (s/def ::battle-state-age number?)
-(s/def ::battle-state #{:no-battle :flank-right :flank-left :retreating :advancing})
+(s/def ::battle-state #{:no-battle :flank-right :flank-left :retreating :advancing :kamikazee})
 (s/def ::cruise-state #{:patrol :guard :refuel :mission})
 (s/def ::mission #{:blockade :seek-and-destroy :escape-corbomite})
 
@@ -160,11 +160,23 @@
 (defn- klingon-debris-clouds [dead-klingons]
   (map klingon-debris-cloud dead-klingons))
 
+(defn update-kamikazee [ms klingon]
+  (if (= :kamikazee (:battle-state klingon))
+    (update klingon :kamikazee-time - ms)
+    klingon))
+
+(defn dead-kamikazee? [klingon]
+  (and (= :kamikazee (:battle-state klingon))
+       (<= (:kamikazee-time klingon) 0)))
+
 (defn update-klingon-defense [ms {:keys [klingons klingons-killed explosions clouds] :as world}]
   (let [klingons (map hit-klingon klingons)
-        dead-klingons (filter #(> 0 (:shields %)) klingons)
+        klingons (map #(update-kamikazee ms %) klingons)
+        dead-kamikazees (filter dead-kamikazee? klingons)
+        dead-klingons (concat dead-kamikazees (filter #(> 0 (:shields %)) klingons))
         klingons-killed (+ klingons-killed (count dead-klingons))
         klingons (filter #(<= 0 (:shields %)) klingons)
+        klingons (remove dead-kamikazee? klingons)
         klingons (recharge-shields ms klingons)]
     (assoc world :klingons klingons :klingons-killed klingons-killed
                  :explosions (concat explosions (klingon-destruction dead-klingons))
@@ -342,7 +354,10 @@
         efficiency (/ (:shields klingon) glc/klingon-shields)
         effective-thrust (min (klingon :antimatter)
                               (* glc/klingon-tactical-thrust efficiency))
-        thrust (vector/from-angular effective-thrust radians)]
+        thrust (vector/from-angular effective-thrust radians)
+        thrust (if (= :kamikazee (:battle-state klingon))
+                 (vector/scale glc/klingon-kamikazee-thrust-factor thrust)
+                 thrust)]
     (if (< glc/klingon-tactical-range dist)
       klingon
       (assoc klingon :thrust thrust))))
@@ -448,22 +463,27 @@
       battle-state)))
 
 (defn- update-klingon-state [ms ship klingon]
-  (let [{:keys [antimatter battle-state-age]} klingon
-        dist (geo/distance (util/pos klingon) (util/pos ship))
-        new-battle-state (condp <= dist
-                           glc/klingon-tactical-range :no-battle
-                           glc/klingon-evasion-limit :advancing
-                           (change-expired-battle-state klingon))
-        new-battle-state (if (and
-                               (<= antimatter glc/klingon-antimatter-runaway-threshold)
-                               (<= dist glc/klingon-tactical-range))
-                           :retreating
-                           new-battle-state)
-        age (if (>= battle-state-age glc/klingon-battle-state-transition-age)
-              0
-              (+ battle-state-age ms))]
-    (assoc klingon :battle-state new-battle-state
-                   :battle-state-age age)))
+  (if (= :kamikazee (:battle-state klingon))
+    klingon
+    (let [{:keys [antimatter battle-state-age]} klingon
+          dist (geo/distance (util/pos klingon) (util/pos ship))
+          new-battle-state (condp <= dist
+                             glc/klingon-tactical-range :no-battle
+                             glc/klingon-evasion-limit :advancing
+                             (change-expired-battle-state klingon))
+          new-battle-state (if (and
+                                 (<= antimatter glc/klingon-antimatter-runaway-threshold)
+                                 (<= dist glc/klingon-tactical-range))
+                             (if (< glc/klingon-kamikazee-probability (rand))
+                               :retreating
+                               :kamikazee)
+                             new-battle-state)
+          age (if (>= battle-state-age glc/klingon-battle-state-transition-age)
+                0
+                (+ battle-state-age ms))]
+      (assoc klingon :battle-state new-battle-state
+                     :kamikazee-time (if (= :kamikazee new-battle-state) glc/klingon-kamikazee-time 0)
+                     :battle-state-age age))))
 
 (defn update-klingons-state [ms world]
   (let [{:keys [ship klingons]} world
