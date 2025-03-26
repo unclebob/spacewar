@@ -169,18 +169,19 @@
   (and (= :kamikazee (:battle-state klingon))
        (<= (:kamikazee-time klingon) 0)))
 
+(defn destroyed-klingon? [klingon]
+  (<= (:shields klingon) 0))
+
 (defn update-klingon-defense [ms {:keys [klingons klingons-killed explosions clouds] :as world}]
   (let [klingons (map hit-klingon klingons)
         klingons (map #(update-kamikazee ms %) klingons)
-        dead-kamikazees (filter dead-kamikazee? klingons)
-        dead-klingons (concat dead-kamikazees (filter #(> 0 (:shields %)) klingons))
-        klingons-killed (+ klingons-killed (count dead-klingons))
-        klingons (filter #(<= 0 (:shields %)) klingons)
-        klingons (remove dead-kamikazee? klingons)
-        klingons (recharge-shields ms klingons)]
+        [dead alive] (split-with #(or (destroyed-klingon? %)
+                                      (dead-kamikazee? %)) klingons)
+        klingons-killed (+ klingons-killed (count dead))
+        klingons (recharge-shields ms alive)]
     (assoc world :klingons klingons :klingons-killed klingons-killed
-                 :explosions (concat explosions (klingon-destruction dead-klingons))
-                 :clouds (concat clouds (klingon-debris-clouds dead-klingons)))))
+                 :explosions (concat explosions (klingon-destruction dead))
+                 :clouds (concat clouds (klingon-debris-clouds dead)))))
 
 (defn- charge-weapons [ms klingons ship]
   (for [klingon klingons]
