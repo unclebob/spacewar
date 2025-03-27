@@ -71,18 +71,16 @@
         (should= {:age 0 :x 50 :y 50 :type :klingon}
                  (dissoc (first (:explosions world)) :fragments))))
 
-    (it "destroys klingon when kamikazee time expired"
+    (it "kamikazee mode depletes shields"
           (let [world (mom/make-world)
                 klingon (mom/make-klingon)
                 klingon (mom/set-pos klingon [50 50])
-                klingon (assoc klingon :battle-state :kamikazee :kamikazee-time 10)
+                klingon (assoc klingon :battle-state :kamikazee :shields 10)
                 world (assoc world :klingons [klingon])
-                world (k/update-klingons 20 world)]
-            (should= [] (:klingons world))
-            (should= 1 (count (:explosions world)))
-            (should= 1 (:klingons-killed world))
-            (should= {:age 0 :x 50 :y 50 :type :klingon}
-                     (dissoc (first (:explosions world)) :fragments)))))
+                world (k/update-klingons 20 world)
+                klingon (first (:klingons world))]
+            (should (> 10 (:shields klingon)))
+            )))
 
   (describe "phaser damage"
     (it "calculates phaser damage based on ranges"

@@ -27,13 +27,13 @@
 (def dilithium-heat-dissipation 0.00005)
 (def passive-heat-dissipation 0.0000005)
 
-(def max-shots-by-type {:none 0 :phaser 10 :torpedo 5 :kinetic 30})
+(def max-shots-by-type {:none 0 :phaser 4 :torpedo 5 :kinetic 30})
 
 (def phaser-range 60000)
-(def phaser-velocity 80)                                    ;per ms
+(def phaser-velocity 70)                                    ;per ms
 (def phaser-proximity 5000)
-(def phaser-damage 150)
-(def phaser-power 500)
+(def phaser-damage 100)
+(def phaser-power 1000)
 
 (def torpedo-range 100000)
 (def torpedo-velocity 10)
@@ -75,8 +75,9 @@
                                    :kamikazee 0})
 
 (def klingon-kamikazee-thrust-factor 4)
-(def klingon-kamikazee-time 10000)
 (def klingon-kamikazee-probability 0.5)
+(def klingon-kamikazee-shield-depletion (* klingon-shield-recharge-rate 1.5))
+(def kamikazee-shot-velocity-factor 4)
 
 (def klingon-antimatter-runaway-threshold (* 0.2 klingon-antimatter))
 (def klingon-cruise-thrust 0.01)

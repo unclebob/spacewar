@@ -162,12 +162,8 @@
 
 (defn update-kamikazee [ms klingon]
   (if (= :kamikazee (:battle-state klingon))
-    (update klingon :kamikazee-time - ms)
+    (update klingon :shields - (* ms glc/klingon-kamikazee-shield-depletion))
     klingon))
-
-(defn dead-kamikazee? [klingon]
-  (and (= :kamikazee (:battle-state klingon))
-       (<= (:kamikazee-time klingon) 0)))
 
 (defn destroyed-klingon? [klingon]
   (<= (:shields klingon) 0))
@@ -175,8 +171,7 @@
 (defn update-klingon-defense [ms {:keys [klingons klingons-killed explosions clouds] :as world}]
   (let [klingons (map hit-klingon klingons)
         klingons (map #(update-kamikazee ms %) klingons)
-        [dead alive] (split-with #(or (destroyed-klingon? %)
-                                      (dead-kamikazee? %)) klingons)
+        [dead alive] (split-with destroyed-klingon? klingons)
         klingons-killed (+ klingons-killed (count dead))
         klingons (recharge-shields ms alive)]
     (assoc world :klingons klingons :klingons-killed klingons-killed
@@ -297,11 +292,16 @@
   )
 
 (defn- fire-shot [klingon ship weapon]
-  (shots/->shot
-    (:x klingon) (:y klingon)
-    (firing-solution klingon ship (weapon-velocity weapon))
-    (weapon-type weapon))
-  )
+  (let [shot-velocity (weapon-velocity weapon)
+        kamikazee? (= :kamikazee (:battle-state klingon))
+        shot-velocity (if kamikazee?
+                        (* glc/kamikazee-shot-velocity-factor shot-velocity)
+                        shot-velocity)
+        shot (shots/->shot
+               (:x klingon) (:y klingon)
+               (firing-solution klingon ship shot-velocity)
+               (weapon-type weapon))]
+    (assoc shot :kamikazee kamikazee?)))
 
 (defn- apply-weapon-costs [klingon weapon]
   (let [klingon (-> klingon
@@ -353,6 +353,7 @@
         degrees (+ degrees (battle-state glc/klingon-evasion-trajectories))
         radians (geo/->radians degrees)
         efficiency (/ (:shields klingon) glc/klingon-shields)
+        efficiency (+ 2/3 (/ efficiency 3))
         effective-thrust (min (klingon :antimatter)
                               (* glc/klingon-tactical-thrust efficiency))
         thrust (vector/from-angular effective-thrust radians)
@@ -483,7 +484,6 @@
                 0
                 (+ battle-state-age ms))]
       (assoc klingon :battle-state new-battle-state
-                     :kamikazee-time (if (= :kamikazee new-battle-state) glc/klingon-kamikazee-time 0)
                      :battle-state-age age))))
 
 (defn update-klingons-state [ms world]

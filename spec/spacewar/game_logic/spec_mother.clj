@@ -123,7 +123,8 @@
    :bearing 0
    :range 0
    :type :phaser
-   :corbomite false})
+   :corbomite false
+   :kamikazee false})
 
 (defn make-star
   ([]

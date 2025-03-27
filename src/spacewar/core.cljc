@@ -171,7 +171,7 @@
         klingons (:klingons world)
         klingon (klingons/make-klingon x y)
         klingon (update klingon :antimatter / 2)
-        klingon (assoc klingon :battle-state :kamikazee :kamikazee-time glc/klingon-kamikazee-time)
+        klingon (assoc klingon :battle-state :kamikazee)
         klingons (conj klingons klingon)]
     (assoc world :klingons klingons)))
 

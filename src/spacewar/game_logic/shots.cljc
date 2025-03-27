@@ -17,11 +17,12 @@
 (s/def ::range number?)
 (s/def ::type #{:phaser :torpedo :kinetic :klingon-kinetic :klingon-phaser :klingon-torpedo :romulan-blast})
 (s/def ::corbomite boolean?)
-(s/def ::shot (s/keys :req-un [::x ::y ::bearing ::range ::type ::corbomite]))
+(s/def ::kamikazee boolean?)
+(s/def ::shot (s/keys :req-un [::x ::y ::bearing ::range ::type ::corbomite ::kamikazee]))
 (s/def ::shots (s/coll-of ::shot))
 
 (defn ->shot [x y bearing type]
-  {:x x :y y :bearing bearing :range 0 :type type :corbomite false})
+  {:x x :y y :bearing bearing :range 0 :type type :corbomite false :kamikazee false})
 
 (defn fire-weapon [pos bearing number spread corbomite]
   (let [start-bearing (if (= number 1)
@@ -147,8 +148,9 @@
     world))
 
 (defn update-shot [shot distance range-limit]
-  (let [{:keys [x y bearing range corbomite]} shot
+  (let [{:keys [x y bearing range corbomite kamikazee]} shot
         distance (if corbomite (* 2 distance) distance)
+        distance (if kamikazee (* glc/kamikazee-shot-velocity-factor distance) distance)
         radians (geo/->radians bearing)
         delta (vector/from-angular distance radians)
         [sx sy] (vector/add [x y] delta)

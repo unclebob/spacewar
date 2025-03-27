@@ -207,7 +207,8 @@
                        :flank-right "fr"
                        :flank-left "fl"
                        :retreating "r"
-                       :advancing "a")]
+                       :advancing "a"
+                       :kamikazee "K")]
     (str mission ":" cruise-state "-" battle-state))
   )
 
