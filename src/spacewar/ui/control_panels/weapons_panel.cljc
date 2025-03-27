@@ -117,8 +117,8 @@
                               :h spread-h
                               :color color
                               :thumb-color button-color
-                              :min-val 1
-                              :max-val 20
+                              :min-val glc/min-spread
+                              :max-val glc/max-spread
                               :value 1
                               :disabled false
                               :left-up-event {:event :weapon-spread}}))

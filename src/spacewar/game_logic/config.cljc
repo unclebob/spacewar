@@ -28,6 +28,8 @@
 (def passive-heat-dissipation 0.0000005)
 
 (def max-shots-by-type {:none 0 :phaser 4 :torpedo 5 :kinetic 30})
+(def min-spread 2)
+(def max-spread 20)
 
 (def phaser-range 60000)
 (def phaser-velocity 70)                                    ;per ms
@@ -75,7 +77,7 @@
                                    :kamikazee 0})
 
 (def klingon-kamikazee-thrust-factor 4)
-(def klingon-kamikazee-probability 0.5)
+(def klingon-kamikazee-probability 0.005)
 (def klingon-kamikazee-shield-depletion (* klingon-shield-recharge-rate 1.5))
 (def kamikazee-shot-velocity-factor 4)
 
