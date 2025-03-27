@@ -15,7 +15,7 @@
 
 (describe "klingons"
   (with klingon (assoc (mom/make-klingon) :shields glc/klingon-shields
-                                          :antimatter 100))
+                                          :antimatter glc/klingon-antimatter))
   (with klingon2 (assoc (mom/make-klingon) :shields 50
                                            :antimatter 50))
   (with ship (mom/make-ship))
