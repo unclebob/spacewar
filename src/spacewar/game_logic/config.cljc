@@ -6,7 +6,7 @@
 (def spectral-classes [:o :b :a :f :g :k :m :pulsar])
 (def drag-factor 0.005)
 (def rotation-rate 0.02)                                    ; degrees per millisecond.
-(def impulse-thrust 0.0002)                                 ; per millisecond per power.
+(def impulse-thrust 0.0001)                                 ; per millisecond per power.
 (def impulse-power 0.01)
 (def warp-power 0.01)
 (def warp-leap 20000)                                       ;spacial coordinates.
@@ -37,13 +37,13 @@
 (def phaser-damage 100)
 (def phaser-power 1000)
 
-(def torpedo-range 100000)
+(def torpedo-range 150000)
 (def torpedo-velocity 10)
 (def torpedo-proximity 2000)
 (def torpedo-damage 150)
 (def torpedo-power 200)
 
-(def kinetic-range 1000000)
+(def kinetic-range 200000)
 (def kinetic-velocity 8)
 (def kinetic-proximity 500)
 (def kinetic-damage 50)
@@ -91,7 +91,7 @@
 (def klingon-debris 1000)
 (def klingon-docking-distance 10000)
 
-(def klingon-kinetic-range 1000000)
+(def klingon-kinetic-range 200000)
 (def klingon-kinetic-firing-distance 150000)
 (def klingon-kinetics 500)
 (def klingon-torpedos 20)
