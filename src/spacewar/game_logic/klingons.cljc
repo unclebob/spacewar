@@ -353,7 +353,7 @@
         degrees (+ degrees (battle-state glc/klingon-evasion-trajectories))
         radians (geo/->radians degrees)
         efficiency (/ (:shields klingon) glc/klingon-shields)
-        efficiency (+ 2/3 (/ efficiency 3))
+        efficiency (+ (/ 2 3) (/ efficiency 3))
         effective-thrust (min (klingon :antimatter)
                               (* glc/klingon-tactical-thrust efficiency))
         thrust (vector/from-angular effective-thrust radians)

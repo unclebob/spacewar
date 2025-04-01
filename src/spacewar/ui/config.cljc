@@ -10,7 +10,6 @@
 (def orange [255 150 50])
 (def red [255 0 0])
 (def dark-red [100 0 0])
-(def dark-red [100 0 0])
 (def green [0 255 0])
 (def blue [0 0 255])
 (def klingon-color [200 0 50])

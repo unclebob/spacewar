@@ -16,9 +16,10 @@
             [spacewar.game-logic.romulans :as romulans]
             [spacewar.util :as util]
             [clojure.spec.alpha :as s]
-            #?(:clj [clojure.java.io :as io])))
+            #?(:clj [clojure.java.io :as io])
+            #?(:cljs [clojure.edn :as edn])))
 
-(def version "202111270727")
+(def version "20250401")
 
 (s/def ::update-time number?)
 (s/def ::transport-check-time number?)
@@ -120,10 +121,14 @@
                  :h (- (q/height) (* 2 vmargin))}))
      :world world
      :base-time (:update-time world)
-     :fonts {:lcars (q/create-font "Helvetica-Bold" 24)
-             :lcars-small (q/create-font "Arial" 18)
-             :messages (q/create-font "Bank Gothic" 24)}
-     :frame-times []}))
+     :fonts #?(:clj  {:lcars (q/create-font "Helvetica-Bold" 24)
+                      :lcars-small (q/create-font "Arial" 18)
+                      :messages (q/create-font "Bank Gothic" 24)}
+               :cljs {:lcars "Helvetica-Bold"               ;; Font names only for JS
+                      :lcars-small "Arial"
+                      :messages "Bank Gothic"})
+     :frame-times []})
+  )
 
 (defn- debug-position-ship-handler [event world]
   (println "debug-position-ship-handler" (:pos event))
@@ -380,7 +385,7 @@
     (when new-save?
       #?(:clj  (spit "spacewar.world" world)
          :cljs (when (exists? js/localStorage)
-                     (.setItem js/localStorage "spacewar.world" world))))
+                 (.setItem js/localStorage "spacewar.world" world))))
     (assoc context
       :state complex
       :world world)))
@@ -393,16 +398,32 @@
   (p/draw state)
   )
 
-(declare space-war)
-(defn ^:export -main [& args]
 
-  (q/defsketch space-war
-               :title "Space War"
-               :size #?(:clj  [(- (q/screen-width) 10) (- (q/screen-height) 40)]
-                        :cljs [(max (- (.-scrollWidth (.-body js/document)) 20) 900)
-                               (max (- (.-innerHeight js/window) 25) 700)])
-               :setup setup
-               :update update-state
-               :draw draw-state
-               :middleware [m/fun-mode])
-  args)
+#?(:clj
+   (defn ^:export -main [& args]
+     (q/defsketch space-war
+                  :title "Space War"
+                  :size [(- (q/screen-width) 10) (- (q/screen-height) 40)]
+                  :setup setup
+                  :update update-state
+                  :draw draw-state
+                  :middleware [m/fun-mode]
+                  )
+     args)
+
+   :cljs
+   (defn ^:export -main [& args]
+     (js/console.log "Starting space-war")
+     (let [size [(max (- (.-scrollWidth (.-body js/document)) 20) 900)
+                 (max (- (.-innerHeight js/window) 25) 700)]]
+       (q/defsketch space-war
+                    :title "Space War"
+                    :size size
+                    :setup setup
+                    :update update-state
+                    :draw draw-state
+                    :middleware [m/fun-mode]
+                    :host "space-war"
+                    ))
+     args)
+   )
