@@ -390,6 +390,10 @@
       (not= :corbomite-device (:type base))
       (not (empty? delivery-transports)))))
 
+(def max-commodity
+  {:antimatter glc/base-antimatter-maximum
+   :dilithium glc/base-dilithium-maximum})
+
 (defn receive-transports [world]
   (let [transports (:transports world)
         bases (:bases world)
@@ -405,7 +409,11 @@
           (assoc world :transports in-transit :bases new-bases))
         (let [base (first accepting)
               transport (first (filter #(transport-going-to base %) delivering))
-              base (update base (:commodity transport) + (:amount transport))]
+              commodity (:commodity transport)
+              new-total (min
+                            (max-commodity commodity)
+                            (+ (:amount transport) (get base commodity)))
+              base (assoc base commodity new-total)]
           (recur (rest accepting) delivering (conj adjusted-bases base)))))))
 
 (defn remove-routes-to-base [world base]

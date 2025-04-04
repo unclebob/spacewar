@@ -46,6 +46,9 @@
 
 (defn- draw-base-counts [base]
   (apply q/fill uic/white)
+  (apply q/stroke uic/white)
+  (q/stroke-weight 1)
+
   (q/text-align :right :center)
   (q/text-font (:lcars-small (q/state :fonts)) 12)
   (q/text (str "T-" (int (:torpedos base))) -30 0)

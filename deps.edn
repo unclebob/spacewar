@@ -9,13 +9,11 @@
 
  :aliases {:run {:main-opts ["-m" "spacewar.core"]
                  :jvm-opts ["-Xms256m" "-Xmx512m" "-XX:+UseParallelGC"]}
-           :dev {:extra-deps {speclj/speclj {:mvn/version "3.4.6"}}}
            :spec {:main-opts ["-m" "speclj.main" "-c"]
                   :extra-deps {speclj/speclj {:mvn/version "3.4.6"}}
                   :extra-paths ["spec"]}
-           :cljs {:extra-deps {org.clojure/clojurescript {:mvn/version "1.11.132"}} ;; ClojureScript alias
-                  :main-opts ["-m" "cljs.main" "-c" "spacewar.core" "--output-to" "out/main.js" "--optimizations" "none"]} ;; Basic CLJS entry point
-           :serve {:extra-deps {org.clojure/clojurescript {:mvn/version "1.11.132"}} ;; ClojureScript alias
-                   :main-opts ["-m" "cljs.main" "-m" "spacewar.core"]} ;; Serve CLJS
+           :cljs {:main-opts ["-m" "cljs.main" "-c" "spacewar.core"]
+                  }
+
            }
  }

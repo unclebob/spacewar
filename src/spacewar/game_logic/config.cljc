@@ -155,7 +155,7 @@
 (def transport-velocity 20)
 (def transport-delivery-range 2000)
 
-(def base-maturity-age 60000)                               ;60000
+(def base-maturity-age 60000)
 (def base-deployment-antimatter 30000)
 (def base-deployment-dilithium 300)
 (def base-antimatter-maximum (* 1.5 ship-antimatter))
@@ -164,19 +164,18 @@
 (def base-torpedos-maximum (* 1.5 ship-torpedos))
 (def base-routes-limit 2)
 
-(def antimatter-factory-production-rate 0.1)                ;0.1
-(def antimatter-factory-sufficient-antimatter ship-antimatter)
-(def antimatter-factory-antimatter-reserve antimatter-cargo-size)
-(def antimatter-factory-sufficient-dilithium ship-dilithium)
-(def antimatter-factory-dilithium-reserve dilithium-cargo-size)
+(def antimatter-factory-production-rate 0.1)
+(def antimatter-factory-sufficient-antimatter (* base-antimatter-maximum 0.8))
+(def antimatter-factory-antimatter-reserve (* 0.5 ship-antimatter))
+(def antimatter-factory-sufficient-dilithium (* base-dilithium-maximum 0.8))
+(def antimatter-factory-dilithium-reserve (* 0.5 ship-dilithium))
 
-(def dilithium-factory-production-rate 0.002)               ;0.001
+(def dilithium-factory-production-rate 0.002)
 (def dilithium-factory-dilithium-antimatter-cost 100)
-(def dilithium-factory-sufficient-antimatter ship-antimatter)
-(def dilithium-factory-antimatter-reserve (* dilithium-factory-dilithium-antimatter-cost
-                                             dilithium-cargo-size))
-(def dilithium-factory-sufficient-dilithium (/ dilithium-cargo-size 10))
-(def dilithium-factory-dilithium-reserve 0)
+(def dilithium-factory-sufficient-antimatter (* base-antimatter-maximum 0.8))
+(def dilithium-factory-antimatter-reserve (* 0.5 ship-antimatter))
+(def dilithium-factory-sufficient-dilithium base-dilithium-maximum)
+(def dilithium-factory-dilithium-reserve (* 0.5 ship-dilithium))
 
 (def weapon-factory-torpedo-production-rate 0.0002)
 (def weapon-factory-kinetic-production-rate 0.005)
@@ -185,9 +184,9 @@
 (def weapon-factory-torpedo-dilithium-cost 30)
 
 (def weapon-factory-sufficient-antimatter (/ base-antimatter-maximum 2))
-(def weapon-factory-antimatter-reserve ship-antimatter)
+(def weapon-factory-antimatter-reserve (* 0.5 ship-antimatter))
 (def weapon-factory-sufficient-dilithium (/ base-dilithium-maximum 2))
-(def weapon-factory-dilithium-reserve ship-dilithium)
+(def weapon-factory-dilithium-reserve (* 0.5 ship-dilithium))
 
 (def corbomite-factory-production-rate 0.00005)
 (def corbomite-maximum 100)

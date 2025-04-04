@@ -6,7 +6,10 @@
   <script async="false" type="text/javascript"></script>
 </head>
 <body>
-<canvas id="space-war" tabindex="0" width="2245" height="1332"></canvas>
+<div id="space-war"></div>
 <script src="out/main.js"></script>
+<script>
+    window.addEventListener('load', (event) => {spacewar.core._main()});
+</script>
 </body>
 </html>

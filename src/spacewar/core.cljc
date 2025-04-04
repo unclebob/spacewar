@@ -19,6 +19,8 @@
             #?(:clj [clojure.java.io :as io])
             #?(:cljs [clojure.edn :as edn])))
 
+#?(:cljs (enable-console-print!))
+
 (def version "20250401")
 
 (s/def ::update-time number?)
@@ -99,6 +101,7 @@
                 (.getItem js/localStorage "spacewar.world"))))
 
 (defn setup []
+  (prn 'setup)
   (let [vmargin 30
         hmargin 5
         saved? (game-saved?)
@@ -125,7 +128,7 @@
                       :lcars-small (q/create-font "Arial" 18)
                       :messages (q/create-font "Bank Gothic" 24)}
                :cljs {:lcars "Helvetica-Bold"               ;; Font names only for JS
-                      :lcars-small "Arial"
+                      :lcars-small "Helvetica"
                       :messages "Bank Gothic"})
      :frame-times []})
   )
@@ -398,6 +401,33 @@
   (p/draw state)
   )
 
+(defn simple-setup []
+  (q/background 0)
+  (q/no-stroke)
+  (q/fill 255 255 255)
+  (q/rect-mode :corner)
+  (q/rect 0 0 (q/width) (q/height))
+  )
+
+(defn simple-setup []
+  (q/frame-rate 30)
+  (q/color-mode :hsb)
+  {:color 0
+   :angle 0})
+
+(defn simple-update [state]
+  {:color (mod (+ (:color state) 0.7) 255)
+   :angle (+ (:angle state) 0.1)})
+
+(defn simple-draw [state]
+  (q/background 240)
+  (q/fill (:color state) 255 255)
+  (let [angle (:angle state)
+        x (* 150 (q/cos angle))
+        y (* 150 (q/sin angle))]
+    (q/with-translation [(/ (q/width) 2)
+                         (/ (q/height) 2)]
+      (q/ellipse x y 100 100))))
 
 #?(:clj
    (defn ^:export -main [& args]
@@ -412,8 +442,7 @@
      args)
 
    :cljs
-   (defn ^:export -main [& args]
-     (js/console.log "Starting space-war")
+   (defn ^:export -main []
      (let [size [(max (- (.-scrollWidth (.-body js/document)) 20) 900)
                  (max (- (.-innerHeight js/window) 25) 700)]]
        (q/defsketch space-war
@@ -424,6 +453,8 @@
                     :draw draw-state
                     :middleware [m/fun-mode]
                     :host "space-war"
-                    ))
-     args)
+                    )
+
+       )
+     )
    )

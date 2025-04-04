@@ -30,6 +30,12 @@
       (apply q/line (degree-tick radius (* 10 angle-tenth))))))
 
 (defn draw-labels [[x y _] radius]
+  (apply q/fill uic/black)
+  (apply q/stroke uic/black)
+  (q/stroke-weight 1)
+  (q/text-align :center :center)
+  (q/text-font (:lcars-small (q/state :fonts)) 12)
+
   (doseq [angle-thirtieth (range 12)]
     (let [angle-tenth (* 3 angle-thirtieth)
           angle (* 10 angle-tenth)
@@ -37,9 +43,6 @@
           [label-x label-y] (vector/from-angular radius radians)]
       (q/with-translation
         [x y]
-        (apply q/fill uic/black)
-        (q/text-align :center :center)
-        (q/text-font (:lcars-small (q/state :fonts)) 12)
         (q/text (str angle-tenth) label-x label-y)))))
 
 (defn draw-pointer [x y length direction color]

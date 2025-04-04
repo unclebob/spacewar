@@ -382,7 +382,19 @@
           transports (:transports world)
           [dest] (:bases world)]
       (should= 0 (count transports))
-      (should= 100 (:antimatter dest)))))
+      (should= 100 (:antimatter dest))))
+
+  (it "discards excess commodities when receiving transports"
+    (let [world (mom/make-world)
+          dest (mom/make-base 0 (dec glc/transport-delivery-range) :antimatter-factory 0 0)
+          dest (assoc dest :antimatter glc/base-antimatter-maximum)
+          transport (bases/make-transport :antimatter 100 [0 (dec glc/transport-delivery-range)])
+          world (assoc world :bases [dest] :transports [transport])
+          world (bases/receive-transports world)
+          transports (:transports world)
+          [dest] (:bases world)]
+      (should= 0 (count transports))
+      (should= glc/base-antimatter-maximum (:antimatter dest)))))
 
 (describe "corbomite base and device behavior"
   (it "converts a full corbomite base into a corbomite device with an explosion"
