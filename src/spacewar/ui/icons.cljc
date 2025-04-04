@@ -216,18 +216,21 @@
   )
 
 (defn draw-klingon-counts [klingon]
-  (when glc/klingon-stats
-    (apply q/fill uic/white)
-    (q/text-align :right :center)
-    (q/text-font (:lcars-small (q/state :fonts)) 12)
-    (q/text (str "T-" (int (/ (:torpedos klingon) glc/klingon-torpedos 0.01)) "%") -30 0)
-    (q/text-align :left :center)
-    (q/text (str "A-" (int (/ (:antimatter klingon) glc/klingon-antimatter 0.01)) "%") 30 0)
-    (q/text-align :center :bottom)
-    (q/text (klingon-state klingon) 0 -30)
-    (q/text-align :center :top)
-    (q/text (str "K-" (int (:kinetics klingon))) 0 30)
-    ))
+  (let [shields (int (:shields klingon))]
+    (when glc/klingon-stats
+      (apply q/fill uic/white)
+      (apply q/stroke uic/white)
+      (q/stroke-weight 1)
+      (q/text-align :right :center)
+      (q/text-font (:lcars-small (q/state :fonts)) 12)
+      (q/text (str "T-" (int (/ (:torpedos klingon) glc/klingon-torpedos 0.01)) "%") -30 0)
+      (q/text-align :left :center)
+      (q/text (str "A-" (int (/ (:antimatter klingon) glc/klingon-antimatter 0.01)) "%") 30 0)
+      (q/text-align :center :bottom)
+      (q/text (str (klingon-state klingon) "[" shields "]") 0 -30)
+      (q/text-align :center :top)
+      (q/text (str "K-" (int (:kinetics klingon))) 0 30)
+      )))
 
 (defn draw-klingon-icon [klingon]
   (apply q/fill uic/black)
