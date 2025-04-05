@@ -170,6 +170,7 @@
 
 (defn update-klingon-defense [ms {:keys [klingons klingons-killed explosions clouds] :as world}]
   (let [klingons (map hit-klingon klingons)
+        klingons (map #(update-kamikazee ms %) klingons)
         dead (filter destroyed-klingon? klingons)
         alive (remove destroyed-klingon? klingons)
         klingons-killed (+ klingons-killed (count dead))
