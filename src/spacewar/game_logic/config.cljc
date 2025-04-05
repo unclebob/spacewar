@@ -164,7 +164,7 @@
 (def base-torpedos-maximum (* 1.5 ship-torpedos))
 (def base-routes-limit 2)
 
-(def antimatter-factory-production-rate 0.1)
+(def antimatter-factory-production-rate 0.2)
 (def antimatter-factory-sufficient-antimatter (* base-antimatter-maximum 0.8))
 (def antimatter-factory-antimatter-reserve (* 0.5 ship-antimatter))
 (def antimatter-factory-sufficient-dilithium (* base-dilithium-maximum 0.8))

@@ -224,27 +224,44 @@
         transports (filter #(= [(:x dest) (:y dest)] (:destination %)) transports)]
     (reduce + (map :amount transports))))
 
-(defn should-transport-antimatter? [source dest transports]
+(defn- sufficient-commodity [commodity base-type]
+  (condp = commodity
+    :antimatter (sufficient-antimatter base-type)
+    :dilithium (sufficient-dilithium base-type)
+    nil))
+
+(defn- commodity-cargo-size [commodity]
+  (condp = commodity
+    :antimatter glc/antimatter-cargo-size
+    :dilithium glc/dilithium-cargo-size
+    nil))
+
+(defn- commodity-reserve [commodity base-type]
+  (condp = commodity
+    :antimatter (antimatter-reserve base-type)
+    :dilithium (dilithium-reserve base-type)
+    nil))
+
+(defn should-transport-commodity? [commodity source dest transports]
   (let [source-type (:type source)
         dest-type (:type dest)
-        source-antimatter (:antimatter source)
-        dest-antimatter (:antimatter dest)
-        promised-antimatter (get-promised-commodity :antimatter dest transports)]
+        source-commodity (commodity source)
+        dest-commodity (commodity dest)
+        promised-commodity (get-promised-commodity commodity dest transports)
+        sufficient (sufficient-commodity commodity dest-type)
+        cargo-size (commodity-cargo-size commodity)
+        reserve (commodity-reserve commodity source-type)]
     (and
       (not= :corbomite-device dest-type)
-      (<= (+ promised-antimatter dest-antimatter) (sufficient-antimatter dest-type))
-      (>= source-antimatter (+ glc/antimatter-cargo-size (antimatter-reserve source-type))))))
+      (<= (+ promised-commodity dest-commodity) sufficient) ;he needs it
+      (> (- source-commodity cargo-size) dest-commodity) ;I'll still have more than him
+      (>= source-commodity (+ cargo-size reserve))))) ; I'll still have my reserve
+
+(defn should-transport-antimatter? [source dest transports]
+  (should-transport-commodity? :antimatter source dest transports))
 
 (defn should-transport-dilithium? [source dest transports]
-  (let [source-type (:type source)
-        dest-type (:type dest)
-        source-dilithium (:dilithium source)
-        dest-dilithium (:dilithium dest)
-        promised-dilithium (get-promised-commodity :dilithium dest transports)]
-    (and
-      (not= :corbomite-device dest-type)
-      (< (+ promised-dilithium dest-dilithium) (sufficient-dilithium dest-type))
-      (>= source-dilithium (+ glc/dilithium-cargo-size (dilithium-reserve source-type))))))
+  (should-transport-commodity? :dilithium source dest transports))
 
 (defn- cargo-size [commodity]
   (condp = commodity
