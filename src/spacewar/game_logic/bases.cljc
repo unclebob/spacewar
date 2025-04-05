@@ -254,11 +254,18 @@
         he-needs-it? (<= (+ promised-commodity dest-commodity) sufficient)
         ill-still-have-more-than-him? (> (- source-commodity cargo-size) dest-commodity)
         ill-still-have-my-reserve? (>= source-commodity (+ cargo-size reserve))]
-    (and
-      (not= :corbomite-device dest-type)
-      he-needs-it?
-      ill-still-have-more-than-him?
-      ill-still-have-my-reserve?)))
+    (or
+      (and
+        (not= :corbomite-device dest-type)
+        he-needs-it?
+        ill-still-have-more-than-him?
+        ill-still-have-my-reserve?)
+      (and
+        (or (= :corbomite-factory dest-type)
+            (= :weapon-factory dest-type))
+        he-needs-it?
+        (> source-commodity cargo-size))
+      )))
 
 (defn should-transport-antimatter? [source dest transports]
   (should-transport-commodity? :antimatter source dest transports))
@@ -431,8 +438,8 @@
               transport (first (filter #(transport-going-to base %) delivering))
               commodity (:commodity transport)
               new-total (min
-                            (max-commodity commodity)
-                            (+ (:amount transport) (get base commodity)))
+                          (max-commodity commodity)
+                          (+ (:amount transport) (get base commodity)))
               base (assoc base commodity new-total)]
           (recur (rest accepting) delivering (conj adjusted-bases base)))))))
 

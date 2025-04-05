@@ -1,6 +1,6 @@
 (ns spacewar.game-logic.config)
 
-(def frame-rate 20)
+(def frame-rate #?(:clj 20 :cljs 30))
 (def klingon-stats false)
 
 (def spectral-classes [:o :b :a :f :g :k :m :pulsar])
@@ -193,9 +193,9 @@
 (def corbomite-factory-antimatter-cost 10000)
 (def corbomite-factory-dilithium-cost 100)
 
-(def corbomite-factory-sufficient-antimatter base-antimatter-maximum)
+(def corbomite-factory-sufficient-antimatter (* 0.5 base-antimatter-maximum))
 (def corbomite-factory-antimatter-reserve base-antimatter-maximum)
-(def corbomite-factory-sufficient-dilithium base-dilithium-maximum)
+(def corbomite-factory-sufficient-dilithium (* 0.5 base-dilithium-maximum))
 (def corbomite-factory-dilithium-reserve base-dilithium-maximum)
 
 (def cloud-decay-rate 0.999988)

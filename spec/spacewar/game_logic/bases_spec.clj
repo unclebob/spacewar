@@ -168,22 +168,28 @@
     (for [{:keys [source-type dest-type reserve sufficient]} antimatter-transport-parameters]
       (it (str "does not transport from " source-type " to " dest-type)
         (let [source (assoc (mom/make-base 0 0 source-type 0 0) :antimatter (dec (+ reserve glc/antimatter-cargo-size)))
-              dest (assoc (mom/make-base 20 20 dest-type 0 0) :antimatter (dec sufficient))]
-          (should= false (bases/should-transport-antimatter? source dest []))))))
+              dest (assoc (mom/make-base 20 20 dest-type 0 0) :antimatter (dec sufficient))
+              transport? (if (or (= dest-type :corbomite-factory)
+                                 (= dest-type :weapon-factory))
+                           true false)]
+          (should= transport? (bases/should-transport-antimatter? source dest []))))))
 
   (context "destination has insufficient antimatter and source would go lower than dest"
     (for [{:keys [source-type dest-type sufficient]} antimatter-transport-parameters]
       (it (str "transports from " source-type " to " dest-type " if destination has insufficient antimatter and source would go lower than dest")
         (let [source (assoc (mom/make-base 0 0 source-type 0 0) :antimatter (dec (+ sufficient glc/antimatter-cargo-size)))
-              dest (assoc (mom/make-base 20 20 dest-type 0 0) :antimatter (dec sufficient))]
-          (should= false (bases/should-transport-antimatter? source dest []))))))
+              dest (assoc (mom/make-base 20 20 dest-type 0 0) :antimatter (dec sufficient))
+              transport? (if (or (= dest-type :corbomite-factory)
+                                 (= dest-type :weapon-factory))
+                           true false)]
+          (should= transport? (bases/should-transport-antimatter? source dest []))))))
 
   (context "destination has insufficient antimatter and source has more than enough"
-      (for [{:keys [source-type dest-type  sufficient]} antimatter-transport-parameters]
-        (it (str "transports from " source-type " to " dest-type " if destination has insufficient antimatter and source has more than enough")
-          (let [source (assoc (mom/make-base 0 0 source-type 0 0) :antimatter (inc (+ sufficient glc/antimatter-cargo-size)))
-                dest (assoc (mom/make-base 20 20 dest-type 0 0) :antimatter (dec sufficient))]
-            (should= true (bases/should-transport-antimatter? source dest []))))))
+    (for [{:keys [source-type dest-type sufficient]} antimatter-transport-parameters]
+      (it (str "transports from " source-type " to " dest-type " if destination has insufficient antimatter and source has more than enough")
+        (let [source (assoc (mom/make-base 0 0 source-type 0 0) :antimatter (inc (+ sufficient glc/antimatter-cargo-size)))
+              dest (assoc (mom/make-base 20 20 dest-type 0 0) :antimatter (dec sufficient))]
+          (should= true (bases/should-transport-antimatter? source dest []))))))
   )
 
 (def dilithium-transport-parameters
@@ -227,22 +233,28 @@
     (for [{:keys [source-type dest-type reserve sufficient]} dilithium-transport-parameters]
       (it (str "does not transport from " source-type " to " dest-type)
         (let [source (assoc (mom/make-base 0 0 source-type 0 0) :dilithium (dec (+ reserve glc/dilithium-cargo-size)))
-              dest (assoc (mom/make-base 20 20 dest-type 0 0) :dilithium (dec sufficient))]
-          (should= false (bases/should-transport-dilithium? source dest []))))))
+              dest (assoc (mom/make-base 20 20 dest-type 0 0) :dilithium (dec sufficient))
+              transport? (if (or (= dest-type :corbomite-factory)
+                                 (= dest-type :weapon-factory))
+                           true false)]
+          (should= transport? (bases/should-transport-dilithium? source dest []))))))
 
   (context "destination has insufficient dilithium but source would go lower than destination"
-    (for [{:keys [source-type dest-type  sufficient]} dilithium-transport-parameters]
+    (for [{:keys [source-type dest-type sufficient]} dilithium-transport-parameters]
       (it (str "transports from " source-type " to " dest-type)
         (let [source (assoc (mom/make-base 0 0 source-type 0 0) :dilithium (dec (+ sufficient glc/dilithium-cargo-size)))
-              dest (assoc (mom/make-base 20 20 dest-type 0 0) :dilithium (dec sufficient))]
-          (should= false (bases/should-transport-dilithium? source dest []))))))
+              dest (assoc (mom/make-base 20 20 dest-type 0 0) :dilithium (dec sufficient))
+              transport? (if (or (= dest-type :corbomite-factory)
+                                 (= dest-type :weapon-factory))
+                           true false)]
+          (should= transport? (bases/should-transport-dilithium? source dest []))))))
 
   (context "destination has insufficient dilithium and source has more than enough"
-      (for [{:keys [source-type dest-type sufficient]} dilithium-transport-parameters]
-        (it (str "transports from " source-type " to " dest-type)
-          (let [source (assoc (mom/make-base 0 0 source-type 0 0) :dilithium (inc (+ sufficient glc/dilithium-cargo-size)))
-                dest (assoc (mom/make-base 20 20 dest-type 0 0) :dilithium (dec sufficient))]
-            (should= true (bases/should-transport-dilithium? source dest []))))))
+    (for [{:keys [source-type dest-type sufficient]} dilithium-transport-parameters]
+      (it (str "transports from " source-type " to " dest-type)
+        (let [source (assoc (mom/make-base 0 0 source-type 0 0) :dilithium (inc (+ sufficient glc/dilithium-cargo-size)))
+              dest (assoc (mom/make-base 20 20 dest-type 0 0) :dilithium (dec sufficient))]
+          (should= true (bases/should-transport-dilithium? source dest []))))))
   )
 
 (describe "transport to corbomite device"
