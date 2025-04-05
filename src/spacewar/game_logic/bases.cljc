@@ -250,12 +250,15 @@
         promised-commodity (get-promised-commodity commodity dest transports)
         sufficient (sufficient-commodity commodity dest-type)
         cargo-size (commodity-cargo-size commodity)
-        reserve (commodity-reserve commodity source-type)]
+        reserve (commodity-reserve commodity source-type)
+        he-needs-it? (<= (+ promised-commodity dest-commodity) sufficient)
+        ill-still-have-more-than-him? (> (- source-commodity cargo-size) dest-commodity)
+        ill-still-have-my-reserve? (>= source-commodity (+ cargo-size reserve))]
     (and
       (not= :corbomite-device dest-type)
-      (<= (+ promised-commodity dest-commodity) sufficient) ;he needs it
-      (> (- source-commodity cargo-size) dest-commodity) ;I'll still have more than him
-      (>= source-commodity (+ cargo-size reserve))))) ; I'll still have my reserve
+      he-needs-it?
+      ill-still-have-more-than-him?
+      ill-still-have-my-reserve?)))
 
 (defn should-transport-antimatter? [source dest transports]
   (should-transport-commodity? :antimatter source dest transports))
