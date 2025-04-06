@@ -2,7 +2,8 @@
 
 A Star Trek Game.
 
->Play the current release at http://cleancoder.com/space-war (The server is slow so be patient while it loads)
+>Play the current release at http://cleancoder.com/space-war 
+> (The server is slow so be patient while it loads, the cache is set for 24 hours)
 
 >_Courtesy of Mike Fikes (@mfikes) you can play a very old version at http://spacewar.fikesfarm.com/spacewar.html_
 
