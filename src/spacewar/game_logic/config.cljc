@@ -77,11 +77,12 @@
                                    :kamikazee 0})
 
 (def klingon-kamikazee-thrust-factor 4)
-(def klingon-kamikazee-probability 0.005)
+(def klingon-kamikazee-probability 0.004)
 (def klingon-kamikazee-shield-depletion (* klingon-shield-recharge-rate 1.5))
 (def kamikazee-shot-velocity-factor 4)
 
 (def klingon-antimatter-runaway-threshold (* 0.2 klingon-antimatter))
+(def klingon-antimatter-kamikazee-threshold (* 0.1 klingon-antimatter))
 (def klingon-cruise-thrust 0.01)
 (def klingon-tactical-thrust 0.002)
 (def klingon-thrust-time 15)                                ;in minutes

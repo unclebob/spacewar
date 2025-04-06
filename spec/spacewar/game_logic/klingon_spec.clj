@@ -1,14 +1,15 @@
 (ns spacewar.game-logic.klingon-spec
   (:require
-    [speclj.core :refer :all]
     [clojure.spec.alpha :as s]
-    [spacewar.game-logic.config :as glc]
-    [spacewar.spec-utils :as ut]
-    [spacewar.game-logic.klingons :as k]
-    [spacewar.game-logic.spec-mother :as mom]
-    [spacewar.game-logic.shots :as shots]
     [spacewar.game-logic.bases :as bases]
+    [spacewar.game-logic.config :as glc]
+    [spacewar.game-logic.klingons :as klingons]
+    [spacewar.game-logic.klingons :as k]
+    [spacewar.game-logic.shots :as shots]
+    [spacewar.game-logic.spec-mother :as mom]
     [spacewar.geometry :as geo]
+    [spacewar.spec-utils :as ut]
+    [speclj.core :refer :all]
     ))
 
 (declare klingon klingon2 ship world)
@@ -71,16 +72,34 @@
         (should= {:age 0 :x 50 :y 50 :type :klingon}
                  (dissoc (first (:explosions world)) :fragments))))
 
+    (it "goes to kamikazee mode when below kamkikazee antimatter threshold"
+      (with-redefs [rand (constantly 0)]
+        (let [klingon (-> (mom/make-klingon)
+                          (mom/set-pos [50 50])
+                          (assoc :battle-state :advancing
+                                 :antimatter (dec glc/klingon-antimatter-kamikazee-threshold)))
+              ship (-> (mom/make-ship) (mom/set-pos [0 0]))]
+          (should= :kamikazee (klingons/determine-battle-state klingon ship)))))
+
+    (it "goes to retreating mode when below runaway antimatter threshold"
+          (with-redefs [rand (constantly 0)]
+            (let [klingon (-> (mom/make-klingon)
+                              (mom/set-pos [50 50])
+                              (assoc :battle-state :advancing
+                                     :antimatter (dec glc/klingon-antimatter-runaway-threshold)))
+                  ship (-> (mom/make-ship) (mom/set-pos [0 0]))]
+              (should= :retreating (klingons/determine-battle-state klingon ship)))))
+
     (it "kamikazee mode depletes shields"
-          (let [world (mom/make-world)
-                klingon (mom/make-klingon)
-                klingon (mom/set-pos klingon [50 50])
-                klingon (assoc klingon :battle-state :kamikazee :shields 10)
-                world (assoc world :klingons [klingon])
-                world (k/update-klingons 20 world)
-                klingon (first (:klingons world))]
-            (should (> 10 (:shields klingon)))
-            )))
+      (let [world (mom/make-world)
+            klingon (mom/make-klingon)
+            klingon (mom/set-pos klingon [50 50])
+            klingon (assoc klingon :battle-state :kamikazee :shields 10)
+            world (assoc world :klingons [klingon])
+            world (k/update-klingons 20 world)
+            klingon (first (:klingons world))]
+        (should (> 10 (:shields klingon)))
+        )))
 
   (describe "phaser damage"
     (it "calculates phaser damage based on ranges"

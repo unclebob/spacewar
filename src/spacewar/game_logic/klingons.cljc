@@ -465,22 +465,30 @@
       (random-battle-state)
       battle-state)))
 
+(defn determine-battle-state [klingon ship]
+  (let [dist (geo/distance (util/pos klingon) (util/pos ship))
+        antimatter (:antimatter klingon)
+        new-battle-state (condp <= dist
+                           glc/klingon-tactical-range :no-battle
+                           glc/klingon-evasion-limit :advancing
+                           (change-expired-battle-state klingon))
+        should-retreat? (and
+                          (<= antimatter glc/klingon-antimatter-runaway-threshold)
+                          (<= dist glc/klingon-tactical-range))
+        should-kamikazee? (and (> glc/klingon-kamikazee-probability (rand))
+                               (< antimatter glc/klingon-antimatter-kamikazee-threshold))
+        new-battle-state (if should-retreat?
+                           (if should-kamikazee?
+                             :kamikazee
+                             :retreating)
+                           new-battle-state)]
+    new-battle-state))
+
 (defn- update-klingon-state [ms ship klingon]
   (if (= :kamikazee (:battle-state klingon))
     klingon
-    (let [{:keys [antimatter battle-state-age]} klingon
-          dist (geo/distance (util/pos klingon) (util/pos ship))
-          new-battle-state (condp <= dist
-                             glc/klingon-tactical-range :no-battle
-                             glc/klingon-evasion-limit :advancing
-                             (change-expired-battle-state klingon))
-          new-battle-state (if (and
-                                 (<= antimatter glc/klingon-antimatter-runaway-threshold)
-                                 (<= dist glc/klingon-tactical-range))
-                             (if (< glc/klingon-kamikazee-probability (rand))
-                               :retreating
-                               :kamikazee)
-                             new-battle-state)
+    (let [{:keys [battle-state-age]} klingon
+          new-battle-state (determine-battle-state klingon ship)
           age (if (>= battle-state-age glc/klingon-battle-state-transition-age)
                 0
                 (+ battle-state-age ms))]
