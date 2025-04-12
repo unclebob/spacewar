@@ -221,6 +221,10 @@
     (assoc world :stars stars))
   )
 
+(defn- debug-klingon-stats [_event world]
+  (swap! glc/klingon-stats not)
+  world)
+
 (defn- process-game-events [events world]
   (let [[_ world] (->> [events world]
                        (util/handle-event :debug-position-ship debug-position-ship-handler)
@@ -233,6 +237,7 @@
                        (util/handle-event :debug-corbomite-device-installed debug-corbomite-device-installed)
                        (util/handle-event :debug-explosion debug-explosion)
                        (util/handle-event :debug-add-pulsar debug-add-pulsar)
+                       (util/handle-event :debug-klingon-stats debug-klingon-stats)
                        (util/handle-event :new-game new-game)
                        )]
     world))
@@ -400,34 +405,6 @@
   (q/rect 0 0 (q/width) (q/height))
   (p/draw state)
   )
-
-(defn simple-setup []
-  (q/background 0)
-  (q/no-stroke)
-  (q/fill 255 255 255)
-  (q/rect-mode :corner)
-  (q/rect 0 0 (q/width) (q/height))
-  )
-
-(defn simple-setup []
-  (q/frame-rate 30)
-  (q/color-mode :hsb)
-  {:color 0
-   :angle 0})
-
-(defn simple-update [state]
-  {:color (mod (+ (:color state) 0.7) 255)
-   :angle (+ (:angle state) 0.1)})
-
-(defn simple-draw [state]
-  (q/background 240)
-  (q/fill (:color state) 255 255)
-  (let [angle (:angle state)
-        x (* 150 (q/cos angle))
-        y (* 150 (q/sin angle))]
-    (q/with-translation [(/ (q/width) 2)
-                         (/ (q/height) 2)]
-      (q/ellipse x y 100 100))))
 
 #?(:clj
    (defn ^:export -main [& args]

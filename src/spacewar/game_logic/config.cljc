@@ -1,7 +1,7 @@
 (ns spacewar.game-logic.config)
 
 (def frame-rate #?(:clj 20 :cljs 30))
-(def klingon-stats false)
+(def klingon-stats (atom false))
 
 (def spectral-classes [:o :b :a :f :g :k :m :pulsar])
 (def drag-factor 0.005)
@@ -94,7 +94,7 @@
 
 (def klingon-kinetic-range 200000)
 (def klingon-kinetic-firing-distance 150000)
-(def klingon-kinetics 500)
+(def klingon-kinetics 100)
 (def klingon-torpedos 20)
 (def klingon-kinetic-threshold 1000)
 (def klingon-kinetic-velocity 6.0)
@@ -109,13 +109,13 @@
 (def klingon-antimatter-base-in-range 1000000)
 
 (def klingon-range-for-antimatter-production 10000)
-(def klingon-antimatter-production-rate {:o 0.1
-                                         :b 0.08
-                                         :a 0.06
-                                         :f 0.05
-                                         :g 0.04
-                                         :k 0.025
-                                         :m 0.01})
+(def klingon-antimatter-production-rate {:o 0.2
+                                         :b 0.16
+                                         :a 0.12
+                                         :f 0.1
+                                         :g 0.08
+                                         :k 0.0125
+                                         :m 0.005})
 
 (def klingon-phaser-power 200)
 (def klingon-phaser-firing-distance 30000)

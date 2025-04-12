@@ -333,6 +333,7 @@
                     :K {:event :debug-add-kamikazee-klingon :pos (click->pos state [mx my])}
                     :R {:event :debug-add-romulan :pos (click->pos state [mx my])}
                     :P {:event :debug-add-pulsar :pos (click->pos state [mx my])}
+                    :f {:event :debug-klingon-stats}
                     {:event :weapon-direction :angle (click->bearing state [mx my])})
                   nil)]
       (p/pack-update (tactical-scan. (assoc state :world world)) event)))

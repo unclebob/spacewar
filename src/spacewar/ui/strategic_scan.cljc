@@ -159,6 +159,7 @@
                     :r {:event :debug-resupply-ship}
                     :K {:event :debug-new-klingon-from-praxis}
                     :c {:event :debug-corbomite-device-installed}
+                    :f {:event :debug-klingon-stats}
                     nil)
                   nil)]
       (p/pack-update

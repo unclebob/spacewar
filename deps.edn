@@ -5,15 +5,17 @@
         quil/quil {:mvn/version "4.3.1563"}
         org.clojure/math.combinatorics {:mvn/version "0.1.4"}
         org.clojure/tools.reader {:mvn/version "1.3.2"}
-        speclj/speclj {:mvn/version "3.4.6"}}
+        speclj/speclj {:mvn/version "3.4.6"}
+        }
 
  :aliases {:run {:main-opts ["-m" "spacewar.core"]
                  :jvm-opts ["-Xms256m" "-Xmx512m" "-XX:+UseParallelGC"]}
            :spec {:main-opts ["-m" "speclj.main" "-c"]
                   :extra-deps {speclj/speclj {:mvn/version "3.4.6"}}
                   :extra-paths ["spec"]}
-           :cljs {:main-opts ["-m" "cljs.main" "-c" "spacewar.core"]
-                  }
-
+           :cljs {:main-opts ["-m" "cljs.main"
+                              "--optimizations" "none"
+                              "--compile" "spacewar.core"
+                              ]}
            }
  }
