@@ -525,7 +525,7 @@
 
 (defn remove-klingons-out-of-range [_ms world]
   (let [klingons (:klingons world)
-        klingons (remove #(< (:y %) -10000) klingons)]
+        klingons (remove #(< (:y %) (- glc/klingon-tactical-range)) klingons)]
     (assoc world :klingons klingons))
   )
 

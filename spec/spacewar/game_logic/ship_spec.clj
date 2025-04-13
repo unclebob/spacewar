@@ -22,6 +22,7 @@
                                               apply-drag
                                               apply-impulse
                                               charge-shields
+                                              constrain-ship
                                               deploy-base
                                               deployable?
                                               dissipate-core-heat
@@ -119,6 +120,18 @@
       (let [result (apply-impulse 1000 [1 1] 180 3)
             expected (vector/add [1 1] [(* -1 impulse-thrust 1000 3) 0])]
         (should (ut/roughly-v expected result 0.0001)))))
+
+  (describe "ship position constraints"
+    (it "constrains +x +y"
+      (should= {:x glc/known-space-x
+                :y glc/known-space-y
+                :velocity [0.0 0.0]}
+               (constrain-ship {:x (inc glc/known-space-x)
+                                :y (inc glc/known-space-y)})))
+    (it "constrains -x -y"
+      (should= {:x 0 :y 0 :velocity [0.0 0.0]}
+               (constrain-ship {:x -1 :y -1})))
+    )
 
   (describe "shields recharge from antimatter"
     (it "recharges shields and consumes antimatter"

@@ -113,7 +113,7 @@
       (should= 90 (int (:heading (:ship world))))))
 
   (it "impulse moves ship"
-    (let [ship (assoc @ship :impulse 1)
+    (let [ship (assoc @ship :impulse 1 :y 1000)
           world (assoc @world :ship ship)
           world (update-world 1000 world)]
       (should> (first (:velocity (:ship world))) 0)))

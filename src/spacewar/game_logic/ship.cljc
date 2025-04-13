@@ -258,6 +258,12 @@
       (assoc ship :destroyed true)
       ship)))
 
+(defn constrain-ship [{:keys [x y velocity] :as ship}]
+  (let [nx (min (max x 0) glc/known-space-x)
+        ny (min (max y 0) glc/known-space-y)
+        nv (if (and (= x nx) (= y ny)) velocity [0.0 0.0])]
+    (assoc ship :x nx :y ny :velocity nv)))
+
 (defn update-ship [ms world]
   (let [ship (:ship world)
         ship (update-destruction ship)
@@ -266,6 +272,7 @@
                (->> ship
                     (warp-ship ms)
                     (impulse-ship ms)
+                    (constrain-ship)
                     (rotate-ship ms)
                     (charge-shields ms)
                     (repair-ship ms)
