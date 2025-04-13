@@ -54,8 +54,8 @@
 
 (describe "angle-degrees"
   (context "coincident points"
-    (it "returns :bad-angle"
-      (should= :bad-angle (angle-degrees [0 0] [0 0]))))
+    (it "returns 0 by convention"
+      (should= 0 (angle-degrees [0 0] [0 0]))))
   (context "unit circle"
     (it "returns correct angles"
       (should= 0 (angle-degrees [0 0] [1 0]) 1e-5)

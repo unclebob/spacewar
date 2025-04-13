@@ -40,7 +40,7 @@
   (let [a (- y2 y1)
         b (- x2 x1)]
     (if (and (zero? a) (zero? b))
-      :bad-angle
+      0
       (let [c (Math/sqrt (+ (square a) (square b)))
             radians (Math/asin (/ (abs a) c))
             degrees (->degrees radians)]

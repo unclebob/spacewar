@@ -133,7 +133,7 @@
 (def klingon-torpedo-proximity 2000)
 (def klingon-torpedo-range 100000)
 
-(def klingon-odds-to-become-destroyer 0.01) ;per minute
+(def klingon-odds-to-become-destroyer 0.1) ;per minute
 
 (def minutes-till-full-klingon-invasion (* 5 60))           ;five hours
 

@@ -343,27 +343,30 @@
       (assoc world :klingons klingons
                    :shots (concat shots new-shots)))))
 
-(defn- thrust-if-battle [ship klingon]
-  (let [battle-state (:battle-state klingon)
-        ship-pos (util/pos ship)
+(defn- battle? [ship klingon]
+  (let [ship-pos (util/pos ship)
         klingon-pos (util/pos klingon)
-        dist (geo/distance ship-pos klingon-pos)
-        degrees (if (= ship-pos klingon-pos)
-                  0
-                  (geo/angle-degrees klingon-pos ship-pos))
-        degrees (+ degrees (battle-state glc/klingon-evasion-trajectories))
-        radians (geo/->radians degrees)
-        efficiency (/ (:shields klingon) glc/klingon-shields)
-        efficiency (+ (/ 2 3) (/ efficiency 3))
-        effective-thrust (min (klingon :antimatter)
-                              (* glc/klingon-tactical-thrust efficiency))
-        thrust (vector/from-angular effective-thrust radians)
-        thrust (if (= :kamikazee (:battle-state klingon))
-                 (vector/scale glc/klingon-kamikazee-thrust-factor thrust)
-                 thrust)]
-    (if (< glc/klingon-tactical-range dist)
-      klingon
-      (assoc klingon :thrust thrust))))
+        dist (geo/distance ship-pos klingon-pos)]
+    (> glc/klingon-tactical-range dist)))
+
+(defn- thrust-if-battle [ship klingon]
+  (if (battle? ship klingon)
+    (let [battle-state (:battle-state klingon)
+          ship-pos (util/pos ship)
+          klingon-pos (util/pos klingon)
+          degrees (geo/angle-degrees klingon-pos ship-pos)
+          degrees (+ degrees (battle-state glc/klingon-evasion-trajectories))
+          radians (geo/->radians degrees)
+          efficiency (/ (:shields klingon) glc/klingon-shields)
+          efficiency (+ (/ 2 3) (/ efficiency 3))
+          effective-thrust (min (klingon :antimatter)
+                                (* glc/klingon-tactical-thrust efficiency))
+          thrust (vector/from-angular effective-thrust radians)
+          thrust (if (= :kamikazee (:battle-state klingon))
+                   (vector/scale glc/klingon-kamikazee-thrust-factor thrust)
+                   thrust)]
+      (assoc klingon :thrust thrust))
+    klingon))
 
 (defn- accelerate-klingon [ms klingon]
   (let [{:keys [thrust velocity antimatter]} klingon]
