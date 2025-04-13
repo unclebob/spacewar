@@ -321,7 +321,7 @@
         (should (ut/roughly-v [glc/klingon-cruise-thrust 0] (:thrust klingon)))
         (should= :cruise (k/super-state klingon ship))))
 
-    (focus-it "refuels at nearest antimatter star"
+    (it "refuels at nearest antimatter star"
               (let [ship (assoc @ship :x 1e7 :y 1e7)
                     star1 (mom/make-star 100 100 :o)
                     star2 (mom/make-star 20 0 :g)

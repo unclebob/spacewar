@@ -571,8 +571,8 @@
   (if (= (:battle-state klingon) :no-battle)
     (let [fraction-fuel-remaining (/ (:antimatter klingon) glc/klingon-antimatter)
           target-classes (condp <= fraction-fuel-remaining
-                           0.5 #{:o :b}
-                           0.3 #{:o :b :a :f}
+                           0.3 #{:o :b}
+                           0.2 #{:o :b :a :f}
                            #{:o :b :a :f :g :k :m})
           antimatter-stars (filter #(target-classes (:class %)) stars)
           antimatter-bases (filter #(= :antimatter-factory (:type %)) bases)
@@ -653,7 +653,7 @@
         transition (cruise-transition klingon)
         cruise-state (:cruise-state klingon)
         new-state (if (and (= :refuel cruise-state)
-                           (< antimatter glc/klingon-antimatter))
+                           (< antimatter (* 0.95 glc/klingon-antimatter)))
                     :refuel
                     (-> cruise-fsm cruise-state transition))]
     (assoc klingon :cruise-state new-state)))
