@@ -591,7 +591,7 @@
           nearest-antimatter-star (star-distance-map distance-to-nearest-antimatter-star)
           nearest-antimatter-base (base-distance-map distance-to-nearest-antimatter-base)
           angle-to-target (if (< distance-to-nearest-antimatter-base
-                                 glc/klingon-antimatter-base-in-range)
+                                 distance-to-nearest-antimatter-star)
                             (geo/angle-degrees (util/pos klingon) (util/pos nearest-antimatter-base))
                             (geo/angle-degrees (util/pos klingon) (util/pos nearest-antimatter-star)))
           thrust (vector/from-angular glc/klingon-cruise-thrust (geo/->radians angle-to-target))]
@@ -653,7 +653,7 @@
         transition (cruise-transition klingon)
         cruise-state (:cruise-state klingon)
         new-state (if (and (= :refuel cruise-state)
-                           (< antimatter (* 0.95 glc/klingon-antimatter)))
+                           (< antimatter (* glc/klingon-pct-refueling-target glc/klingon-antimatter)))
                     :refuel
                     (-> cruise-fsm cruise-state transition))]
     (assoc klingon :cruise-state new-state)))

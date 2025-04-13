@@ -347,18 +347,35 @@
                 )
               )
 
-    (it "refuels at nearest antimatter base if close"
-      (let [ship (assoc @ship :x 1e7 :y 1e7)
-            star1 (mom/make-star 100 100 :o)
-            star2 (mom/make-star 20 0 :g)
-            star3 (mom/make-star 0 200 :o)
-            base (mom/make-base 150 0 :antimatter-factory 0 0)
-            klingon (assoc @klingon :cruise-state :refuel)
-            world (assoc @world :stars [star1 star2 star3] :klingons [klingon] :ship ship :bases [base])
-            world (k/cruise-klingons world)
-            klingon (-> world :klingons first)]
-        (should (ut/roughly-v [glc/klingon-cruise-thrust 0] (:thrust klingon)))
-        (should= :cruise (k/super-state klingon ship))))
+    (context "refuels at nearest antimatter source"
+      (it "base is closest"
+        (let [ship (assoc @ship :x 1e7 :y 1e7)
+              star1 (mom/make-star 100 100 :o)
+              star2 (mom/make-star 20 0 :g)
+              star3 (mom/make-star 0 200 :o)
+              base (mom/make-base 100 0 :antimatter-factory 0 0)
+              klingon (assoc @klingon :cruise-state :refuel)
+              world (assoc @world :stars [star1 star2 star3] :klingons [klingon] :ship ship :bases [base])
+              world (k/cruise-klingons world)
+              klingon (-> world :klingons first)]
+          (should (ut/roughly-v [glc/klingon-cruise-thrust 0] (:thrust klingon)))
+          (should= :cruise (k/super-state klingon ship))))
+
+      (it "Type :o star is closest"
+              (let [ship (assoc @ship :x 1e7 :y 1e7)
+                    star1 (mom/make-star 100 100 :o)
+                    star2 (mom/make-star 20 0 :g)
+                    star3 (mom/make-star 0 200 :o)
+                    base (mom/make-base 200 0 :antimatter-factory 0 0)
+                    klingon (assoc @klingon :cruise-state :refuel)
+                    world (assoc @world :stars [star1 star2 star3] :klingons [klingon] :ship ship :bases [base])
+                    world (k/cruise-klingons world)
+                    klingon (-> world :klingons first)]
+                (prn (:thrust klingon))
+                (should (ut/roughly= 45 (geo/angle-degrees [0 0] (:thrust klingon))))
+                (should= :cruise (k/super-state klingon ship))))
+
+      )
 
     (it "patrols in random direction"
       (let [ship (assoc @ship :x 1e7 :y 1e7)

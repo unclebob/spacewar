@@ -91,6 +91,7 @@
 (def klingon-drag 0.999)
 (def klingon-debris 1000)
 (def klingon-docking-distance 10000)
+(def klingon-pct-refueling-target 0.65)
 
 (def klingon-kinetic-range 200000)
 (def klingon-kinetic-firing-distance 150000)
@@ -106,7 +107,6 @@
 (def klingon-kinetic-production-rate (/ 10 60 1000))        ;ten per minute
 (def klingon-torpedo-antimatter-cost (/ 1000 60 1000))      ;1000 per minute
 (def klingon-torpedo-antimatter-threshold (/ klingon-antimatter 5)) ;no production if under 20%
-(def klingon-antimatter-base-in-range 3000000)
 
 (def klingon-range-for-antimatter-production 10000)
 (def klingon-antimatter-production-rate {:o 0.2
