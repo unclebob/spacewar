@@ -135,7 +135,7 @@
 
 (def klingon-odds-to-change-mission 0.1) ;per minute
 
-(def minutes-till-full-klingon-invasion (* 5 60))           ;five hours
+(def minutes-till-full-klingon-invasion (* 1 60))           ;five hours
 
 (def romulan-invisible-time 3000)
 (def romulan-appearing-time 2000)

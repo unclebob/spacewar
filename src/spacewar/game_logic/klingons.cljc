@@ -101,9 +101,9 @@
 (defn new-klingon-from-praxis [world]
   (let [klingons (:klingons world)
         klingon (make-klingon (rand-int glc/known-space-x) 0)
-        klingon (assoc klingon :mission (random-mission)
+        klingon (assoc klingon :mission :seek-and-destroy
                                :cruise-state :mission
-                               :thrust [0 glc/klingon-cruise-thrust]
+                               :thrust [0 0]
                                :velocity [0 -1]
                                :antimatter glc/klingon-antimatter
                                :torpedos glc/klingon-torpedos
@@ -713,8 +713,10 @@
 
 (defn- add-klingons-from-praxis [world]
   (let [minutes (get world :minutes 0)
-        probability (/ minutes glc/minutes-till-full-klingon-invasion)]
-    (if (< (rand) probability)
+        probability (/ minutes glc/minutes-till-full-klingon-invasion)
+        klingon-count (count (:klingons world))]
+    (if (and (< (rand) probability)
+             (<= klingon-count (* 1.5 glc/number-of-klingons)))
       (new-klingon-from-praxis world)
       world)))
 
