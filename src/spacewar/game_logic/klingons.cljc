@@ -718,13 +718,17 @@
       (new-klingon-from-praxis world)
       world)))
 
-(defn- try-change-to-seek-and-destroy [klingon]
-  (if (< (rand) glc/klingon-odds-to-become-destroyer)
-    (assoc klingon :mission :seek-and-destroy)
-    klingon))
+(defn- try-change-mission [klingon]
+  (let [mission (:mission klingon)
+        new-mission (condp = mission
+                      :blockade :seek-and-destroy
+                      :seek-and-destroy :blockade)]
+    (if (< (rand) glc/klingon-odds-to-change-mission)
+      (assoc klingon :mission new-mission)
+      klingon)))
 
-(defn change-blockade-to-seek-and-destroy [{:keys [klingons] :as world}]
-  (let [klingons (map try-change-to-seek-and-destroy klingons)]
+(defn try-change-missions [{:keys [klingons] :as world}]
+  (let [klingons (map try-change-mission klingons)]
     (assoc world :klingons klingons))
   )
 
@@ -742,7 +746,7 @@
   (-> world
       (change-patrol-direction)
       (change-all-cruise-states)
-      (change-blockade-to-seek-and-destroy)
+      (try-change-missions)
       (check-escape-corbomite)
       (add-klingons-from-praxis)))
 
