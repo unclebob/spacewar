@@ -82,13 +82,13 @@
           (should= :kamikazee (klingons/determine-battle-state klingon ship)))))
 
     (it "goes to retreating mode when below runaway antimatter threshold"
-          (with-redefs [rand (constantly 0)]
-            (let [klingon (-> (mom/make-klingon)
-                              (mom/set-pos [50 50])
-                              (assoc :battle-state :advancing
-                                     :antimatter (dec glc/klingon-antimatter-runaway-threshold)))
-                  ship (-> (mom/make-ship) (mom/set-pos [0 0]))]
-              (should= :retreating (klingons/determine-battle-state klingon ship)))))
+      (with-redefs [rand (constantly 0)]
+        (let [klingon (-> (mom/make-klingon)
+                          (mom/set-pos [50 50])
+                          (assoc :battle-state :advancing
+                                 :antimatter (dec glc/klingon-antimatter-runaway-threshold)))
+              ship (-> (mom/make-ship) (mom/set-pos [0 0]))]
+          (should= :retreating (klingons/determine-battle-state klingon ship)))))
 
     (it "kamikazee mode depletes shields"
       (let [world (mom/make-world)
@@ -321,23 +321,31 @@
         (should (ut/roughly-v [glc/klingon-cruise-thrust 0] (:thrust klingon)))
         (should= :cruise (k/super-state klingon ship))))
 
-    (it "refuels at nearest antimatter star"
-      (let [ship (assoc @ship :x 1e7 :y 1e7)
-            star1 (mom/make-star 100 100 :o)
-            star2 (mom/make-star 20 0 :g)
-            star3 (mom/make-star 0 200 :o)
-            klingon-hi (assoc @klingon :cruise-state :refuel :antimatter glc/klingon-antimatter :id :hi)
-            klingon-low (assoc @klingon :cruise-state :refuel :antimatter (/ glc/klingon-antimatter 10) :id :low)
-            world (assoc @world :stars [star1 star2 star3] :klingons [klingon-hi klingon-low] :ship ship)
-            world (k/cruise-klingons world)
-            klingons (group-by :id (:klingons world))
-            klingon-hi (first (:hi klingons))
-            klingon-low (first (:low klingons))
-            thrust (* (Math/sqrt 2) 0.5 glc/klingon-cruise-thrust)]
-        (should (ut/roughly-v [thrust thrust] (:thrust klingon-hi)))
-        (should (ut/roughly-v [glc/klingon-cruise-thrust 0] (:thrust klingon-low)))
-        (should= :cruise (k/super-state klingon-hi ship))
-        (should= :cruise (k/super-state klingon-low ship))))
+    (focus-it "refuels at nearest antimatter star"
+              (let [ship (assoc @ship :x 1e7 :y 1e7)
+                    star1 (mom/make-star 100 100 :o)
+                    star2 (mom/make-star 20 0 :g)
+                    star3 (mom/make-star 0 200 :o)
+                    klingon-hi (assoc @klingon :cruise-state :refuel :antimatter glc/klingon-antimatter :id :hi)
+                    klingon-low (assoc @klingon :cruise-state :refuel :antimatter (/ glc/klingon-antimatter 10) :id :low)
+                    world (assoc @world :stars [star1 star2 star3] :klingons [klingon-hi klingon-low] :ship ship)
+                    world (k/cruise-klingons world)
+                    klingons (group-by :id (:klingons world))
+                    klingon-hi (first (:hi klingons))
+                    klingon-low (first (:low klingons))
+                    thrust (* (Math/sqrt 2) 0.5 glc/klingon-cruise-thrust)
+                    thrust-angle-low (geo/angle-degrees [0 0] (:thrust klingon-low))
+                    thrust-angle-hi (geo/angle-degrees [0 0] (:thrust klingon-hi))
+                    angle-to-g-star 0
+                    angle-to-near-o-star 45]
+                (should (ut/roughly-v [thrust thrust] (:thrust klingon-hi)))
+                (should (ut/roughly-v [glc/klingon-cruise-thrust 0] (:thrust klingon-low)))
+                (should= :cruise (k/super-state klingon-hi ship))
+                (should= :cruise (k/super-state klingon-low ship))
+                (should (ut/roughly= angle-to-g-star thrust-angle-low))
+                (should (ut/roughly= angle-to-near-o-star thrust-angle-hi))
+                )
+              )
 
     (it "refuels at nearest antimatter base if close"
       (let [ship (assoc @ship :x 1e7 :y 1e7)
