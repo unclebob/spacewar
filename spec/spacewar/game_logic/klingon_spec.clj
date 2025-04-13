@@ -327,7 +327,7 @@
                     star2 (mom/make-star 20 0 :g)
                     star3 (mom/make-star 0 200 :o)
                     klingon-hi (assoc @klingon :cruise-state :refuel :antimatter glc/klingon-antimatter :id :hi)
-                    klingon-low (assoc @klingon :cruise-state :refuel :antimatter (/ glc/klingon-antimatter 10) :id :low)
+                    klingon-low (assoc @klingon :cruise-state :refuel :antimatter (/ glc/klingon-antimatter 20) :id :low)
                     world (assoc @world :stars [star1 star2 star3] :klingons [klingon-hi klingon-low] :ship ship)
                     world (k/cruise-klingons world)
                     klingons (group-by :id (:klingons world))
@@ -395,7 +395,7 @@
       (should= :low-torpedo (k/cruise-transition {:antimatter (* 0.41 glc/klingon-antimatter) :torpedos 0}))
       (should= :low-torpedo (k/cruise-transition {:antimatter (* 0.41 glc/klingon-antimatter) :torpedos (* 0.40 glc/klingon-torpedos)}))
       (should= :capable (k/cruise-transition {:antimatter (* 0.41 glc/klingon-antimatter) :torpedos (* 0.41 glc/klingon-torpedos)}))
-      (should= :well-supplied (k/cruise-transition {:antimatter (* 0.41 glc/klingon-antimatter) :torpedos (* 0.61 glc/klingon-torpedos)}))))
+      (should= :well-supplied (k/cruise-transition {:antimatter (* 0.61 glc/klingon-antimatter) :torpedos (* 0.81 glc/klingon-torpedos)}))))
 
   (describe "weapon production"
     (it "produces kinetics"

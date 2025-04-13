@@ -52,7 +52,7 @@
                          :well-supplied :mission}
                  :mission {:low-antimatter :refuel
                            :low-torpedo :guard
-                           :capable :refuel
+                           :capable :mission
                            :well-supplied :mission}
                  })
 
@@ -572,7 +572,7 @@
     (let [fraction-fuel-remaining (/ (:antimatter klingon) glc/klingon-antimatter)
           target-classes (condp <= fraction-fuel-remaining
                            0.3 #{:o :b}
-                           0.2 #{:o :b :a :f}
+                           0.1 #{:o :b :a :f}
                            #{:o :b :a :f :g :k :m})
           antimatter-stars (filter #(target-classes (:class %)) stars)
           antimatter-bases (filter #(= :antimatter-factory (:type %)) bases)
@@ -590,7 +590,7 @@
                                                 (apply min (keys base-distance-map)))
           nearest-antimatter-star (star-distance-map distance-to-nearest-antimatter-star)
           nearest-antimatter-base (base-distance-map distance-to-nearest-antimatter-base)
-          angle-to-target (if (< distance-to-nearest-antimatter-base
+          angle-to-target (if (< (* 0.7 distance-to-nearest-antimatter-base)
                                  distance-to-nearest-antimatter-star)
                             (geo/angle-degrees (util/pos klingon) (util/pos nearest-antimatter-base))
                             (geo/angle-degrees (util/pos klingon) (util/pos nearest-antimatter-star)))
@@ -643,7 +643,7 @@
     (cond
       (<= antimatter 40) :low-antimatter
       (<= torpedos 40) :low-torpedo
-      (and (> antimatter 40) (> torpedos 60)) :well-supplied
+      (and (> antimatter 60) (> torpedos 80)) :well-supplied
       :else :capable
       ))
   )

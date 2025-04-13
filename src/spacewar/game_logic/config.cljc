@@ -84,11 +84,11 @@
 (def klingon-antimatter-runaway-threshold (* 0.2 klingon-antimatter))
 (def klingon-antimatter-kamikazee-threshold (* 0.1 klingon-antimatter))
 (def klingon-cruise-thrust 0.01)
-(def klingon-tactical-thrust 0.002)
-(def klingon-thrust-time 15)                                ;in minutes
+(def klingon-tactical-thrust 0.001)
+(def klingon-thrust-time 20)                                ;in minutes
 (def klingon-thrust-time-ms (* klingon-thrust-time 60 1000)) ;100% antimatter
 (def klingon-thrust-antimatter (/ klingon-antimatter klingon-thrust-time-ms))
-(def klingon-drag 0.999)
+(def klingon-drag 0.9995)
 (def klingon-debris 1000)
 (def klingon-docking-distance 10000)
 (def klingon-pct-refueling-target 0.65)
@@ -109,13 +109,13 @@
 (def klingon-torpedo-antimatter-threshold (/ klingon-antimatter 5)) ;no production if under 20%
 
 (def klingon-range-for-antimatter-production 10000)
-(def klingon-antimatter-production-rate {:o 0.2
-                                         :b 0.16
-                                         :a 0.12
-                                         :f 0.1
-                                         :g 0.08
-                                         :k 0.0125
-                                         :m 0.005})
+(def klingon-antimatter-production-rate {:o 0.4
+                                         :b 0.32
+                                         :a 0.24
+                                         :f 0.2
+                                         :g 0.16
+                                         :k 0.025
+                                         :m 0.01})
 
 (def klingon-phaser-power 200)
 (def klingon-phaser-firing-distance 30000)
