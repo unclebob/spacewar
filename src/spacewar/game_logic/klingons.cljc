@@ -714,9 +714,12 @@
 (defn- add-klingons-from-praxis [world]
   (let [minutes (get world :minutes 0)
         probability (/ minutes glc/minutes-till-full-klingon-invasion)
-        klingon-count (count (:klingons world))]
+        klingon-count (count (:klingons world))
+        ship (:ship world)
+        corbomite? (:corbomite-device-installed ship)]
     (if (and (< (rand) probability)
-             (<= klingon-count (* 1.5 glc/number-of-klingons)))
+             (<= klingon-count (* 1.5 glc/number-of-klingons))
+             (not corbomite?))
       (new-klingon-from-praxis world)
       world)))
 
@@ -724,7 +727,8 @@
   (let [mission (:mission klingon)
         new-mission (condp = mission
                       :blockade :seek-and-destroy
-                      :seek-and-destroy :blockade)]
+                      :seek-and-destroy :blockade
+                      :escape-corbomite :escape-corbomite)]
     (if (< (rand) glc/klingon-odds-to-change-mission)
       (assoc klingon :mission new-mission)
       klingon)))

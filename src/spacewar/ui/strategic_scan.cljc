@@ -105,10 +105,16 @@
         y->frame (fn [y] (* pixel-width (- y sy)))]
     (q/stroke-weight 1)
     (apply q/stroke (conj uic/white 100))
-    (doseq [x (range 0 glc/known-space-x glc/strategic-range)]
-      (q/line (x->frame x) (y->frame 0) (x->frame x) (y->frame glc/known-space-y)))
-    (doseq [y (range 0 glc/known-space-y glc/strategic-range)]
-      (q/line (x->frame 0) (y->frame y) (x->frame glc/known-space-x) (y->frame y)))))
+    (doseq [x (range 0 (inc glc/known-space-x) glc/strategic-range)]
+      (let [sector-x (x->frame x)
+            sector-y-min (y->frame 0)
+            sector-y-max (y->frame glc/known-space-y)]
+        (q/line sector-x sector-y-min sector-x sector-y-max)))
+    (doseq [y (range 0 (inc glc/known-space-y) glc/strategic-range)]
+      (let [sector-y (y->frame y)
+            sector-x-min (x->frame 0)
+            sector-x-max (x->frame glc/known-space-x)]
+        (q/line sector-x-min sector-y sector-x-max sector-y)))))
 
 (defn- click->pos [strategic-scan ship click]
   (let [{:keys [x y w h pixel-width]} strategic-scan
