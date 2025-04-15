@@ -741,11 +741,16 @@
 (defn- change-mission-to-escape [klingon]
   (assoc klingon :mission :escape-corbomite :cruise-state :mission))
 
-(defn- check-escape-corbomite [{:keys [klingons ship] :as world}]
+(defn- change-escapees-to-attackers [klingon]
+  (if (= :escape-corbomite (:mission klingon))
+    (assoc klingon :mission :seek-and-destroy :cruise-state :mission)
+    klingon))
+
+(defn- check-corbomite [{:keys [klingons ship] :as world}]
   (let [corbomite (:corbomite-device-installed ship)
         klingons (if corbomite
                    (map change-mission-to-escape klingons)
-                   klingons)]
+                   (map change-escapees-to-attackers klingons))]
     (assoc world :klingons klingons)))
 
 (defn update-klingons-per-minute [world]
@@ -753,6 +758,6 @@
       (change-patrol-direction)
       (change-all-cruise-states)
       (try-change-missions)
-      (check-escape-corbomite)
+      (check-corbomite)
       (add-klingons-from-praxis)))
 

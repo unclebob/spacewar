@@ -26,6 +26,7 @@
 (def antimatter-to-heat 0.01)
 (def dilithium-heat-dissipation 0.00005)
 (def passive-heat-dissipation 0.0000005)
+(def corbomite-warp-factor-boost 3)
 
 (def max-shots-by-type {:none 0 :phaser 4 :torpedo 5 :kinetic 30})
 (def min-spread 2)

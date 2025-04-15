@@ -249,10 +249,10 @@ to get close enough to kill you before their engines explode.
   tinge and flashes dimly.  This is the only star that can support a _Corbomite_ factory.
 
 ## _The Corbomite Device_
-Once you have docked with _The Corbomite Device_ your weapons and sheilds will become
+Once you have docked with _The Corbomite Device_ your warp speed will be enhanced.  Weapons and sheilds will become
 much more effective.  You should be able to kill all the remaining Klingons and withstand
 their defenses.  You'll notice that they will all start retreating and heading back to their
-home world or Praxis.  Some will likely run out of fuel in their panic to escape.  You can
+home world of Praxis.  Some will likely run out of fuel in their panic to escape.  You can
 pick them off with one or two kinetics.
 
 But be careful.  _The Corbomite Device_ does not make you invulnerable.  If you are careless
