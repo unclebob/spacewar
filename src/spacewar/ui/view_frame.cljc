@@ -6,20 +6,31 @@
             [spacewar.ui.front-view :refer [->front-view]]
             [spacewar.ui.protocols :as p]))
 
+(def message-queue (atom []))
+
+(defn clear-messages! []
+  (reset! message-queue []))
+
+(defn add-message! [message duration]
+  (swap! message-queue conj {:text message :duration duration}))
+
 (defn update-messages [ms world]
-  (let [messages (:messages world)
-        updates (map #(update % :duration - ms) messages)
-        updates (filter #(pos? (:duration %)) updates)]
-    (assoc world :messages updates)))
+  (swap! message-queue
+         (fn [old-messages]
+           (->> old-messages
+               (map #(update % :duration - ms))
+               (filter #(pos? (:duration %))))))
+  world)
 
 (defn- draw-messages [state]
-  (let [{:keys [x y w h messages]} state
+  (let [{:keys [x y w h ]} state
+        messages @message-queue
         message-x (+ x (* 2 (/ w 3)))
         lines (map :text messages)
         text (clojure.string/join "\n" lines)]
     (when (not (empty? messages))
-      (apply q/fill (conj uic/green 180))
-      (q/text-font (:messages (q/state :fonts)) 24)
+      (apply q/fill (conj uic/red 255))
+      (q/text-font (:messages (q/state :fonts)) 30)
       (q/text-align :left :bottom)
       (q/with-translation
         [message-x (+ y h)]
@@ -47,8 +58,8 @@
       (when (not (:sensor-loss state))
         (p/draw contents))
       #?(:cljs (fill-outside-rect (- x 5) (- y 5) (+ w 10) (+ h 10)
-                 (.-width (q/current-graphics)) (.-height (q/current-graphics))
-                 uic/light-grey))
+                                  (.-width (q/current-graphics)) (.-height (q/current-graphics))
+                                  uic/light-grey))
       (draw-messages state)
       #?(:clj (q/no-clip))))
 
@@ -78,8 +89,7 @@
           sensor-damage (:sensor-damage ship)
           state (assoc state :sensor-loss (and
                                             (> sensor-damage (rand 100))
-                                            (not (:destroyed ship)))
-                             :messages (:messages world))
+                                            (not (:destroyed ship))))
           [state events] (p/update-elements state world)]
       (p/pack-update
         (view-frame. state) events))))

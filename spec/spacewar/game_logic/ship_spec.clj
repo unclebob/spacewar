@@ -1,5 +1,6 @@
 (ns spacewar.game-logic.ship-spec
   (:require [spacewar.game-logic.bases :as bases]
+            [spacewar.ui.view-frame :as view-frame]
             [spacewar.game-logic.config :refer [antimatter-to-heat
                                                 base-deployment-antimatter
                                                 base-deployment-dilithium
@@ -39,7 +40,7 @@
             [spacewar.game-logic.spec-mother :as mom]
             [spacewar.spec-utils :as ut]
             [spacewar.vector :as vector]
-            [speclj.core :refer [context describe it should should-not should= stub with with-stubs]]))
+            [speclj.core :refer [context describe it should should-not should= stub with with-stubs before]]))
 
 (declare ship)
 (describe "ship"
@@ -450,6 +451,8 @@
                    (:core-temp cool-ship) 1e-10)))))
 
   (describe "base deployment"
+    (before (view-frame/clear-messages!))
+
     (it "fails if ship not near star"
       (let [world (mom/make-world)
             ship (:ship world)
@@ -458,7 +461,8 @@
             world (deploy-base :antimatter-factory world)]
         (should= 0 (count (:bases world)))
         (should= ship (:ship world))
-        (should= 1 (count (:messages world)))))
+        (should= 1 (count @view-frame/message-queue))))
+
     (it "fails if insufficient antimatter"
       (let [world (mom/make-world)
             ship (:ship world)
@@ -468,7 +472,8 @@
             world (deploy-base :antimatter-factory world)]
         (should= 0 (count (:bases world)))
         (should= ship (:ship world))
-        (should= 1 (count (:messages world)))))
+        (should= 1 (count @view-frame/message-queue))))
+
     (it "fails if insufficient dilithium"
       (let [world (mom/make-world)
             ship (:ship world)
@@ -478,7 +483,8 @@
             world (deploy-base :antimatter-factory world)]
         (should= 0 (count (:bases world)))
         (should= ship (:ship world))
-        (should= 1 (count (:messages world)))))
+        (should= 1 (count @view-frame/message-queue))))
+
     (it "fails if base already exists at star"
       (let [world (mom/make-world)
             ship (:ship world)
@@ -488,7 +494,8 @@
             world (deploy-base :antimatter-factory world)]
         (should= 1 (count (:bases world)))
         (should= ship (:ship world))
-        (should= 1 (count (:messages world)))))
+        (should= 1 (count @view-frame/message-queue))))
+
     (it "succeeds if ship near star with sufficient resources"
       (let [world (mom/make-world)
             star (mom/make-star (dec ship-deploy-distance) 0 :o)
