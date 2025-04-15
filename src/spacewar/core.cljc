@@ -4,6 +4,7 @@
             [spacewar.ui.complex :as main-viewer]
             [spacewar.ui.view-frame :as view-frame]
             [spacewar.ui.protocols :as p]
+            [spacewar.ui.messages :as messages]
             [spacewar.game-logic.config :as glc]
             [spacewar.game-logic.ship :as ship]
             [spacewar.game-logic.stars :as stars]
@@ -276,25 +277,6 @@
       (println (s/explain-str ::world world)))
     valid))
 
-(defn- msg [text]
-  (view-frame/add-message! text 5000))
-
-(defn- shield-message [world]
-  (let [ship (:ship world)
-        shields (:shields ship)]
-    (cond
-      (< shields (/ glc/ship-shields 5)) (msg "Captain! Shields are buckling!")
-      (< shields (/ glc/ship-shields 2)) (msg "Taking Damage sir!")
-      (< shields glc/ship-shields) (msg "Shields Holding sir!"))
-    world))
-
-(defn- add-messages [world]
-  (let [message-time (and (not (->> world :ship :destroyed))
-                          (> 1 (rand 200)))]
-    (when message-time
-      (->> world (shield-message)))
-    world))
-
 (defn update-world [ms world]
   ;{:pre [(valid-world? world)]
   ; :post [(valid-world? %)]}
@@ -309,10 +291,10 @@
        (bases/update-bases ms)
        (romulans/update-romulans ms)
        (view-frame/update-messages ms)
-       (add-messages)
        ))
 
 (defn update-world-per-second [world]
+  (messages/add-messages! world)
   (->> world
        (klingons/update-klingons-per-second)
        (romulans/update-romulans-per-second)))

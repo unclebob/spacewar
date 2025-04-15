@@ -272,7 +272,7 @@
   (context "calculate real damage to ship"
     (for [[shields hit-strength real-damage]
           [[ship-shields 100 0]
-           [(/ ship-shields 2) 100 55]
+           [(/ ship-shields 2) 100 0] ;above threshold
            [(/ ship-shields 4) 100 80]
            [0 100 100]]]
       (it (str "with shields=" shields " hit-strength=" hit-strength)

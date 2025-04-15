@@ -13,6 +13,7 @@
 (def warp-charge-rate 2)
 (def warp-threshold 2000)
 (def ship-shields 1000)
+(def ship-shields-threshold (/ ship-shields 4))
 (def ship-antimatter 100000)
 (def ship-dilithium 1000)
 (def ship-dilithium-consumption 0.0005)
@@ -136,7 +137,7 @@
 
 (def klingon-odds-to-change-mission 0.1) ;per minute
 
-(def minutes-till-full-klingon-invasion (* 1 60))           ;five hours
+(def minutes-till-full-klingon-invasion (* 1 60))
 
 (def romulan-invisible-time 3000)
 (def romulan-appearing-time 2000)

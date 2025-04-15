@@ -299,8 +299,7 @@
     (if (hits-ship? shot ship dist proximity) :hit :miss)))
 
 (defn calc-damage [shields damage]
-  (let [shield-threshold (/ glc/ship-shields 2)
-        damage-absorbed (max 0 (- shields shield-threshold))
+  (let [damage-absorbed (max 0 (- shields glc/ship-shields-threshold))
         residual-damage (max 0 (- damage damage-absorbed))
         remaining-shields (max 0 (- shields damage))
         avg-shields (/ (+ shields remaining-shields) 2)]
