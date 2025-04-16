@@ -17,6 +17,7 @@
             [spacewar.util :as util]
             [clojure.spec.alpha :as s]
             #?(:clj [clojure.java.io :as io])
+            #?(:clj [clojure.java.io :as io])
             #?(:cljs [clojure.edn :as edn])))
 
 #?(:cljs (enable-console-print!))
@@ -87,8 +88,8 @@
                :transport-routes #{}}
         world (reduce #(add-base %1 %2) world bases)]
     (view-frame/clear-messages!)
-    (view-frame/add-message! "Welcome to Space War!" 5000)
-    (view-frame/add-message! "Save the Federation!" 10000)
+    (messages/send-message :welcome)
+    (messages/send-message :save-federation)
     world))
 
 
@@ -106,8 +107,8 @@
                    :cljs (edn/read-string (.getItem js/localStorage "spacewar.world")))
                 (make-initial-world))
         world (if (and saved? (= version (:version world)))
-                (do (view-frame/add-message! "Saved game loaded." 10000) world)
-                (do (view-frame/add-message! "Saved game ignored, old version." 10000) (make-initial-world)))]
+                (do (messages/send-message :old-game) world)
+                (do (messages/send-message :new-version) (make-initial-world)))]
     (q/frame-rate glc/frame-rate)
     (q/color-mode :rgb)
     (q/background 200 200 200)
@@ -248,7 +249,7 @@
 
 (defn- game-won [_ms world]
   (when (zero? (count (:klingons world)))
-    (view-frame/add-message! "The Federation is safe!  You win!" 1000000))
+    (messages/send-message :you-win))
   world)
 
 (defn- game-over [_ms {:keys [ship game-over-timer explosions deaths] :as world}]
@@ -257,7 +258,7 @@
                        (conj explosions (ship-explosion ship))
                        explosions)
           _ (when (zero? game-over-timer)
-              (view-frame/add-message! "You Died!" 10000))
+              (messages/send-message :you-died))
           done? (and
                   (pos? game-over-timer)
                   (empty? explosions))
