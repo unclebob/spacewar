@@ -10,179 +10,154 @@
   ([text duration]
    (view-frame/add-message! text duration)))
 
+(defn send-message [message-key value max]
+  (condp = message-key
+    :life-damage (msg "Life Support Damage.")
+    :life-severe (msg "Life Support Damage Severe!")
+    :life-critical (msg "Life Support Critical!")
+    :hull-damage (msg "Hull Damage.")
+    :hull-severe (msg "Hull Damage Severe!")
+    :hull-critical (msg "Hull Critical!")
+    :sensor-damage (msg "Sensor Damage.")
+    :sensor-severe (msg "Sensor Damage Severe!")
+    :sensor-critical (msg "Sensors Critical!")
+    :impulse-damage (msg "Impulse Damage.")
+    :impulse-severe (msg "Impulse Damage Severe!")
+    :impulse-critical (msg "Impulse Critical!")
+    :warp-damage (msg "Warp Damage.")
+    :warp-severe (msg "Warp Damage Severe!")
+    :warp-critical (msg "Warp Critical!")
+    :weapons-damage (msg "Weapons Damage.")
+    :weapons-severe (msg "Weapons Damage Severe!")
+    :weapons-critical (msg "Weapons Critical!")
+    :shields-charged (msg "Shields Fully Charged.")
+    :shields-ready (msg "Shields Battle Ready.")
+    :shields-damaged (msg (str "Shields Holding. " (int (* 100 (/ value max))) "%."))
+    :shields-severe (msg (str "Shields Weak." (int (* 100 (/ value max))) "%!"))
+    :shields-critical (msg "Shields Critical!")
+    :antimatter-full (msg "Antimatter Full.")
+    :antimatter-topped-off (msg "Antimatter Topped Off.")
+    :antimatter-high (msg (str "Antimatter High. " (int (* 100 (/ value max))) "%."))
+    :antimatter-low (msg (str "Antimatter Low. " (int (* 100 (/ value max))) "%!"))
+    :antimatter-critical (msg "Antimatter Critical!")
+    :dilithium-full (msg "Dilithium Full.")
+    :dilithium-topped-off (msg "Dilithium Topped Off.")
+    :dilithium-high (msg (str "Dilithium High. " (int (* 100 (/ value max))) "%."))
+    :dilithium-low (msg (str "Dilithium Low. " (int (* 100 (/ value max))) "%!"))
+    :dilithium-critical (msg "Dilithium Critical!")
+    :temp-normal (msg "Temperature Normal.")
+    :temp-high (msg (str "Temperature High. " (int (* 100 (/ value max))) "%."))
+    :temp-critical (msg "Temperature Critical!")
+    :temp-severe (msg (str "Temperature Severe. " (int (* 100 (/ value max))) "%!"))
+    :torpedos-critical (msg "Torpedos Critical!")
+    :torpedos-low (msg (str "Torpedos Low. " value "!"))
+    :torpedos-full (msg "Torpedos Full.")
+    :torpedos-normal (msg (str "Torpedos Nominal. " value "."))
+    :torpedos-high (msg (str "Torpedos High."))
+    :kinetics-critical (msg "Kinetics Critical!")
+    :kinetics-low (msg (str "Kinetics Low. " value "!"))
+    :kinetics-full (msg "Kinetics Full.")
+    :kinetics-normal (msg (str "Kinetics Nominal. " value "."))
+    :kinetics-high (msg (str "Kinetics High. " value "!"))
+    )
+  )
 
-(defn- damage-message [ship]
-  (let [life-support-damage (:life-support-damage ship)
-        hull-damage (:hull-damage ship)
-        sensor-damage (:sensor-damage ship)
-        impulse-damage (:impulse-damage ship)
-        warp-damage (:warp-damage ship)
-        weapons-damage (:weapons-damage ship)
-        old-life-support-damage (get @last-message :life-support-damage 0)
-        old-hull-damage (get @last-message :hull-damage 0)
-        old-sensor-damage (get @last-message :sensor-damage 0)
-        old-impulse-damage (get @last-message :impulse-damage 0)
-        old-warp-damage (get @last-message :warp-damage 0)
-        old-weapons-damage (get @last-message :weapons-damage 0)
-        life-diff (abs (- life-support-damage old-life-support-damage))
-        hull-diff (abs (- hull-damage old-hull-damage))
-        sensor-diff (abs (- sensor-damage old-sensor-damage))
-        impulse-diff (abs (- impulse-damage old-impulse-damage))
-        warp-diff (abs (- warp-damage old-warp-damage))
-        weapons-diff (abs (- weapons-damage old-weapons-damage))]
+(defn item-message [item key max thresholds]
+  (if (nil? (key @last-message))
+    (swap! last-message assoc key (key item))
+    (let [value (key item)
+          old-value (key @last-message)
+          pct-value (/ value max)
+          pct-old-value (/ old-value max)
+          pct-diff (abs (- pct-value pct-old-value))]
+      (when (> pct-diff 0.1)
+        (swap! last-message assoc key value)
+        (loop [previous 0
+               thresholds thresholds]
+          (if (empty? thresholds)
+            nil
+            (let [[threshold message] (first thresholds)]
+              (if (and (<= previous pct-value)
+                       (< pct-value threshold)
+                       (some? message))
+                (send-message message value max)
+                (recur threshold (rest thresholds))))))))))
 
-    (when (> life-diff 0.1)
-      (swap! last-message assoc :life-support-damage life-support-damage)
-      (cond (> life-support-damage 0.8)
-            (msg "Life Support Critical!")
-
-            (> life-support-damage 0.5)
-            (msg "Life Support Seriously Damaged!")
-
-            (> life-support-damage 0.2)
-            (msg "Life Support Damaged!")))
-
-    (when (> hull-diff 0.1)
-      (swap! last-message assoc :hull-damage hull-damage)
-      (cond (> hull-damage 0.8)
-            (msg "Hull Critical!")
-
-            (> hull-damage 0.5)
-            (msg "Hull Seriously Damaged!")
-
-            (> hull-damage 0.2)
-            (msg "Hull Damaged!")))
-
-    (when (> sensor-diff 0.1)
-      (swap! last-message assoc :sensor-damage sensor-damage)
-      (cond (> sensor-damage 0.8)
-            (msg "Sensors Critical!")
-
-            (> sensor-damage 0.5)
-            (msg "Sensors Seriously Damaged!")
-
-            (> sensor-damage 0.2)
-            (msg "Sensors Damaged!")))
-
-    (when (> impulse-diff 0.1)
-      (swap! last-message assoc :impulse-damage impulse-damage)
-      (cond (> impulse-damage 0.8)
-            (msg "Impulse Drive Critical!")
-
-            (> impulse-damage 0.5)
-            (msg "Impulse Drive Seriously Damaged!")
-
-            (> impulse-damage 0.2)
-            (msg "Impulse Drive Damaged!")))
-
-    (when (> warp-diff 0.1)
-      (swap! last-message assoc :warp-damage warp-damage)
-      (cond (> warp-damage 0.8)
-            (msg "Warp Drive Critical!")
-
-            (> warp-damage 0.5)
-            (msg "Warp Drive Seriously Damaged!")
-
-            (> warp-damage 0.2)
-            (msg "Warp Drive Damaged!")))
-
-    (when (> weapons-diff 0.1)
-      (swap! last-message assoc :weapons-damage weapons-damage)
-      (cond (> weapons-damage 0.8)
-            (msg "Weapons Critical!")
-
-            (> weapons-damage 0.5)
-            (msg "Weapons Seriously Damaged!")
-
-            (> weapons-damage 0.2)
-            (msg "Weapons Damaged!")))
-      ))
-
-
-(defn- shield-message [ship]
-  (let [shields (:shields ship)
-        old-shields (get @last-message :shields glc/ship-shields)
-        pct-old-shields (/ old-shields glc/ship-shields)
-        pct-shields (/ shields glc/ship-shields)
-        pct-diff (abs (- pct-old-shields pct-shields))]
-    (when (> pct-diff 0.1)
-      (swap! last-message assoc :shields shields)
-      (cond
-        (< pct-shields 0.2) (msg "Shields Critical!")
-        (< pct-shields 0.5) (msg (str "Shields at " (int (* 100 pct-shields)) "%!"))
-        (< pct-shields 0.8) (msg "Shields Holding!")
-        (< pct-shields 0.95) (msg "Shields battle ready.")
-        :else (msg "Sheilds fully charged.")))))
-
-(defn- resource-message [ship]
-  (let [antimatter (:antimatter ship)
-        dilithium (:dilithium ship)
-        core-temp (:core-temp ship)
-        old-antimatter (get @last-message :antimatter glc/ship-antimatter)
-        old-dilithium (get @last-message :dilithium glc/ship-dilithium)
-        old-core-temp (get @last-message :core-temp 0)
-        antimatter-pct (/ antimatter glc/ship-antimatter)
-        dilithium-pct (/ dilithium glc/ship-dilithium)
-        antimatter-pct-diff (abs (- (/ old-antimatter glc/ship-antimatter) antimatter-pct))
-        dilithium-pct-diff (abs (- (/ old-dilithium glc/ship-dilithium) dilithium-pct))
-        core-temp-diff (abs (- core-temp old-core-temp))]
-    (prn 'antimatter-pct-diff antimatter-pct-diff)
-    (when (> antimatter-pct-diff 0.1)
-      (swap! last-message  assoc :antimatter antimatter)
-      (cond
-        (< antimatter-pct 0.2) (msg "Antimatter Critical!")
-        (< antimatter-pct 0.5) (msg (str "Antimatter at " (int (* 100 antimatter-pct)) "%!"))
-        (< antimatter-pct 0.8) (msg "Antimatter OK.")
-        (< antimatter-pct 0.95) (msg "Antimatter nearly full.")
-        :else (msg "Antimatter full.")))
-
-    (when (> dilithium-pct-diff 0.1)
-      (swap! last-message assoc :dilithium dilithium)
-      (cond
-        (< dilithium-pct 0.2) (msg "Dilithium Critical!")
-        (< dilithium-pct 0.5) (msg (str "Dilithium at " (int (* 100 dilithium-pct)) "%!"))
-        (< dilithium-pct 0.8) (msg "Dilithium OK.")
-        (< dilithium-pct 0.95) (msg "Dilithium nearly full.")
-        :else (msg "Dilithium full.")))
-
-    (when (> core-temp-diff 10)
-      (swap! last-message assoc :core-temp core-temp)
-      (cond
-        (> core-temp 80) (msg "Core Temperature Critical!")
-        (> core-temp 50) (msg "Core Temperature High!")
-        (> core-temp 20) (msg "Core Temperature Normal!")
-        :else (msg "Core Temperature Cool!")))))
-
-(defn- weapons-message [ship]
-  (let [torpedos (:torpedos ship)
-        kinetics (:kinetics ship)
-        old-torpedos (get @last-message :torpedos glc/ship-torpedos)
-        old-kinetics (get @last-message :kinetics glc/ship-kinetics)
-        torpedos-pct (/ torpedos glc/ship-torpedos)
-        kinetics-pct (/ kinetics glc/ship-kinetics)
-        torpedos-pct-diff (abs (- (/ old-torpedos glc/ship-torpedos) torpedos-pct))
-        kinetics-pct-diff (abs (- (/ old-kinetics glc/ship-kinetics) kinetics-pct))]
-
-    (when (> torpedos-pct-diff 0.1)
-      (swap! last-message assoc :torpedos torpedos)
-      (cond
-        (< torpedos-pct 0.1) (msg "Torpedos Low!")
-        (< torpedos-pct 0.3) (msg (str torpedos " Torpedos left!"))
-        (< torpedos-pct 0.8) (msg "Torpedos OK.")
-        (< torpedos-pct 0.95) (msg (str "Torpedos full " (int (* 100 torpedos-pct)) "%!"))
-        :else (msg "Torpedos full.")))
-
-    (when (> kinetics-pct-diff 0.1)
-      (swap! last-message assoc :kinetics kinetics)
-      (cond
-        (< kinetics-pct 0.1) (msg "Kinetics Low!")
-        (< kinetics-pct 0.3) (msg (str kinetics " Kinetics left!"))
-        (< kinetics-pct 0.8) (msg "Kinetics OK.")
-        (< kinetics-pct 0.95) (msg (str "Kinetics full " (int (* 100 kinetics-pct)) "%!"))
-        :else (msg "Kinetics full.")))))
+(defn- ship-messages [ship]
+  (item-message ship :life-support-damage
+                100
+                [[0.1 nil]
+                 [0.3 :life-damage]
+                 [0.8 :life-severe]
+                 [1 :life-critical]])
+  (item-message ship :hull-damage
+                100
+                [[0.1 nil]
+                 [0.3 :hull-damage]
+                 [0.8 :hull-severe]
+                 [1 :hull-critical]])
+  (item-message ship :sensor-damage
+                100
+                [[0.1 nil]
+                 [0.3 :sensor-damage]
+                 [0.8 :sensor-severe]
+                 [1 :sensor-critical]])
+  (item-message ship :impulse-damage
+                100
+                [[0.1 nil]
+                 [0.3 :impulse-damage]
+                 [0.8 :impulse-severe]
+                 [1 :impulse-critical]])
+  (item-message ship :warp-damage
+                100
+                [[0.1 nil]
+                 [0.3 :warp-damage]
+                 [0.8 :warp-severe]
+                 [1 :warp-critical]])
+  (item-message ship :weapons-damage
+                100
+                [[0.1 nil]
+                 [0.3 :weapons-damage]
+                 [0.8 :weapons-severe]
+                 [1 :weapons-critical]])
+  (item-message ship :shields glc/ship-shields
+                [[0.2 :shields-critical]
+                 [0.5 :shields-severe]
+                 [0.8 :shields-damaged]
+                 [0.95 :shields-ready]
+                 [1 :shields-charged]])
+  (item-message ship :antimatter glc/ship-antimatter
+                [[0.2 :antimatter-critical]
+                 [0.5 :antimatter-low]
+                 [0.8 :antimatter-high]
+                 [0.95 :antimatter-full]
+                 [1 :antimatter-topped-off]])
+  (item-message ship :dilithium glc/ship-dilithium
+                [[0.2 :dilithium-critical]
+                 [0.5 :dilithium-low]
+                 [0.8 :dilithium-high]
+                 [0.95 :dilithium-full]
+                 [1 :dilithium-topped-off]])
+  (item-message ship :core-temp 100
+                [[0.1 nil]
+                 [0.3 :temp-normal]
+                 [0.5 :temp-high]
+                 [0.8 :temp-severe]
+                 [1 :temp-critical]])
+  (item-message ship :torpedos glc/ship-torpedos
+                [[0.1 :torpedos-critical]
+                 [0.3 :torpedos-low]
+                 [0.5 :torpedos-normal]
+                 [0.8 :torpedos-high]
+                 [1 :torpedos-full]])
+  (item-message ship :kinetics glc/ship-kinetics
+                [[0.1 :kinetics-critical]
+                 [0.3 :kinetics-low]
+                 [0.5 :kinetics-normal]
+                 [0.8 :kinetics-high]
+                 [1 :kinetics-full]])
+)
 
 (defn add-messages! [world]
-  (damage-message (:ship world))
-  (shield-message (:ship world))
-  (resource-message (:ship world))
-  (weapons-message (:ship world)))
+  (ship-messages (:ship world))
+  )
