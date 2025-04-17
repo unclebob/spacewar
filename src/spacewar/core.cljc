@@ -22,7 +22,7 @@
 
 #?(:cljs (enable-console-print!))
 
-(def version "20250401")
+(def version "20250417")
 
 (s/def ::update-time number?)
 (s/def ::transport-check-time number?)
