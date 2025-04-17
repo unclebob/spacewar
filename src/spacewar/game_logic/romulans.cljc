@@ -3,6 +3,7 @@
             [spacewar.game-logic.config :as glc]
             [spacewar.game-logic.explosions :as explosions]
             [spacewar.game-logic.shots :as shots]
+            [spacewar.ui.messages :as messages]
             [spacewar.geometry :as geo]
             [spacewar.vector :as vector]
             [spacewar.util :as util]))
@@ -47,6 +48,8 @@
                        :visible :firing
                        :firing :fading
                        :fading :disappeared)]
+      (when (= next-state :appearing)
+        (messages/send-message :romulan-appearing))
       (assoc romulan :state next-state :age 0 :fire-weapon (= next-state :fading)))
     romulan))
 
@@ -98,7 +101,7 @@
 (defn add-romulan [{:keys [ship romulans] :as world}]
   (if (zero? (:warp ship))
     (let [{:keys [x y]} ship
-          dist (* glc/romulan-appear-distance (- 1.5 (rand 1)))
+          dist (- glc/romulan-appear-distance (* glc/romulan-appear-distance (rand 0.5)))
           angle (rand 360)
           pos (vector/from-angular dist (geo/->radians angle))
           [rx ry] (vector/add [x y] pos)

@@ -71,6 +71,7 @@
      :no-star (msg "No star nearby." 5000)
      :already-deployed (msg "Base already deployed." 5000)
      :insufficient-resources (msg "Insufficient resources." 5000)
+     :romulan-appearing (msg "*******\nRomulan ship appearing!\n*******" 10000)
      )
    )
   )
