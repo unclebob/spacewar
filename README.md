@@ -19,6 +19,8 @@ There are rumors that the Klingon fleet escaped total destruction and that the
 remaining ships are regrouping in Klingon space in order to form an invasion fleet. 
 If so, it won't be long until they arrive in force.
 
+![screenshot](https://github.com/unclebob/spacewar/spacewar.jpg)
+
 ## Your Mission
 
 > Build the _Corbomite_ device and use it to thwart the Klingon invasion!  
