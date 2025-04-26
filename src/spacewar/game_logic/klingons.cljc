@@ -69,19 +69,21 @@
     :blockade))
 
 (defn make-random-klingon []
-  {:x (int (rand glc/known-space-x))
-   :y (int (rand glc/known-space-y))
-   :shields glc/klingon-shields
-   :antimatter (rand glc/klingon-antimatter)
-   :kinetics (rand glc/klingon-kinetics)
-   :torpedos (rand glc/klingon-torpedos)
-   :weapon-charge 0
-   :velocity [(- 2 (rand 4)) (- 2 (rand 4))]
-   :thrust [0 0]
-   :battle-state-age 0
-   :battle-state :no-battle
-   :cruise-state :patrol
-   :mission (random-mission)})
+  (let [thrust glc/klingon-cruise-thrust]
+    {:x (int (rand glc/known-space-x))
+     :y (int (rand glc/known-space-y))
+     :shields glc/klingon-shields
+     :antimatter (rand glc/klingon-antimatter)
+     :kinetics (rand glc/klingon-kinetics)
+     :torpedos (rand glc/klingon-torpedos)
+     :weapon-charge 0
+     :velocity [(- 20 (rand 40)) (- 20 (rand 40))]
+     :thrust [(rand-nth [thrust (- thrust)])
+              (rand-nth [thrust (- thrust)])]
+     :battle-state-age 0
+     :battle-state :no-battle
+     :cruise-state :patrol
+     :mission (random-mission)}))
 
 (defn make-klingon [x y]
   {:x x
