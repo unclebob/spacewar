@@ -256,6 +256,100 @@
           (should= 0 (:kinetics klingon)))))
     )
 
+  (describe "klingon constraints"
+    (context
+      "klingons should not leave federation space except to the north."
+
+      (it "reverses thrust when thrusting past the western edge"
+        (let [west -100
+              east 100
+              beyond-west -10
+              mid-y (/ glc/known-space-y 2)
+              klingon (mom/make-klingon)
+              klingon (mom/set-pos klingon [beyond-west mid-y])
+              klingon (assoc klingon :antimatter glc/klingon-antimatter
+                                     :velocity [west 0]
+                                     :thrust [west 0])
+              new-klingon (k/move-klingon 2 klingon)]
+          (should= [east 0] (:thrust new-klingon))))
+
+      (it "Does not reverse thrust when past the western edge but thrusting east"
+        (let [west -100
+              east 100
+              beyond-west -10
+              mid-y (/ glc/known-space-y 2)
+              klingon (mom/make-klingon)
+              klingon (mom/set-pos klingon [beyond-west mid-y])
+              klingon (assoc klingon :antimatter glc/klingon-antimatter
+                                     :velocity [west 0]
+                                     :thrust [east 0])
+              new-klingon (k/move-klingon 2 klingon)]
+          (should= [east 0] (:thrust new-klingon))))
+
+      (it "reverses thrust when thrusting past the eastern edge"
+        (let [west -100
+              east 100
+              beyond-east (+ 10 glc/known-space-x)
+              mid-y (/ glc/known-space-y 2)
+              klingon (mom/make-klingon)
+              klingon (mom/set-pos klingon [beyond-east mid-y])
+              klingon (assoc klingon :antimatter glc/klingon-antimatter
+                                     :velocity [east 0]
+                                     :thrust [east 0])
+              new-klingon (k/move-klingon 2 klingon)]
+          (should= [west 0] (:thrust new-klingon))))
+
+      (it "Does not reverse thrust when past the eastern edge but thrusting west"
+        (let [west -100
+              east 100
+              beyond-east (+ 10 glc/known-space-x)
+              mid-y (/ glc/known-space-y 2)
+              klingon (mom/make-klingon)
+              klingon (mom/set-pos klingon [beyond-east mid-y])
+              klingon (assoc klingon :antimatter glc/klingon-antimatter
+                                     :velocity [east 0]
+                                     :thrust [west 0])
+              new-klingon (k/move-klingon 2 klingon)]
+          (should= [west 0] (:thrust new-klingon))))
+
+      (it "reverses thrust when thrusting past the southern edge"
+        (let [north -100
+              south 100
+              beyond-south (+ glc/known-space-y 10)
+              mid-x (/ glc/known-space-x 2)
+              klingon (mom/make-klingon)
+              klingon (mom/set-pos klingon [mid-x beyond-south])
+              klingon (assoc klingon :antimatter glc/klingon-antimatter
+                                     :velocity [0 south]
+                                     :thrust [0 south])
+              new-klingon (k/move-klingon 2 klingon)]
+          (should= [0 north] (:thrust new-klingon))))
+
+      (it "Does not reverse thrust when past the southern edge but thrusting north"
+        (let [north -100
+              south 100
+              beyond-south (+ glc/known-space-y 10)
+              mid-x (/ glc/known-space-x 2)
+              klingon (mom/make-klingon)
+              klingon (mom/set-pos klingon [mid-x beyond-south])
+              klingon (assoc klingon :antimatter glc/klingon-antimatter
+                                     :velocity [0 south]
+                                     :thrust [0 north])
+              new-klingon (k/move-klingon 2 klingon)]
+          (should= [0 north] (:thrust new-klingon))))
+
+      (it "does not reverse thrust when past the northern edge"
+        (let [north -100
+              beyond-north -10
+              mid-x (/ glc/known-space-x 2)
+              klingon (mom/make-klingon)
+              klingon (mom/set-pos klingon [mid-x beyond-north])
+              klingon (assoc klingon :antimatter glc/klingon-antimatter
+                                     :velocity [0 north]
+                                     :thrust [0 north])
+              new-klingon (k/move-klingon 2 klingon)]
+          (should= [0 north] (:thrust new-klingon))))))
+
   (describe "klingon battle motion"
     (it "thrusts appropriately in battle states"
       (doseq [battle-state [:advancing :retreating :flank-right :flank-left]]
@@ -322,30 +416,30 @@
         (should= :cruise (k/super-state klingon ship))))
 
     (it "refuels at nearest antimatter star"
-              (let [ship (assoc @ship :x 1e7 :y 1e7)
-                    star1 (mom/make-star 100 100 :o)
-                    star2 (mom/make-star 20 0 :g)
-                    star3 (mom/make-star 0 200 :o)
-                    klingon-hi (assoc @klingon :cruise-state :refuel :antimatter glc/klingon-antimatter :id :hi)
-                    klingon-low (assoc @klingon :cruise-state :refuel :antimatter (/ glc/klingon-antimatter 20) :id :low)
-                    world (assoc @world :stars [star1 star2 star3] :klingons [klingon-hi klingon-low] :ship ship)
-                    world (k/cruise-klingons world)
-                    klingons (group-by :id (:klingons world))
-                    klingon-hi (first (:hi klingons))
-                    klingon-low (first (:low klingons))
-                    thrust (* (Math/sqrt 2) 0.5 glc/klingon-cruise-thrust)
-                    thrust-angle-low (geo/angle-degrees [0 0] (:thrust klingon-low))
-                    thrust-angle-hi (geo/angle-degrees [0 0] (:thrust klingon-hi))
-                    angle-to-g-star 0
-                    angle-to-near-o-star 45]
-                (should (ut/roughly-v [thrust thrust] (:thrust klingon-hi)))
-                (should (ut/roughly-v [glc/klingon-cruise-thrust 0] (:thrust klingon-low)))
-                (should= :cruise (k/super-state klingon-hi ship))
-                (should= :cruise (k/super-state klingon-low ship))
-                (should (ut/roughly= angle-to-g-star thrust-angle-low))
-                (should (ut/roughly= angle-to-near-o-star thrust-angle-hi))
-                )
-              )
+      (let [ship (assoc @ship :x 1e7 :y 1e7)
+            star1 (mom/make-star 100 100 :o)
+            star2 (mom/make-star 20 0 :g)
+            star3 (mom/make-star 0 200 :o)
+            klingon-hi (assoc @klingon :cruise-state :refuel :antimatter glc/klingon-antimatter :id :hi)
+            klingon-low (assoc @klingon :cruise-state :refuel :antimatter (/ glc/klingon-antimatter 20) :id :low)
+            world (assoc @world :stars [star1 star2 star3] :klingons [klingon-hi klingon-low] :ship ship)
+            world (k/cruise-klingons world)
+            klingons (group-by :id (:klingons world))
+            klingon-hi (first (:hi klingons))
+            klingon-low (first (:low klingons))
+            thrust (* (Math/sqrt 2) 0.5 glc/klingon-cruise-thrust)
+            thrust-angle-low (geo/angle-degrees [0 0] (:thrust klingon-low))
+            thrust-angle-hi (geo/angle-degrees [0 0] (:thrust klingon-hi))
+            angle-to-g-star 0
+            angle-to-near-o-star 45]
+        (should (ut/roughly-v [thrust thrust] (:thrust klingon-hi)))
+        (should (ut/roughly-v [glc/klingon-cruise-thrust 0] (:thrust klingon-low)))
+        (should= :cruise (k/super-state klingon-hi ship))
+        (should= :cruise (k/super-state klingon-low ship))
+        (should (ut/roughly= angle-to-g-star thrust-angle-low))
+        (should (ut/roughly= angle-to-near-o-star thrust-angle-hi))
+        )
+      )
 
     (context "refuels at nearest antimatter source"
       (it "base is closest"
@@ -362,18 +456,18 @@
           (should= :cruise (k/super-state klingon ship))))
 
       (it "Type :o star is closest"
-              (let [ship (assoc @ship :x 1e7 :y 1e7)
-                    star1 (mom/make-star 100 100 :o)
-                    star2 (mom/make-star 20 0 :g)
-                    star3 (mom/make-star 0 200 :o)
-                    base (mom/make-base 200 0 :antimatter-factory 0 0)
-                    klingon (assoc @klingon :cruise-state :refuel)
-                    world (assoc @world :stars [star1 star2 star3] :klingons [klingon] :ship ship :bases [base])
-                    world (k/cruise-klingons world)
-                    klingon (-> world :klingons first)]
-                (prn (:thrust klingon))
-                (should (ut/roughly= 45 (geo/angle-degrees [0 0] (:thrust klingon))))
-                (should= :cruise (k/super-state klingon ship))))
+        (let [ship (assoc @ship :x 1e7 :y 1e7)
+              star1 (mom/make-star 100 100 :o)
+              star2 (mom/make-star 20 0 :g)
+              star3 (mom/make-star 0 200 :o)
+              base (mom/make-base 200 0 :antimatter-factory 0 0)
+              klingon (assoc @klingon :cruise-state :refuel)
+              world (assoc @world :stars [star1 star2 star3] :klingons [klingon] :ship ship :bases [base])
+              world (k/cruise-klingons world)
+              klingon (-> world :klingons first)]
+          (prn (:thrust klingon))
+          (should (ut/roughly= 45 (geo/angle-degrees [0 0] (:thrust klingon))))
+          (should= :cruise (k/super-state klingon ship))))
 
       )
 

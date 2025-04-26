@@ -382,11 +382,26 @@
             antimatter (- antimatter thrusting-antimatter)]
         (assoc klingon :velocity velocity :antimatter antimatter)))))
 
-(defn- move-klingon [ms klingon]
-  (let [{:keys [x y velocity]} klingon
+(defn- reverse-thrust-if-out-of-bounds [thrust pos]
+  (cond
+    (and (neg? (first pos)) (neg? (first thrust)))
+    [(- (first thrust)) (second thrust)]
+
+    (and (> (first pos) glc/known-space-x) (pos? (first thrust)))
+    [(- (first thrust)) (second thrust)]
+
+    (and (> (second pos) glc/known-space-y) (pos? (second thrust)))
+    [(first thrust) (- (second thrust))]
+
+    :else thrust
+    ))
+
+(defn move-klingon [ms klingon]
+  (let [{:keys [x y velocity thrust]} klingon
         delta-v (vector/scale ms velocity)
-        pos (vector/add delta-v [x y])]
-    (assoc klingon :x (first pos) :y (second pos)))
+        pos (vector/add delta-v [x y])
+        thrust (reverse-thrust-if-out-of-bounds thrust pos)]
+    (assoc klingon :x (first pos) :y (second pos) :thrust thrust))
   )
 
 (defn calc-drag [ms]

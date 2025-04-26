@@ -80,7 +80,7 @@
   (draw [_] (draw-light-panel state))
 
   (setup [_]
-    (let [rows 10
+    (let [rows 7
           columns 2
           indicators (build-indicators
                        (assoc state :rows rows
@@ -152,7 +152,7 @@
                                             :h bottom-lights-h
                                             :w bottom-lights-width}))
 
-          side-panel-height (/ frame-height 2.5)
+          side-panel-height (/ frame-height 3.5)
           side-panel-width 120
           side-panel-y (+ y (/ frame-height 5))
           left-lights (p/setup
