@@ -270,5 +270,8 @@ Klingons will resume their agressive behavior.
   On the desktop, the game is saved in a file named: `spacewar.world`.  You can rename this file if you want to
   set the current game aside and start a new one.  You bring a set-aside game back by
   renaming it to `spacewar.world`.  
-   
+
+## Starting a local javascript instance.
+    `clj -M:cljs;open index.html`
+    
  
